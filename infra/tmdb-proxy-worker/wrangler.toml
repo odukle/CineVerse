@@ -1,0 +1,6 @@
+name = "cineverse-tmdb-proxy"
+main = "src/index.js"
+compatibility_date = "2026-05-05"
+
+[vars]
+TMDB_BASE_URL = "https://api.themoviedb.org/3"

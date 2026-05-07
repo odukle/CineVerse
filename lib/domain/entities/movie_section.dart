@@ -1,0 +1,16 @@
+enum MovieSection {
+  discover,
+  trendingDay,
+  trendingWeek,
+  popular,
+  topRated,
+  nowPlaying,
+  upcoming,
+  tvPopular,
+  tvTopRated,
+  tvOnTheAir,
+  tvAiringToday,
+  action,
+  drama,
+  thriller,
+}

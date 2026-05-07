@@ -1,0 +1,104 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Android local configuration
+android/local.properties
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Signing keys & certificates (sensitive)
+*.key
+*.jks
+*.keystore
+*.p12
+*.pfx
+
+# Build artifacts & release binaries
+*.apk
+*.aab
+*.ipa
+*.app
+*.dill
+*.kernel
+*.snapshot
+*.tar.gz
+*.exe
+*.msi
+*.dll
+
+# iOS specific
+ios/.symlinks/
+ios/Pods/
+
+# OS-specific files
+Thumbs.db
+desktop.ini
+*.tmp
+*.temp
+*~
+
+# Python-related (for gen_sound.py)
+__pycache__/
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+
+# Cloudflare Worker (infra/tmdb-proxy-worker/)
+infra/tmdb-proxy-worker/.wrangler/
+infra/**/node_modules/
+
+# Debug/Profile files
+*.trace
+*.trace.json
+*.perf
+
+# Sensitive configuration
+config/api_keys.json
