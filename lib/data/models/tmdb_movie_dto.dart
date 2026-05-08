@@ -7,6 +7,7 @@ class TmdbMovieDto {
     required this.title,
     this.posterPath,
     this.releaseDate,
+    this.voteAverage,
   });
 
   factory TmdbMovieDto.fromJson(Map<String, dynamic> json) {
@@ -21,6 +22,7 @@ class TmdbMovieDto {
       releaseDate:
           (json['release_date'] as String?) ??
           (json['first_air_date'] as String?),
+      voteAverage: (json['vote_average'] as num?)?.toDouble(),
     );
   }
 
@@ -28,6 +30,7 @@ class TmdbMovieDto {
   final String title;
   final String? posterPath;
   final String? releaseDate;
+  final double? voteAverage;
 
   MediaTitle toDomain() {
     return MediaTitle(
@@ -35,6 +38,7 @@ class TmdbMovieDto {
       title: title,
       posterPath: posterPath,
       releaseDate: releaseDate,
+      voteAverage: voteAverage,
     );
   }
 

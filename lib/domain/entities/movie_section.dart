@@ -11,6 +11,8 @@ enum MovieSection {
   tvOnTheAir,
   tvAiringToday,
   tvDiscover,
+  tvTrendingDay,
+  tvTrendingWeek,
   action,
   drama,
   thriller,

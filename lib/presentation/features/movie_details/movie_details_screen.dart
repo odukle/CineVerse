@@ -12,6 +12,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cineverse/app/router/app_router.dart' show AppRoute;
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class MovieDetailsScreen extends ConsumerWidget {
   const MovieDetailsScreen({
@@ -93,9 +95,7 @@ class _MovieDetailsView extends StatelessWidget {
     final String? backdropUrl = details.backdropPath ?? details.posterPath;
     final String? releaseYear = _extractYear(details.releaseDate);
     final int? scorePercent = _catalogScorePercent(details.catalogScore);
-    final List<MovieRating> externalRatings = details.externalRatings
-        .take(2)
-        .toList(growable: false);
+    final List<MovieRating> externalRatings = details.externalRatings;
     final List<MovieCredit> featuredCrew = _getFeaturedCrew(details.crew);
     final MovieWatchAvailability? watchAvailability = details.watchAvailability;
     final bool hasWatchAvailability = watchAvailability?.hasProviders ?? false;
@@ -123,7 +123,7 @@ class _MovieDetailsView extends StatelessWidget {
             title: SizedBox(
               height: 28,
               child: SvgPicture.asset(
-                'logo.svg',
+                'assets/logos/logo.svg',
                 fit: BoxFit.contain,
                 semanticsLabel: AppConstants.appName,
               ),
@@ -328,17 +328,23 @@ class _MovieDetailsView extends StatelessWidget {
                     ),
                     const SizedBox(width: 16),
                     TextButton.icon(
-                      onPressed: null,
+                      onPressed: details.trailerYouTubeKey == null
+                          ? null
+                          : () => _showTrailer(context, details.trailerYouTubeKey!),
                       iconAlignment: IconAlignment.start,
                       icon: Icon(
                         Icons.play_arrow_rounded,
-                        color: Colors.white.withValues(alpha: 0.5),
+                        color: details.trailerYouTubeKey == null
+                            ? Colors.white.withValues(alpha: 0.2)
+                            : Colors.white,
                         size: 24,
                       ),
                       label: Text(
                         'Play Trailer',
                         style: theme.textTheme.titleSmall?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.5),
+                          color: details.trailerYouTubeKey == null
+                              ? Colors.white.withValues(alpha: 0.4)
+                              : Colors.white,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -572,6 +578,19 @@ class _MovieDetailsView extends StatelessWidget {
     );
   }
 
+  void _showTrailer(BuildContext context, String videoKey) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black.withValues(alpha: 0.85),
+      builder: (context) => Dialog(
+        insetPadding: EdgeInsets.zero,
+        backgroundColor: Colors.black,
+        alignment: Alignment.topCenter,
+        child: _TrailerPlayer(videoKey: videoKey),
+      ),
+    );
+  }
+
   String? _extractYear(String? releaseDate) {
     if (releaseDate == null || releaseDate.length < 4) return null;
     return releaseDate.substring(0, 4);
@@ -681,6 +700,7 @@ class _ExternalRatingsRow extends StatelessWidget {
       'Rotten Tomatoes',
     );
     final MovieRating? imdb = _ratingForSource(ratings, 'IMDb');
+    final MovieRating? metacritic = _ratingForSource(ratings, 'Metacritic');
     final List<Widget> chips = <Widget>[];
 
     if (rottenTomatoes != null) {
@@ -688,13 +708,29 @@ class _ExternalRatingsRow extends StatelessWidget {
         _ExternalRatingChip(
           value: _normalizeExternalRatingValue(rottenTomatoes.value) ?? 'NA',
           sourceIcon: _TomatoIcon(),
+          url: rottenTomatoes.url,
         ),
       );
     }
 
     if (imdb != null) {
       chips.add(
-        _ExternalRatingChip(value: imdb.value, sourceIcon: _ImdbIcon()),
+        _ExternalRatingChip(
+          value: imdb.value,
+          sourceIcon: _ImdbIcon(),
+          url: imdb.url,
+        ),
+      );
+    }
+
+    if (metacritic != null) {
+      chips.add(
+        _ExternalRatingChip(
+          value: _normalizeExternalRatingValue(metacritic.value) ??
+              metacritic.value,
+          sourceIcon: _MetacriticIcon(value: metacritic.value),
+          url: metacritic.url,
+        ),
       );
     }
 
@@ -718,33 +754,57 @@ MovieRating? _ratingForSource(List<MovieRating> ratings, String source) {
 }
 
 class _ExternalRatingChip extends StatelessWidget {
-  const _ExternalRatingChip({required this.value, required this.sourceIcon});
+  const _ExternalRatingChip({
+    required this.value,
+    required this.sourceIcon,
+    this.url,
+  });
 
   final String value;
   final Widget sourceIcon;
+  final String? url;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppColors.detailsCard.withValues(alpha: 0.7),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          sourceIcon,
-          const SizedBox(width: 8),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-            ),
+    return Material(
+      color: AppColors.detailsCard.withValues(alpha: 0.7),
+      borderRadius: BorderRadius.circular(999),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: url == null
+            ? null
+            : () async {
+                final Uri uri = Uri.parse(url!);
+                try {
+                  await launchUrl(uri, mode: LaunchMode.externalApplication);
+                } catch (e) {
+                  debugPrint('Could not launch $url: $e');
+                }
+              },
+        child: Container(
+          height: 34,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            borderRadius: BorderRadius.circular(999),
           ),
-        ],
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              sourceIcon,
+              const SizedBox(width: 8),
+              Text(
+                value,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      height: 1,
+                    ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -753,34 +813,38 @@ class _ExternalRatingChip extends StatelessWidget {
 class _TomatoIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return const Text('🍅', style: TextStyle(fontSize: 16));
+    return SvgPicture.asset(
+      'assets/logos/Rotten_Tomatoes.svg',
+      height: 18,
+      fit: BoxFit.contain,
+    );
+  }
+}
+
+class _MetacriticIcon extends StatelessWidget {
+  const _MetacriticIcon({required this.value});
+
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return SvgPicture.asset(
+      'assets/logos/Metacritic_logo.svg',
+      height: 16,
+      fit: BoxFit.contain,
+    );
   }
 }
 
 class _ImdbIcon extends StatelessWidget {
+  const _ImdbIcon();
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 28,
-      height: 22,
-      decoration: BoxDecoration(
-        color: const Color(0xFF111111),
-        borderRadius: BorderRadius.circular(5),
-        border: Border.all(
-          color: const Color(0xFFF5C518).withValues(alpha: 0.85),
-        ),
-      ),
-      alignment: Alignment.center,
-      child: Text(
-        'IMDb',
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: const Color(0xFFF5C518),
-          fontWeight: FontWeight.w900,
-          height: 1,
-          fontSize: 9,
-          letterSpacing: 0.2,
-        ),
-      ),
+    return SvgPicture.asset(
+      'assets/logos/IMDB_Logo.svg',
+      height: 14,
+      fit: BoxFit.contain,
     );
   }
 }
@@ -792,7 +856,16 @@ String? _normalizeExternalRatingValue(String rawValue) {
     return '${percentMatch.group(1)}%';
   }
 
-  final RegExp tenPointPattern = RegExp(r'(\d+(?:\.\d+)?)\s*/\s*10');
+  // Check for 100-point scale first (e.g., Metacritic) to avoid partial matches with 10-point scale
+  final RegExp hundredPointPattern = RegExp(r'(\d{1,3})\s*/\s*100');
+  final Match? hundredPointMatch = hundredPointPattern.firstMatch(rawValue);
+  if (hundredPointMatch != null) {
+    return '${hundredPointMatch.group(1)}%';
+  }
+
+  // Check for 10-point scale (e.g., IMDb)
+  // Ensure it's exactly /10 and not /100 by checking the boundary
+  final RegExp tenPointPattern = RegExp(r'(\d+(?:\.\d+)?)\s*/\s*10(?!\d)');
   final Match? tenPointMatch = tenPointPattern.firstMatch(rawValue);
   if (tenPointMatch != null) {
     final double? parsedValue = double.tryParse(tenPointMatch.group(1)!);
@@ -1354,6 +1427,96 @@ class _InfoRow extends StatelessWidget {
               color: Colors.white.withValues(alpha: 0.75),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+class _TrailerPlayer extends StatefulWidget {
+  const _TrailerPlayer({required this.videoKey});
+
+  final String videoKey;
+
+  @override
+  State<_TrailerPlayer> createState() => _TrailerPlayerState();
+}
+
+class _TrailerPlayerState extends State<_TrailerPlayer> {
+  late YoutubePlayerController _controller;
+  bool _isPlayerReady = false;
+
+  @override
+  void initState() {
+    super.initState();
+    debugPrint('[TrailerPlayer] Initializing with key: ${widget.videoKey}');
+    _controller = YoutubePlayerController(
+      initialVideoId: widget.videoKey,
+      flags: const YoutubePlayerFlags(
+        autoPlay: true,
+        mute: false,
+        enableCaption: true,
+        isLive: false,
+        forceHD: false,
+      ),
+    )..addListener(_onPlayerStateChange);
+  }
+
+  void _onPlayerStateChange() {
+    if (mounted && _controller.value.isReady && !_isPlayerReady) {
+      setState(() {
+        _isPlayerReady = true;
+      });
+    }
+    if (_controller.value.hasError) {
+      debugPrint('[TrailerPlayer] Error: ${_controller.value.errorCode}');
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_onPlayerStateChange);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.black,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SafeArea(
+            bottom: false,
+            child: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white),
+                  onPressed: () => Navigator.pop(context),
+                ),
+                const Text(
+                  'Trailer',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          YoutubePlayer(
+            controller: _controller,
+            showVideoProgressIndicator: true,
+            progressIndicatorColor: AppColors.cinemaScoreRing,
+            onReady: () {
+              debugPrint('[TrailerPlayer] Player is ready');
+              _isPlayerReady = true;
+            },
+            onEnded: (data) {
+              Navigator.pop(context);
+            },
+          ),
+          const SizedBox(height: 8),
         ],
       ),
     );

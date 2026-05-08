@@ -22,6 +22,8 @@ class MovieDetails {
     this.voteCount,
     this.recommendations = const <MovieRecommendation>[],
     this.watchAvailability,
+    this.imdbId,
+    this.trailerYouTubeKey,
   });
 
   final int id;
@@ -46,6 +48,8 @@ class MovieDetails {
   final int? voteCount;
   final List<MovieRecommendation> recommendations;
   final MovieWatchAvailability? watchAvailability;
+  final String? imdbId;
+  final String? trailerYouTubeKey;
 
   MovieDetails copyWith({
     List<MovieRating>? externalRatings,
@@ -74,6 +78,8 @@ class MovieDetails {
       voteCount: voteCount,
       recommendations: recommendations,
       watchAvailability: watchAvailability ?? this.watchAvailability,
+      imdbId: imdbId,
+      trailerYouTubeKey: trailerYouTubeKey,
     );
   }
 }
@@ -93,10 +99,11 @@ class MovieCredit {
 }
 
 class MovieRating {
-  const MovieRating({required this.source, required this.value});
+  const MovieRating({required this.source, required this.value, this.url});
 
   final String source;
   final String value;
+  final String? url;
 }
 
 class MovieRecommendation {

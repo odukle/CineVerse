@@ -12,7 +12,9 @@ class MoviesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
-    final MediaFilterOption selectedFilter = ref.watch(selectedMovieFilterProvider);
+    final MediaFilterOption selectedFilter = ref.watch(
+      selectedMovieFilterProvider,
+    );
     final bool isFiltering = ref.watch(isFilteringProvider);
     final AsyncValue<List<MediaTitle>> movies = ref.watch(
       movieSectionProvider(selectedFilter.section),
@@ -32,85 +34,87 @@ class MoviesScreen extends ConsumerWidget {
           colors: AppColors.cinemaGradient,
         ),
       ),
-      child: isFiltering 
-        ? const Center(child: CircularProgressIndicator(color: AppColors.cinemaAccent))
-        : movies.when(
-            skipLoadingOnReload: true,
-            loading: () => const Center(child: CircularProgressIndicator()),
-        error: (Object error, StackTrace stackTrace) => Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Text(
-              'Could not load movies. $error',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.error,
-              ),
-            ),
-          ),
-        ),
-        data: (List<MediaTitle> data) {
-          if (data.isEmpty) {
-            return Center(
-              child: Text(
-                'No movies available right now.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.72),
+      child: isFiltering
+          ? const Center(
+              child: CircularProgressIndicator(color: AppColors.cinemaAccent),
+            )
+          : movies.when(
+              skipLoadingOnReload: true,
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (Object error, StackTrace stackTrace) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  child: Text(
+                    'Could not load movies. $error',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.error,
+                    ),
+                  ),
                 ),
               ),
-            );
-          }
-
-          const double horizontalPadding = 16;
-          const double crossAxisSpacing = 10;
-          const double mainAxisSpacing = 16;
-          const int crossAxisCount = 3;
-          final double availableCardWidth =
-              (MediaQuery.sizeOf(context).width -
-                  (horizontalPadding * 2) -
-                  (crossAxisSpacing * 2)) /
-              crossAxisCount;
-          final double cardWidth = availableCardWidth > 108
-              ? 108
-              : availableCardWidth;
-
-          return NotificationListener<ScrollNotification>(
-            onNotification: (ScrollNotification scrollInfo) {
-              if (scrollInfo.metrics.pixels >=
-                  scrollInfo.metrics.maxScrollExtent - 200) {
-                loadNextPages(ref, selectedFilter.section);
-              }
-              return false;
-            },
-            child: GridView.builder(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                crossAxisSpacing: crossAxisSpacing,
-                mainAxisSpacing: mainAxisSpacing,
-                mainAxisExtent: 246,
-              ),
-              itemCount: data.length + 1,
-              itemBuilder: (context, index) {
-                if (index == data.length) {
-                  return const Center(
-                    child: CircularProgressIndicator(),
+              data: (List<MediaTitle> data) {
+                if (data.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'No movies available right now.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.72),
+                      ),
+                    ),
                   );
                 }
 
-                final MediaTitle movie = data[index];
-                return Center(
-                  child: MediaPosterGridCard(
-                    movie: movie,
-                    sectionTitle: selectedFilter.label,
-                    width: cardWidth,
+                const double horizontalPadding = 16;
+                const double crossAxisSpacing = 10;
+                const double mainAxisSpacing = 16;
+                const int crossAxisCount = 3;
+                final double availableCardWidth =
+                    (MediaQuery.sizeOf(context).width -
+                        (horizontalPadding * 2) -
+                        (crossAxisSpacing * 2)) /
+                    crossAxisCount;
+                final double cardWidth = availableCardWidth > 108
+                    ? 108
+                    : availableCardWidth;
+
+                return NotificationListener<ScrollNotification>(
+                  onNotification: (ScrollNotification scrollInfo) {
+                    if (scrollInfo.metrics.pixels >=
+                        scrollInfo.metrics.maxScrollExtent - 200) {
+                      loadNextPages(ref, selectedFilter.section);
+                    }
+                    return false;
+                  },
+                  child: GridView.builder(
+                    cacheExtent: 1000,
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: crossAxisSpacing,
+                          mainAxisSpacing: mainAxisSpacing,
+                          mainAxisExtent: 246,
+                        ),
+                    itemCount: data.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == data.length) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      final MediaTitle movie = data[index];
+                      return Center(
+                        child: MediaPosterGridCard(
+                          movie: movie,
+                          sectionTitle: selectedFilter.label,
+                          width: cardWidth,
+                        ),
+                      );
+                    },
                   ),
                 );
               },
             ),
-          );
-        },
-      ),
     );
   }
 }

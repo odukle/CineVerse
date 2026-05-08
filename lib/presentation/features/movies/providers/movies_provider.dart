@@ -7,6 +7,7 @@ import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/domain/usecases/get_movie_section_use_case.dart';
 import 'package:cineverse/domain/usecases/discover_media_use_case.dart';
 import 'package:cineverse/presentation/features/movies/providers/filter_provider.dart';
+import 'package:cineverse/presentation/features/movies/providers/explore_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -53,7 +54,7 @@ final getMovieSectionUseCaseProvider = Provider<GetMovieSectionUseCase>((ref) {
 });
 
 typedef _SectionCacheKey = ({String regionCode, MovieSection section});
-typedef _GenreCacheKey = ({String regionCode, int genreId});
+typedef _GenreCacheKey = ({String regionCode, int genreId, bool isTv});
 
 final Map<_SectionCacheKey, List<MediaTitle>> _movieSectionCache = {};
 final Map<_SectionCacheKey, int> _loadedPagesCache = {};
@@ -98,16 +99,17 @@ void loadNextPages(WidgetRef ref, MovieSection section) {
   ref.invalidate(movieSectionProvider(section));
 }
 
-void loadNextGenrePages(WidgetRef ref, int genreId) {
+void loadNextGenrePages(WidgetRef ref, int genreId, {bool isTv = false}) {
   final _GenreCacheKey cacheKey = (
     regionCode: ref.read(preferredRegionCodeProvider),
     genreId: genreId,
+    isTv: isTv,
   );
   if (_genreFetchingCache[cacheKey] == true) {
     return;
   }
   _genreTargetPages[cacheKey] = _getGenreTargetPage(cacheKey) + 2;
-  ref.invalidate(genreSectionProvider(genreId));
+  ref.invalidate(genreSectionProvider((id: genreId, isTv: isTv)));
 }
 
 void resetMovieSection(WidgetRef ref, MovieSection section) {
@@ -202,11 +204,12 @@ final movieSectionProvider =
     });
 
 final genreSectionProvider =
-    FutureProvider.family<List<MediaTitle>, int>((ref, genreId) async {
+    FutureProvider.family<List<MediaTitle>, ({int id, bool isTv})>((ref, params) async {
       final String regionCode = ref.watch(preferredRegionCodeProvider);
       final _GenreCacheKey cacheKey = (
         regionCode: regionCode,
-        genreId: genreId,
+        genreId: params.id,
+        isTv: params.isTv,
       );
       final int targetPage = _getGenreTargetPage(cacheKey);
 
@@ -221,12 +224,13 @@ final genreSectionProvider =
         _genreFetchingCache[cacheKey] = true;
         for (int i = startPage; i <= targetPage; i++) {
           try {
-            final List<MediaTitle> pageResults = await repository
-                .fetchMoviesForGenre(genreId, page: i);
+            final List<MediaTitle> pageResults = params.isTv 
+                ? await repository.fetchTvShowsForGenre(params.id, page: i)
+                : await repository.fetchMoviesForGenre(params.id, page: i);
             results.addAll(pageResults);
             _genreLoadedPagesCache[cacheKey] = i;
           } catch (error, stackTrace) {
-            debugPrint('[genreSectionProvider:$genreId:$i] $error');
+            debugPrint('[genreSectionProvider:${params.id}:$i] $error');
             debugPrintStack(stackTrace: stackTrace);
             if (i == 1 && results.isEmpty) {
               _genreFetchingCache[cacheKey] = false;
@@ -251,8 +255,11 @@ final genreSectionProvider =
     });
 
 final discoverPoolProvider = FutureProvider<List<MediaTitle>>((ref) async {
+  final mediaType = ref.watch(exploreMediaTypeProvider);
+  final section = mediaType == ExploreMediaType.movie ? MovieSection.discover : MovieSection.tvDiscover;
+  
   final AsyncValue<List<MediaTitle>> discoverState = ref.watch(
-    movieSectionProvider(MovieSection.discover),
+    movieSectionProvider(section),
   );
   final List<MediaTitle> discoverMovies = discoverState.value ?? [];
 
@@ -269,7 +276,9 @@ final discoverPoolProvider = FutureProvider<List<MediaTitle>>((ref) async {
 });
 
 final moviesProvider = Provider<AsyncValue<List<MediaTitle>>>((ref) {
-  return ref.watch(movieSectionProvider(MovieSection.discover));
+  final mediaType = ref.watch(exploreMediaTypeProvider);
+  final section = mediaType == ExploreMediaType.movie ? MovieSection.discover : MovieSection.tvDiscover;
+  return ref.watch(movieSectionProvider(section));
 });
 
 final mediaImagesProvider =
@@ -280,4 +289,3 @@ final mediaImagesProvider =
   final repository = ref.watch(mediaRepositoryProvider);
   return repository.fetchMediaImages(params.id, isTv: params.isTv);
 });
-

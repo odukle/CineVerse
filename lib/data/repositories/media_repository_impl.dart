@@ -58,6 +58,21 @@ class MediaRepositoryImpl implements MediaRepository {
   }
 
   @override
+  Future<List<MediaTitle>> fetchTvShowsForGenre(
+    int genreId, {
+    int page = 1,
+  }) async {
+    final movieDtos = await remoteDataSource.fetchTvShowsForGenre(
+      genreId,
+      page: page,
+    );
+
+    return movieDtos
+        .map((movieDto) => movieDto.toDomain())
+        .toList(growable: false);
+  }
+
+  @override
   Future<List<MediaTitle>> fetchMoviesForSection(MovieSection section) async {
     return fetchMoviesForSectionPage(section);
   }
@@ -113,7 +128,11 @@ class MediaRepositoryImpl implements MediaRepository {
     try {
       final omdbRatingsDto = await omdbApiClient.fetchMovieRatings(imdbId);
       return baseDetails.copyWith(
-        externalRatings: omdbRatingsDto?.toDomain() ?? const <MovieRating>[],
+        externalRatings: omdbRatingsDto?.toDomain(
+              imdbId: imdbId,
+              title: baseDetails.title,
+            ) ??
+            const <MovieRating>[],
       );
     } on OmdbApiException catch (error) {
       debugPrint('[MovieDetails] OMDb ratings unavailable for $imdbId: $error');

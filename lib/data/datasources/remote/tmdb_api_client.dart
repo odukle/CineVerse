@@ -99,6 +99,23 @@ class TmdbApiClient {
     );
   }
 
+  Future<TmdbMoviesResponseDto> fetchTvShowsForGenre(
+    int genreId, {
+    int page = 1,
+  }) {
+    return _getMovies(
+      operation: 'fetchTvShowsForGenre($genreId)',
+      path: AppConstants.tmdbDiscoverTvPath,
+      queryParameters: <String, dynamic>{
+        ..._pagedQueryParameters(page: page),
+        'include_adult': false,
+        'sort_by': 'popularity.desc',
+        'with_genres': genreId,
+        'vote_count.gte': 100,
+      },
+    );
+  }
+
   Future<TmdbMoviesResponseDto> fetchMoviesForSection(
     MovieSection section, {
     int page = 1,
@@ -206,8 +223,8 @@ class TmdbApiClient {
         ? '${AppConstants.tmdbTvPath}/$mediaId'
         : '${AppConstants.tmdbMoviePath}/$mediaId';
     final String appendToResponse = isTv
-        ? 'credits,content_ratings,external_ids,recommendations,watch/providers'
-        : 'credits,release_dates,external_ids,recommendations,watch/providers';
+        ? 'credits,content_ratings,external_ids,recommendations,watch/providers,videos'
+        : 'credits,release_dates,external_ids,recommendations,watch/providers,videos';
 
     final Response<Map<String, dynamic>> response = await client
         .get<Map<String, dynamic>>(
@@ -515,6 +532,20 @@ class TmdbApiClient {
           ..._pagedQueryParameters(page: page),
           'include_adult': false,
           'sort_by': 'popularity.desc',
+        },
+      ),
+      MovieSection.tvTrendingDay => (
+        path: '/trending/tv/day',
+        queryParameters: <String, dynamic>{
+          ..._detailQueryParameters(),
+          'page': page,
+        },
+      ),
+      MovieSection.tvTrendingWeek => (
+        path: '/trending/tv/week',
+        queryParameters: <String, dynamic>{
+          ..._detailQueryParameters(),
+          'page': page,
         },
       ),
       MovieSection.action => _genreRequest(_actionGenreId, page: page),

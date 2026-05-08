@@ -5,6 +5,7 @@ import 'package:cineverse/presentation/features/home/tv_shows_screen.dart';
 import 'package:cineverse/presentation/features/movie_details/movie_details_screen.dart';
 import 'package:cineverse/presentation/features/movies/explore_screen.dart';
 import 'package:cineverse/presentation/features/movies/widgets/filter_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -12,9 +13,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: AppRoute.explore.path,
     routes: [
-      StatefulShellRoute.indexedStack(
+      StatefulShellRoute(
         builder: (context, state, navigationShell) {
           return HomeScaffold(navigationShell: navigationShell);
+        },
+        navigatorContainerBuilder: (context, navigationShell, children) {
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 400),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 0.01),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
+              );
+            },
+            child: children[navigationShell.currentIndex],
+          );
         },
         branches: [
           StatefulShellBranch(
@@ -80,7 +101,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
-
 
 enum AppRoute {
   explore('/explore', 'explore'),

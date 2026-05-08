@@ -86,7 +86,7 @@ void main() {
             ).overrideWith((ref) async => entry.value),
           movieGenresProvider.overrideWith((ref) async => genres),
           for (final int genreId in <int>[28, 18, 53, 35, 80, 10751])
-            genreSectionProvider(genreId).overrideWith(
+            genreSectionProvider((id: genreId, isTv: false)).overrideWith(
               (ref) async => buildMovies('Genre $genreId Movie', genreId),
             ),
           discoverPoolProvider.overrideWith((ref) async => discoverPool),
@@ -223,7 +223,7 @@ void main() {
             ],
           ),
           for (final int genreId in <int>[28, 18, 53, 35, 80, 10751])
-            genreSectionProvider(genreId).overrideWith(
+            genreSectionProvider((id: genreId, isTv: false)).overrideWith(
               (ref) async => buildMovies('Genre $genreId Movie', genreId),
             ),
           discoverPoolProvider.overrideWith(
@@ -331,7 +331,7 @@ void main() {
             ],
           ),
           for (final int genreId in <int>[28, 18, 53, 35, 80, 10751])
-            genreSectionProvider(genreId).overrideWith(
+            genreSectionProvider((id: genreId, isTv: false)).overrideWith(
               (ref) async => buildMovies('Genre $genreId Movie', genreId),
             ),
           discoverPoolProvider.overrideWith((ref) async => discoverPool),

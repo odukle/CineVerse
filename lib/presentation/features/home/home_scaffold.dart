@@ -1,6 +1,7 @@
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/constants/app_constants.dart';
 import 'package:cineverse/presentation/features/home/app_bottom_navigation_bar.dart';
+import 'package:cineverse/presentation/features/home/widgets/explore_media_type_toggle.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,17 +10,15 @@ import 'package:cineverse/app/router/app_router.dart' show AppRoute;
 import 'package:go_router/go_router.dart';
 
 class HomeScaffold extends ConsumerWidget {
-  const HomeScaffold({
-    required this.navigationShell,
-    super.key,
-  });
+  const HomeScaffold({required this.navigationShell, super.key});
 
   final StatefulNavigationShell navigationShell;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final HomeTab currentTab = HomeTab.values[navigationShell.currentIndex];
-    final bool isMoviesOrTv = currentTab == HomeTab.movies || currentTab == HomeTab.tvShows;
+    final bool isMoviesOrTv =
+        currentTab == HomeTab.movies || currentTab == HomeTab.tvShows;
 
     return Scaffold(
       backgroundColor: AppColors.cinemaBackground,
@@ -28,14 +27,18 @@ class HomeScaffold extends ConsumerWidget {
         backgroundColor: AppColors.cinemaGradientTop,
         elevation: 0,
         automaticallyImplyLeading: false,
-        leadingWidth: isMoviesOrTv ? 140 : null,
+        leadingWidth: isMoviesOrTv
+            ? 140
+            : (currentTab == HomeTab.explore ? 140 : null),
         leading: isMoviesOrTv
             ? _AppBarFilterPill(tab: currentTab)
-            : null,
+            : (currentTab == HomeTab.explore
+                  ? const ExploreMediaTypeToggle()
+                  : null),
         title: SizedBox(
           height: 28,
           child: SvgPicture.asset(
-            'logo.svg',
+            'assets/logos/logo.svg',
             fit: BoxFit.contain,
             semanticsLabel: AppConstants.appName,
           ),
@@ -47,10 +50,12 @@ class HomeScaffold extends ConsumerWidget {
               if (isMoviesOrTv) {
                 context.pushNamed(
                   AppRoute.filter.name,
-                  queryParameters: {'isTv': (currentTab == HomeTab.tvShows).toString()},
+                  queryParameters: {
+                    'isTv': (currentTab == HomeTab.tvShows).toString(),
+                  },
                 );
               } else {
-                // TODO: Implement search for Explore/Account tabs
+                // Implement search for Explore/Account tabs
               }
             },
             icon: Icon(
@@ -85,7 +90,6 @@ class _AppBarFilterPill extends ConsumerStatefulWidget {
 class _AppBarFilterPillState extends ConsumerState<_AppBarFilterPill> {
   bool _isExpanded = false;
 
-
   @override
   Widget build(BuildContext context) {
     final filterOptions = widget.tab == HomeTab.movies
@@ -100,15 +104,17 @@ class _AppBarFilterPillState extends ConsumerState<_AppBarFilterPill> {
       child: Padding(
         padding: const EdgeInsets.only(left: 12),
         child: Theme(
-          data: Theme.of(context).copyWith(
-            canvasColor: AppColors.cinemaSurface,
-          ),
+          data: Theme.of(
+            context,
+          ).copyWith(canvasColor: AppColors.cinemaSurface),
           child: PopupMenuButton<MediaFilterOption>(
             initialValue: selectedFilter,
             tooltip: 'Change category',
             onSelected: (option) {
               if (widget.tab == HomeTab.movies) {
-                ref.read(selectedMovieFilterProvider.notifier).setFilter(option);
+                ref
+                    .read(selectedMovieFilterProvider.notifier)
+                    .setFilter(option);
               } else {
                 ref.read(selectedTvFilterProvider.notifier).setFilter(option);
               }
@@ -116,7 +122,9 @@ class _AppBarFilterPillState extends ConsumerState<_AppBarFilterPill> {
             onOpened: () => setState(() => _isExpanded = true),
             onCanceled: () => setState(() => _isExpanded = false),
             offset: const Offset(0, 40),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             itemBuilder: (context) => filterOptions.map((option) {
               final bool isSelected = option.section == selectedFilter.section;
               return PopupMenuItem<MediaFilterOption>(

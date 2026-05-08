@@ -2,9 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
-import 'package:cineverse/domain/entities/movie_details.dart';
-import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
-import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
 import 'package:cineverse/presentation/features/movies/widgets/rating_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,31 +28,11 @@ class MediaPosterGridCard extends ConsumerWidget {
     final double badgeSize = width * 0.34;
     final double badgeOffset = badgeSize * 0.24;
     final double titleGap = badgeOffset + 5;
-    final AsyncValue<MovieDetails> movieDetails = ref.watch(
-      movieDetailsProvider(
-        GetMovieDetailsParams(movieId: movie.id, isTv: isTvTitle),
-      ),
+
+    final Widget scoreBadge = RatingBadge.tmdb(
+      catalogScore: movie.voteAverage,
+      size: badgeSize,
     );
-    final List<MovieRating> ratings =
-        movieDetails.value?.externalRatings.take(2).toList(growable: false) ??
-        const <MovieRating>[];
-    final MovieRating? rottenTomatoesRating = _ratingForSource(
-      ratings,
-      'Rotten Tomatoes',
-    );
-    final MovieRating? imdbRating = _ratingForSource(ratings, 'IMDb');
-    final bool isRatingLoading = movieDetails.isLoading && movieDetails.value == null;
-    final String scoreLabel = rottenTomatoesRating == null
-        ? 'NA'
-        : _normalizeScore(rottenTomatoesRating.value) ?? 'NA';
-    final Widget scoreBadge = isRatingLoading
-        ? RatingBadge.loading(size: badgeSize)
-        : rottenTomatoesRating == null
-        ? RatingBadge.tmdb(
-            catalogScore: movieDetails.value?.catalogScore,
-            size: badgeSize,
-          )
-        : RatingBadge.rottenTomatoes(label: scoreLabel, size: badgeSize);
 
     return SizedBox(
       width: width,
@@ -133,61 +110,8 @@ class MediaPosterGridCard extends ConsumerWidget {
                 color: Colors.white.withValues(alpha: 0.62),
               ),
             ),
-            if (imdbRating != null)
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: _MiniRatingLine(label: 'IMDb ${imdbRating.value}'),
-              ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-MovieRating? _ratingForSource(List<MovieRating> ratings, String source) {
-  for (final MovieRating rating in ratings) {
-    if (rating.source == source) {
-      return rating;
-    }
-  }
-
-  return null;
-}
-
-String? _normalizeScore(String rawValue) {
-  final RegExp percentPattern = RegExp(r'(\d{1,3})\s*%');
-  final Match? percentMatch = percentPattern.firstMatch(rawValue);
-  if (percentMatch != null) {
-    return '${percentMatch.group(1)}%';
-  }
-
-  final RegExp tenPointPattern = RegExp(r'(\d+(?:\.\d+)?)\s*/\s*10');
-  final Match? tenPointMatch = tenPointPattern.firstMatch(rawValue);
-  if (tenPointMatch != null) {
-    final double? parsedValue = double.tryParse(tenPointMatch.group(1)!);
-    if (parsedValue != null) {
-      return '${(parsedValue * 10).round()}%';
-    }
-  }
-
-  return null;
-}
-
-class _MiniRatingLine extends StatelessWidget {
-  const _MiniRatingLine({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      label,
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-        color: Colors.white.withValues(alpha: 0.78),
-        fontSize: 10.5,
       ),
     );
   }

@@ -26,6 +26,7 @@ class TmdbMovieDetailsDto {
     this.voteCount,
     this.recommendations = const <MovieRecommendation>[],
     this.watchAvailability,
+    this.trailerYouTubeKey,
   });
 
   factory TmdbMovieDetailsDto.fromJson(
@@ -45,6 +46,8 @@ class TmdbMovieDetailsDto {
     final Map<String, dynamic> rawWatchProviders =
         (json['watch/providers'] as Map<String, dynamic>?) ??
         <String, dynamic>{};
+    final Map<String, dynamic> rawVideos =
+        (json['videos'] as Map<String, dynamic>?) ?? <String, dynamic>{};
 
     return TmdbMovieDetailsDto(
       id: (json['id'] as num?)?.toInt() ?? 0,
@@ -98,6 +101,9 @@ class TmdbMovieDetailsDto {
               rawWatchProviders,
               preferredRegionCode: preferredRegionCode,
             ).toDomain(),
+      trailerYouTubeKey: _resolveTrailerKey(
+        (rawVideos['results'] as List<dynamic>?) ?? <dynamic>[],
+      ),
     );
   }
 
@@ -123,6 +129,7 @@ class TmdbMovieDetailsDto {
   final int? voteCount;
   final List<MovieRecommendation> recommendations;
   final MovieWatchAvailability? watchAvailability;
+  final String? trailerYouTubeKey;
 
   TmdbMovieDetailsDto copyWith({MovieWatchAvailability? watchAvailability}) {
     return TmdbMovieDetailsDto(
@@ -148,6 +155,7 @@ class TmdbMovieDetailsDto {
       voteCount: voteCount,
       recommendations: recommendations,
       watchAvailability: watchAvailability ?? this.watchAvailability,
+      trailerYouTubeKey: trailerYouTubeKey,
     );
   }
 
@@ -174,6 +182,8 @@ class TmdbMovieDetailsDto {
       voteCount: voteCount,
       recommendations: recommendations,
       watchAvailability: watchAvailability,
+      imdbId: imdbId,
+      trailerYouTubeKey: trailerYouTubeKey,
     );
   }
 
@@ -456,4 +466,35 @@ class TmdbMovieDetailsDto {
 
     return '${AppConstants.tmdbImageBaseUrl}/$size$rawImagePath';
   }
+}
+
+String? _resolveTrailerKey(List<dynamic> rawVideos) {
+  final List<Map<String, dynamic>> videos = rawVideos
+      .whereType<Map<String, dynamic>>()
+      .toList(growable: false);
+
+  // 1. Try to find an official trailer on YouTube
+  for (final Map<String, dynamic> video in videos) {
+    if (video['site'] == 'YouTube' &&
+        video['type'] == 'Trailer' &&
+        video['official'] == true) {
+      return video['key'] as String?;
+    }
+  }
+
+  // 2. Any trailer on YouTube
+  for (final Map<String, dynamic> video in videos) {
+    if (video['site'] == 'YouTube' && video['type'] == 'Trailer') {
+      return video['key'] as String?;
+    }
+  }
+
+  // 3. Any video on YouTube
+  for (final Map<String, dynamic> video in videos) {
+    if (video['site'] == 'YouTube') {
+      return video['key'] as String?;
+    }
+  }
+
+  return null;
 }

@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class RatingBadge extends StatelessWidget {
   const RatingBadge.loading({super.key, required this.size})
@@ -27,20 +28,22 @@ class RatingBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: size,
-      height: size,
-      child: switch (_mode) {
-        _RatingBadgeMode.loading => _LoadingDotsBadge(size: size),
-        _RatingBadgeMode.rottenTomatoes => _RottenTomatoesBadge(
-          label: label ?? 'NA',
-          size: size,
-        ),
-        _RatingBadgeMode.tmdb => _TmdbBadge(
-          scorePercent: _catalogScorePercent(catalogScore),
-          size: size,
-        ),
-      },
+    return RepaintBoundary(
+      child: SizedBox(
+        width: size,
+        height: size,
+        child: switch (_mode) {
+          _RatingBadgeMode.loading => _LoadingDotsBadge(size: size),
+          _RatingBadgeMode.rottenTomatoes => _RottenTomatoesBadge(
+            label: label ?? 'NA',
+            size: size,
+          ),
+          _RatingBadgeMode.tmdb => _TmdbBadge(
+            scorePercent: _catalogScorePercent(catalogScore),
+            size: size,
+          ),
+        },
+      ),
     );
   }
 }
@@ -87,7 +90,8 @@ class _LoadingDotsBadgeState extends State<_LoadingDotsBadge>
               mainAxisSize: MainAxisSize.min,
               children: List<Widget>.generate(3, (int index) {
                 final double phase = (_controller.value + index / 3) % 1.0;
-                final double wave = (math.sin((phase * math.pi * 2) - math.pi / 2) + 1) / 2;
+                final double wave =
+                    (math.sin((phase * math.pi * 2) - math.pi / 2) + 1) / 2;
                 final double scale = 0.6 + (wave * 0.45);
                 final double opacity = 0.35 + (wave * 0.65);
 
@@ -98,7 +102,9 @@ class _LoadingDotsBadgeState extends State<_LoadingDotsBadge>
                     child: Transform.scale(
                       scale: scale,
                       child: Container(
-                        key: ValueKey<String>('rating-badge-loading-dot-$index'),
+                        key: ValueKey<String>(
+                          'rating-badge-loading-dot-$index',
+                        ),
                         width: dotSize,
                         height: dotSize,
                         decoration: const BoxDecoration(
@@ -131,31 +137,18 @@ class _RottenTomatoesBadge extends StatelessWidget {
       alignment: Alignment.center,
       children: [
         Positioned.fill(
-          child: FittedBox(
-            fit: BoxFit.contain,
-            child: Text(
-              '🍅',
-              textHeightBehavior: const TextHeightBehavior(
-                applyHeightToFirstAscent: false,
-                applyHeightToLastDescent: false,
-              ),
-              style: const TextStyle(
-                height: 1,
-                shadows: <Shadow>[
-                  Shadow(
-                    color: Color(0x77000000),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
+          child: Padding(
+            padding: EdgeInsets.only(bottom: size * 0.15),
+            child: SvgPicture.asset(
+              'assets/logos/Rotten_Tomatoes.svg',
+              fit: BoxFit.contain,
             ),
           ),
         ),
         Positioned.fill(
           child: Center(
             child: Transform.translate(
-              offset: Offset(0, size * 0.12),
+              offset: Offset(0, size * 0.07),
               child: Text(
                 label,
                 textAlign: TextAlign.center,
@@ -186,7 +179,7 @@ class _TmdbBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final String displayScore = scorePercent == null ? 'NA' : '$scorePercent%';
     final double progress = (scorePercent ?? 0).clamp(0, 100) / 100;
-    final double strokeWidth = math.max(3.0, size * 0.12);
+    final double strokeWidth = math.max(2.0, size * 0.06);
 
     return Stack(
       alignment: Alignment.center,
@@ -215,21 +208,21 @@ class _TmdbBadge extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                'TMDB',
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  fontSize: size * 0.12,
-                  letterSpacing: 0.4,
-                  shadows: const <Shadow>[
-                    Shadow(color: Colors.black, blurRadius: 4),
-                  ],
-                ),
-              ),
+              // Text(
+              //   'TMDB',
+              //   textAlign: TextAlign.center,
+              //   maxLines: 1,
+              //   overflow: TextOverflow.ellipsis,
+              //   style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              //     color: Colors.white,
+              //     fontWeight: FontWeight.w900,
+              //     fontSize: size * 0.12,
+              //     letterSpacing: 0.4,
+              //     shadows: const <Shadow>[
+              //       Shadow(color: Colors.black, blurRadius: 4),
+              //     ],
+              //   ),
+              // ),
               const SizedBox(height: 1),
               Text(
                 displayScore,
@@ -239,7 +232,7 @@ class _TmdbBadge extends StatelessWidget {
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w900,
-                  fontSize: size * 0.22,
+                  fontSize: size * 0.28,
                   height: 1,
                   shadows: const <Shadow>[
                     Shadow(color: Colors.black, blurRadius: 4),

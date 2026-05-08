@@ -8,13 +8,26 @@ extension _HomeTabRoute on HomeTab {
   IconData get icon {
     switch (this) {
       case HomeTab.explore:
-        return Icons.explore_rounded;
+        return Icons.explore_outlined;
       case HomeTab.movies:
         return Icons.movie_creation_outlined;
       case HomeTab.tvShows:
         return Icons.tv_outlined;
       case HomeTab.account:
         return Icons.person_outline_rounded;
+    }
+  }
+
+  IconData get selectedIcon {
+    switch (this) {
+      case HomeTab.explore:
+        return Icons.explore_rounded;
+      case HomeTab.movies:
+        return Icons.movie_creation_rounded;
+      case HomeTab.tvShows:
+        return Icons.tv_rounded;
+      case HomeTab.account:
+        return Icons.person_rounded;
     }
   }
 
@@ -59,9 +72,7 @@ class AppBottomNavigationBar extends StatelessWidget {
         child: Row(
           children: _tabOrder
               .map(
-                (tab) => Expanded(
-                  child: _BottomNavItem(tab: tab, selected: tab == currentTab),
-                ),
+                (tab) => _BottomNavItem(tab: tab, selected: tab == currentTab),
               )
               .toList(growable: false),
         ),
@@ -78,36 +89,55 @@ class _BottomNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TextStyle? labelStyle = Theme.of(context).textTheme.labelSmall
-        ?.copyWith(
-          color: Colors.white,
-          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-        );
-
-    return InkWell(
-      onTap: selected
-          ? null
-          : () => (context.findAncestorWidgetOfExactType<AppBottomNavigationBar>()!)
-              .onTabSelected(AppBottomNavigationBar._tabOrder.indexOf(tab)),
-      borderRadius: BorderRadius.circular(18),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              curve: Curves.easeOutCubic,
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: selected ? AppColors.cinemaSelected : Colors.transparent,
-                borderRadius: BorderRadius.circular(999),
+    return Expanded(
+      child: InkWell(
+        onTap: selected
+            ? null
+            : () => (context
+                    .findAncestorWidgetOfExactType<AppBottomNavigationBar>()!)
+                .onTabSelected(AppBottomNavigationBar._tabOrder.indexOf(tab)),
+        borderRadius: BorderRadius.circular(18),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutBack,
+                padding: EdgeInsets.symmetric(
+                  horizontal: selected ? 20 : 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: selected
+                      ? AppColors.cinemaSelected.withValues(alpha: 0.15)
+                      : Colors.transparent,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: AnimatedScale(
+                  duration: const Duration(milliseconds: 300),
+                  scale: selected ? 1.15 : 1.0,
+                  curve: Curves.easeOutBack,
+                  child: Icon(
+                    selected ? tab.selectedIcon : tab.icon,
+                    color: selected ? AppColors.cinemaAccent : Colors.white70,
+                    size: 22,
+                  ),
+                ),
               ),
-              child: Icon(tab.icon, color: Colors.white, size: 22),
-            ),
-            const SizedBox(height: 4),
-            Text(tab.label, style: labelStyle),
-          ],
+              const SizedBox(height: 2),
+              AnimatedDefaultTextStyle(
+                duration: const Duration(milliseconds: 200),
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+                  color: selected ? AppColors.cinemaAccent : Colors.white70,
+                ),
+                child: Text(tab.label),
+              ),
+            ],
+          ),
         ),
       ),
     );

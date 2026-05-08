@@ -15,6 +15,7 @@ abstract interface class RemoteDataSource {
   Future<List<TmdbMovieGenreDto>> fetchTvGenres();
 
   Future<List<TmdbMovieDto>> fetchMoviesForGenre(int genreId, {int page = 1});
+  Future<List<TmdbMovieDto>> fetchTvShowsForGenre(int genreId, {int page = 1});
 
   Future<List<TmdbMovieDto>> fetchMoviesForSection(MovieSection section);
 
@@ -70,6 +71,18 @@ class TmdbRemoteDataSource implements RemoteDataSource {
     int page = 1,
   }) async {
     final TmdbMoviesResponseDto response = await apiClient.fetchMoviesForGenre(
+      genreId,
+      page: page,
+    );
+    return response.movies;
+  }
+
+  @override
+  Future<List<TmdbMovieDto>> fetchTvShowsForGenre(
+    int genreId, {
+    int page = 1,
+  }) async {
+    final TmdbMoviesResponseDto response = await apiClient.fetchTvShowsForGenre(
       genreId,
       page: page,
     );

@@ -12,6 +12,7 @@ abstract interface class MediaRepository {
   Future<List<MovieGenre>> fetchTvGenres();
 
   Future<List<MediaTitle>> fetchMoviesForGenre(int genreId, {int page = 1});
+  Future<List<MediaTitle>> fetchTvShowsForGenre(int genreId, {int page = 1});
 
   Future<List<MediaTitle>> fetchMoviesForSection(MovieSection section);
 

@@ -16,7 +16,9 @@ class TvShowsScreen extends ConsumerWidget {
     final bool hasMovieApiAccess = ref.watch(
       appConfigProvider.select((config) => config.hasMovieApiAccess),
     );
-    final MediaFilterOption selectedFilter = ref.watch(selectedTvFilterProvider);
+    final MediaFilterOption selectedFilter = ref.watch(
+      selectedTvFilterProvider,
+    );
     final bool isFiltering = ref.watch(isFilteringProvider);
     final AsyncValue<List<MediaTitle>> tvShows = ref.watch(
       movieSectionProvider(selectedFilter.section),
@@ -38,88 +40,92 @@ class TvShowsScreen extends ConsumerWidget {
       ),
       child: hasMovieApiAccess
           ? (isFiltering
-              ? const Center(
-                  child: CircularProgressIndicator(color: AppColors.cinemaAccent))
-              : tvShows.when(
-                  skipLoadingOnReload: true,
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (Object error, StackTrace stackTrace) => Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Text(
-                        'Could not load TV shows. $error',
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.error,
+                ? const Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.cinemaAccent,
+                    ),
+                  )
+                : tvShows.when(
+                    skipLoadingOnReload: true,
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (Object error, StackTrace stackTrace) => Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          'Could not load TV shows. $error',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.error,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  data: (List<MediaTitle> data) {
-                    if (data.isEmpty) {
-                      return Center(
-                        child: Text(
-                          'No TV shows available right now.',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.72),
+                    data: (List<MediaTitle> data) {
+                      if (data.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'No TV shows available right now.',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: Colors.white.withValues(alpha: 0.72),
+                            ),
                           ),
+                        );
+                      }
+
+                      const double horizontalPadding = 16;
+                      const double crossAxisSpacing = 10;
+                      const double mainAxisSpacing = 16;
+                      const int crossAxisCount = 3;
+                      final double availableCardWidth =
+                          (MediaQuery.sizeOf(context).width -
+                              (horizontalPadding * 2) -
+                              (crossAxisSpacing * 2)) /
+                          crossAxisCount;
+                      final double cardWidth = availableCardWidth > 108
+                          ? 108
+                          : availableCardWidth;
+
+                      return NotificationListener<ScrollNotification>(
+                        onNotification: (ScrollNotification scrollInfo) {
+                          if (scrollInfo.metrics.pixels >=
+                              scrollInfo.metrics.maxScrollExtent - 200) {
+                            loadNextPages(ref, selectedFilter.section);
+                          }
+                          return false;
+                        },
+                        child: GridView.builder(
+                          cacheExtent: 1000,
+                          padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: crossAxisCount,
+                                crossAxisSpacing: crossAxisSpacing,
+                                mainAxisSpacing: mainAxisSpacing,
+                                mainAxisExtent: 246,
+                              ),
+                          itemCount: data.length + 1,
+                          itemBuilder: (context, index) {
+                            if (index == data.length) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+
+                            final MediaTitle show = data[index];
+                            return Center(
+                              child: MediaPosterGridCard(
+                                movie: show,
+                                sectionTitle: selectedFilter.label,
+                                width: cardWidth,
+                                isTvTitle: true,
+                              ),
+                            );
+                          },
                         ),
                       );
-                    }
-
-                    const double horizontalPadding = 16;
-                    const double crossAxisSpacing = 10;
-                    const double mainAxisSpacing = 16;
-                    const int crossAxisCount = 3;
-                    final double availableCardWidth =
-                        (MediaQuery.sizeOf(context).width -
-                                (horizontalPadding * 2) -
-                                (crossAxisSpacing * 2)) /
-                            crossAxisCount;
-                    final double cardWidth = availableCardWidth > 108
-                        ? 108
-                        : availableCardWidth;
-
-                    return NotificationListener<ScrollNotification>(
-                      onNotification: (ScrollNotification scrollInfo) {
-                        if (scrollInfo.metrics.pixels >=
-                            scrollInfo.metrics.maxScrollExtent - 200) {
-                          loadNextPages(ref, selectedFilter.section);
-                        }
-                        return false;
-                      },
-                      child: GridView.builder(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: crossAxisCount,
-                          crossAxisSpacing: crossAxisSpacing,
-                          mainAxisSpacing: mainAxisSpacing,
-                          mainAxisExtent: 246,
-                        ),
-                        itemCount: data.length + 1,
-                        itemBuilder: (context, index) {
-                          if (index == data.length) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
-                          }
-
-                          final MediaTitle show = data[index];
-                          return Center(
-                            child: MediaPosterGridCard(
-                              movie: show,
-                              sectionTitle: selectedFilter.label,
-                              width: cardWidth,
-                              isTvTitle: true,
-                            ),
-                          );
-                        },
-                      ),
-                    );
-                  },
-                ))
+                    },
+                  ))
           : Center(
               child: Padding(
                 padding: const EdgeInsets.all(24),
