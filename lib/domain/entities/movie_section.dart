@@ -10,6 +10,7 @@ enum MovieSection {
   tvTopRated,
   tvOnTheAir,
   tvAiringToday,
+  tvDiscover,
   action,
   drama,
   thriller,

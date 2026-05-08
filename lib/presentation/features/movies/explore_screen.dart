@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:audioplayers/audioplayers.dart';
@@ -169,7 +170,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               const SizedBox(height: 16),
               Text(
                 'Movie API configuration required',
-                style: theme.textTheme.headlineSmall?.copyWith(color: Colors.white),
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  color: Colors.white,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
@@ -276,9 +279,17 @@ class _DiscoverSpotlightSectionState
   late Animation<double> _diceAnimation;
   final AudioPlayer _audioPlayer = AudioPlayer();
 
+  Timer? _slideshowTimer;
+  List<String> _slideshowImages = [];
+  String? _logoUrl;
+  int _currentImageIndex = 0;
+  bool _isNextImageReady = false;
+  int? _lastMovieId;
+
   @override
   void initState() {
     super.initState();
+    _audioPlayer.setPlayerMode(PlayerMode.lowLatency);
     _diceController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 720),
@@ -286,10 +297,75 @@ class _DiscoverSpotlightSectionState
     _diceAnimation = Tween<double>(begin: 0, end: 3).animate(
       CurvedAnimation(parent: _diceController, curve: Curves.decelerate),
     );
+
+    // Lazy load additional discover pages in the background after everything is loaded.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Future.delayed(const Duration(seconds: 5), () {
+        if (mounted) {
+          loadNextPages(ref, MovieSection.discover);
+          // Fetch another batch a few seconds later for even more variety
+          Future.delayed(const Duration(seconds: 3), () {
+            if (mounted) {
+              loadNextPages(ref, MovieSection.discover);
+            }
+          });
+        }
+      });
+    });
+  }
+
+  void _startSlideshow(int movieId) {
+    _slideshowTimer?.cancel();
+    _currentImageIndex = 0;
+    _slideshowImages = [];
+    _logoUrl = null;
+    _isNextImageReady = false;
+
+    ref.read(mediaImagesProvider((id: movieId, isTv: false)).future).then((
+      images,
+    ) {
+      if (mounted && _lastMovieId == movieId) {
+        setState(() {
+          // Prefer backdrops for the slideshow, fallback to posters if none
+          _slideshowImages = images.backdrops.isNotEmpty
+              ? images.backdrops
+              : images.posters;
+          _logoUrl = images.logos.isNotEmpty ? images.logos.first : null;
+          _preloadNextImage();
+        });
+      }
+    });
+
+    _slideshowTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
+      if (_slideshowImages.length > 1 && _isNextImageReady && mounted) {
+        setState(() {
+          _currentImageIndex =
+              (_currentImageIndex + 1) % _slideshowImages.length;
+          _isNextImageReady = false;
+          _preloadNextImage();
+        });
+      }
+    });
+  }
+
+  void _preloadNextImage() {
+    if (_slideshowImages.isEmpty || !mounted) return;
+    final int nextIndex = (_currentImageIndex + 1) % _slideshowImages.length;
+    final String imageUrl = _slideshowImages[nextIndex];
+
+    precacheImage(CachedNetworkImageProvider(imageUrl), context).then((_) {
+      if (mounted && _lastMovieId != null) {
+        setState(() {
+          _isNextImageReady = true;
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
+    _slideshowTimer?.cancel();
     _audioPlayer.dispose();
     _diceController.dispose();
     super.dispose();
@@ -332,6 +408,19 @@ class _DiscoverSpotlightSectionState
 
           final MediaTitle movie =
               _currentMovie(movies, spotlightState) ?? movies.first;
+
+          if (_lastMovieId != movie.id) {
+            _lastMovieId = movie.id;
+            // Use post frame callback to avoid calling setState during build if needed,
+            // though _startSlideshow calls setState in its .then() which is fine.
+            // But we need to call it now to initialize the first poster if any.
+            Future.microtask(() => _startSlideshow(movie.id));
+          }
+
+          final String? currentSlideshowUrl = _slideshowImages.isNotEmpty
+              ? _slideshowImages[_currentImageIndex]
+              : movie.posterPath;
+
           final AsyncValue<MovieDetails> movieDetails = ref.watch(
             movieDetailsProvider(GetMovieDetailsParams(movieId: movie.id)),
           );
@@ -350,7 +439,7 @@ class _DiscoverSpotlightSectionState
           final String scoreLabel = rottenTomatoesRating == null
               ? 'NA'
               : _normalizeScore(rottenTomatoesRating.value) ?? 'NA';
-          const double spotlightBadgeSize = 54;
+          const double spotlightBadgeSize = 30;
           final Widget scoreBadge = isRatingLoading
               ? RatingBadge.loading(size: spotlightBadgeSize)
               : rottenTomatoesRating == null
@@ -363,7 +452,7 @@ class _DiscoverSpotlightSectionState
                   size: spotlightBadgeSize,
                 );
           final double posterWidth = MediaQuery.sizeOf(context).width - 32;
-          final double posterHeight = posterWidth;
+          final double posterHeight = posterWidth * 9 / 16;
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -406,65 +495,74 @@ class _DiscoverSpotlightSectionState
                       ),
                     );
                   },
-                  child: SizedBox(
+                  child: Container(
                     key: ValueKey<int>(movie.id),
                     width: posterWidth,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(28),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.12),
+                        width: 1,
+                      ),
+                    ),
+                    clipBehavior: Clip.antiAlias,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Stack(
-                          clipBehavior: Clip.none,
-                          children: [
-                            InkWell(
-                              borderRadius: BorderRadius.circular(28),
-                              onTap: () => context.pushNamed(
-                                AppRoute.movieDetails.name,
-                                pathParameters: <String, String>{
-                                  'movieId': movie.id.toString(),
-                                },
-                                queryParameters: <String, String>{
-                                  'heroTag': 'movie-poster-${movie.id}-spotlight',
-                                },
-                              ),
-                              child: Hero(
-                                tag: 'movie-poster-${movie.id}-spotlight',
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(28),
-                                  child: SizedBox(
-                                    width: posterWidth,
-                                    height: posterHeight,
-                                    child: movie.posterPath == null
-                                        ? const ColoredBox(
-                                            color: AppColors.cinemaPlaceholder,
-                                            child: Center(
-                                              child: Icon(
-                                                Icons.movie_outlined,
-                                                size: 52,
-                                                color: Colors.white,
+                        InkWell(
+                          onTap: () => context.pushNamed(
+                            AppRoute.movieDetails.name,
+                            pathParameters: <String, String>{
+                              'movieId': movie.id.toString(),
+                            },
+                            queryParameters: <String, String>{
+                              'heroTag': 'movie-poster-${movie.id}-spotlight',
+                            },
+                          ),
+                          child: Hero(
+                            tag: 'movie-poster-${movie.id}-spotlight',
+                            child: SizedBox(
+                              width: posterWidth,
+                              height: posterHeight,
+                              child: Stack(
+                                children: [
+                                  Positioned.fill(
+                                    child: AnimatedSwitcher(
+                                      duration: const Duration(
+                                        milliseconds: 1000,
+                                      ),
+                                      child: currentSlideshowUrl == null
+                                          ? const ColoredBox(
+                                              key: ValueKey('placeholder'),
+                                              color:
+                                                  AppColors.cinemaPlaceholder,
+                                              child: Center(
+                                                child: Icon(
+                                                  Icons.movie_outlined,
+                                                  size: 52,
+                                                  color: Colors.white,
+                                                ),
                                               ),
-                                            ),
-                                          )
-                                        : CachedNetworkImage(
-                                            imageUrl: movie.posterPath!,
-                                            fit: BoxFit.cover,
-                                            placeholder: (context, url) =>
-                                                const ColoredBox(
-                                                  color: AppColors
-                                                      .cinemaPlaceholder,
-                                                  child: Center(
+                                            )
+                                          : CachedNetworkImage(
+                                              key: ValueKey<String>(
+                                                currentSlideshowUrl,
+                                              ),
+                                              imageUrl: currentSlideshowUrl,
+                                              fit: BoxFit.cover,
+                                              width: posterWidth,
+                                              height: posterHeight,
+                                              placeholder: (context, url) =>
+                                                  const Center(
                                                     child:
                                                         CircularProgressIndicator(),
                                                   ),
-                                                ),
-                                            errorWidget:
-                                                (
-                                                  context,
-                                                  url,
-                                                  error,
-                                                ) => const ColoredBox(
-                                                  color: AppColors
-                                                      .cinemaPlaceholder,
-                                                  child: Center(
+                                              errorWidget:
+                                                  (
+                                                    context,
+                                                    url,
+                                                    error,
+                                                  ) => const Center(
                                                     child: Icon(
                                                       Icons
                                                           .broken_image_outlined,
@@ -472,114 +570,154 @@ class _DiscoverSpotlightSectionState
                                                       color: Colors.white,
                                                     ),
                                                   ),
-                                                ),
-                                          ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Positioned.fill(
-                              child: IgnorePointer(
-                                child: DecoratedBox(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(28),
-                                    gradient: LinearGradient(
-                                      begin: Alignment.bottomCenter,
-                                      end: Alignment.topCenter,
-                                      stops: const <double>[0, 0.2, 1],
-                                      colors: <Color>[
-                                        Colors.black.withValues(alpha: 0.72),
-                                        Colors.black.withValues(alpha: 0),
-                                        Colors.black.withValues(alpha: 0),
-                                      ],
+                                            ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              left: 14,
-                              bottom: 14,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  scoreBadge,
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    imdbRating == null
-                                        ? 'IMDb NA'
-                                        : 'IMDb ${imdbRating.value}',
-                                    style: theme.textTheme.labelSmall?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w800,
-                                      shadows: const <Shadow>[
-                                        Shadow(
-                                          color: Colors.black,
-                                          blurRadius: 6,
+                                  // Gradient overlay (bottom 20%)
+                                  Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
+                                    height: posterHeight * 0.2,
+                                    child: const DecoratedBox(
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.bottomCenter,
+                                          end: Alignment.topCenter,
+                                          colors: [
+                                            Colors.black,
+                                            Colors.transparent,
+                                          ],
                                         ),
-                                      ],
+                                      ),
                                     ),
                                   ),
+                                  // Tagline
+                                  if (movieDetails.value?.tagline != null &&
+                                      movieDetails.value!.tagline!.isNotEmpty)
+                                    Positioned(
+                                      bottom: 10,
+                                      left: 20,
+                                      right: 20,
+                                      child: Text(
+                                        movieDetails.value!.tagline!,
+                                        textAlign: TextAlign.center,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.textTheme.labelSmall
+                                            ?.copyWith(
+                                              color: Colors.white.withValues(
+                                                alpha: 0.9,
+                                              ),
+                                              fontStyle: FontStyle.italic,
+                                              fontWeight: FontWeight.w600,
+                                              letterSpacing: 0.2,
+                                              shadows: [
+                                                const Shadow(
+                                                  color: Colors.black,
+                                                  blurRadius: 8,
+                                                ),
+                                              ],
+                                            ),
+                                      ),
+                                    ),
                                 ],
                               ),
                             ),
-                            Positioned(
-                              right: 14,
-                              bottom: 14,
-                              child: Material(
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (_logoUrl != null)
+                                      CachedNetworkImage(
+                                        imageUrl: _logoUrl!,
+                                        height: 32,
+                                        fit: BoxFit.contain,
+                                        alignment: Alignment.centerLeft,
+                                      )
+                                    else
+                                      Text(
+                                        movie.title,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.textTheme.titleMedium
+                                            ?.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w900,
+                                            ),
+                                      ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        scoreBadge,
+                                        const SizedBox(width: 10),
+                                        if (imdbRating != null) ...[
+                                          const _ImdbIcon(),
+                                          const SizedBox(width: 6),
+                                          Text(
+                                            imdbRating.value,
+                                            style: theme.textTheme.labelSmall
+                                                ?.copyWith(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w800,
+                                                ),
+                                          ),
+                                        ] else
+                                          Text(
+                                            'IMDb NA',
+                                            style: theme.textTheme.labelSmall
+                                                ?.copyWith(
+                                                  color: Colors.white
+                                                      .withValues(alpha: 0.6),
+                                                  fontWeight: FontWeight.w800,
+                                                ),
+                                          ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Material(
                                 color: Colors.transparent,
                                 child: InkWell(
                                   onTap: () => _rollNextMovie(movies),
-                                  borderRadius: BorderRadius.circular(999),
+                                  borderRadius: BorderRadius.circular(12),
                                   child: Ink(
-                                    width: 52,
-                                    height: 52,
+                                    width: 44,
+                                    height: 44,
                                     decoration: BoxDecoration(
-                                      color: AppColors.cinemaSelected,
-                                      borderRadius: BorderRadius.circular(999),
-                                      boxShadow: const <BoxShadow>[
-                                        BoxShadow(
-                                          color: Color(0x55000000),
-                                          blurRadius: 18,
-                                          offset: Offset(0, 8),
-                                        ),
-                                      ],
+                                      color: AppColors.cinemaSelected
+                                          .withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: AppColors.cinemaSelected
+                                            .withValues(alpha: 0.2),
+                                      ),
                                     ),
                                     child: Center(
                                       child: RotationTransition(
                                         turns: _diceAnimation,
                                         child: const Icon(
-                                          Icons.casino_rounded,
-                                          color: Colors.white,
+                                          Icons.casino_outlined,
+                                          color: AppColors.cinemaSelected,
+                                          size: 24,
                                         ),
                                       ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 14),
-                        Text(
-                          movie.title,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
+                            ],
                           ),
                         ),
-                        if (movie.releaseDate != null) ...[
-                          const SizedBox(height: 4),
-                          Text(
-                            movie.releaseDate!,
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.68),
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                   ),
@@ -665,7 +803,7 @@ class _DiscoverSpotlightSectionState
     });
   }
 
-  void _rollNextMovie(List<MediaTitle> movies) {
+  Future<void> _rollNextMovie(List<MediaTitle> movies) async {
     if (movies.isEmpty) {
       return;
     }
@@ -700,7 +838,8 @@ class _DiscoverSpotlightSectionState
       );
     });
     _diceController.forward(from: 0);
-    _audioPlayer.play(AssetSource('sounds/dice_shuffle.wav'));
+    await _audioPlayer.stop();
+    await _audioPlayer.play(AssetSource('sounds/dice_shuffle.wav'));
   }
 
   List<int> _shuffleMovieIds(List<int> movieIds, {int? excludeMovieId}) {
@@ -1015,7 +1154,7 @@ class _PosterMovieCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
     final double posterHeight = width * 1.42;
-    final double badgeSize = width * 0.34;
+    final double badgeSize = width * 0.28;
     final double badgeOffset = badgeSize * 0.24;
     final double titleGap = badgeOffset + 5;
     final AsyncValue<MovieDetails> movieDetails = ref.watch(
@@ -1169,4 +1308,31 @@ String? _normalizeScore(String rawValue) {
   }
 
   return null;
+}
+
+class _ImdbIcon extends StatelessWidget {
+  const _ImdbIcon();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 32,
+      height: 16,
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5C518),
+        borderRadius: BorderRadius.circular(3),
+      ),
+      alignment: Alignment.center,
+      child: const Text(
+        'IMDb',
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.w900,
+          fontSize: 9,
+          letterSpacing: -0.2,
+          height: 1.1,
+        ),
+      ),
+    );
+  }
 }

@@ -93,8 +93,9 @@ class _MovieDetailsView extends StatelessWidget {
     final String? backdropUrl = details.backdropPath ?? details.posterPath;
     final String? releaseYear = _extractYear(details.releaseDate);
     final int? scorePercent = _catalogScorePercent(details.catalogScore);
-    final List<MovieRating> externalRatings =
-        details.externalRatings.take(2).toList(growable: false);
+    final List<MovieRating> externalRatings = details.externalRatings
+        .take(2)
+        .toList(growable: false);
     final List<MovieCredit> featuredCrew = _getFeaturedCrew(details.crew);
     final MovieWatchAvailability? watchAvailability = details.watchAvailability;
     final bool hasWatchAvailability = watchAvailability?.hasProviders ?? false;
@@ -298,12 +299,13 @@ class _MovieDetailsView extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     _UserScoreIndicator(percent: scorePercent),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 16),
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           'User Score',
+                          textAlign: TextAlign.center,
                           style: theme.textTheme.titleSmall?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
@@ -324,9 +326,10 @@ class _MovieDetailsView extends StatelessWidget {
                       height: 32,
                       color: Colors.white.withValues(alpha: 0.2),
                     ),
-                    const SizedBox(width: 20),
+                    const SizedBox(width: 16),
                     TextButton.icon(
                       onPressed: null,
+                      iconAlignment: IconAlignment.start,
                       icon: Icon(
                         Icons.play_arrow_rounded,
                         color: Colors.white.withValues(alpha: 0.5),
@@ -683,7 +686,6 @@ class _ExternalRatingsRow extends StatelessWidget {
     if (rottenTomatoes != null) {
       chips.add(
         _ExternalRatingChip(
-          source: 'Rotten Tomatoes',
           value: _normalizeExternalRatingValue(rottenTomatoes.value) ?? 'NA',
           sourceIcon: _TomatoIcon(),
         ),
@@ -692,11 +694,7 @@ class _ExternalRatingsRow extends StatelessWidget {
 
     if (imdb != null) {
       chips.add(
-        _ExternalRatingChip(
-          source: 'IMDb',
-          value: imdb.value,
-          sourceIcon: _ImdbIcon(),
-        ),
+        _ExternalRatingChip(value: imdb.value, sourceIcon: _ImdbIcon()),
       );
     }
 
@@ -720,20 +718,15 @@ MovieRating? _ratingForSource(List<MovieRating> ratings, String source) {
 }
 
 class _ExternalRatingChip extends StatelessWidget {
-  const _ExternalRatingChip({
-    required this.source,
-    required this.value,
-    required this.sourceIcon,
-  });
+  const _ExternalRatingChip({required this.value, required this.sourceIcon});
 
-  final String source;
   final String value;
   final Widget sourceIcon;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: AppColors.detailsCard.withValues(alpha: 0.7),
         borderRadius: BorderRadius.circular(999),
@@ -744,24 +737,11 @@ class _ExternalRatingChip extends StatelessWidget {
         children: [
           sourceIcon,
           const SizedBox(width: 8),
-          Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: '$source ',
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.8),
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                TextSpan(
-                  text: value,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
+          Text(
+            value,
+            style: Theme.of(context).textTheme.labelSmall?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
             ),
           ),
         ],
@@ -773,17 +753,7 @@ class _ExternalRatingChip extends StatelessWidget {
 class _TomatoIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 22,
-      height: 22,
-      decoration: BoxDecoration(
-        color: const Color(0xFFFF5A4F).withValues(alpha: 0.18),
-        shape: BoxShape.circle,
-        border: Border.all(color: const Color(0xFFFF5A4F).withValues(alpha: 0.6)),
-      ),
-      alignment: Alignment.center,
-      child: const Text('🍅', style: TextStyle(fontSize: 12)),
-    );
+    return const Text('🍅', style: TextStyle(fontSize: 16));
   }
 }
 
@@ -796,7 +766,9 @@ class _ImdbIcon extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF111111),
         borderRadius: BorderRadius.circular(5),
-        border: Border.all(color: const Color(0xFFF5C518).withValues(alpha: 0.85)),
+        border: Border.all(
+          color: const Color(0xFFF5C518).withValues(alpha: 0.85),
+        ),
       ),
       alignment: Alignment.center,
       child: Text(
@@ -992,25 +964,25 @@ class _UserScoreIndicator extends StatelessWidget {
         : Colors.redAccent;
 
     return SizedBox(
-      width: 52,
-      height: 52,
+      width: 30,
+      height: 30,
       child: Stack(
         alignment: Alignment.center,
         children: [
           Container(
-            width: 52,
-            height: 52,
+            width: 30,
+            height: 30,
             decoration: const BoxDecoration(
               color: Color(0xFF081C22),
               shape: BoxShape.circle,
             ),
           ),
           SizedBox(
-            width: 46,
-            height: 46,
+            width: 40,
+            height: 40,
             child: CircularProgressIndicator(
               value: percent / 100,
-              strokeWidth: 3.5,
+              strokeWidth: 3.0,
               backgroundColor: ringColor.withValues(alpha: 0.25),
               valueColor: AlwaysStoppedAnimation<Color>(ringColor),
             ),
@@ -1023,7 +995,7 @@ class _UserScoreIndicator extends StatelessWidget {
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
-                    fontSize: 15,
+                    fontSize: 8,
                   ),
                 ),
                 const TextSpan(
@@ -1281,15 +1253,14 @@ class _RecommendationCard extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        final String heroTag = 'movie-poster-${recommendation.id}-recommendation';
+        final String heroTag =
+            'movie-poster-${recommendation.id}-recommendation';
         context.pushNamed(
           AppRoute.movieDetails.name,
           pathParameters: <String, String>{
             'movieId': recommendation.id.toString(),
           },
-          queryParameters: <String, String>{
-            'heroTag': heroTag,
-          },
+          queryParameters: <String, String>{'heroTag': heroTag},
         );
       },
       borderRadius: BorderRadius.circular(12),
@@ -1301,42 +1272,43 @@ class _RecommendationCard extends StatelessWidget {
             Hero(
               tag: 'movie-poster-${recommendation.id}-recommendation',
               child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: SizedBox(
-                width: 130,
-                height: 150,
-                child: recommendation.posterPath == null
-                    ? const ColoredBox(
-                        color: AppColors.detailsPosterSurface,
-                        child: Center(
-                          child: Icon(
-                            Icons.movie_outlined,
-                            color: Colors.white54,
-                            size: 32,
-                          ),
-                        ),
-                      )
-                    : CachedNetworkImage(
-                        imageUrl: recommendation.posterPath!,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => const ColoredBox(
-                          color: AppColors.detailsPosterSurface,
-                          child: Center(child: CircularProgressIndicator()),
-                        ),
-                        errorWidget: (context, url, error) => const ColoredBox(
+                borderRadius: BorderRadius.circular(12),
+                child: SizedBox(
+                  width: 130,
+                  height: 150,
+                  child: recommendation.posterPath == null
+                      ? const ColoredBox(
                           color: AppColors.detailsPosterSurface,
                           child: Center(
                             child: Icon(
-                              Icons.broken_image_outlined,
+                              Icons.movie_outlined,
                               color: Colors.white54,
+                              size: 32,
                             ),
                           ),
+                        )
+                      : CachedNetworkImage(
+                          imageUrl: recommendation.posterPath!,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const ColoredBox(
+                            color: AppColors.detailsPosterSurface,
+                            child: Center(child: CircularProgressIndicator()),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              const ColoredBox(
+                                color: AppColors.detailsPosterSurface,
+                                child: Center(
+                                  child: Icon(
+                                    Icons.broken_image_outlined,
+                                    color: Colors.white54,
+                                  ),
+                                ),
+                              ),
                         ),
-                      ),
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               recommendation.title,
               maxLines: 2,

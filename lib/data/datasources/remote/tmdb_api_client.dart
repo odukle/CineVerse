@@ -6,8 +6,11 @@ import 'package:cineverse/data/models/tmdb_movie_details_dto.dart';
 import 'package:cineverse/data/models/tmdb_movie_genre_dto.dart';
 import 'package:cineverse/data/models/tmdb_movie_watch_providers_dto.dart';
 import 'package:cineverse/data/models/tmdb_movies_response_dto.dart';
+import 'package:cineverse/domain/entities/media_filter.dart';
+import 'package:cineverse/domain/entities/media_images.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -45,12 +48,20 @@ class TmdbApiClient {
   }
 
   Future<List<TmdbMovieGenreDto>> fetchMovieGenres() async {
+    return _fetchGenres(isTv: false);
+  }
+
+  Future<List<TmdbMovieGenreDto>> fetchTvGenres() async {
+    return _fetchGenres(isTv: true);
+  }
+
+  Future<List<TmdbMovieGenreDto>> _fetchGenres({required bool isTv}) async {
     _assertMovieApiConfigured();
 
     try {
       final Response<Map<String, dynamic>> response = await client
           .get<Map<String, dynamic>>(
-            '${AppConstants.tmdbGenrePath}/movie/list',
+            isTv ? '${AppConstants.tmdbGenrePath}/tv/list' : '${AppConstants.tmdbGenrePath}/movie/list',
             queryParameters: _detailQueryParameters(),
           );
       final Map<String, dynamic>? payload = response.data;
@@ -65,7 +76,7 @@ class TmdbApiClient {
           .map(TmdbMovieGenreDto.fromJson)
           .toList(growable: false);
     } on DioException catch (error, stackTrace) {
-      _logFailure('fetchMovieGenres', error, stackTrace);
+      _logFailure(isTv ? 'fetchTvGenres' : 'fetchMovieGenres', error, stackTrace);
       throw TmdbApiException(_messageForDioException(error));
     }
   }
@@ -99,6 +110,62 @@ class TmdbApiClient {
       operation: 'fetchMoviesForSection($section)',
       path: request.path,
       queryParameters: request.queryParameters,
+    );
+  }
+
+  Future<TmdbMoviesResponseDto> discoverMedia({
+    required bool isTv,
+    required MediaFilter filter,
+    int page = 1,
+  }) {
+    final Map<String, dynamic> queryParams = <String, dynamic>{
+      ..._pagedQueryParameters(page: page),
+      'include_adult': false,
+      'sort_by': filter.sortByValue,
+      'vote_average.gte': filter.userScore.start,
+      'vote_average.lte': filter.userScore.end,
+      'vote_count.gte': filter.includeNotRated ? 0 : filter.minUserVotes,
+      'with_runtime.gte': filter.runtime.start.toInt(),
+      'with_runtime.lte': filter.runtime.end.toInt(),
+    };
+
+    if (filter.genres.isNotEmpty) {
+      queryParams['with_genres'] = filter.genres.join(',');
+    }
+
+    if (filter.availabilities.isNotEmpty) {
+      queryParams['with_watch_monetization_types'] =
+          filter.availabilities.join('|');
+      queryParams['watch_region'] = preferredRegionCode;
+    }
+
+    if (isTv) {
+      if (filter.releaseDateFrom != null) {
+        queryParams['first_air_date.gte'] =
+            filter.releaseDateFrom!.toIso8601String().split('T')[0];
+      }
+      if (filter.releaseDateTo != null) {
+        queryParams['first_air_date.lte'] =
+            filter.releaseDateTo!.toIso8601String().split('T')[0];
+      }
+    } else {
+      if (filter.releaseDateFrom != null) {
+        queryParams['primary_release_date.gte'] =
+            filter.releaseDateFrom!.toIso8601String().split('T')[0];
+      }
+      if (filter.releaseDateTo != null) {
+        queryParams['primary_release_date.lte'] =
+            filter.releaseDateTo!.toIso8601String().split('T')[0];
+      }
+      if (filter.releaseTypes.isNotEmpty) {
+        queryParams['with_release_type'] = filter.releaseTypes.join('|');
+      }
+    }
+
+    return _getMovies(
+      operation: 'discoverMedia(isTv: $isTv)',
+      path: isTv ? AppConstants.tmdbDiscoverTvPath : AppConstants.tmdbDiscoverMoviePath,
+      queryParameters: queryParams,
     );
   }
 
@@ -173,6 +240,78 @@ class TmdbApiClient {
     }
 
     return details;
+  }
+
+  Future<MediaImages> fetchMediaImages(
+    int mediaId, {
+    required bool isTv,
+  }) async {
+    _assertMovieApiConfigured();
+
+    final String path =
+        isTv
+            ? '${AppConstants.tmdbTvPath}/$mediaId/images'
+            : '${AppConstants.tmdbMoviePath}/$mediaId/images';
+
+    try {
+      final Response<Map<String, dynamic>> response = await client.get<
+        Map<String, dynamic>
+      >(path, queryParameters: _authQueryParameters());
+
+      final Map<String, dynamic>? payload = response.data;
+      final List<dynamic> postersPayload =
+          (payload?['posters'] as List<dynamic>?) ?? <dynamic>[];
+      final List<dynamic> backdropsPayload =
+          (payload?['backdrops'] as List<dynamic>?) ?? <dynamic>[];
+      final List<dynamic> logosPayload =
+          (payload?['logos'] as List<dynamic>?) ?? <dynamic>[];
+
+      final List<String> posters =
+          postersPayload
+              .whereType<Map<String, dynamic>>()
+              .take(10)
+              .map(
+                (item) => _normalizeImagePath(
+                  item['file_path'] as String?,
+                  size: 'w780',
+                ),
+              )
+              .whereType<String>()
+              .toList(growable: false);
+
+      final List<String> backdrops =
+          backdropsPayload
+              .whereType<Map<String, dynamic>>()
+              .take(10)
+              .map(
+                (item) => _normalizeImagePath(
+                  item['file_path'] as String?,
+                  size: 'w1280',
+                ),
+              )
+              .whereType<String>()
+              .toList(growable: false);
+
+      final List<String> logos =
+          logosPayload
+              .whereType<Map<String, dynamic>>()
+              // Prioritize English logos if available
+              .sortedBy((item) => item['iso_639_1'] == 'en' ? 0 : 1)
+              .take(5)
+              .map(
+                (item) => _normalizeImagePath(
+                  item['file_path'] as String?,
+                  size: 'w500',
+                ),
+              )
+              .whereType<String>()
+              .toList(growable: false);
+
+      return MediaImages(posters: posters, backdrops: backdrops, logos: logos);
+    } on DioException catch (error, stackTrace) {
+      _logFailure('fetchMediaImages($mediaId)', error, stackTrace);
+      return MediaImages.empty;
+    }
   }
 
   Future<List<MovieRecommendation>> _fetchMovieRecommendations(
@@ -368,6 +507,14 @@ class TmdbApiClient {
         queryParameters: <String, dynamic>{
           ..._detailQueryParameters(),
           'page': page,
+        },
+      ),
+      MovieSection.tvDiscover => (
+        path: AppConstants.tmdbDiscoverTvPath,
+        queryParameters: <String, dynamic>{
+          ..._pagedQueryParameters(page: page),
+          'include_adult': false,
+          'sort_by': 'popularity.desc',
         },
       ),
       MovieSection.action => _genreRequest(_actionGenreId, page: page),

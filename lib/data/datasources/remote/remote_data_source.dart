@@ -3,6 +3,8 @@ import 'package:cineverse/data/models/tmdb_movie_details_dto.dart';
 import 'package:cineverse/data/models/tmdb_movie_dto.dart';
 import 'package:cineverse/data/models/tmdb_movie_genre_dto.dart';
 import 'package:cineverse/data/models/tmdb_movies_response_dto.dart';
+import 'package:cineverse/domain/entities/media_filter.dart';
+import 'package:cineverse/domain/entities/media_images.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 
@@ -10,6 +12,7 @@ abstract interface class RemoteDataSource {
   Future<List<TmdbMovieDto>> fetchPopularMovies();
 
   Future<List<TmdbMovieGenreDto>> fetchMovieGenres();
+  Future<List<TmdbMovieGenreDto>> fetchTvGenres();
 
   Future<List<TmdbMovieDto>> fetchMoviesForGenre(int genreId, {int page = 1});
 
@@ -17,6 +20,12 @@ abstract interface class RemoteDataSource {
 
   Future<List<TmdbMovieDto>> fetchMoviesForSectionPage(
     MovieSection section, {
+    int page = 1,
+  });
+
+  Future<List<TmdbMovieDto>> discoverMedia({
+    required bool isTv,
+    required MediaFilter filter,
     int page = 1,
   });
 
@@ -30,6 +39,8 @@ abstract interface class RemoteDataSource {
     int page = 1,
     bool isTv = false,
   });
+
+  Future<MediaImages> fetchMediaImages(int mediaId, {required bool isTv});
 }
 
 class TmdbRemoteDataSource implements RemoteDataSource {
@@ -46,6 +57,11 @@ class TmdbRemoteDataSource implements RemoteDataSource {
   @override
   Future<List<TmdbMovieGenreDto>> fetchMovieGenres() {
     return apiClient.fetchMovieGenres();
+  }
+
+  @override
+  Future<List<TmdbMovieGenreDto>> fetchTvGenres() {
+    return apiClient.fetchTvGenres();
   }
 
   @override
@@ -76,6 +92,20 @@ class TmdbRemoteDataSource implements RemoteDataSource {
   }
 
   @override
+  Future<List<TmdbMovieDto>> discoverMedia({
+    required bool isTv,
+    required MediaFilter filter,
+    int page = 1,
+  }) async {
+    final TmdbMoviesResponseDto response = await apiClient.discoverMedia(
+      isTv: isTv,
+      filter: filter,
+      page: page,
+    );
+    return response.movies;
+  }
+
+  @override
   Future<TmdbMovieDetailsDto> fetchMovieDetails(
     int movieId, {
     bool isTv = false,
@@ -90,5 +120,10 @@ class TmdbRemoteDataSource implements RemoteDataSource {
     bool isTv = false,
   }) {
     return apiClient.fetchMovieRecommendations(movieId, page: page, isTv: isTv);
+  }
+
+  @override
+  Future<MediaImages> fetchMediaImages(int mediaId, {required bool isTv}) {
+    return apiClient.fetchMediaImages(mediaId, isTv: isTv);
   }
 }

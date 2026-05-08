@@ -5,6 +5,7 @@ import 'package:cineverse/presentation/features/movies/providers/movies_provider
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cineverse/app/router/app_router.dart' show AppRoute;
 import 'package:go_router/go_router.dart';
 
 class HomeScaffold extends ConsumerWidget {
@@ -42,8 +43,21 @@ class HomeScaffold extends ConsumerWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.search_rounded, size: 24, color: Colors.white),
+            onPressed: () {
+              if (isMoviesOrTv) {
+                context.pushNamed(
+                  AppRoute.filter.name,
+                  queryParameters: {'isTv': (currentTab == HomeTab.tvShows).toString()},
+                );
+              } else {
+                // TODO: Implement search for Explore/Account tabs
+              }
+            },
+            icon: Icon(
+              isMoviesOrTv ? Icons.tune_rounded : Icons.search_rounded,
+              size: 24,
+              color: Colors.white,
+            ),
           ),
           const SizedBox(width: 8),
         ],

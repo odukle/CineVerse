@@ -1,6 +1,8 @@
 const ALLOWED_STATIC_PATHS = new Set([
   "/genre/movie/list",
+  "/genre/tv/list",
   "/discover/movie",
+  "/discover/tv",
   "/trending/movie/day",
   "/trending/movie/week",
   "/movie/popular",
@@ -19,6 +21,8 @@ const TMDB_MOVIE_RECOMMENDATIONS_PATTERN = /^\/movie\/\d+\/recommendations$/;
 const TMDB_TV_DETAILS_PATTERN = /^\/tv\/\d+$/;
 const TMDB_TV_WATCH_PROVIDERS_PATTERN = /^\/tv\/\d+\/watch\/providers$/;
 const TMDB_TV_RECOMMENDATIONS_PATTERN = /^\/tv\/\d+\/recommendations$/;
+const TMDB_MOVIE_IMAGES_PATTERN = /^\/movie\/\d+\/images$/;
+const TMDB_TV_IMAGES_PATTERN = /^\/tv\/\d+\/images$/;
 
 export default {
   async fetch(request, env, ctx) {
@@ -112,7 +116,9 @@ function cacheTtlSeconds(pathname) {
     TMDB_MOVIE_RECOMMENDATIONS_PATTERN.test(pathname) ||
     TMDB_TV_DETAILS_PATTERN.test(pathname) ||
     TMDB_TV_WATCH_PROVIDERS_PATTERN.test(pathname) ||
-    TMDB_TV_RECOMMENDATIONS_PATTERN.test(pathname)
+    TMDB_TV_RECOMMENDATIONS_PATTERN.test(pathname) ||
+    TMDB_MOVIE_IMAGES_PATTERN.test(pathname) ||
+    TMDB_TV_IMAGES_PATTERN.test(pathname)
     ? 3600
     : 600;
 }
@@ -125,7 +131,9 @@ function isAllowedPath(pathname) {
     TMDB_MOVIE_RECOMMENDATIONS_PATTERN.test(pathname) ||
     TMDB_TV_DETAILS_PATTERN.test(pathname) ||
     TMDB_TV_WATCH_PROVIDERS_PATTERN.test(pathname) ||
-    TMDB_TV_RECOMMENDATIONS_PATTERN.test(pathname)
+    TMDB_TV_RECOMMENDATIONS_PATTERN.test(pathname) ||
+    TMDB_MOVIE_IMAGES_PATTERN.test(pathname) ||
+    TMDB_TV_IMAGES_PATTERN.test(pathname)
   );
 }
 

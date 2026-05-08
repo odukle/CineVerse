@@ -3,6 +3,8 @@ import 'package:cineverse/data/datasources/remote/omdb_api_client.dart';
 import 'package:cineverse/data/datasources/remote/remote_data_source.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/movie_genre.dart';
+import 'package:cineverse/domain/entities/media_filter.dart';
+import 'package:cineverse/domain/entities/media_images.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/domain/repositories/media_repository.dart';
@@ -31,9 +33,13 @@ class MediaRepositoryImpl implements MediaRepository {
   @override
   Future<List<MovieGenre>> fetchMovieGenres() async {
     final genreDtos = await remoteDataSource.fetchMovieGenres();
-    return genreDtos
-        .map((genreDto) => genreDto.toDomain())
-        .toList(growable: false);
+    return genreDtos.map((dto) => dto.toDomain()).toList(growable: false);
+  }
+
+  @override
+  Future<List<MovieGenre>> fetchTvGenres() async {
+    final genreDtos = await remoteDataSource.fetchTvGenres();
+    return genreDtos.map((dto) => dto.toDomain()).toList(growable: false);
   }
 
   @override
@@ -63,6 +69,23 @@ class MediaRepositoryImpl implements MediaRepository {
   }) async {
     final movieDtos = await remoteDataSource.fetchMoviesForSectionPage(
       section,
+      page: page,
+    );
+
+    return movieDtos
+        .map((movieDto) => movieDto.toDomain())
+        .toList(growable: false);
+  }
+
+  @override
+  Future<List<MediaTitle>> discoverMedia({
+    required bool isTv,
+    required MediaFilter filter,
+    int page = 1,
+  }) async {
+    final movieDtos = await remoteDataSource.discoverMedia(
+      isTv: isTv,
+      filter: filter,
       page: page,
     );
 
@@ -109,5 +132,10 @@ class MediaRepositoryImpl implements MediaRepository {
       page: page,
       isTv: isTv,
     );
+  }
+
+  @override
+  Future<MediaImages> fetchMediaImages(int mediaId, {required bool isTv}) {
+    return remoteDataSource.fetchMediaImages(mediaId, isTv: isTv);
   }
 }

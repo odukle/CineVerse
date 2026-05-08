@@ -2,6 +2,7 @@ import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
+import 'package:cineverse/presentation/features/movies/providers/filter_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,9 +13,16 @@ class MoviesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
     final MediaFilterOption selectedFilter = ref.watch(selectedMovieFilterProvider);
+    final bool isFiltering = ref.watch(isFilteringProvider);
     final AsyncValue<List<MediaTitle>> movies = ref.watch(
       movieSectionProvider(selectedFilter.section),
     );
+
+    ref.listen(movieSectionProvider(selectedFilter.section), (previous, next) {
+      if (!next.isLoading) {
+        ref.read(isFilteringProvider.notifier).setState(false);
+      }
+    });
 
     return DecoratedBox(
       decoration: const BoxDecoration(
@@ -24,9 +32,11 @@ class MoviesScreen extends ConsumerWidget {
           colors: AppColors.cinemaGradient,
         ),
       ),
-      child: movies.when(
-        skipLoadingOnReload: true,
-        loading: () => const Center(child: CircularProgressIndicator()),
+      child: isFiltering 
+        ? const Center(child: CircularProgressIndicator(color: AppColors.cinemaAccent))
+        : movies.when(
+            skipLoadingOnReload: true,
+            loading: () => const Center(child: CircularProgressIndicator()),
         error: (Object error, StackTrace stackTrace) => Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),

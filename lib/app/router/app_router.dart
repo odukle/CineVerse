@@ -4,6 +4,7 @@ import 'package:cineverse/presentation/features/home/movies_screen.dart';
 import 'package:cineverse/presentation/features/home/tv_shows_screen.dart';
 import 'package:cineverse/presentation/features/movie_details/movie_details_screen.dart';
 import 'package:cineverse/presentation/features/movies/explore_screen.dart';
+import 'package:cineverse/presentation/features/movies/widgets/filter_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -68,6 +69,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
+      GoRoute(
+        path: AppRoute.filter.path,
+        name: AppRoute.filter.name,
+        builder: (context, state) {
+          final bool isTv = state.uri.queryParameters['isTv'] == 'true';
+          return FilterScreen(isTv: isTv);
+        },
+      ),
     ],
   );
 });
@@ -78,7 +87,8 @@ enum AppRoute {
   movies('/', 'movies'),
   tvShows('/tv-shows', 'tv-shows'),
   account('/account', 'account'),
-  movieDetails('/movies/:movieId', 'movie-details');
+  movieDetails('/movies/:movieId', 'movie-details'),
+  filter('/filter', 'filter');
 
   const AppRoute(this.path, this.name);
 
