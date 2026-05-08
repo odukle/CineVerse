@@ -19,7 +19,7 @@ class ExploreMediaTypeToggle extends ConsumerWidget {
           padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
             color: AppColors.cinemaSurface,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: AppColors.cinemaAccent.withValues(alpha: 0.1),
             ),
@@ -71,12 +71,14 @@ class _ToggleOption extends StatelessWidget {
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: selected ? AppColors.cinemaAccent : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(14),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? Colors.black : Colors.white.withValues(alpha: 0.7),
+            color: selected
+                ? Colors.black
+                : Colors.white.withValues(alpha: 0.7),
             fontSize: 12,
             fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
           ),

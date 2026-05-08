@@ -5,28 +5,27 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/config/app_config.dart';
+import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/movie_genre.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
 import 'package:cineverse/app/router/app_router.dart' show AppRoute;
-import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
-import 'package:cineverse/presentation/features/movies/providers/explore_provider.dart';
 import 'package:cineverse/presentation/features/movies/widgets/rating_badge.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 _DiscoverSpotlightState? _discoverSpotlightState;
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
 
-  static const List<_MovieShelfData> _movieBaseSections = <_MovieShelfData>[
+  static const List<_MovieShelfData> _baseSections = <_MovieShelfData>[
     _MovieShelfData(
       title: 'Trending',
       filters: <_ShelfFilterOption>[
@@ -69,55 +68,6 @@ class ExploreScreen extends ConsumerStatefulWidget {
     ),
   ];
 
-  static const List<_MovieShelfData> _tvBaseSections = <_MovieShelfData>[
-    _MovieShelfData(
-      title: 'TV Trending',
-      filters: <_ShelfFilterOption>[
-        _ShelfFilterOption(label: 'Today', section: MovieSection.tvTrendingDay),
-        _ShelfFilterOption(
-          label: 'This Week',
-          section: MovieSection.tvTrendingWeek,
-        ),
-      ],
-      variant: _ShelfVariant.featured,
-    ),
-    _MovieShelfData(
-      title: "What's Popular",
-      filters: <_ShelfFilterOption>[
-        _ShelfFilterOption(label: 'Popular', section: MovieSection.tvPopular),
-        _ShelfFilterOption(
-          label: 'Top Rated',
-          section: MovieSection.tvTopRated,
-        ),
-        _ShelfFilterOption(
-          label: 'On The Air',
-          section: MovieSection.tvOnTheAir,
-        ),
-        _ShelfFilterOption(
-          label: 'Airing Today',
-          section: MovieSection.tvAiringToday,
-        ),
-      ],
-    ),
-    _MovieShelfData(
-      title: 'On The Air',
-      filters: <_ShelfFilterOption>[
-        _ShelfFilterOption(
-          label: 'On The Air',
-          section: MovieSection.tvOnTheAir,
-        ),
-        _ShelfFilterOption(
-          label: 'Airing Today',
-          section: MovieSection.tvAiringToday,
-        ),
-        _ShelfFilterOption(
-          label: 'Top Rated',
-          section: MovieSection.tvTopRated,
-        ),
-      ],
-    ),
-  ];
-
   @override
   ConsumerState<ExploreScreen> createState() => _ExploreScreenState();
 }
@@ -147,14 +97,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       return;
     }
 
-    final mediaType = ref.read(exploreMediaTypeProvider);
-    final List<MovieGenre>? genres =
-        (mediaType == ExploreMediaType.movie
-                ? ref.read(movieGenresProvider)
-                : ref.read(tvGenresProvider))
-            .asData
-            ?.value;
-
+    final List<MovieGenre>? genres = ref
+        .read(movieGenresProvider)
+        .asData
+        ?.value;
     if (genres == null || genres.isEmpty || _isAppendingGenres) {
       return;
     }
@@ -207,26 +153,17 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final mediaType = ref.watch(exploreMediaTypeProvider);
-    final bool isTv = mediaType == ExploreMediaType.tv;
-
     final bool hasMovieApiAccess = ref.watch(
       appConfigProvider.select((config) => config.hasMovieApiAccess),
     );
-
     final AsyncValue<List<MovieGenre>> genresAsync = ref.watch(
-      isTv ? tvGenresProvider : movieGenresProvider,
+      movieGenresProvider,
     );
-
     final List<_MovieShelfData> genreSections = _genreSections(
       genresAsync.asData?.value ?? const <MovieGenre>[],
     );
     final int totalGenres = genresAsync.asData?.value.length ?? 0;
     final bool hasMoreGenres = genreSections.length < totalGenres;
-
-    final List<_MovieShelfData> baseSections = isTv
-        ? ExploreScreen._tvBaseSections
-        : ExploreScreen._movieBaseSections;
 
     if (!hasMovieApiAccess) {
       return Center(
@@ -258,128 +195,95 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       );
     }
 
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 550),
-      switchInCurve: Curves.easeInQuad,
-      switchOutCurve: Curves.easeOutQuad,
-      layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
-        return Stack(
-          alignment: Alignment.topCenter,
-          children: <Widget>[
-            ...previousChildren,
-            currentChild ?? const SizedBox.shrink(),
-          ],
-        );
-      },
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        final isEntering = child.key == ValueKey(mediaType);
-        return FadeTransition(
-          opacity: animation,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: isEntering
-                  ? const Offset(0.04, 0)
-                  : const Offset(-0.04, 0),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          ),
-        );
-      },
-      child: CustomScrollView(
-        key: ValueKey(mediaType), // Force refresh when switching type
-        controller: _scrollController,
-        physics: const AlwaysScrollableScrollPhysics(),
-        cacheExtent:
-            1500, // Pre-build shelves in the background to eliminate stutter
-        slivers: [
-          const SliverToBoxAdapter(child: SizedBox(height: 12)),
-          const SliverToBoxAdapter(child: _DiscoverSpotlightSection()),
+    return CustomScrollView(
+      controller: _scrollController,
+      physics: const AlwaysScrollableScrollPhysics(),
+      cacheExtent: 1500, // Pre-build shelves in the background to eliminate stutter
+      slivers: [
+        const SliverToBoxAdapter(child: SizedBox(height: 12)),
+        const SliverToBoxAdapter(child: _DiscoverSpotlightSection()),
 
-          // Optimized combined shelf list (Base + Genres)
-          SliverList(
-            delegate: SliverChildBuilderDelegate((
-              BuildContext context,
-              int index,
-            ) {
-              if (index < baseSections.length) {
-                return _MovieShelfSection(section: baseSections[index]);
+        // Optimized combined shelf list (Base + Genres)
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (BuildContext context, int index) {
+              if (index < ExploreScreen._baseSections.length) {
+                return _MovieShelfSection(
+                  section: ExploreScreen._baseSections[index],
+                );
               }
-              final int genreIndex = index - baseSections.length;
+              final int genreIndex =
+                  index - ExploreScreen._baseSections.length;
               return _MovieShelfSection(section: genreSections[genreIndex]);
-            }, childCount: baseSections.length + genreSections.length),
+            },
+            childCount:
+                ExploreScreen._baseSections.length + genreSections.length,
+          ),
+        ),
+
+        if (genresAsync.isLoading && genreSections.isEmpty)
+          const SliverToBoxAdapter(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 32),
+              child: Center(child: CircularProgressIndicator()),
+            ),
           ),
 
-          if (genresAsync.isLoading && genreSections.isEmpty)
-            const SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 32),
-                child: Center(child: CircularProgressIndicator()),
-              ),
-            ),
-
-          if (genresAsync.hasError)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                child: Text(
-                  'Failed to load genre shelves. ${genresAsync.error}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.error,
-                  ),
+        if (genresAsync.hasError)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+              child: Text(
+                'Failed to load genre shelves. ${genresAsync.error}',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.error,
                 ),
               ),
             ),
+          ),
 
-          if (hasMoreGenres)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-                child: Text(
-                  'Keep scrolling to load more genres.',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.4),
-                    fontWeight: FontWeight.w500,
-                  ),
+        if (hasMoreGenres)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+              child: Text(
+                'Keep scrolling to load more genres.',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: Colors.white.withValues(alpha: 0.6),
                 ),
               ),
             ),
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
-        ],
-      ),
+          ),
+        const SliverToBoxAdapter(child: SizedBox(height: 12)),
+      ],
     );
   }
 }
 
-class _ShelfVariant {
-  static const String featured = 'featured';
-  static const String normal = 'normal';
-}
+enum _ShelfVariant { featured, compact }
 
 class _MovieShelfData {
   const _MovieShelfData({
     required this.title,
     required this.filters,
-    this.variant = _ShelfVariant.normal,
+    this.variant = _ShelfVariant.compact,
   });
 
   final String title;
   final List<_ShelfFilterOption> filters;
-  final String variant;
+  final _ShelfVariant variant;
 }
 
 class _ShelfFilterOption {
-  const _ShelfFilterOption({required this.label, this.section, this.genreId});
+  const _ShelfFilterOption({required this.label, this.section, this.genreId})
+    : assert((section == null) != (genreId == null));
 
   final String label;
   final MovieSection? section;
   final int? genreId;
 
   bool matches(_ShelfFilterOption other) {
-    if (section != null) return section == other.section;
-    if (genreId != null) return genreId == other.genreId;
-    return false;
+    return section == other.section && genreId == other.genreId;
   }
 }
 
@@ -443,10 +347,7 @@ class _DiscoverSpotlightSectionState
     _logoUrl = null;
     _isNextImageReady = false;
 
-    final mediaType = ref.watch(exploreMediaTypeProvider);
-    final bool isTv = mediaType == ExploreMediaType.tv;
-
-    ref.read(mediaImagesProvider((id: movieId, isTv: isTv)).future).then((
+    ref.read(mediaImagesProvider((id: movieId, isTv: false)).future).then((
       images,
     ) {
       if (mounted && _lastMovieId == movieId) {
@@ -545,13 +446,8 @@ class _DiscoverSpotlightSectionState
               ? _slideshowImages[_currentImageIndex]
               : movie.posterPath;
 
-          final mediaType = ref.watch(exploreMediaTypeProvider);
-          final bool isTv = mediaType == ExploreMediaType.tv;
-
           final AsyncValue<MovieDetails> movieDetails = ref.watch(
-            movieDetailsProvider(
-              GetMovieDetailsParams(movieId: movie.id, isTv: isTv),
-            ),
+            movieDetailsProvider(GetMovieDetailsParams(movieId: movie.id)),
           );
           final List<MovieRating> ratings =
               movieDetails.value?.externalRatings
@@ -646,7 +542,6 @@ class _DiscoverSpotlightSectionState
                             },
                             queryParameters: <String, String>{
                               'heroTag': 'movie-poster-${movie.id}-spotlight',
-                              'isTv': isTv.toString(),
                             },
                           ),
                           child: Hero(
@@ -767,21 +662,12 @@ class _DiscoverSpotlightSectionState
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     if (_logoUrl != null)
-                                      _logoUrl!.toLowerCase().endsWith('.svg')
-                                          ? SvgPicture.network(
-                                              _logoUrl!,
-                                              height: 32,
-                                              fit: BoxFit.contain,
-                                              alignment: Alignment.centerLeft,
-                                              placeholderBuilder: (context) =>
-                                                  const SizedBox(height: 32),
-                                            )
-                                          : CachedNetworkImage(
-                                              imageUrl: _logoUrl!,
-                                              height: 32,
-                                              fit: BoxFit.contain,
-                                              alignment: Alignment.centerLeft,
-                                            )
+                                      CachedNetworkImage(
+                                        imageUrl: _logoUrl!,
+                                        height: 32,
+                                        fit: BoxFit.contain,
+                                        alignment: Alignment.centerLeft,
+                                      )
                                     else
                                       Text(
                                         movie.title,
@@ -1035,7 +921,8 @@ class _MovieShelfSection extends ConsumerStatefulWidget {
   ConsumerState<_MovieShelfSection> createState() => _MovieShelfSectionState();
 }
 
-class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
+class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection>
+    with TickerProviderStateMixin {
   late _ShelfFilterOption _selectedFilter;
   bool _isFilterExpanded = false;
 
@@ -1045,16 +932,11 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
     _selectedFilter = widget.section.filters.first;
   }
 
-  @override
-  void didUpdateWidget(_MovieShelfSection oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.section.title != oldWidget.section.title) {
-      _selectedFilter = widget.section.filters.first;
-      _isFilterExpanded = false;
-    }
-  }
-
   void _toggleExpanded() {
+    if (widget.section.filters.length < 2) {
+      return;
+    }
+
     setState(() {
       _isFilterExpanded = !_isFilterExpanded;
     });
@@ -1070,147 +952,138 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final mediaType = ref.watch(exploreMediaTypeProvider);
-    final bool isTv = mediaType == ExploreMediaType.tv;
-
     final AsyncValue<List<MediaTitle>> movies = _selectedFilter.genreId != null
-        ? ref.watch(
-            genreSectionProvider((id: _selectedFilter.genreId!, isTv: isTv)),
-          )
+        ? ref.watch(genreSectionProvider((id: _selectedFilter.genreId!, isTv: false)))
         : ref.watch(movieSectionProvider(_selectedFilter.section!));
-
     const double horizontalPadding = 16;
-    const double itemSpacing = 12;
-    const double shelfHeight = 246; // Poster(162) + Content
+    const double itemSpacing = 10;
+    const double shelfHeight = 246;
 
     // Use a more efficient way to get width
     final double screenWidth = MediaQuery.sizeOf(context).width;
-    final double cardWidth =
-        (screenWidth - (horizontalPadding * 2) - (itemSpacing * 2)) / 3;
+    final double cardWidth = (screenWidth - (horizontalPadding * 2) - (itemSpacing * 2)) / 3;
     final double finalCardWidth = cardWidth.clamp(100.0, 108.0);
 
     return RepaintBoundary(
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      widget.section.title,
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
+      padding: const EdgeInsets.only(bottom: 28),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    widget.section.title,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      color: Colors.white,
                     ),
-                  ),
-                  _SectionFilterPill(
-                    label: _selectedFilter.label,
-                    isExpanded: _isFilterExpanded,
-                    isInteractive: widget.section.filters.length > 1,
-                    onTap: _toggleExpanded,
-                  ),
-                ],
-              ),
-            ),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 220),
-              curve: Curves.easeOutCubic,
-              child: _isFilterExpanded
-                  ? Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: widget.section.filters
-                            .map(
-                              (option) => _SectionFilterChoice(
-                                label: option.label,
-                                selected: option.matches(_selectedFilter),
-                                onTap: () => _selectFilter(option),
-                              ),
-                            )
-                            .toList(growable: false),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-            movies.when(
-              skipLoadingOnReload: true,
-              loading: () => const SizedBox(
-                height: shelfHeight,
-                child: Center(child: CircularProgressIndicator()),
-              ),
-              error: (Object error, StackTrace stackTrace) => Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  'Failed to load ${widget.section.title.toLowerCase()}. $error',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.error,
                   ),
                 ),
-              ),
-              data: (List<MediaTitle> data) {
-                if (data.isEmpty) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Text(
-                      'No titles returned for this section.',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.7),
-                      ),
+                _SectionFilterPill(
+                  label: _selectedFilter.label,
+                  isExpanded: _isFilterExpanded,
+                  isInteractive: widget.section.filters.length > 1,
+                  onTap: _toggleExpanded,
+                ),
+              ],
+            ),
+          ),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            child: _isFilterExpanded
+                ? Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: widget.section.filters
+                          .map(
+                            (option) => _SectionFilterChoice(
+                              label: option.label,
+                              selected: option.matches(_selectedFilter),
+                              onTap: () => _selectFilter(option),
+                            ),
+                          )
+                          .toList(growable: false),
                     ),
-                  );
-                }
-
-                return SizedBox(
-                  height: shelfHeight,
-                  child: NotificationListener<ScrollNotification>(
-                    onNotification: (ScrollNotification scrollInfo) {
-                      if (scrollInfo.metrics.pixels >=
-                          scrollInfo.metrics.maxScrollExtent - 200) {
-                        final int? genreId = _selectedFilter.genreId;
-                        if (genreId != null) {
-                          loadNextGenrePages(ref, genreId, isTv: isTv);
-                        } else {
-                          loadNextPages(ref, _selectedFilter.section!);
-                        }
-                      }
-                      return false;
-                    },
-                    child: ListView.separated(
-                      cacheExtent:
-                          500, // Pre-render slightly more items for smoothness
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: horizontalPadding,
-                      ),
-                      scrollDirection: Axis.horizontal,
-                      addAutomaticKeepAlives: true, // Keep posters in memory
-                      itemCount: data.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(width: itemSpacing),
-                      itemBuilder: (context, index) {
-                        return RepaintBoundary(
-                          child: _PosterMovieCard(
-                            movie: data[index],
-                            sectionTitle: widget.section.title,
-                            width: finalCardWidth,
-                            isTv: isTv,
-                          ),
-                        );
-                      },
+                  )
+                : const SizedBox.shrink(),
+          ),
+          movies.when(
+            skipLoadingOnReload: true,
+            loading: () => const SizedBox(
+              height: shelfHeight,
+              child: Center(child: CircularProgressIndicator()),
+            ),
+            error: (Object error, StackTrace stackTrace) => Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                'Failed to load ${widget.section.title.toLowerCase()}. $error',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+              ),
+            ),
+            data: (List<MediaTitle> data) {
+              if (data.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    'No titles returned for this section.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.7),
                     ),
                   ),
                 );
-              },
-            ),
-          ],
-        ),
+              }
+
+              return SizedBox(
+                height: shelfHeight,
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (ScrollNotification scrollInfo) {
+                    if (scrollInfo.metrics.pixels >=
+                        scrollInfo.metrics.maxScrollExtent - 200) {
+                      final int? genreId = _selectedFilter.genreId;
+                      if (genreId != null) {
+                        loadNextGenrePages(ref, genreId);
+                      } else {
+                        loadNextPages(ref, _selectedFilter.section!);
+                      }
+                    }
+                    return false;
+                  },
+                  child: ListView.separated(
+                    cacheExtent: 500, // Pre-render slightly more items for smoothness
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
+                    ),
+                    scrollDirection: Axis.horizontal,
+                    addAutomaticKeepAlives: true, // Keep posters in memory
+                    itemCount: data.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: itemSpacing),
+                    itemBuilder: (context, index) {
+                      return RepaintBoundary(
+                        child: _PosterMovieCard(
+                          movie: data[index],
+                          sectionTitle: widget.section.title,
+                          width: finalCardWidth,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
       ),
+    ),
     );
   }
 }
@@ -1219,8 +1092,8 @@ class _SectionFilterPill extends StatelessWidget {
   const _SectionFilterPill({
     required this.label,
     required this.isExpanded,
+    required this.isInteractive,
     required this.onTap,
-    this.isInteractive = true,
   });
 
   final String label;
@@ -1232,41 +1105,32 @@ class _SectionFilterPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: isInteractive ? onTap : null,
-      borderRadius: BorderRadius.circular(20),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isExpanded
-              ? AppColors.cinemaAccent
-              : AppColors.cinemaSurface.withValues(alpha: 0.7),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isExpanded
-                ? Colors.transparent
-                : AppColors.cinemaAccent.withValues(alpha: 0.2),
-          ),
+          color: AppColors.cinemaSurface,
+          borderRadius: BorderRadius.circular(999),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               label,
-              style: TextStyle(
-                color: isExpanded ? Colors.black : AppColors.cinemaPillText,
-                fontSize: 12,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: AppColors.cinemaPillText,
                 fontWeight: FontWeight.w700,
               ),
             ),
             if (isInteractive) ...[
-              const SizedBox(width: 6),
+              const SizedBox(width: 4),
               AnimatedRotation(
                 turns: isExpanded ? 0.25 : 0,
                 duration: const Duration(milliseconds: 180),
-                child: Icon(
+                child: const Icon(
                   Icons.chevron_right_rounded,
-                  color: isExpanded ? Colors.black : AppColors.cinemaAccent,
-                  size: 16,
+                  color: AppColors.cinemaAccent,
+                  size: 18,
                 ),
               ),
             ],
@@ -1290,27 +1154,30 @@ class _SectionFilterChoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChoiceChip(
-      label: Text(label),
-      selected: selected,
-      onSelected: (_) => onTap(),
-      backgroundColor: AppColors.cinemaSurface.withValues(alpha: 0.5),
-      selectedColor: AppColors.cinemaAccent,
-      labelStyle: TextStyle(
-        color: selected ? Colors.black : Colors.white.withValues(alpha: 0.7),
-        fontSize: 12,
-        fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: selected
-              ? Colors.transparent
-              : Colors.white.withValues(alpha: 0.1),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.cinemaSelected : AppColors.cinemaSurface,
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: selected
+                ? AppColors.cinemaSelected
+                : AppColors.cinemaAccent.withValues(alpha: 0.22),
+          ),
+        ),
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: Colors.white,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          ),
         ),
       ),
-      showCheckmark: false,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
     );
   }
 }
@@ -1319,22 +1186,20 @@ class _PosterMovieCard extends StatelessWidget {
   const _PosterMovieCard({
     required this.movie,
     required this.sectionTitle,
-    required this.width,
-    this.isTv = false,
+    this.width = 104,
   });
 
   final MediaTitle movie;
   final String sectionTitle;
   final double width;
-  final bool isTv;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    const double posterHeight = 162;
-    const double badgeSize = 34;
-    const double badgeOffset = badgeSize / 2;
-    const double titleGap = 16;
+    final double posterHeight = width * 1.42;
+    final double badgeSize = width * 0.28;
+    final double badgeOffset = badgeSize * 0.24;
+    final double titleGap = badgeOffset + 5;
 
     // Use the TMDB score from the list API — no extra network call needed
     final Widget scoreBadge = RatingBadge.tmdb(
@@ -1352,10 +1217,7 @@ class _PosterMovieCard extends StatelessWidget {
           onTap: () => context.pushNamed(
             AppRoute.movieDetails.name,
             pathParameters: <String, String>{'movieId': movie.id.toString()},
-            queryParameters: <String, String>{
-              'heroTag': heroTag,
-              'isTv': isTv.toString(),
-            },
+            queryParameters: <String, String>{'heroTag': heroTag},
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -1373,26 +1235,25 @@ class _PosterMovieCard extends StatelessWidget {
                         child: movie.posterPath == null
                             ? const ColoredBox(
                                 color: AppColors.cinemaPlaceholder,
-                                child: Center(
-                                  child: Icon(Icons.movie_outlined),
-                                ),
+                                child:
+                                    Center(child: Icon(Icons.movie_outlined)),
                               )
                             : CachedNetworkImage(
                                 imageUrl: movie.posterPath!,
                                 fit: BoxFit.cover,
-                                placeholder: (context, url) => const ColoredBox(
-                                  color: AppColors.cinemaPlaceholder,
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                ),
+                                placeholder: (context, url) =>
+                                    const ColoredBox(
+                                      color: AppColors.cinemaPlaceholder,
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    ),
                                 errorWidget: (context, url, error) =>
                                     const ColoredBox(
                                       color: AppColors.cinemaPlaceholder,
                                       child: Center(
-                                        child: Icon(
-                                          Icons.broken_image_outlined,
-                                        ),
+                                        child:
+                                            Icon(Icons.broken_image_outlined),
                                       ),
                                     ),
                               ),
@@ -1439,6 +1300,7 @@ MovieRating? _ratingForSource(List<MovieRating> ratings, String source) {
 
   return null;
 }
+
 
 String? _normalizeScore(String rawValue) {
   final RegExp percentPattern = RegExp(r'(\d{1,3})\s*%');

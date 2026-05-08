@@ -5,6 +5,8 @@ const ALLOWED_STATIC_PATHS = new Set([
   "/discover/tv",
   "/trending/movie/day",
   "/trending/movie/week",
+  "/trending/tv/day",
+  "/trending/tv/week",
   "/movie/popular",
   "/movie/top_rated",
   "/movie/now_playing",

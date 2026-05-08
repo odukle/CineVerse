@@ -45,6 +45,17 @@ class HomeScaffold extends ConsumerWidget {
         ),
         centerTitle: true,
         actions: [
+          if (isMoviesOrTv)
+            IconButton(
+              onPressed: () {
+                // TODO: Implement global search
+              },
+              icon: const Icon(
+                Icons.search_rounded,
+                size: 24,
+                color: Colors.white,
+              ),
+            ),
           IconButton(
             onPressed: () {
               if (isMoviesOrTv) {

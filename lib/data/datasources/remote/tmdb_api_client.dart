@@ -312,15 +312,25 @@ class TmdbApiClient {
       final List<String> logos =
           logosPayload
               .whereType<Map<String, dynamic>>()
-              // Prioritize English logos if available
-              .sortedBy((item) => item['iso_639_1'] == 'en' ? 0 : 1)
+              .sortedBy((item) {
+                final String? path = item['file_path'] as String?;
+                final bool isSvg =
+                    path?.toLowerCase().endsWith('.svg') ?? false;
+                final bool isEn = item['iso_639_1'] == 'en';
+
+                // Priority: SVG English > SVG Other > PNG English > PNG Other
+                if (isSvg && isEn) return 0;
+                if (isSvg) return 1;
+                if (isEn) return 2;
+                return 3;
+              })
               .take(5)
-              .map(
-                (item) => _normalizeImagePath(
-                  item['file_path'] as String?,
-                  size: 'w500',
-                ),
-              )
+              .map((item) {
+                final String? path = item['file_path'] as String?;
+                final bool isSvg =
+                    path?.toLowerCase().endsWith('.svg') ?? false;
+                return _normalizeImagePath(path, size: isSvg ? 'original' : 'w500');
+              })
               .whereType<String>()
               .toList(growable: false);
 
