@@ -20,6 +20,9 @@ class HomeScaffold extends ConsumerWidget {
     final bool isMoviesOrTv =
         currentTab == HomeTab.movies || currentTab == HomeTab.tvShows;
 
+    final bool isExplore = currentTab == HomeTab.explore;
+    const double appBarSideWidth = 150;
+
     return Scaffold(
       backgroundColor: AppColors.cinemaBackground,
       appBar: AppBar(
@@ -27,61 +30,73 @@ class HomeScaffold extends ConsumerWidget {
         backgroundColor: AppColors.cinemaGradientTop,
         elevation: 0,
         automaticallyImplyLeading: false,
-        leadingWidth: isMoviesOrTv
-            ? 140
-            : (currentTab == HomeTab.explore ? 140 : null),
-        leading: isMoviesOrTv
-            ? _AppBarFilterPill(tab: currentTab)
-            : (currentTab == HomeTab.explore
-                  ? const ExploreMediaTypeToggle()
-                  : null),
-        title: SizedBox(
-          height: 28,
-          child: SvgPicture.asset(
-            'assets/logos/logo.svg',
-            fit: BoxFit.contain,
-            semanticsLabel: AppConstants.appName,
-          ),
-        ),
         centerTitle: true,
-        actions: [
-          if (isMoviesOrTv)
-            IconButton(
-              onPressed: () {
-                // TODO: Implement global search
-              },
-              icon: const Icon(
-                Icons.search_rounded,
-                size: 24,
-                color: Colors.white,
+        leadingWidth: appBarSideWidth,
+        leading: Row(
+          children: [
+            if (currentTab == HomeTab.watchlist) ...[
+              const SizedBox(width: 4),
+              IconButton(
+                onPressed: () => context.pushNamed(AppRoute.notes.name),
+                icon: const Icon(
+                  Icons.notes_rounded,
+                  size: 24,
+                  color: Colors.white,
+                ),
+                tooltip: 'My Notes',
               ),
-            ),
-          IconButton(
-            onPressed: () {
-              if (isMoviesOrTv) {
-                context.pushNamed(
-                  AppRoute.filter.name,
-                  queryParameters: {
-                    'isTv': (currentTab == HomeTab.tvShows).toString(),
+            ],
+            if (isMoviesOrTv)
+              _AppBarFilterPill(tab: currentTab)
+            else if (isExplore)
+              const ExploreMediaTypeToggle(),
+          ],
+        ),
+        title: SvgPicture.asset(
+          'assets/logos/logo.svg',
+          height: 26,
+          fit: BoxFit.contain,
+          semanticsLabel: AppConstants.appName,
+        ),
+        actions: [
+          SizedBox(
+            width: appBarSideWidth,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    context.pushNamed(AppRoute.search.name);
                   },
-                );
-              } else {
-                // Implement search for Explore/Account tabs
-              }
-            },
-            icon: Icon(
-              isMoviesOrTv ? Icons.tune_rounded : Icons.search_rounded,
-              size: 24,
-              color: Colors.white,
+                  icon: const Icon(
+                    Icons.search_rounded,
+                    size: 24,
+                    color: Colors.white,
+                  ),
+                ),
+                if (isMoviesOrTv)
+                  IconButton(
+                    onPressed: () {
+                      context.pushNamed(
+                        AppRoute.filter.name,
+                        queryParameters: {
+                          'isTv': (currentTab == HomeTab.tvShows).toString(),
+                        },
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.tune_rounded,
+                      size: 24,
+                      color: Colors.white,
+                    ),
+                  ),
+                const SizedBox(width: 8),
+              ],
             ),
           ),
-          const SizedBox(width: 8),
         ],
       ),
-      body: SafeArea(
-        top: false,
-        child: navigationShell,
-      ),
+      body: SafeArea(top: false, child: navigationShell),
       bottomNavigationBar: AppBottomNavigationBar(
         currentTab: currentTab,
         onTabSelected: (index) => navigationShell.goBranch(index),

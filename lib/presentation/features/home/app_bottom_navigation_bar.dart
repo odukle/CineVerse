@@ -1,7 +1,7 @@
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
-enum HomeTab { explore, movies, tvShows, account }
+enum HomeTab { explore, movies, tvShows, watchlist, account }
 
 extension _HomeTabRoute on HomeTab {
 
@@ -13,6 +13,8 @@ extension _HomeTabRoute on HomeTab {
         return Icons.movie_creation_outlined;
       case HomeTab.tvShows:
         return Icons.tv_outlined;
+      case HomeTab.watchlist:
+        return Icons.bookmark_outline_rounded;
       case HomeTab.account:
         return Icons.person_outline_rounded;
     }
@@ -26,6 +28,8 @@ extension _HomeTabRoute on HomeTab {
         return Icons.movie_creation_rounded;
       case HomeTab.tvShows:
         return Icons.tv_rounded;
+      case HomeTab.watchlist:
+        return Icons.bookmark_rounded;
       case HomeTab.account:
         return Icons.person_rounded;
     }
@@ -39,6 +43,8 @@ extension _HomeTabRoute on HomeTab {
         return 'Movies';
       case HomeTab.tvShows:
         return 'TV Shows';
+      case HomeTab.watchlist:
+        return 'Watchlist';
       case HomeTab.account:
         return 'Account';
     }
@@ -56,6 +62,7 @@ class AppBottomNavigationBar extends StatelessWidget {
     HomeTab.explore,
     HomeTab.movies,
     HomeTab.tvShows,
+    HomeTab.watchlist,
     HomeTab.account,
   ];
 

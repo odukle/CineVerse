@@ -28,6 +28,7 @@ void main() {
       ],
       cast: <MovieCredit>[
         MovieCredit(
+          id: 0,
           name:
               'Leonardo Wilhelm DiCaprio With A Deliberately Long Display Name',
           role: 'Actor',
@@ -35,7 +36,7 @@ void main() {
               'Jack Dawson With An Intentionally Long Character Name',
         ),
       ],
-      crew: <MovieCredit>[MovieCredit(name: 'James Cameron', role: 'Director')],
+      crew: <MovieCredit>[MovieCredit(id: 0, name: 'James Cameron', role: 'Director')],
       watchAvailability: MovieWatchAvailability(
         streaming: <MovieWatchProvider>[
           MovieWatchProvider(id: 8, name: 'Netflix'),
@@ -89,10 +90,12 @@ void main() {
     );
 
     final double overviewTop = tester.getTopLeft(overviewFinder).dy;
-    final double ratingsTop = tester.getTopLeft(find.text('Rotten Tomatoes 88%')).dy;
-    final double metaTop = tester.getTopLeft(
-      find.textContaining('1997-12-19 (US)'),
-    ).dy;
+    final double ratingsTop = tester
+        .getTopLeft(find.text('Rotten Tomatoes 88%'))
+        .dy;
+    final double metaTop = tester
+        .getTopLeft(find.textContaining('1997-12-19 (US)'))
+        .dy;
     final double watchTop = tester.getTopLeft(watchFinder).dy;
     final double castTop = tester.getTopLeft(castFinder).dy;
 

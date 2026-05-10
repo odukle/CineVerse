@@ -15,6 +15,8 @@ const ALLOWED_STATIC_PATHS = new Set([
   "/tv/top_rated",
   "/tv/on_the_air",
   "/tv/airing_today",
+  "/search/multi",
+  "/search/person",
 ]);
 
 const TMDB_MOVIE_DETAILS_PATTERN = /^\/movie\/\d+$/;
@@ -25,6 +27,11 @@ const TMDB_TV_WATCH_PROVIDERS_PATTERN = /^\/tv\/\d+\/watch\/providers$/;
 const TMDB_TV_RECOMMENDATIONS_PATTERN = /^\/tv\/\d+\/recommendations$/;
 const TMDB_MOVIE_IMAGES_PATTERN = /^\/movie\/\d+\/images$/;
 const TMDB_TV_IMAGES_PATTERN = /^\/tv\/\d+\/images$/;
+const TMDB_PERSON_IMAGES_PATTERN = /^\/person\/\d+\/images$/;
+const TMDB_PERSON_DETAILS_PATTERN = /^\/person\/\d+$/;
+const TMDB_PERSON_COMBINED_CREDITS_PATTERN = /^\/person\/\d+\/combined_credits$/;
+const TMDB_PERSON_TV_CREDITS_PATTERN = /^\/person\/\d+\/tv_credits$/;
+const TMDB_PERSON_MOVIE_CREDITS_PATTERN = /^\/person\/\d+\/movie_credits$/;
 
 export default {
   async fetch(request, env, ctx) {
@@ -120,7 +127,10 @@ function cacheTtlSeconds(pathname) {
     TMDB_TV_WATCH_PROVIDERS_PATTERN.test(pathname) ||
     TMDB_TV_RECOMMENDATIONS_PATTERN.test(pathname) ||
     TMDB_MOVIE_IMAGES_PATTERN.test(pathname) ||
-    TMDB_TV_IMAGES_PATTERN.test(pathname)
+    TMDB_TV_IMAGES_PATTERN.test(pathname) ||
+    TMDB_PERSON_IMAGES_PATTERN.test(pathname) ||
+    TMDB_PERSON_DETAILS_PATTERN.test(pathname) ||
+    TMDB_PERSON_COMBINED_CREDITS_PATTERN.test(pathname)
     ? 3600
     : 600;
 }
@@ -135,7 +145,12 @@ function isAllowedPath(pathname) {
     TMDB_TV_WATCH_PROVIDERS_PATTERN.test(pathname) ||
     TMDB_TV_RECOMMENDATIONS_PATTERN.test(pathname) ||
     TMDB_MOVIE_IMAGES_PATTERN.test(pathname) ||
-    TMDB_TV_IMAGES_PATTERN.test(pathname)
+    TMDB_TV_IMAGES_PATTERN.test(pathname) ||
+    TMDB_PERSON_IMAGES_PATTERN.test(pathname) ||
+    TMDB_PERSON_DETAILS_PATTERN.test(pathname) ||
+    TMDB_PERSON_COMBINED_CREDITS_PATTERN.test(pathname) ||
+    TMDB_PERSON_TV_CREDITS_PATTERN.test(pathname) ||
+    TMDB_PERSON_MOVIE_CREDITS_PATTERN.test(pathname)
   );
 }
 

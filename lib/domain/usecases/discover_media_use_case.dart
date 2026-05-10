@@ -6,11 +6,13 @@ class DiscoverMediaParams {
   const DiscoverMediaParams({
     required this.isTv,
     required this.filter,
+    this.query,
     this.page = 1,
   });
 
   final bool isTv;
   final MediaFilter filter;
+  final String? query;
   final int page;
 }
 
@@ -23,6 +25,7 @@ class DiscoverMediaUseCase {
     return repository.discoverMedia(
       isTv: params.isTv,
       filter: params.filter,
+      query: params.query,
       page: params.page,
     );
   }

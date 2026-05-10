@@ -14,7 +14,9 @@ import 'package:cineverse/app/router/app_router.dart' show AppRoute;
 import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/explore_provider.dart';
+import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:cineverse/presentation/features/movies/widgets/rating_badge.dart';
+import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -311,10 +313,12 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           ),
 
           if (genresAsync.isLoading && genreSections.isEmpty)
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 32),
-                child: Center(child: CircularProgressIndicator()),
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Column(
+                  children: List.generate(3, (index) => const _ShelfShimmer()),
+                ),
               ),
             ),
 
@@ -322,11 +326,28 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                child: Text(
-                  'Failed to load genre shelves. ${genresAsync.error}',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.error,
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Failed to load genre shelves. ${genresAsync.error}',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.error,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton.icon(
+                      onPressed: () => ref.invalidate(isTv ? tvGenresProvider : movieGenresProvider),
+                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                      label: const Text('Retry'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.cinemaAccent,
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 36),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -337,6 +358,20 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
                 child: Text(
                   'Keep scrolling to load more genres.',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.4),
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            )
+          else if (!genresAsync.isLoading && totalGenres > 0)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                child: Text(
+                  'No more genres to load.',
                   textAlign: TextAlign.center,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: Colors.white.withValues(alpha: 0.4),
@@ -398,6 +433,7 @@ class _DiscoverSpotlightSectionState
 
   late AnimationController _diceController;
   late Animation<double> _diceAnimation;
+  late Animation<double> _scaleAnimation;
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   Timer? _slideshowTimer;
@@ -413,11 +449,37 @@ class _DiscoverSpotlightSectionState
     _audioPlayer.setPlayerMode(PlayerMode.lowLatency);
     _diceController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 720),
+      duration: const Duration(milliseconds: 1600),
     );
-    _diceAnimation = Tween<double>(begin: 0, end: 3).animate(
-      CurvedAnimation(parent: _diceController, curve: Curves.decelerate),
+    _diceAnimation = Tween<double>(begin: 0, end: 1.5).animate(
+      CurvedAnimation(
+        parent: _diceController,
+        curve: const Interval(0.0, 1.0, curve: Curves.easeOutCubic),
+      ),
     );
+    _scaleAnimation = TweenSequence<double>([
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.0,
+          end: 0.86,
+        ).chain(CurveTween(curve: Curves.easeIn)),
+        weight: 15,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 0.86,
+          end: 1.15,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 35,
+      ),
+      TweenSequenceItem(
+        tween: Tween<double>(
+          begin: 1.15,
+          end: 1.0,
+        ).chain(CurveTween(curve: Curves.elasticOut)),
+        weight: 50,
+      ),
+    ]).animate(_diceController);
 
     // Lazy load additional discover pages in the background after everything is loaded.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -507,17 +569,61 @@ class _DiscoverSpotlightSectionState
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 6, 16, 28),
       child: discoverPool.when(
-        loading: () => const SizedBox(
+        skipLoadingOnReload: !discoverPool.hasError,
+        loading: () => Container(
           height: 360,
-          child: Center(child: CircularProgressIndicator()),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: AppColors.detailsCard.withValues(alpha: 0.2),
+          ),
+          child: Stack(
+            children: [
+              const ShimmerEffect(
+                width: double.infinity,
+                height: double.infinity,
+                borderRadius: 16,
+              ),
+              Positioned(
+                left: 16,
+                bottom: 16,
+                right: 16,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ShimmerEffect.textLine(width: 150, height: 24),
+                    const SizedBox(height: 8),
+                    ShimmerEffect.textLine(width: 100, height: 14),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         error: (Object error, StackTrace stackTrace) => Padding(
           padding: const EdgeInsets.only(top: 12),
-          child: Text(
-            'Failed to load discover picks. $error',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.error,
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Failed to load discover picks. $error',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.error,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextButton.icon(
+                onPressed: () => ref.invalidate(discoverPoolProvider),
+                icon: const Icon(Icons.refresh_rounded, size: 18),
+                label: const Text('Retry'),
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.cinemaAccent,
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size(0, 36),
+                ),
+              ),
+            ],
           ),
         ),
         data: (List<MediaTitle> movies) {
@@ -590,14 +696,16 @@ class _DiscoverSpotlightSectionState
                 'Discover',
                 style: theme.textTheme.headlineSmall?.copyWith(
                   color: Colors.white,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20,
                 ),
               ),
               const SizedBox(height: 6),
               Text(
-                'One spotlight pick at a time. Roll the dice for another surprise.',
+                'Featured picks. Roll the dice for another surprise.',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: Colors.white.withValues(alpha: 0.72),
+                  fontSize: 14,
                 ),
               ),
               const SizedBox(height: 18),
@@ -628,7 +736,7 @@ class _DiscoverSpotlightSectionState
                     key: ValueKey<int>(movie.id),
                     width: posterWidth,
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(28),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: Colors.white.withValues(alpha: 0.12),
                         width: 1,
@@ -859,19 +967,22 @@ class _DiscoverSpotlightSectionState
                                     decoration: BoxDecoration(
                                       color: AppColors.cinemaSelected
                                           .withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(8),
                                       border: Border.all(
                                         color: AppColors.cinemaSelected
                                             .withValues(alpha: 0.2),
                                       ),
                                     ),
                                     child: Center(
-                                      child: RotationTransition(
-                                        turns: _diceAnimation,
-                                        child: const Icon(
-                                          Icons.casino_outlined,
-                                          color: AppColors.cinemaSelected,
-                                          size: 24,
+                                      child: ScaleTransition(
+                                        scale: _scaleAnimation,
+                                        child: RotationTransition(
+                                          turns: _diceAnimation,
+                                          child: const Icon(
+                                            Icons.casino_outlined,
+                                            color: AppColors.cinemaSelected,
+                                            size: 24,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -1081,7 +1192,7 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
 
     const double horizontalPadding = 16;
     const double itemSpacing = 12;
-    const double shelfHeight = 246; // Poster(162) + Content
+    const double shelfHeight = 220; // Poster(162) + Content
 
     // Use a more efficient way to get width
     final double screenWidth = MediaQuery.sizeOf(context).width;
@@ -1091,7 +1202,7 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
 
     return RepaintBoundary(
       child: Padding(
-        padding: const EdgeInsets.only(bottom: 28),
+        padding: const EdgeInsets.only(bottom: 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1103,17 +1214,19 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                     child: Text(
                       widget.section.title,
                       style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 20,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                  _SectionFilterPill(
-                    label: _selectedFilter.label,
-                    isExpanded: _isFilterExpanded,
-                    isInteractive: widget.section.filters.length > 1,
-                    onTap: _toggleExpanded,
-                  ),
+                  if (widget.section.filters.length > 1)
+                    _SectionFilterPill(
+                      label: _selectedFilter.label,
+                      isExpanded: _isFilterExpanded,
+                      isInteractive: widget.section.filters.length > 1,
+                      onTap: _toggleExpanded,
+                    ),
                 ],
               ),
             ),
@@ -1140,18 +1253,39 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                   : const SizedBox.shrink(),
             ),
             movies.when(
-              skipLoadingOnReload: true,
-              loading: () => const SizedBox(
-                height: shelfHeight,
-                child: Center(child: CircularProgressIndicator()),
-              ),
+              skipLoadingOnReload: !movies.hasError,
+              loading: () => const _ShelfShimmer(),
               error: (Object error, StackTrace stackTrace) => Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  'Failed to load ${widget.section.title.toLowerCase()}. $error',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.error,
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Failed to load ${widget.section.title.toLowerCase()}. $error',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.error,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton.icon(
+                      onPressed: () {
+                        final int? genreId = _selectedFilter.genreId;
+                        if (genreId != null) {
+                          ref.invalidate(genreSectionProvider((id: genreId, isTv: isTv)));
+                        } else {
+                          ref.invalidate(movieSectionProvider(_selectedFilter.section!));
+                        }
+                      },
+                      icon: const Icon(Icons.refresh_rounded, size: 18),
+                      label: const Text('Retry'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: AppColors.cinemaAccent,
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(0, 36),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               data: (List<MediaTitle> data) {
@@ -1195,11 +1329,11 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                           const SizedBox(width: itemSpacing),
                       itemBuilder: (context, index) {
                         return RepaintBoundary(
-                          child: _PosterMovieCard(
+                          child: MediaPosterGridCard(
                             movie: data[index],
                             sectionTitle: widget.section.title,
                             width: finalCardWidth,
-                            isTv: isTv,
+                            isTvTitle: isTv,
                           ),
                         );
                       },
@@ -1208,6 +1342,33 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                 );
               },
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ShelfShimmer extends StatelessWidget {
+  const _ShelfShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 220,
+      child: ListView.separated(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        scrollDirection: Axis.horizontal,
+        itemCount: 4,
+        separatorBuilder: (context, index) => const SizedBox(width: 12),
+        itemBuilder: (context, index) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ShimmerEffect.poster(width: 108, height: 153),
+            const SizedBox(height: 12),
+            ShimmerEffect.textLine(width: 80, height: 12),
+            const SizedBox(height: 6),
+            ShimmerEffect.textLine(width: 40, height: 10),
           ],
         ),
       ),
@@ -1311,121 +1472,6 @@ class _SectionFilterChoice extends StatelessWidget {
       ),
       showCheckmark: false,
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-    );
-  }
-}
-
-class _PosterMovieCard extends StatelessWidget {
-  const _PosterMovieCard({
-    required this.movie,
-    required this.sectionTitle,
-    required this.width,
-    this.isTv = false,
-  });
-
-  final MediaTitle movie;
-  final String sectionTitle;
-  final double width;
-  final bool isTv;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    const double posterHeight = 162;
-    const double badgeSize = 34;
-    const double badgeOffset = badgeSize / 2;
-    const double titleGap = 16;
-
-    // Use the TMDB score from the list API — no extra network call needed
-    final Widget scoreBadge = RatingBadge.tmdb(
-      catalogScore: movie.voteAverage,
-      size: badgeSize,
-    );
-
-    final String heroTag = 'movie-poster-${movie.id}-$sectionTitle';
-
-    return RepaintBoundary(
-      child: SizedBox(
-        width: width,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(18),
-          onTap: () => context.pushNamed(
-            AppRoute.movieDetails.name,
-            pathParameters: <String, String>{'movieId': movie.id.toString()},
-            queryParameters: <String, String>{
-              'heroTag': heroTag,
-              'isTv': isTv.toString(),
-            },
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Hero(
-                    tag: heroTag,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(18),
-                      child: SizedBox(
-                        height: posterHeight,
-                        width: width,
-                        child: movie.posterPath == null
-                            ? const ColoredBox(
-                                color: AppColors.cinemaPlaceholder,
-                                child: Center(
-                                  child: Icon(Icons.movie_outlined),
-                                ),
-                              )
-                            : CachedNetworkImage(
-                                imageUrl: movie.posterPath!,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) => const ColoredBox(
-                                  color: AppColors.cinemaPlaceholder,
-                                  child: Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                ),
-                                errorWidget: (context, url, error) =>
-                                    const ColoredBox(
-                                      color: AppColors.cinemaPlaceholder,
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.broken_image_outlined,
-                                        ),
-                                      ),
-                                    ),
-                              ),
-                      ),
-                    ),
-                  ),
-                  Positioned(left: 8, bottom: -badgeOffset, child: scoreBadge),
-                ],
-              ),
-              SizedBox(height: titleGap),
-              Text(
-                movie.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.titleSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  height: 1.2,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                movie.releaseDate ?? sectionTitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.62),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

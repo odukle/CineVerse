@@ -3,6 +3,7 @@ import 'package:cineverse/data/models/tmdb_movie_details_dto.dart';
 import 'package:cineverse/data/models/tmdb_movie_dto.dart';
 import 'package:cineverse/data/models/tmdb_movie_genre_dto.dart';
 import 'package:cineverse/data/models/tmdb_movies_response_dto.dart';
+import 'package:cineverse/data/models/tmdb_person_details_dto.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_images.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
@@ -27,8 +28,12 @@ abstract interface class RemoteDataSource {
   Future<List<TmdbMovieDto>> discoverMedia({
     required bool isTv,
     required MediaFilter filter,
+    String? query,
     int page = 1,
   });
+
+  Future<List<TmdbMovieDto>> searchMulti(String query, {int page = 1});
+  Future<List<TmdbMovieDto>> searchPersons(String query, {int page = 1});
 
   Future<TmdbMovieDetailsDto> fetchMovieDetails(
     int movieId, {
@@ -42,6 +47,10 @@ abstract interface class RemoteDataSource {
   });
 
   Future<MediaImages> fetchMediaImages(int mediaId, {required bool isTv});
+  Future<MediaImages> fetchPersonImages(int personId);
+
+  Future<TmdbPersonDetailsDto> fetchPersonDetails(int personId);
+  Future<TmdbPersonCombinedCreditsDto> fetchPersonCombinedCredits(int personId);
 }
 
 class TmdbRemoteDataSource implements RemoteDataSource {
@@ -108,11 +117,31 @@ class TmdbRemoteDataSource implements RemoteDataSource {
   Future<List<TmdbMovieDto>> discoverMedia({
     required bool isTv,
     required MediaFilter filter,
+    String? query,
     int page = 1,
   }) async {
     final TmdbMoviesResponseDto response = await apiClient.discoverMedia(
       isTv: isTv,
       filter: filter,
+      query: query,
+      page: page,
+    );
+    return response.movies;
+  }
+
+  @override
+  Future<List<TmdbMovieDto>> searchMulti(String query, {int page = 1}) async {
+    final TmdbMoviesResponseDto response = await apiClient.searchMulti(
+      query,
+      page: page,
+    );
+    return response.movies;
+  }
+
+  @override
+  Future<List<TmdbMovieDto>> searchPersons(String query, {int page = 1}) async {
+    final TmdbMoviesResponseDto response = await apiClient.searchPersons(
+      query,
       page: page,
     );
     return response.movies;
@@ -138,5 +167,22 @@ class TmdbRemoteDataSource implements RemoteDataSource {
   @override
   Future<MediaImages> fetchMediaImages(int mediaId, {required bool isTv}) {
     return apiClient.fetchMediaImages(mediaId, isTv: isTv);
+  }
+
+  @override
+  Future<MediaImages> fetchPersonImages(int personId) {
+    return apiClient.fetchPersonImages(personId);
+  }
+
+  @override
+  Future<TmdbPersonDetailsDto> fetchPersonDetails(int personId) {
+    return apiClient.fetchPersonDetails(personId);
+  }
+
+  @override
+  Future<TmdbPersonCombinedCreditsDto> fetchPersonCombinedCredits(
+    int personId,
+  ) {
+    return apiClient.fetchPersonCombinedCredits(personId);
   }
 }

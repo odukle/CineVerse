@@ -34,6 +34,8 @@ class MediaFilter {
     this.minUserVotes = 0,
     this.genres = const {},
     this.runtime = const RangeValues(0, 390),
+    this.personIds = const {},
+    this.personNames = const {},
   });
 
   final SortField sortField;
@@ -47,6 +49,8 @@ class MediaFilter {
   final int minUserVotes;
   final Set<int> genres;
   final RangeValues runtime; // 0 to 390
+  final Set<int> personIds;
+  final Set<String> personNames;
 
   String get sortByValue => '${sortField.value}.${sortOrder.value}';
 
@@ -62,6 +66,8 @@ class MediaFilter {
     int? minUserVotes,
     Set<int>? genres,
     RangeValues? runtime,
+    Set<int>? personIds,
+    Set<String>? personNames,
   }) {
     return MediaFilter(
       sortField: sortField ?? this.sortField,
@@ -75,6 +81,8 @@ class MediaFilter {
       minUserVotes: minUserVotes ?? this.minUserVotes,
       genres: genres ?? this.genres,
       runtime: runtime ?? this.runtime,
+      personIds: personIds ?? this.personIds,
+      personNames: personNames ?? this.personNames,
     );
   }
 
@@ -93,7 +101,9 @@ class MediaFilter {
           releaseTypes == other.releaseTypes &&
           minUserVotes == other.minUserVotes &&
           genres == other.genres &&
-          runtime == other.runtime;
+          runtime == other.runtime &&
+          personIds == other.personIds &&
+          personNames == other.personNames;
 
   @override
   int get hashCode =>
@@ -107,5 +117,7 @@ class MediaFilter {
       releaseTypes.hashCode ^
       minUserVotes.hashCode ^
       genres.hashCode ^
-      runtime.hashCode;
+      runtime.hashCode ^
+      personIds.hashCode ^
+      personNames.hashCode;
 }

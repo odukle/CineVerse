@@ -6,8 +6,15 @@ import 'package:cineverse/data/datasources/local/local_data_source.dart';
 import 'package:cineverse/data/datasources/remote/omdb_api_client.dart';
 import 'package:cineverse/data/datasources/remote/remote_data_source.dart';
 import 'package:cineverse/data/datasources/remote/tmdb_api_client.dart';
+import 'package:cineverse/data/datasources/local/app_database.dart';
 import 'package:cineverse/data/repositories/media_repository_impl.dart';
+import 'package:cineverse/data/repositories/watchlist_repository_impl.dart';
+import 'package:cineverse/data/repositories/watched_repository_impl.dart';
+import 'package:cineverse/data/repositories/notes_repository_impl.dart';
 import 'package:cineverse/domain/repositories/media_repository.dart';
+import 'package:cineverse/domain/repositories/watchlist_repository.dart';
+import 'package:cineverse/domain/repositories/watched_repository.dart';
+import 'package:cineverse/domain/repositories/notes_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final tmdbApiClientProvider = Provider<TmdbApiClient>((ref) {
@@ -39,4 +46,21 @@ final mediaRepositoryProvider = Provider<MediaRepository>((ref) {
     localDataSource: ref.watch(localDataSourceProvider),
     omdbApiClient: ref.watch(omdbApiClientProvider),
   );
+});
+
+final appDatabaseProvider = Provider<AppDatabase>((ref) {
+  final factory = ref.watch(driftConnectionFactoryProvider);
+  return AppDatabase(factory.create());
+});
+
+final watchlistRepositoryProvider = Provider<WatchlistRepository>((ref) {
+  return WatchlistRepositoryImpl(ref.watch(appDatabaseProvider));
+});
+
+final watchedRepositoryProvider = Provider<WatchedRepository>((ref) {
+  return WatchedRepositoryImpl(ref.watch(appDatabaseProvider));
+});
+
+final notesRepositoryProvider = Provider<NotesRepository>((ref) {
+  return NotesRepositoryImpl(ref.watch(appDatabaseProvider));
 });

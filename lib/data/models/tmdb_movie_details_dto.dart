@@ -35,7 +35,9 @@ class TmdbMovieDetailsDto {
     bool isTv = false,
   }) {
     final Map<String, dynamic> credits =
-        (json['credits'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+        (json['aggregate_credits'] as Map<String, dynamic>?) ??
+        (json['credits'] as Map<String, dynamic>?) ??
+        <String, dynamic>{};
     final Map<String, dynamic> externalIds =
         (json['external_ids'] as Map<String, dynamic>?) ?? <String, dynamic>{};
     final List<dynamic> rawGenres =
@@ -48,6 +50,8 @@ class TmdbMovieDetailsDto {
         <String, dynamic>{};
     final Map<String, dynamic> rawVideos =
         (json['videos'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+
+    final bool isAggregate = json.containsKey('aggregate_credits');
 
     return TmdbMovieDetailsDto(
       id: (json['id'] as num?)?.toInt() ?? 0,
@@ -73,8 +77,14 @@ class TmdbMovieDetailsDto {
           .toList(growable: false),
       runtimeMinutes: _resolveRuntimeMinutes(json, isTv: isTv),
       imdbId: (externalIds['imdb_id'] as String?)?.trim(),
-      cast: _resolveCast((credits['cast'] as List<dynamic>?) ?? <dynamic>[]),
-      crew: _resolveCrew((credits['crew'] as List<dynamic>?) ?? <dynamic>[]),
+      cast: _resolveCast(
+        (credits['cast'] as List<dynamic>?) ?? <dynamic>[],
+        isAggregate: isAggregate,
+      ),
+      crew: _resolveCrew(
+        (credits['crew'] as List<dynamic>?) ?? <dynamic>[],
+        isAggregate: isAggregate,
+      ),
       contentRating: _resolveContentRating(
         json,
         preferredRegionCode,
@@ -205,43 +215,76 @@ class TmdbMovieDetailsDto {
             releaseDate:
                 (item['release_date'] as String?)?.trim() ??
                 (item['first_air_date'] as String?)?.trim(),
+            voteAverage: (item['vote_average'] as num?)?.toDouble(),
           ),
         )
         .where((item) => item.title.isNotEmpty)
         .toList(growable: false);
   }
 
-  static List<MovieCredit> _resolveCast(List<dynamic> rawCast) {
+  static List<MovieCredit> _resolveCast(
+    List<dynamic> rawCast, {
+    bool isAggregate = false,
+  }) {
     return rawCast
         .whereType<Map<String, dynamic>>()
         .where(
           (credit) => ((credit['name'] as String?) ?? '').trim().isNotEmpty,
         )
-        .map(
-          (credit) => MovieCredit(
+        .map((credit) {
+          String? character;
+          if (isAggregate) {
+            final List<dynamic> roles =
+                (credit['roles'] as List<dynamic>?) ?? <dynamic>[];
+            if (roles.isNotEmpty) {
+              final Map<String, dynamic> role = roles.first;
+              final String charName = _optionalText(role['character']) ?? '';
+              final int episodes = (role['episode_count'] as num?)?.toInt() ?? 0;
+              character = episodes > 0 ? '$charName ($episodes eps)' : charName;
+            }
+          } else {
+            character = _optionalText(credit['character']);
+          }
+
+          return MovieCredit(
+            id: (credit['id'] as num?)?.toInt() ?? 0,
             name: (credit['name'] as String).trim(),
             role: 'Actor',
-            characterName: _optionalText(credit['character']),
+            characterName: character,
             imageUrl: _normalizeImagePath(
               credit['profile_path'] as String?,
               size: 'w185',
             ),
-          ),
-        )
+          );
+        })
         .toList(growable: false);
   }
 
-  static List<MovieCredit> _resolveCrew(List<dynamic> rawCrew) {
+  static List<MovieCredit> _resolveCrew(
+    List<dynamic> rawCrew, {
+    bool isAggregate = false,
+  }) {
     final Set<String> seenCredits = <String>{};
     final List<MovieCredit> crewCredits = <MovieCredit>[];
 
     for (final Map<String, dynamic> credit
         in rawCrew.whereType<Map<String, dynamic>>()) {
       final String name = _optionalText(credit['name']) ?? '';
-      final String role =
-          _optionalText(credit['job']) ??
-          _optionalText(credit['department']) ??
-          '';
+      String role = '';
+
+      if (isAggregate) {
+        final List<dynamic> jobs =
+            (credit['jobs'] as List<dynamic>?) ?? <dynamic>[];
+        if (jobs.isNotEmpty) {
+          final Map<String, dynamic> job = jobs.first;
+          role = _optionalText(job['job']) ?? _optionalText(job['department']) ?? '';
+        }
+      } else {
+        role =
+            _optionalText(credit['job']) ??
+            _optionalText(credit['department']) ??
+            '';
+      }
 
       if (name.isEmpty || role.isEmpty) {
         continue;
@@ -254,6 +297,7 @@ class TmdbMovieDetailsDto {
 
       crewCredits.add(
         MovieCredit(
+          id: (credit['id'] as num?)?.toInt() ?? 0,
           name: name,
           role: role,
           imageUrl: _normalizeImagePath(

@@ -1,3 +1,5 @@
+import 'package:cineverse/domain/entities/media_title.dart';
+
 class MovieDetails {
   const MovieDetails({
     required this.id,
@@ -86,12 +88,14 @@ class MovieDetails {
 
 class MovieCredit {
   const MovieCredit({
+    required this.id,
     required this.name,
     required this.role,
     this.characterName,
     this.imageUrl,
   });
 
+  final int id;
   final String name;
   final String role;
   final String? characterName;
@@ -112,12 +116,24 @@ class MovieRecommendation {
     required this.title,
     this.posterPath,
     this.releaseDate,
+    this.voteAverage,
   });
 
   final int id;
   final String title;
   final String? posterPath;
   final String? releaseDate;
+  final double? voteAverage;
+
+  MediaTitle toMediaTitle() {
+    return MediaTitle(
+      id: id,
+      title: title,
+      posterPath: posterPath,
+      releaseDate: releaseDate,
+      voteAverage: voteAverage,
+    );
+  }
 }
 
 class MovieWatchAvailability {

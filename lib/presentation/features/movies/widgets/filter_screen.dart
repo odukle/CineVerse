@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/presentation/features/search/providers/search_provider.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/presentation/features/movies/providers/filter_provider.dart';
@@ -102,24 +104,38 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
             _buildGenreChips(),
             const Divider(color: Colors.white24, height: 32),
 
+            _buildSectionHeader('People'),
+            _buildPeopleFilter(),
+            const Divider(color: Colors.white24, height: 32),
+
             _buildSectionHeader('Runtime (minutes)'),
             _buildRuntimeSlider(),
-            const SizedBox(height: 32),
-            
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _applyFilters,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.cinemaAccent,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: _applyFilters,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.cinemaAccent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              child: const Text(
+                'Apply Filters',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
-                child: const Text('Apply Filters', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 16)),
               ),
             ),
-            const SizedBox(height: 32),
-          ],
+          ),
         ),
       ),
     );
@@ -471,9 +487,18 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
         }).toList(),
       ),
       loading: () => const Center(child: CircularProgressIndicator(color: AppColors.cinemaAccent)),
-      error: (error, stack) => const Text(
-        'Error loading genres',
-        style: TextStyle(color: Colors.red, fontSize: 12),
+      error: (error, stack) => Row(
+        children: [
+          const Text(
+            'Error loading genres',
+            style: TextStyle(color: Colors.red, fontSize: 12),
+          ),
+          const SizedBox(width: 12),
+          TextButton(
+            onPressed: () => ref.invalidate(movieGenresProvider),
+            child: const Text('Retry', style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12)),
+          ),
+        ],
       ),
     );
   }
@@ -499,6 +524,119 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
             setState(() => _currentFilter = _currentFilter.copyWith(runtime: values));
           },
         ),
+      ],
+    );
+  }
+
+  Widget _buildPeopleFilter() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SearchAnchor(
+          builder: (context, controller) {
+            return SearchBar(
+              controller: controller,
+              backgroundColor: WidgetStateProperty.all(
+                Colors.white.withValues(alpha: 0.05),
+              ),
+              hintText: 'Search for a person...',
+              hintStyle: WidgetStateProperty.all(
+                const TextStyle(color: Colors.white54, fontSize: 14),
+              ),
+              textStyle: WidgetStateProperty.all(
+                const TextStyle(color: Colors.white, fontSize: 14),
+              ),
+              onTap: () {
+                controller.openView();
+              },
+              onChanged: (_) {
+                controller.openView();
+              },
+              leading: const Icon(Icons.person_search_rounded, color: Colors.white70),
+            );
+          },
+          suggestionsBuilder: (context, controller) async {
+            final query = controller.text;
+            if (query.length < 2) return [];
+
+            final results = await ref.read(searchProvider.notifier).searchPersons(query);
+
+            return results.map((person) {
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundImage: person.posterPath != null
+                      ? CachedNetworkImageProvider(person.posterPath!)
+                      : null,
+                  backgroundColor: AppColors.cinemaSurface,
+                  child: person.posterPath == null
+                      ? const Icon(Icons.person, color: Colors.white54)
+                      : null,
+                ),
+                title: Text(
+                  person.title,
+                  style: const TextStyle(color: Colors.white),
+                ),
+                subtitle: Text(
+                  person.releaseDate ?? '',
+                  style: const TextStyle(color: Colors.white54, fontSize: 12),
+                ),
+                onTap: () {
+                  setState(() {
+                    final newIds = Set<int>.from(_currentFilter.personIds);
+                    final newNames = Set<String>.from(_currentFilter.personNames);
+                    newIds.add(person.id);
+                    newNames.add(person.title);
+                    _currentFilter = _currentFilter.copyWith(
+                      personIds: newIds,
+                      personNames: newNames,
+                    );
+                  });
+                  controller.closeView(person.title);
+                  controller.clear();
+                },
+              );
+            });
+          },
+        ),
+        if (_currentFilter.personNames.isNotEmpty) ...[
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children:
+                _currentFilter.personIds.map((id) {
+                  final index = _currentFilter.personIds.toList().indexOf(id);
+                  final name = _currentFilter.personNames.elementAt(index);
+                  return InputChip(
+                    label: Text(name),
+                    onDeleted: () {
+                      setState(() {
+                        final newIds = Set<int>.from(_currentFilter.personIds);
+                        final newNames = Set<String>.from(_currentFilter.personNames);
+                        newIds.remove(id);
+                        newNames.remove(name);
+                        _currentFilter = _currentFilter.copyWith(
+                          personIds: newIds,
+                          personNames: newNames,
+                        );
+                      });
+                    },
+                    backgroundColor: AppColors.cinemaAccent.withValues(
+                      alpha: 0.1,
+                    ),
+                    deleteIconColor: Colors.white70,
+                    labelStyle: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: const BorderSide(color: AppColors.cinemaAccent),
+                    ),
+                  );
+                }).toList(),
+          ),
+        ],
       ],
     );
   }

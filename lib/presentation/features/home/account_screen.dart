@@ -25,85 +25,88 @@ class AccountScreen extends ConsumerWidget {
             'Account',
             style: theme.textTheme.headlineMedium?.copyWith(
               color: Colors.white,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w600,
+              fontSize: 20,
             ),
           ),
           const SizedBox(height: 18),
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1E1E22),
-                  borderRadius: BorderRadius.circular(24),
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1E1E22),
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    color: AppColors.cinemaSelected,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Icon(
+                    Icons.person_outline_rounded,
+                    color: Colors.white,
+                    size: 34,
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: BoxDecoration(
-                        color: AppColors.cinemaSelected,
-                        borderRadius: BorderRadius.circular(20),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Guest Viewer',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 18,
+                        ),
                       ),
-                      child: const Icon(
-                        Icons.person_outline_rounded,
-                        color: Colors.white,
-                        size: 34,
+                      const SizedBox(height: 4),
+                      Text(
+                        'Sign in to sync your watchlist, ratings, and preferences across devices.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.72),
+                          height: 1.4,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Guest Viewer',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            'Sign in to sync your watchlist, ratings, and preferences across devices.',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.72),
-                              height: 1.4,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 18),
-              const _RegionPreferenceCard(),
-              const SizedBox(height: 14),
-              const _AccountActionCard(
-                icon: Icons.bookmark_border_rounded,
-                title: 'Watchlist',
-                subtitle: 'Save titles you want to revisit later.',
-              ),
-              const SizedBox(height: 14),
-              const _AccountActionCard(
-                icon: Icons.download_outlined,
-                title: 'Downloads',
-                subtitle: 'Track the titles you keep offline for travel.',
-              ),
-              const SizedBox(height: 14),
-              const _AccountActionCard(
-                icon: Icons.notifications_none_rounded,
-                title: 'Notifications',
-                subtitle: 'Control premiere alerts and release reminders.',
-              ),
-              const SizedBox(height: 14),
-              const _AccountActionCard(
-                icon: Icons.palette_outlined,
-                title: 'Appearance',
-                subtitle: 'Tune the app feel while keeping the Lumi palette intact.',
-              ),
-            ],
+              ],
+            ),
           ),
+          const SizedBox(height: 18),
+          const _RegionPreferenceCard(),
+          const SizedBox(height: 14),
+          const _AccountActionCard(
+            icon: Icons.bookmark_border_rounded,
+            title: 'Watchlist',
+            subtitle: 'Save titles you want to revisit later.',
+          ),
+          const SizedBox(height: 14),
+          const _AccountActionCard(
+            icon: Icons.download_outlined,
+            title: 'Downloads',
+            subtitle: 'Track the titles you keep offline for travel.',
+          ),
+          const SizedBox(height: 14),
+          const _AccountActionCard(
+            icon: Icons.notifications_none_rounded,
+            title: 'Notifications',
+            subtitle: 'Control premiere alerts and release reminders.',
+          ),
+          const SizedBox(height: 14),
+          const _AccountActionCard(
+            icon: Icons.palette_outlined,
+            title: 'Appearance',
+            subtitle:
+                'Tune the app feel while keeping the Lumi palette intact.',
+          ),
+        ],
+      ),
     );
   }
 }
@@ -155,7 +158,8 @@ class _RegionPreferenceCard extends ConsumerWidget {
                 'Select Region',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   color: Colors.white,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20,
                 ),
               ),
               const SizedBox(height: 8),

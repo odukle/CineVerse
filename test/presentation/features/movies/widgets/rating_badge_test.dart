@@ -7,23 +7,26 @@ void main() {
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: RatingBadge.loading(size: 54),
-        ),
-      ),
+      const MaterialApp(home: Scaffold(body: RatingBadge.loading(size: 54))),
     );
 
-    expect(find.byKey(const ValueKey<String>('rating-badge-loading-dot-0')),
-        findsOneWidget);
-    expect(find.byKey(const ValueKey<String>('rating-badge-loading-dot-1')),
-        findsOneWidget);
-    expect(find.byKey(const ValueKey<String>('rating-badge-loading-dot-2')),
-        findsOneWidget);
+    expect(
+      find.byKey(const ValueKey<String>('rating-badge-loading-dot-0')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey<String>('rating-badge-loading-dot-1')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey<String>('rating-badge-loading-dot-2')),
+      findsOneWidget,
+    );
     expect(find.text('NA'), findsNothing);
 
-    final Finder firstDot =
-        find.byKey(const ValueKey<String>('rating-badge-loading-dot-0'));
+    final Finder firstDot = find.byKey(
+      const ValueKey<String>('rating-badge-loading-dot-0'),
+    );
     final double initialScale = tester.getSize(firstDot).width;
     await tester.pump(const Duration(milliseconds: 450));
     final double updatedScale = tester.getSize(firstDot).width;

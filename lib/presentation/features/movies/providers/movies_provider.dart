@@ -60,10 +60,12 @@ final Map<_SectionCacheKey, List<MediaTitle>> _movieSectionCache = {};
 final Map<_SectionCacheKey, int> _loadedPagesCache = {};
 final Map<_SectionCacheKey, bool> _fetchingCache = {};
 final Map<_SectionCacheKey, int> _targetPages = {};
+final Map<_SectionCacheKey, bool> _exhaustedCache = {};
 final Map<_GenreCacheKey, List<MediaTitle>> _genreSectionCache = {};
 final Map<_GenreCacheKey, int> _genreLoadedPagesCache = {};
 final Map<_GenreCacheKey, bool> _genreFetchingCache = {};
 final Map<_GenreCacheKey, int> _genreTargetPages = {};
+final Map<_GenreCacheKey, bool> _genreExhaustedCache = {};
 
 int _getTargetPage(_SectionCacheKey cacheKey) {
   // Boost the initial variety for discover sections (spotlight)
@@ -92,12 +94,17 @@ void loadNextPages(WidgetRef ref, MovieSection section) {
     regionCode: ref.read(preferredRegionCodeProvider),
     section: section,
   );
-  if (_fetchingCache[cacheKey] == true) {
+  if (_fetchingCache[cacheKey] == true || _exhaustedCache[cacheKey] == true) {
     return;
   }
   _targetPages[cacheKey] = _getTargetPage(cacheKey) + 2;
   ref.invalidate(movieSectionProvider(section));
 }
+
+final movieSectionExhaustedProvider = Provider.family<bool, MovieSection>((ref, section) {
+  final regionCode = ref.watch(preferredRegionCodeProvider);
+  return _exhaustedCache[(regionCode: regionCode, section: section)] ?? false;
+});
 
 void loadNextGenrePages(WidgetRef ref, int genreId, {bool isTv = false}) {
   final _GenreCacheKey cacheKey = (
@@ -105,12 +112,17 @@ void loadNextGenrePages(WidgetRef ref, int genreId, {bool isTv = false}) {
     genreId: genreId,
     isTv: isTv,
   );
-  if (_genreFetchingCache[cacheKey] == true) {
+  if (_genreFetchingCache[cacheKey] == true || _genreExhaustedCache[cacheKey] == true) {
     return;
   }
   _genreTargetPages[cacheKey] = _getGenreTargetPage(cacheKey) + 2;
   ref.invalidate(genreSectionProvider((id: genreId, isTv: isTv)));
 }
+
+final genreSectionExhaustedProvider = Provider.family<bool, ({int id, bool isTv})>((ref, params) {
+  final regionCode = ref.watch(preferredRegionCodeProvider);
+  return _genreExhaustedCache[(regionCode: regionCode, genreId: params.id, isTv: params.isTv)] ?? false;
+});
 
 void resetMovieSection(WidgetRef ref, MovieSection section) {
   final _SectionCacheKey cacheKey = (
@@ -119,6 +131,7 @@ void resetMovieSection(WidgetRef ref, MovieSection section) {
   );
   _movieSectionCache.remove(cacheKey);
   _loadedPagesCache.remove(cacheKey);
+  _exhaustedCache.remove(cacheKey);
   _targetPages[cacheKey] = 2;
   ref.invalidate(movieSectionProvider(section));
 }
@@ -178,6 +191,10 @@ final movieSectionProvider =
             }
             results.addAll(pageResults);
             _loadedPagesCache[cacheKey] = i;
+            if (pageResults.isEmpty || pageResults.length < 20) {
+              _exhaustedCache[cacheKey] = true;
+              break;
+            }
           } catch (error, stackTrace) {
             debugPrint('[movieSectionProvider:${section.name}:$i] $error');
             debugPrintStack(stackTrace: stackTrace);
@@ -229,6 +246,10 @@ final genreSectionProvider =
                 : await repository.fetchMoviesForGenre(params.id, page: i);
             results.addAll(pageResults);
             _genreLoadedPagesCache[cacheKey] = i;
+            if (pageResults.isEmpty || pageResults.length < 20) {
+              _genreExhaustedCache[cacheKey] = true;
+              break;
+            }
           } catch (error, stackTrace) {
             debugPrint('[genreSectionProvider:${params.id}:$i] $error');
             debugPrintStack(stackTrace: stackTrace);
@@ -256,12 +277,21 @@ final genreSectionProvider =
 
 final discoverPoolProvider = FutureProvider<List<MediaTitle>>((ref) async {
   final mediaType = ref.watch(exploreMediaTypeProvider);
-  final section = mediaType == ExploreMediaType.movie ? MovieSection.discover : MovieSection.tvDiscover;
-  
+  final section =
+      mediaType == ExploreMediaType.movie
+          ? MovieSection.discover
+          : MovieSection.tvDiscover;
+
   final AsyncValue<List<MediaTitle>> discoverState = ref.watch(
     movieSectionProvider(section),
   );
-  final List<MediaTitle> discoverMovies = discoverState.value ?? [];
+
+  final List<MediaTitle> discoverMovies;
+  if (discoverState.hasValue) {
+    discoverMovies = discoverState.value!;
+  } else {
+    discoverMovies = await ref.watch(movieSectionProvider(section).future);
+  }
 
   final Set<int> seenMovieIds = <int>{};
   final List<MediaTitle> discoverPool = <MediaTitle>[];
@@ -288,4 +318,12 @@ final mediaImagesProvider =
 ) async {
   final repository = ref.watch(mediaRepositoryProvider);
   return repository.fetchMediaImages(params.id, isTv: params.isTv);
+});
+
+final personImagesProvider = FutureProvider.family<MediaImages, int>((
+  ref,
+  personId,
+) async {
+  final repository = ref.watch(mediaRepositoryProvider);
+  return repository.fetchPersonImages(personId);
 });

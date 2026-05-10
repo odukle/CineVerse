@@ -1,12 +1,14 @@
 import 'package:cineverse/data/datasources/local/local_data_source.dart';
 import 'package:cineverse/data/datasources/remote/omdb_api_client.dart';
 import 'package:cineverse/data/datasources/remote/remote_data_source.dart';
+import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/movie_genre.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_images.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
+import 'package:cineverse/domain/entities/person_details.dart';
 import 'package:cineverse/domain/repositories/media_repository.dart';
 import 'package:flutter/foundation.dart';
 
@@ -96,17 +98,34 @@ class MediaRepositoryImpl implements MediaRepository {
   Future<List<MediaTitle>> discoverMedia({
     required bool isTv,
     required MediaFilter filter,
+    String? query,
     int page = 1,
   }) async {
     final movieDtos = await remoteDataSource.discoverMedia(
       isTv: isTv,
       filter: filter,
+      query: query,
       page: page,
     );
 
     return movieDtos
         .map((movieDto) => movieDto.toDomain())
         .toList(growable: false);
+  }
+
+  @override
+  Future<List<MediaTitle>> searchMulti(String query, {int page = 1}) async {
+    final movieDtos = await remoteDataSource.searchMulti(query, page: page);
+
+    return movieDtos
+        .map((movieDto) => movieDto.toDomain())
+        .toList(growable: false);
+  }
+
+  @override
+  Future<List<MediaTitle>> searchPersons(String query, {int page = 1}) async {
+    final results = await remoteDataSource.searchPersons(query, page: page);
+    return results.map((e) => e.toDomain()).toList();
   }
 
   @override
@@ -128,7 +147,8 @@ class MediaRepositoryImpl implements MediaRepository {
     try {
       final omdbRatingsDto = await omdbApiClient.fetchMovieRatings(imdbId);
       return baseDetails.copyWith(
-        externalRatings: omdbRatingsDto?.toDomain(
+        externalRatings:
+            omdbRatingsDto?.toDomain(
               imdbId: imdbId,
               title: baseDetails.title,
             ) ??
@@ -156,5 +176,65 @@ class MediaRepositoryImpl implements MediaRepository {
   @override
   Future<MediaImages> fetchMediaImages(int mediaId, {required bool isTv}) {
     return remoteDataSource.fetchMediaImages(mediaId, isTv: isTv);
+  }
+
+  @override
+  Future<MediaImages> fetchPersonImages(int personId) {
+    return remoteDataSource.fetchPersonImages(personId);
+  }
+
+  @override
+  Future<PersonDetails> fetchPersonDetails(int personId) async {
+    final personDetailsDto = await remoteDataSource.fetchPersonDetails(
+      personId,
+    );
+    final creditsDto = await remoteDataSource.fetchPersonCombinedCredits(
+      personId,
+    );
+
+    final Map<String, List<PersonCredit>> creditsByDepartment = {};
+
+    // Process Cast Credits (Acting)
+    for (final castDto in creditsDto.cast) {
+      final media = castDto.media.toDomain();
+      final isTv = media.mediaType == GlobalMediaType.tv;
+      final deptLabel = 'Acting (${isTv ? "TV" : "Movies"})';
+
+      final credit = PersonCredit(
+        media: media,
+        role: castDto.character,
+        department: 'Acting',
+      );
+      creditsByDepartment.putIfAbsent(deptLabel, () => []).add(credit);
+    }
+
+    // Process Crew Credits
+    for (final crewDto in creditsDto.crew) {
+      final dept = crewDto.department ?? 'Other';
+      final media = crewDto.media.toDomain();
+      final isTv = media.mediaType == GlobalMediaType.tv;
+      final deptLabel = '$dept (${isTv ? "TV" : "Movies"})';
+
+      final credit = PersonCredit(
+        media: media,
+        role: crewDto.job,
+        department: dept,
+      );
+      creditsByDepartment.putIfAbsent(deptLabel, () => []).add(credit);
+    }
+
+    // Deduplicate and sort each department
+    for (final dept in creditsByDepartment.keys) {
+      final credits = creditsByDepartment[dept]!;
+      final seenIds = <int>{};
+      final uniqueCredits =
+          credits.where((e) => seenIds.add(e.media.id)).toList();
+      uniqueCredits.sort(
+        (a, b) => b.media.popularity.compareTo(a.media.popularity),
+      );
+      creditsByDepartment[dept] = uniqueCredits;
+    }
+
+    return personDetailsDto.toDomain(creditsByDepartment: creditsByDepartment);
   }
 }

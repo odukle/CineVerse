@@ -3,6 +3,7 @@ import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:cineverse/presentation/features/movies/providers/filter_provider.dart';
+import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -35,21 +36,33 @@ class MoviesScreen extends ConsumerWidget {
         ),
       ),
       child: isFiltering
-          ? const Center(
-              child: CircularProgressIndicator(color: AppColors.cinemaAccent),
-            )
+          ? _ShimmerGrid()
           : movies.when(
-              skipLoadingOnReload: true,
-              loading: () => const Center(child: CircularProgressIndicator()),
+              skipLoadingOnReload: !movies.hasError,
+              loading: () => _ShimmerGrid(),
               error: (Object error, StackTrace stackTrace) => Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Text(
-                    'Could not load movies. $error',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.error,
-                    ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Could not load movies. $error',
+                        textAlign: TextAlign.center,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.error,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () => ref.invalidate(moviesProvider),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.cinemaAccent,
+                          foregroundColor: Colors.black,
+                        ),
+                        child: const Text('Retry'),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -67,7 +80,7 @@ class MoviesScreen extends ConsumerWidget {
 
                 const double horizontalPadding = 16;
                 const double crossAxisSpacing = 10;
-                const double mainAxisSpacing = 16;
+                const double mainAxisSpacing = 0;
                 const int crossAxisCount = 3;
                 final double availableCardWidth =
                     (MediaQuery.sizeOf(context).width -
@@ -77,6 +90,10 @@ class MoviesScreen extends ConsumerWidget {
                 final double cardWidth = availableCardWidth > 108
                     ? 108
                     : availableCardWidth;
+
+                final bool isExhausted = ref.watch(
+                  movieSectionExhaustedProvider(selectedFilter.section),
+                );
 
                 return NotificationListener<ScrollNotification>(
                   onNotification: (ScrollNotification scrollInfo) {
@@ -94,12 +111,33 @@ class MoviesScreen extends ConsumerWidget {
                           crossAxisCount: crossAxisCount,
                           crossAxisSpacing: crossAxisSpacing,
                           mainAxisSpacing: mainAxisSpacing,
-                          mainAxisExtent: 246,
+                          mainAxisExtent: 220,
                         ),
                     itemCount: data.length + 1,
                     itemBuilder: (context, index) {
                       if (index == data.length) {
-                        return const Center(child: CircularProgressIndicator());
+                        if (isExhausted) {
+                          return Center(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 32),
+                              child: Text(
+                                'No more movies to load.',
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: Colors.white.withValues(alpha: 0.4),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                        return const Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            child: CircularProgressIndicator(
+                              color: AppColors.cinemaAccent,
+                            ),
+                          ),
+                        );
                       }
 
                       final MediaTitle movie = data[index];
@@ -115,6 +153,33 @@ class MoviesScreen extends ConsumerWidget {
                 );
               },
             ),
+    );
+  }
+}
+
+class _ShimmerGrid extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 0,
+        mainAxisExtent: 220,
+      ),
+      itemCount: 12,
+      itemBuilder: (context, index) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ShimmerEffect.poster(width: double.infinity, height: 153),
+          const SizedBox(height: 12),
+          ShimmerEffect.textLine(width: 80, height: 12),
+          const SizedBox(height: 6),
+          ShimmerEffect.textLine(width: 40, height: 10),
+        ],
+      ),
     );
   }
 }

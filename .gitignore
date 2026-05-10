@@ -102,3 +102,4 @@ infra/**/node_modules/
 
 # Sensitive configuration
 config/api_keys.json
+.gemini/
