@@ -44,4 +44,11 @@ abstract interface class MediaRepository {
 
   Future<PersonDetails> fetchPersonDetails(int personId);
   Future<List<MediaTitle>> searchPersons(String query, {int page = 1});
+
+  Future<TvSeason> fetchTvSeasonDetails(int tvId, int seasonNumber);
+  Future<TvEpisode> fetchTvEpisodeDetails(
+    int tvId,
+    int seasonNumber,
+    int episodeNumber,
+  );
 }

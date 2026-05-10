@@ -38,12 +38,59 @@ class MovieNotesTable extends Table {
   DateTimeColumn get createdAt => dateTime()();
 }
 
-@DriftDatabase(tables: [WatchlistItemsTable, WatchedItemsTable, MovieNotesTable])
+class SearchHistoryTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get query => text()();
+  DateTimeColumn get createdAt => dateTime()();
+}
+
+class FavouritesTable extends Table {
+  IntColumn get id => integer()();
+  TextColumn get title => text()();
+  TextColumn get posterPath => text().nullable()();
+  TextColumn get releaseDate => text().nullable()();
+  IntColumn get mediaType => intEnum<GlobalMediaType>()();
+  DateTimeColumn get addedDate => dateTime()();
+  RealColumn get voteAverage => real().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id, mediaType};
+}
+
+class NamedListsTable extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  DateTimeColumn get createdAt => dateTime()();
+}
+
+class NamedListItemsTable extends Table {
+  IntColumn get listId => integer().references(NamedListsTable, #id, onDelete: KeyAction.cascade)();
+  IntColumn get mediaId => integer()();
+  TextColumn get title => text()();
+  TextColumn get posterPath => text().nullable()();
+  TextColumn get releaseDate => text().nullable()();
+  IntColumn get mediaType => intEnum<GlobalMediaType>()();
+  RealColumn get voteAverage => real().nullable()();
+  DateTimeColumn get addedDate => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {listId, mediaId, mediaType};
+}
+
+@DriftDatabase(tables: [
+  WatchlistItemsTable,
+  WatchedItemsTable,
+  MovieNotesTable,
+  SearchHistoryTable,
+  FavouritesTable,
+  NamedListsTable,
+  NamedListItemsTable,
+])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -64,11 +111,18 @@ class AppDatabase extends _$AppDatabase {
             try {
               await m.addColumn(movieNotesTable, movieNotesTable.mediaType);
             } catch (e) {
-              // Ignore if column already exists
               if (!e.toString().contains('duplicate column name')) {
                 rethrow;
               }
             }
+          }
+          if (from < 7) {
+            await m.createTable(searchHistoryTable);
+          }
+          if (from < 8) {
+            await m.createTable(favouritesTable);
+            await m.createTable(namedListsTable);
+            await m.createTable(namedListItemsTable);
           }
         },
       );

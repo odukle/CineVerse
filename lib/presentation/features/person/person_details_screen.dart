@@ -118,7 +118,7 @@ class _PersonDetailsViewState extends ConsumerState<_PersonDetailsView> {
   void initState() {
     super.initState();
     final departments = widget.details.creditsByDepartment.keys.toList();
-    
+
     // Sort credits within each department by release date (newest first)
     for (final dept in departments) {
       final credits = widget.details.creditsByDepartment[dept]!;
@@ -634,17 +634,25 @@ class _CreditCard extends StatelessWidget {
                         height: double.infinity,
                         borderRadius: 8,
                       ),
-                      errorWidget: (context, url, error) => const ColoredBox(
+                      errorWidget: (context, url, error) =>
+                          const SizedBox.expand(
+                            child: ColoredBox(
+                              color: AppColors.detailsPosterSurface,
+                              child: Icon(
+                                Icons.movie_outlined,
+                                color: Colors.white24,
+                              ),
+                            ),
+                          ),
+                    )
+                  : const SizedBox.expand(
+                      child: ColoredBox(
                         color: AppColors.detailsPosterSurface,
                         child: Icon(
                           Icons.movie_outlined,
                           color: Colors.white24,
                         ),
                       ),
-                    )
-                  : const ColoredBox(
-                      color: AppColors.detailsPosterSurface,
-                      child: Icon(Icons.movie_outlined, color: Colors.white24),
                     ),
             ),
           ),
@@ -659,15 +667,23 @@ class _CreditCard extends StatelessWidget {
             ),
           ),
           if (credit.role != null && credit.role!.isNotEmpty)
-            Text(
-              credit.role!,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: Colors.white54,
-                fontSize: 10,
-                height: 1.2,
-              ),
+            Builder(
+              builder: (context) {
+                final year =
+                    media.releaseDate != null && media.releaseDate!.length >= 4
+                    ? media.releaseDate!.substring(0, 4)
+                    : null;
+                return Text(
+                  '${year != null ? '$year • ' : ''}${credit.role!}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: Colors.white54,
+                    fontSize: 10,
+                    height: 1.2,
+                  ),
+                );
+              },
             ),
         ],
       ),

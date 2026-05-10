@@ -19,7 +19,8 @@ import 'package:cineverse/presentation/features/watchlist/providers/watched_prov
 import 'package:cineverse/presentation/features/movie_details/providers/notes_provider.dart';
 import 'package:cineverse/domain/entities/watched_item.dart';
 import 'package:cineverse/domain/entities/movie_note.dart';
-import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart' show mediaImagesProvider;
+import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart'
+    show mediaImagesProvider;
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:cineverse/presentation/widgets/full_screen_image_viewer.dart';
 import 'package:cineverse/app/router/app_router.dart' show AppRoute;
@@ -29,6 +30,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:cineverse/presentation/features/watchlist/providers/library_provider.dart';
+import 'package:cineverse/domain/entities/library_item.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 
 class MovieDetailsScreen extends ConsumerWidget {
@@ -118,9 +121,11 @@ class MovieDetailsScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
-                    onPressed: () => ref.invalidate(movieDetailsProvider(
-                      GetMovieDetailsParams(movieId: movieId, isTv: isTv),
-                    )),
+                    onPressed: () => ref.invalidate(
+                      movieDetailsProvider(
+                        GetMovieDetailsParams(movieId: movieId, isTv: isTv),
+                      ),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.cinemaAccent,
                       foregroundColor: Colors.black,
@@ -171,19 +176,29 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
   }
 
   void _startSlideshow() {
-    ref.read(mediaImagesProvider((id: widget.details.id, isTv: widget.isTv)).future).then((images) {
-      if (mounted) {
-        setState(() {
-          _slideshowImages = images.backdrops.isNotEmpty ? images.backdrops : images.posters;
-          _preloadNextImage();
+    ref
+        .read(
+          mediaImagesProvider((
+            id: widget.details.id,
+            isTv: widget.isTv,
+          )).future,
+        )
+        .then((images) {
+          if (mounted) {
+            setState(() {
+              _slideshowImages = images.backdrops.isNotEmpty
+                  ? images.backdrops
+                  : images.posters;
+              _preloadNextImage();
+            });
+          }
         });
-      }
-    });
 
     _slideshowTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
       if (_slideshowImages.length > 1 && _isNextImageReady && mounted) {
         setState(() {
-          _currentImageIndex = (_currentImageIndex + 1) % _slideshowImages.length;
+          _currentImageIndex =
+              (_currentImageIndex + 1) % _slideshowImages.length;
           _isNextImageReady = false;
           _preloadNextImage();
         });
@@ -221,8 +236,11 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
     final String? releaseYear = _extractYear(widget.details.releaseDate);
     final int? scorePercent = _catalogScorePercent(widget.details.catalogScore);
     final List<MovieRating> externalRatings = widget.details.externalRatings;
-    final List<MovieCredit> featuredCrew = _getFeaturedCrew(widget.details.crew);
-    final MovieWatchAvailability? watchAvailability = widget.details.watchAvailability;
+    final List<MovieCredit> featuredCrew = _getFeaturedCrew(
+      widget.details.crew,
+    );
+    final MovieWatchAvailability? watchAvailability =
+        widget.details.watchAvailability;
     final bool hasWatchAvailability = watchAvailability?.hasProviders ?? false;
 
     return DecoratedBox(
@@ -256,18 +274,6 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
             ),
             centerTitle: false,
             actions: [
-              _WatchlistButton(
-                id: widget.details.id,
-                title: widget.details.title,
-                posterPath: widget.details.posterPath,
-                releaseDate: widget.details.releaseDate,
-                mediaType: widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
-                voteAverage: widget.details.catalogScore,
-              ),
-              _WatchedButton(
-                details: widget.details,
-                isTv: widget.isTv,
-              ),
               IconButton(
                 onPressed: () {},
                 icon: const Icon(
@@ -333,7 +339,9 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Hero(
-                          tag: widget.heroTag ?? 'movie-poster-${widget.details.id}',
+                          tag:
+                              widget.heroTag ??
+                              'movie-poster-${widget.details.id}',
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
@@ -382,6 +390,38 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                                             ),
                                       ),
                               ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        // Action Buttons beside poster
+                        Expanded(
+                          child: Container(
+                            height: 150, // Match poster height
+                            alignment: Alignment.bottomLeft,
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              children: [
+                                _LibraryListButton(
+                                  details: widget.details,
+                                  isTv: widget.isTv,
+                                ),
+                                const SizedBox(width: 12),
+                                _LibraryFavouriteButton(
+                                  details: widget.details,
+                                  isTv: widget.isTv,
+                                ),
+                                const SizedBox(width: 12),
+                                _LibraryWatchlistButton(
+                                  details: widget.details,
+                                  isTv: widget.isTv,
+                                ),
+                                const SizedBox(width: 10),
+                                _WatchedButton(
+                                  details: widget.details,
+                                  isTv: widget.isTv,
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -524,8 +564,15 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
             ),
           ),
 
+          // Current Season Section
+          if (widget.isTv && widget.details.seasons.isNotEmpty)
+            SliverToBoxAdapter(
+              child: _CurrentSeasonSection(details: widget.details),
+            ),
+
           // Tagline
-          if (widget.details.tagline != null && widget.details.tagline!.isNotEmpty)
+          if (widget.details.tagline != null &&
+              widget.details.tagline!.isNotEmpty)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
@@ -556,7 +603,8 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                   ),
                   const SizedBox(height: 10),
                   Text(
-                    widget.details.overview ?? 'Overview unavailable for this title.',
+                    widget.details.overview ??
+                        'Overview unavailable for this title.',
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: Colors.white.withValues(alpha: 0.9),
                       height: 1.45,
@@ -574,8 +622,9 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                 padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
                 child: Consumer(
                   builder: (context, ref, _) {
-                    final regionCode =
-                        ref.watch(preferredRegionCodeProvider).toLowerCase();
+                    final regionCode = ref
+                        .watch(preferredRegionCodeProvider)
+                        .toLowerCase();
                     final mediaTypePath = widget.isTv ? 'tv-show' : 'movie';
                     final slug = _slugify(widget.details.title);
                     final directLink =
@@ -759,12 +808,14 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                       label: 'Original Language',
                       value: _formatLanguage(widget.details.originalLanguage!),
                     ),
-                  if (widget.details.budget != null && widget.details.budget! > 0)
+                  if (widget.details.budget != null &&
+                      widget.details.budget! > 0)
                     _InfoRow(
                       label: 'Budget',
                       value: _formatCurrency(widget.details.budget!),
                     ),
-                  if (widget.details.revenue != null && widget.details.revenue! > 0)
+                  if (widget.details.revenue != null &&
+                      widget.details.revenue! > 0)
                     _InfoRow(
                       label: 'Revenue',
                       value: _formatCurrency(widget.details.revenue!),
@@ -776,8 +827,9 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
           SliverToBoxAdapter(
             child: _NotesSection(
               mediaId: widget.details.id,
-              mediaType:
-                  widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
+              mediaType: widget.isTv
+                  ? GlobalMediaType.tv
+                  : GlobalMediaType.movie,
             ),
           ),
         ],
@@ -854,8 +906,12 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
       'Screenplay',
       'Story',
     };
-    final Map<String, ({int id, String name, String? imageUrl, List<String> roles})> crewMap = {};
-    
+    final Map<
+      String,
+      ({int id, String name, String? imageUrl, List<String> roles})
+    >
+    crewMap = {};
+
     for (final credit in crew) {
       if (featuredRoles.contains(credit.role)) {
         final existing = crewMap[credit.name];
@@ -874,12 +930,14 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
 
     return crewMap.values
         .take(4)
-        .map((e) => MovieCredit(
-              id: e.id,
-              name: e.name,
-              role: e.roles.join(', '),
-              imageUrl: e.imageUrl,
-            ))
+        .map(
+          (e) => MovieCredit(
+            id: e.id,
+            name: e.name,
+            role: e.roles.join(', '),
+            imageUrl: e.imageUrl,
+          ),
+        )
         .toList(growable: false);
   }
 
@@ -947,7 +1005,11 @@ class _FullCastCrewChip extends StatelessWidget {
       side: const BorderSide(color: AppColors.cinemaAccent, width: 1),
       label: const Text(
         'Full Cast & Crew',
-        style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12, fontWeight: FontWeight.bold),
+        style: TextStyle(
+          color: AppColors.cinemaAccent,
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       padding: EdgeInsets.zero,
       visualDensity: VisualDensity.compact,
@@ -963,7 +1025,9 @@ class _ImagesCarousel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final imagesAsync = ref.watch(mediaImagesProvider((id: movieId, isTv: isTv)));
+    final imagesAsync = ref.watch(
+      mediaImagesProvider((id: movieId, isTv: isTv)),
+    );
     final ThemeData theme = Theme.of(context);
 
     return imagesAsync.when(
@@ -1025,8 +1089,12 @@ class _ImagesCarousel extends ConsumerWidget {
                         child: CachedNetworkImage(
                           imageUrl: imageUrl,
                           fit: isLogo ? BoxFit.contain : BoxFit.cover,
-                          placeholder: (context, url) => const Center(child: CircularProgressIndicator()),
-                          errorWidget: (context, url, error) => const Icon(Icons.broken_image, color: Colors.white24),
+                          placeholder: (context, url) =>
+                              const Center(child: CircularProgressIndicator()),
+                          errorWidget: (context, url, error) => const Icon(
+                            Icons.broken_image,
+                            color: Colors.white24,
+                          ),
                         ),
                       ),
                     ),
@@ -1386,8 +1454,9 @@ class _WatchProviderCard extends StatelessWidget {
                   : CachedNetworkImage(
                       imageUrl: provider.logoPath!,
                       fit: BoxFit.cover,
-                      placeholder: (context, url) =>
-                          const ColoredBox(color: AppColors.detailsPosterSurface),
+                      placeholder: (context, url) => const ColoredBox(
+                        color: AppColors.detailsPosterSurface,
+                      ),
                       errorWidget: (context, url, error) => const Icon(
                         Icons.play_circle_outline_rounded,
                         color: Colors.white70,
@@ -1755,118 +1824,8 @@ class _TrailerPlayerState extends State<_TrailerPlayer> {
   }
 }
 
-class _WatchlistButton extends ConsumerWidget {
-  const _WatchlistButton({
-    required this.id,
-    required this.title,
-    this.posterPath,
-    this.releaseDate,
-    required this.mediaType,
-    this.voteAverage,
-  });
-
-  final int id;
-  final String title;
-  final String? posterPath;
-  final String? releaseDate;
-  final GlobalMediaType mediaType;
-  final double? voteAverage;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isInWatchlistAsync = ref.watch(isInWatchlistProvider(id));
-
-    return isInWatchlistAsync.when(
-      data: (isAdded) => IconButton(
-        onPressed: () {
-          final item = WatchlistItem(
-            id: id,
-            title: title,
-            posterPath: posterPath,
-            releaseDate: releaseDate,
-            mediaType: mediaType,
-            addedDate: DateTime.now(),
-            voteAverage: voteAverage,
-          );
-
-          if (isAdded) {
-            _showRemoveConfirmation(context, ref, item);
-          } else {
-            ref.read(watchlistProvider.notifier).toggleItem(item);
-          }
-        },
-        icon: Icon(
-          isAdded ? Icons.bookmark_rounded : Icons.bookmark_add_outlined,
-          color: isAdded ? AppColors.cinemaAccent : Colors.white,
-          size: 22,
-        ),
-      ),
-      loading: () => const SizedBox(
-        width: 48,
-        height: 48,
-        child: Padding(
-          padding: EdgeInsets.all(14),
-          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-        ),
-      ),
-      error: (_, _) => IconButton(
-        onPressed: null,
-        icon: Icon(
-          Icons.bookmark_add_outlined,
-          color: Colors.white.withValues(alpha: 0.3),
-          size: 22,
-        ),
-      ),
-    );
-  }
-
-  void _showRemoveConfirmation(
-    BuildContext context,
-    WidgetRef ref,
-    WatchlistItem item,
-  ) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            backgroundColor: AppColors.detailsCard,
-            title: const Text(
-              'Remove from Watchlist?',
-              style: TextStyle(color: Colors.white),
-            ),
-            content: Text(
-              'Are you sure you want to remove "${item.title}" from your watchlist?',
-              style: const TextStyle(color: Colors.white70),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(color: Colors.white70),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  ref.read(watchlistProvider.notifier).toggleItem(item);
-                  Navigator.pop(context);
-                },
-                child: const Text(
-                  'Remove',
-                  style: TextStyle(color: Colors.redAccent),
-                ),
-              ),
-            ],
-          ),
-    );
-  }
-}
-
 class _WatchedButton extends ConsumerWidget {
-  const _WatchedButton({
-    required this.details,
-    required this.isTv,
-  });
+  const _WatchedButton({required this.details, required this.isTv});
 
   final MovieDetails details;
   final bool isTv;
@@ -1877,29 +1836,15 @@ class _WatchedButton extends ConsumerWidget {
     final watchedItemAsync = ref.watch(watchedItemProvider(details.id));
 
     return isWatchedAsync.when(
-      data: (isWatched) => IconButton(
-        onPressed: () => _showWatchedDialog(
-          context,
-          ref,
-          isWatched,
-          watchedItemAsync.value,
-        ),
-        icon: Icon(
-          isWatched
-              ? Icons.check_circle_rounded
-              : Icons.check_circle_outline_rounded,
-          color: isWatched ? AppColors.cinemaAccent : Colors.white,
-          size: 22,
-        ),
+      data: (isWatched) => _CircleActionButton(
+        onPressed: () =>
+            _showWatchedDialog(context, ref, isWatched, watchedItemAsync.value),
+        icon: isWatched
+            ? Icons.check_circle_rounded
+            : Icons.check_circle_outline_rounded,
+        iconColor: isWatched ? AppColors.cinemaAccent : Colors.white,
       ),
-      loading: () => const SizedBox(
-        width: 48,
-        height: 48,
-        child: Padding(
-          padding: EdgeInsets.all(14),
-          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-        ),
-      ),
+      loading: () => const _CircleActionShimmer(),
       error: (_, _) => const SizedBox.shrink(),
     );
   }
@@ -2017,10 +1962,9 @@ class _WatchedDialogState extends State<_WatchedDialog> {
           Row(
             children: [
               IconButton(
-                onPressed:
-                    _rewatchCount > 0
-                        ? () => setState(() => _rewatchCount--)
-                        : null,
+                onPressed: _rewatchCount > 0
+                    ? () => setState(() => _rewatchCount--)
+                    : null,
                 icon: const Icon(
                   Icons.remove_circle_outline_rounded,
                   color: Colors.white70,
@@ -2044,32 +1988,30 @@ class _WatchedDialogState extends State<_WatchedDialog> {
       actions: [
         if (isEditing)
           Consumer(
-            builder:
-                (context, ref, _) => TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _removeWatched(context, ref);
-                  },
-                  child: const Text(
-                    'Remove',
-                    style: TextStyle(color: Colors.redAccent),
-                  ),
-                ),
+            builder: (context, ref, _) => TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _removeWatched(context, ref);
+              },
+              child: const Text(
+                'Remove',
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            ),
           ),
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
         ),
         Consumer(
-          builder:
-              (context, ref, _) => ElevatedButton(
-                onPressed: () => _saveWatched(context, ref),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.cinemaAccent,
-                  foregroundColor: Colors.black,
-                ),
-                child: Text(isEditing ? 'Update' : 'Save'),
-              ),
+          builder: (context, ref, _) => ElevatedButton(
+            onPressed: () => _saveWatched(context, ref),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.cinemaAccent,
+              foregroundColor: Colors.black,
+            ),
+            child: Text(isEditing ? 'Update' : 'Save'),
+          ),
         ),
       ],
     );
@@ -2087,50 +2029,66 @@ class _WatchedDialogState extends State<_WatchedDialog> {
       voteAverage: widget.details.catalogScore,
     );
 
-    if (widget.existingItem != null) {
+    final isUpdate = widget.existingItem != null;
+    if (isUpdate) {
       ref.read(watchedItemsProvider.notifier).updateItem(item);
     } else {
       ref.read(watchedItemsProvider.notifier).addItem(item);
     }
     Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(isUpdate ? 'Watched info updated' : 'Marked as Watched'),
+        duration: const Duration(seconds: 2),
+        behavior: SnackBarBehavior.floating,
+        width: 200,
+      ),
+    );
   }
 
   void _removeWatched(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            backgroundColor: AppColors.detailsCard,
-            title: const Text(
-              'Remove from Watched?',
-              style: TextStyle(color: Colors.white),
-            ),
-            content: const Text(
-              'Are you sure you want to remove this from your watched list?',
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.detailsCard,
+        title: const Text(
+          'Remove from Watched?',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          'Are you sure you want to remove this from your watched list?',
+          style: TextStyle(color: Colors.white70),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text(
+              'Cancel',
               style: TextStyle(color: Colors.white70),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(color: Colors.white70),
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  ref
-                      .read(watchedItemsProvider.notifier)
-                      .removeItem(widget.details.id);
-                  Navigator.pop(context); // close confirm dialog
-                },
-                child: const Text(
-                  'Remove',
-                  style: TextStyle(color: Colors.redAccent),
-                ),
-              ),
-            ],
           ),
+          TextButton(
+            onPressed: () {
+              ref
+                  .read(watchedItemsProvider.notifier)
+                  .removeItem(widget.details.id);
+              Navigator.pop(context); // close confirm dialog
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Removed from Watched'),
+                  duration: Duration(seconds: 2),
+                  behavior: SnackBarBehavior.floating,
+                  width: 200,
+                ),
+              );
+            },
+            child: const Text(
+              'Remove',
+              style: TextStyle(color: Colors.redAccent),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -2143,7 +2101,9 @@ class _NotesSection extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final notesAsync = ref.watch(mediaNotesProvider((id: mediaId, type: mediaType)));
+    final notesAsync = ref.watch(
+      mediaNotesProvider((id: mediaId, type: mediaType)),
+    );
     final theme = Theme.of(context);
 
     return Padding(
@@ -2176,15 +2136,16 @@ class _NotesSection extends ConsumerWidget {
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: notes.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 12),
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: 12),
                 itemBuilder: (context, index) => _NoteItem(note: notes[index]),
               );
             },
             loading: () => Column(
               children: List.generate(
                 2,
-                (index) => Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
+                (index) => const Padding(
+                  padding: EdgeInsets.only(bottom: 12),
                   child: ShimmerEffect(
                     width: double.infinity,
                     height: 80,
@@ -2203,7 +2164,9 @@ class _NotesSection extends ConsumerWidget {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    onPressed: () => ref.invalidate(mediaNotesProvider((id: mediaId, type: mediaType))),
+                    onPressed: () => ref.invalidate(
+                      mediaNotesProvider((id: mediaId, type: mediaType)),
+                    ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.cinemaAccent,
                       foregroundColor: Colors.black,
@@ -2216,87 +2179,6 @@ class _NotesSection extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _NoteInput extends ConsumerStatefulWidget {
-  const _NoteInput({required this.mediaId, required this.mediaType});
-
-  final int mediaId;
-  final GlobalMediaType mediaType;
-
-  @override
-  ConsumerState<_NoteInput> createState() => _NoteInputState();
-}
-
-class _NoteInputState extends ConsumerState<_NoteInput> {
-  final _controller = TextEditingController();
-  bool _isSubmitting = false;
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _submit() async {
-    final text = _controller.text.trim();
-    if (text.isEmpty) return;
-
-    setState(() => _isSubmitting = true);
-    try {
-      await ref.read(movieNotesActionsProvider).addNote(widget.mediaId, widget.mediaType, text);
-      _controller.clear();
-      if (mounted) FocusScope.of(context).unfocus();
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: TextField(
-            controller: _controller,
-            maxLines: null,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
-            decoration: InputDecoration(
-              hintText: 'Add a note...',
-              hintStyle: const TextStyle(color: Colors.white38),
-              filled: true,
-              fillColor: AppColors.detailsCard.withValues(alpha: 0.5),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.1)),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.cinemaAccent),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        IconButton(
-          onPressed: _isSubmitting ? null : _submit,
-          icon: _isSubmitting
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.cinemaAccent),
-                )
-              : const Icon(Icons.send_rounded, color: AppColors.cinemaAccent),
-        ),
-      ],
     );
   }
 }
@@ -2331,7 +2213,11 @@ class _NoteItem extends ConsumerWidget {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 onPressed: () => _confirmDelete(context, ref),
-                icon: const Icon(Icons.delete_outline_rounded, color: Colors.redAccent, size: 18),
+                icon: const Icon(
+                  Icons.delete_outline_rounded,
+                  color: Colors.redAccent,
+                  size: 18,
+                ),
               ),
             ],
           ),
@@ -2350,22 +2236,619 @@ class _NoteItem extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.detailsCard,
-        title: const Text('Delete Note?', style: TextStyle(color: Colors.white)),
-        content: const Text('Are you sure you want to delete this note?', style: TextStyle(color: Colors.white70)),
+        title: const Text(
+          'Delete Note?',
+          style: TextStyle(color: Colors.white),
+        ),
+        content: const Text(
+          'Are you sure you want to delete this note?',
+          style: TextStyle(color: Colors.white70),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white70),
+            ),
           ),
           TextButton(
             onPressed: () {
-              ref.read(movieNotesActionsProvider).deleteNote(note.movieId, note.mediaType, note.id);
+              ref
+                  .read(movieNotesActionsProvider)
+                  .deleteNote(note.movieId, note.mediaType, note.id);
               Navigator.pop(context);
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.redAccent)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: Colors.redAccent),
+            ),
           ),
         ],
       ),
     );
+  }
+}
+
+class _NoteInput extends ConsumerStatefulWidget {
+  const _NoteInput({required this.mediaId, required this.mediaType});
+
+  final int mediaId;
+  final GlobalMediaType mediaType;
+
+  @override
+  ConsumerState<_NoteInput> createState() => _NoteInputState();
+}
+
+class _NoteInputState extends ConsumerState<_NoteInput> {
+  final _controller = TextEditingController();
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    final text = _controller.text.trim();
+    if (text.isEmpty) return;
+
+    setState(() => _isSubmitting = true);
+    try {
+      await ref
+          .read(movieNotesActionsProvider)
+          .addNote(widget.mediaId, widget.mediaType, text);
+      _controller.clear();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Note added'),
+            duration: Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            width: 150,
+          ),
+        );
+        FocusScope.of(context).unfocus();
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: TextField(
+            controller: _controller,
+            maxLines: null,
+            style: const TextStyle(color: Colors.white, fontSize: 14),
+            decoration: InputDecoration(
+              hintText: 'Add a note...',
+              hintStyle: const TextStyle(color: Colors.white38),
+              filled: true,
+              fillColor: AppColors.detailsCard.withValues(alpha: 0.5),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.1),
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: Colors.white.withValues(alpha: 0.1),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.cinemaAccent),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 8),
+        IconButton(
+          onPressed: _isSubmitting ? null : _submit,
+          icon: _isSubmitting
+              ? const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: AppColors.cinemaAccent,
+                  ),
+                )
+              : const Icon(Icons.send_rounded, color: AppColors.cinemaAccent),
+        ),
+      ],
+    );
+  }
+}
+
+class _CurrentSeasonSection extends StatelessWidget {
+  const _CurrentSeasonSection({required this.details});
+
+  final MovieDetails details;
+
+  @override
+  Widget build(BuildContext context) {
+    // Find current season: last one in the list that is not a special
+    final currentSeason = details.seasons.lastWhere(
+      (s) => s.seasonNumber > 0,
+      orElse: () => details.seasons.first,
+    );
+
+    final dateStr = currentSeason.airDate?.substring(0, 4);
+
+    final isEnded = details.status == 'Ended' || details.status == 'Canceled';
+    final sectionLabel = isEnded ? 'Last Season' : 'Current Season';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            sectionLabel,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          GestureDetector(
+            onTap: () {
+              context.pushNamed(
+                AppRoute.seasonDetails.name,
+                pathParameters: {
+                  'tvId': details.id.toString(),
+                  'seasonNumber': currentSeason.seasonNumber.toString(),
+                },
+                queryParameters: {'showTitle': details.title},
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.detailsCard.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: SizedBox(
+                      width: 80,
+                      height: 120,
+                      child: currentSeason.posterPath != null
+                          ? CachedNetworkImage(
+                              imageUrl: currentSeason.posterPath!,
+                              fit: BoxFit.cover,
+                            )
+                          : Container(color: Colors.white10),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          currentSeason.name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            if (currentSeason.voteAverage != null &&
+                                currentSeason.voteAverage! > 0) ...[
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.cinemaAccent.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  '★ ${(currentSeason.voteAverage! * 10).toInt()}%',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                            Text(
+                              '${dateStr ?? ''} • ${currentSeason.episodeCount} Episodes',
+                              style: const TextStyle(
+                                color: Colors.white54,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        if (currentSeason.overview != null &&
+                            currentSeason.overview!.isNotEmpty)
+                          Text(
+                            currentSeason.overview!,
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 13,
+                            ),
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                          )
+                        else
+                          const Text(
+                            'No overview available for this season.',
+                            style: TextStyle(
+                              color: Colors.white38,
+                              fontSize: 13,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextButton(
+            onPressed: () {
+              context.pushNamed(
+                AppRoute.allSeasons.name,
+                pathParameters: {'tvId': details.id.toString()},
+                extra: {
+                  'showTitle': details.title,
+                  'seasons': details.seasons,
+                  'tvId': details.id,
+                },
+              );
+            },
+            child: const Text(
+              'View All Seasons',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LibraryListButton extends ConsumerWidget {
+  const _LibraryListButton({required this.details, required this.isTv});
+  final MovieDetails details;
+  final bool isTv;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _CircleActionButton(
+      icon: Icons.list_rounded,
+      onPressed: () => _showAddToListDialog(context, ref),
+    );
+  }
+
+  void _showAddToListDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => _AddToListDialog(details: details, isTv: isTv),
+    );
+  }
+}
+
+class _LibraryFavouriteButton extends ConsumerWidget {
+  const _LibraryFavouriteButton({required this.details, required this.isTv});
+  final MovieDetails details;
+  final bool isTv;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mediaType = isTv ? GlobalMediaType.tv : GlobalMediaType.movie;
+    final isFav = ref.watch(isFavouriteProvider((id: details.id, type: mediaType)));
+
+    return _CircleActionButton(
+      icon: isFav ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+      iconColor: isFav ? Colors.redAccent : Colors.white,
+      onPressed: () async {
+        final item = FavouriteItem(
+          id: details.id,
+          title: details.title,
+          posterPath: details.posterPath,
+          releaseDate: details.releaseDate,
+          mediaType: mediaType,
+          addedDate: DateTime.now(),
+          voteAverage: details.catalogScore,
+        );
+        await ref.read(favouritesProvider.notifier).toggleFavourite(item);
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(isFav ? 'Removed from Favourites' : 'Added to Favourites'),
+              duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+              width: 200,
+            ),
+          );
+        }
+      },
+    );
+  }
+}
+
+class _LibraryWatchlistButton extends ConsumerWidget {
+  const _LibraryWatchlistButton({required this.details, required this.isTv});
+  final MovieDetails details;
+  final bool isTv;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isInWatchlistAsync = ref.watch(isInWatchlistProvider(details.id));
+
+    return isInWatchlistAsync.when(
+      data: (isAdded) => _CircleActionButton(
+        icon: isAdded ? Icons.bookmark_rounded : Icons.bookmark_add_outlined,
+        iconColor: isAdded ? AppColors.cinemaAccent : Colors.white,
+        onPressed: () async {
+          final item = WatchlistItem(
+            id: details.id,
+            title: details.title,
+            posterPath: details.posterPath,
+            releaseDate: details.releaseDate,
+            mediaType: isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
+            addedDate: DateTime.now(),
+            voteAverage: details.catalogScore,
+          );
+          await ref.read(watchlistProvider.notifier).toggleItem(item);
+          if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(isAdded ? 'Removed from Watchlist' : 'Added to Watchlist'),
+                duration: const Duration(seconds: 2),
+                behavior: SnackBarBehavior.floating,
+                width: 200,
+              ),
+            );
+          }
+        },
+      ),
+      loading: () => const _CircleActionShimmer(),
+      error: (_, _) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _CircleActionButton extends StatelessWidget {
+  const _CircleActionButton({
+    required this.icon,
+    required this.onPressed,
+    this.iconColor = Colors.white,
+  });
+
+  final IconData icon;
+  final VoidCallback onPressed;
+  final Color iconColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: const Color(0xFF032541), // Deep blue from image
+      shape: const CircleBorder(),
+      elevation: 4,
+      child: InkWell(
+        onTap: onPressed,
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 40,
+          height: 40,
+          alignment: Alignment.center,
+          child: Icon(icon, color: iconColor, size: 20),
+        ),
+      ),
+    );
+  }
+}
+
+class _CircleActionShimmer extends StatelessWidget {
+  const _CircleActionShimmer();
+  @override
+  Widget build(BuildContext context) {
+    return const ShimmerEffect(width: 40, height: 40, borderRadius: 20);
+  }
+}
+
+class _AddToListDialog extends StatefulWidget {
+  const _AddToListDialog({required this.details, required this.isTv});
+  final MovieDetails details;
+  final bool isTv;
+
+  @override
+  State<_AddToListDialog> createState() => _AddToListDialogState();
+}
+
+class _AddToListDialogState extends State<_AddToListDialog> {
+  bool _addToWatchlist = false;
+  final _newListNameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _newListNameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, _) {
+        final listsAsync = ref.watch(namedListsProvider);
+
+        return AlertDialog(
+          backgroundColor: AppColors.detailsCard,
+          title: const Text(
+            'Add to List',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                listsAsync.when(
+                  data: (lists) {
+                    if (lists.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          'No lists yet.',
+                          style: TextStyle(color: Colors.white54),
+                        ),
+                      );
+                    }
+                    return Flexible(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: lists.length,
+                        itemBuilder: (context, index) {
+                          final list = lists[index];
+                          return ListTile(
+                            title: Text(
+                              list.name,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            trailing: const Icon(
+                              Icons.add,
+                              color: AppColors.cinemaAccent,
+                            ),
+                            onTap: () {
+                              _addItemToList(ref, list.id);
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(_addToWatchlist 
+                                    ? 'Added to ${list.name} and Watchlist'
+                                    : 'Added to ${list.name}'),
+                                  duration: const Duration(seconds: 2),
+                                  behavior: SnackBarBehavior.floating,
+                                  width: 250,
+                                ),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  loading: () => const CircularProgressIndicator(),
+                  error: (_, _) => const Text('Error loading lists'),
+                ),
+                const Divider(color: Colors.white10),
+                TextField(
+                  controller: _newListNameController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    hintText: 'Create new list...',
+                    hintStyle: TextStyle(color: Colors.white38),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                CheckboxListTile(
+                  title: const Text(
+                    'Also add to Watchlist',
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                  value: _addToWatchlist,
+                  onChanged: (val) =>
+                      setState(() => _addToWatchlist = val ?? false),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                  activeColor: AppColors.cinemaAccent,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white54),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final name = _newListNameController.text.trim();
+                if (name.isNotEmpty) {
+                  // Hide keyboard immediately
+                  FocusScope.of(context).unfocus();
+                  await ref.read(namedListsProvider.notifier).createList(name);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('List "$name" created'),
+                        duration: const Duration(seconds: 2),
+                        behavior: SnackBarBehavior.floating,
+                        width: 200,
+                      ),
+                    );
+                  }
+                  _newListNameController.clear();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.cinemaAccent,
+              ),
+              child: const Text(
+                'Create',
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _addItemToList(WidgetRef ref, int listId) {
+    final item = NamedListItem(
+      listId: listId,
+      mediaId: widget.details.id,
+      title: widget.details.title,
+      posterPath: widget.details.posterPath,
+      releaseDate: widget.details.releaseDate,
+      mediaType: widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
+      addedDate: DateTime.now(),
+      voteAverage: widget.details.catalogScore,
+    );
+    ref
+        .read(namedListsProvider.notifier)
+        .addItemToList(item: item, addToWatchlist: _addToWatchlist);
   }
 }

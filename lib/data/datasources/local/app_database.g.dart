@@ -1353,6 +1353,1538 @@ class MovieNotesTableCompanion extends UpdateCompanion<MovieNotesTableData> {
   }
 }
 
+class $SearchHistoryTableTable extends SearchHistoryTable
+    with TableInfo<$SearchHistoryTableTable, SearchHistoryTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SearchHistoryTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _queryMeta = const VerificationMeta('query');
+  @override
+  late final GeneratedColumn<String> query = GeneratedColumn<String>(
+    'query',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, query, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'search_history_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SearchHistoryTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('query')) {
+      context.handle(
+        _queryMeta,
+        query.isAcceptableOrUnknown(data['query']!, _queryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_queryMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SearchHistoryTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SearchHistoryTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      query: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}query'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $SearchHistoryTableTable createAlias(String alias) {
+    return $SearchHistoryTableTable(attachedDatabase, alias);
+  }
+}
+
+class SearchHistoryTableData extends DataClass
+    implements Insertable<SearchHistoryTableData> {
+  final int id;
+  final String query;
+  final DateTime createdAt;
+  const SearchHistoryTableData({
+    required this.id,
+    required this.query,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['query'] = Variable<String>(query);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  SearchHistoryTableCompanion toCompanion(bool nullToAbsent) {
+    return SearchHistoryTableCompanion(
+      id: Value(id),
+      query: Value(query),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory SearchHistoryTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SearchHistoryTableData(
+      id: serializer.fromJson<int>(json['id']),
+      query: serializer.fromJson<String>(json['query']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'query': serializer.toJson<String>(query),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  SearchHistoryTableData copyWith({
+    int? id,
+    String? query,
+    DateTime? createdAt,
+  }) => SearchHistoryTableData(
+    id: id ?? this.id,
+    query: query ?? this.query,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  SearchHistoryTableData copyWithCompanion(SearchHistoryTableCompanion data) {
+    return SearchHistoryTableData(
+      id: data.id.present ? data.id.value : this.id,
+      query: data.query.present ? data.query.value : this.query,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SearchHistoryTableData(')
+          ..write('id: $id, ')
+          ..write('query: $query, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, query, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SearchHistoryTableData &&
+          other.id == this.id &&
+          other.query == this.query &&
+          other.createdAt == this.createdAt);
+}
+
+class SearchHistoryTableCompanion
+    extends UpdateCompanion<SearchHistoryTableData> {
+  final Value<int> id;
+  final Value<String> query;
+  final Value<DateTime> createdAt;
+  const SearchHistoryTableCompanion({
+    this.id = const Value.absent(),
+    this.query = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  SearchHistoryTableCompanion.insert({
+    this.id = const Value.absent(),
+    required String query,
+    required DateTime createdAt,
+  }) : query = Value(query),
+       createdAt = Value(createdAt);
+  static Insertable<SearchHistoryTableData> custom({
+    Expression<int>? id,
+    Expression<String>? query,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (query != null) 'query': query,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  SearchHistoryTableCompanion copyWith({
+    Value<int>? id,
+    Value<String>? query,
+    Value<DateTime>? createdAt,
+  }) {
+    return SearchHistoryTableCompanion(
+      id: id ?? this.id,
+      query: query ?? this.query,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (query.present) {
+      map['query'] = Variable<String>(query.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SearchHistoryTableCompanion(')
+          ..write('id: $id, ')
+          ..write('query: $query, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $FavouritesTableTable extends FavouritesTable
+    with TableInfo<$FavouritesTableTable, FavouritesTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FavouritesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _posterPathMeta = const VerificationMeta(
+    'posterPath',
+  );
+  @override
+  late final GeneratedColumn<String> posterPath = GeneratedColumn<String>(
+    'poster_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _releaseDateMeta = const VerificationMeta(
+    'releaseDate',
+  );
+  @override
+  late final GeneratedColumn<String> releaseDate = GeneratedColumn<String>(
+    'release_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<GlobalMediaType, int> mediaType =
+      GeneratedColumn<int>(
+        'media_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<GlobalMediaType>(
+        $FavouritesTableTable.$convertermediaType,
+      );
+  static const VerificationMeta _addedDateMeta = const VerificationMeta(
+    'addedDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> addedDate = GeneratedColumn<DateTime>(
+    'added_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _voteAverageMeta = const VerificationMeta(
+    'voteAverage',
+  );
+  @override
+  late final GeneratedColumn<double> voteAverage = GeneratedColumn<double>(
+    'vote_average',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    posterPath,
+    releaseDate,
+    mediaType,
+    addedDate,
+    voteAverage,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'favourites_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<FavouritesTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('poster_path')) {
+      context.handle(
+        _posterPathMeta,
+        posterPath.isAcceptableOrUnknown(data['poster_path']!, _posterPathMeta),
+      );
+    }
+    if (data.containsKey('release_date')) {
+      context.handle(
+        _releaseDateMeta,
+        releaseDate.isAcceptableOrUnknown(
+          data['release_date']!,
+          _releaseDateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('added_date')) {
+      context.handle(
+        _addedDateMeta,
+        addedDate.isAcceptableOrUnknown(data['added_date']!, _addedDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_addedDateMeta);
+    }
+    if (data.containsKey('vote_average')) {
+      context.handle(
+        _voteAverageMeta,
+        voteAverage.isAcceptableOrUnknown(
+          data['vote_average']!,
+          _voteAverageMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id, mediaType};
+  @override
+  FavouritesTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FavouritesTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      posterPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}poster_path'],
+      ),
+      releaseDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}release_date'],
+      ),
+      mediaType: $FavouritesTableTable.$convertermediaType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}media_type'],
+        )!,
+      ),
+      addedDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}added_date'],
+      )!,
+      voteAverage: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}vote_average'],
+      ),
+    );
+  }
+
+  @override
+  $FavouritesTableTable createAlias(String alias) {
+    return $FavouritesTableTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<GlobalMediaType, int, int> $convertermediaType =
+      const EnumIndexConverter<GlobalMediaType>(GlobalMediaType.values);
+}
+
+class FavouritesTableData extends DataClass
+    implements Insertable<FavouritesTableData> {
+  final int id;
+  final String title;
+  final String? posterPath;
+  final String? releaseDate;
+  final GlobalMediaType mediaType;
+  final DateTime addedDate;
+  final double? voteAverage;
+  const FavouritesTableData({
+    required this.id,
+    required this.title,
+    this.posterPath,
+    this.releaseDate,
+    required this.mediaType,
+    required this.addedDate,
+    this.voteAverage,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || posterPath != null) {
+      map['poster_path'] = Variable<String>(posterPath);
+    }
+    if (!nullToAbsent || releaseDate != null) {
+      map['release_date'] = Variable<String>(releaseDate);
+    }
+    {
+      map['media_type'] = Variable<int>(
+        $FavouritesTableTable.$convertermediaType.toSql(mediaType),
+      );
+    }
+    map['added_date'] = Variable<DateTime>(addedDate);
+    if (!nullToAbsent || voteAverage != null) {
+      map['vote_average'] = Variable<double>(voteAverage);
+    }
+    return map;
+  }
+
+  FavouritesTableCompanion toCompanion(bool nullToAbsent) {
+    return FavouritesTableCompanion(
+      id: Value(id),
+      title: Value(title),
+      posterPath: posterPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(posterPath),
+      releaseDate: releaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseDate),
+      mediaType: Value(mediaType),
+      addedDate: Value(addedDate),
+      voteAverage: voteAverage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(voteAverage),
+    );
+  }
+
+  factory FavouritesTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FavouritesTableData(
+      id: serializer.fromJson<int>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      posterPath: serializer.fromJson<String?>(json['posterPath']),
+      releaseDate: serializer.fromJson<String?>(json['releaseDate']),
+      mediaType: $FavouritesTableTable.$convertermediaType.fromJson(
+        serializer.fromJson<int>(json['mediaType']),
+      ),
+      addedDate: serializer.fromJson<DateTime>(json['addedDate']),
+      voteAverage: serializer.fromJson<double?>(json['voteAverage']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'title': serializer.toJson<String>(title),
+      'posterPath': serializer.toJson<String?>(posterPath),
+      'releaseDate': serializer.toJson<String?>(releaseDate),
+      'mediaType': serializer.toJson<int>(
+        $FavouritesTableTable.$convertermediaType.toJson(mediaType),
+      ),
+      'addedDate': serializer.toJson<DateTime>(addedDate),
+      'voteAverage': serializer.toJson<double?>(voteAverage),
+    };
+  }
+
+  FavouritesTableData copyWith({
+    int? id,
+    String? title,
+    Value<String?> posterPath = const Value.absent(),
+    Value<String?> releaseDate = const Value.absent(),
+    GlobalMediaType? mediaType,
+    DateTime? addedDate,
+    Value<double?> voteAverage = const Value.absent(),
+  }) => FavouritesTableData(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    posterPath: posterPath.present ? posterPath.value : this.posterPath,
+    releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
+    mediaType: mediaType ?? this.mediaType,
+    addedDate: addedDate ?? this.addedDate,
+    voteAverage: voteAverage.present ? voteAverage.value : this.voteAverage,
+  );
+  FavouritesTableData copyWithCompanion(FavouritesTableCompanion data) {
+    return FavouritesTableData(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      posterPath: data.posterPath.present
+          ? data.posterPath.value
+          : this.posterPath,
+      releaseDate: data.releaseDate.present
+          ? data.releaseDate.value
+          : this.releaseDate,
+      mediaType: data.mediaType.present ? data.mediaType.value : this.mediaType,
+      addedDate: data.addedDate.present ? data.addedDate.value : this.addedDate,
+      voteAverage: data.voteAverage.present
+          ? data.voteAverage.value
+          : this.voteAverage,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FavouritesTableData(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('posterPath: $posterPath, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('addedDate: $addedDate, ')
+          ..write('voteAverage: $voteAverage')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    title,
+    posterPath,
+    releaseDate,
+    mediaType,
+    addedDate,
+    voteAverage,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FavouritesTableData &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.posterPath == this.posterPath &&
+          other.releaseDate == this.releaseDate &&
+          other.mediaType == this.mediaType &&
+          other.addedDate == this.addedDate &&
+          other.voteAverage == this.voteAverage);
+}
+
+class FavouritesTableCompanion extends UpdateCompanion<FavouritesTableData> {
+  final Value<int> id;
+  final Value<String> title;
+  final Value<String?> posterPath;
+  final Value<String?> releaseDate;
+  final Value<GlobalMediaType> mediaType;
+  final Value<DateTime> addedDate;
+  final Value<double?> voteAverage;
+  final Value<int> rowid;
+  const FavouritesTableCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.posterPath = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.mediaType = const Value.absent(),
+    this.addedDate = const Value.absent(),
+    this.voteAverage = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FavouritesTableCompanion.insert({
+    required int id,
+    required String title,
+    this.posterPath = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    required GlobalMediaType mediaType,
+    required DateTime addedDate,
+    this.voteAverage = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       title = Value(title),
+       mediaType = Value(mediaType),
+       addedDate = Value(addedDate);
+  static Insertable<FavouritesTableData> custom({
+    Expression<int>? id,
+    Expression<String>? title,
+    Expression<String>? posterPath,
+    Expression<String>? releaseDate,
+    Expression<int>? mediaType,
+    Expression<DateTime>? addedDate,
+    Expression<double>? voteAverage,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (posterPath != null) 'poster_path': posterPath,
+      if (releaseDate != null) 'release_date': releaseDate,
+      if (mediaType != null) 'media_type': mediaType,
+      if (addedDate != null) 'added_date': addedDate,
+      if (voteAverage != null) 'vote_average': voteAverage,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FavouritesTableCompanion copyWith({
+    Value<int>? id,
+    Value<String>? title,
+    Value<String?>? posterPath,
+    Value<String?>? releaseDate,
+    Value<GlobalMediaType>? mediaType,
+    Value<DateTime>? addedDate,
+    Value<double?>? voteAverage,
+    Value<int>? rowid,
+  }) {
+    return FavouritesTableCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      posterPath: posterPath ?? this.posterPath,
+      releaseDate: releaseDate ?? this.releaseDate,
+      mediaType: mediaType ?? this.mediaType,
+      addedDate: addedDate ?? this.addedDate,
+      voteAverage: voteAverage ?? this.voteAverage,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (posterPath.present) {
+      map['poster_path'] = Variable<String>(posterPath.value);
+    }
+    if (releaseDate.present) {
+      map['release_date'] = Variable<String>(releaseDate.value);
+    }
+    if (mediaType.present) {
+      map['media_type'] = Variable<int>(
+        $FavouritesTableTable.$convertermediaType.toSql(mediaType.value),
+      );
+    }
+    if (addedDate.present) {
+      map['added_date'] = Variable<DateTime>(addedDate.value);
+    }
+    if (voteAverage.present) {
+      map['vote_average'] = Variable<double>(voteAverage.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FavouritesTableCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('posterPath: $posterPath, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('addedDate: $addedDate, ')
+          ..write('voteAverage: $voteAverage, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $NamedListsTableTable extends NamedListsTable
+    with TableInfo<$NamedListsTableTable, NamedListsTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NamedListsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, name, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'named_lists_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NamedListsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NamedListsTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NamedListsTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $NamedListsTableTable createAlias(String alias) {
+    return $NamedListsTableTable(attachedDatabase, alias);
+  }
+}
+
+class NamedListsTableData extends DataClass
+    implements Insertable<NamedListsTableData> {
+  final int id;
+  final String name;
+  final DateTime createdAt;
+  const NamedListsTableData({
+    required this.id,
+    required this.name,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  NamedListsTableCompanion toCompanion(bool nullToAbsent) {
+    return NamedListsTableCompanion(
+      id: Value(id),
+      name: Value(name),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory NamedListsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NamedListsTableData(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  NamedListsTableData copyWith({int? id, String? name, DateTime? createdAt}) =>
+      NamedListsTableData(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  NamedListsTableData copyWithCompanion(NamedListsTableCompanion data) {
+    return NamedListsTableData(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NamedListsTableData(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NamedListsTableData &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.createdAt == this.createdAt);
+}
+
+class NamedListsTableCompanion extends UpdateCompanion<NamedListsTableData> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<DateTime> createdAt;
+  const NamedListsTableCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  NamedListsTableCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    required DateTime createdAt,
+  }) : name = Value(name),
+       createdAt = Value(createdAt);
+  static Insertable<NamedListsTableData> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  NamedListsTableCompanion copyWith({
+    Value<int>? id,
+    Value<String>? name,
+    Value<DateTime>? createdAt,
+  }) {
+    return NamedListsTableCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NamedListsTableCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $NamedListItemsTableTable extends NamedListItemsTable
+    with TableInfo<$NamedListItemsTableTable, NamedListItemsTableData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NamedListItemsTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _listIdMeta = const VerificationMeta('listId');
+  @override
+  late final GeneratedColumn<int> listId = GeneratedColumn<int>(
+    'list_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES named_lists_table (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _mediaIdMeta = const VerificationMeta(
+    'mediaId',
+  );
+  @override
+  late final GeneratedColumn<int> mediaId = GeneratedColumn<int>(
+    'media_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _posterPathMeta = const VerificationMeta(
+    'posterPath',
+  );
+  @override
+  late final GeneratedColumn<String> posterPath = GeneratedColumn<String>(
+    'poster_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _releaseDateMeta = const VerificationMeta(
+    'releaseDate',
+  );
+  @override
+  late final GeneratedColumn<String> releaseDate = GeneratedColumn<String>(
+    'release_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<GlobalMediaType, int> mediaType =
+      GeneratedColumn<int>(
+        'media_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<GlobalMediaType>(
+        $NamedListItemsTableTable.$convertermediaType,
+      );
+  static const VerificationMeta _voteAverageMeta = const VerificationMeta(
+    'voteAverage',
+  );
+  @override
+  late final GeneratedColumn<double> voteAverage = GeneratedColumn<double>(
+    'vote_average',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _addedDateMeta = const VerificationMeta(
+    'addedDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> addedDate = GeneratedColumn<DateTime>(
+    'added_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    listId,
+    mediaId,
+    title,
+    posterPath,
+    releaseDate,
+    mediaType,
+    voteAverage,
+    addedDate,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'named_list_items_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NamedListItemsTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('list_id')) {
+      context.handle(
+        _listIdMeta,
+        listId.isAcceptableOrUnknown(data['list_id']!, _listIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_listIdMeta);
+    }
+    if (data.containsKey('media_id')) {
+      context.handle(
+        _mediaIdMeta,
+        mediaId.isAcceptableOrUnknown(data['media_id']!, _mediaIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_mediaIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('poster_path')) {
+      context.handle(
+        _posterPathMeta,
+        posterPath.isAcceptableOrUnknown(data['poster_path']!, _posterPathMeta),
+      );
+    }
+    if (data.containsKey('release_date')) {
+      context.handle(
+        _releaseDateMeta,
+        releaseDate.isAcceptableOrUnknown(
+          data['release_date']!,
+          _releaseDateMeta,
+        ),
+      );
+    }
+    if (data.containsKey('vote_average')) {
+      context.handle(
+        _voteAverageMeta,
+        voteAverage.isAcceptableOrUnknown(
+          data['vote_average']!,
+          _voteAverageMeta,
+        ),
+      );
+    }
+    if (data.containsKey('added_date')) {
+      context.handle(
+        _addedDateMeta,
+        addedDate.isAcceptableOrUnknown(data['added_date']!, _addedDateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_addedDateMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {listId, mediaId, mediaType};
+  @override
+  NamedListItemsTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NamedListItemsTableData(
+      listId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}list_id'],
+      )!,
+      mediaId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}media_id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      posterPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}poster_path'],
+      ),
+      releaseDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}release_date'],
+      ),
+      mediaType: $NamedListItemsTableTable.$convertermediaType.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.int,
+          data['${effectivePrefix}media_type'],
+        )!,
+      ),
+      voteAverage: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}vote_average'],
+      ),
+      addedDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}added_date'],
+      )!,
+    );
+  }
+
+  @override
+  $NamedListItemsTableTable createAlias(String alias) {
+    return $NamedListItemsTableTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<GlobalMediaType, int, int> $convertermediaType =
+      const EnumIndexConverter<GlobalMediaType>(GlobalMediaType.values);
+}
+
+class NamedListItemsTableData extends DataClass
+    implements Insertable<NamedListItemsTableData> {
+  final int listId;
+  final int mediaId;
+  final String title;
+  final String? posterPath;
+  final String? releaseDate;
+  final GlobalMediaType mediaType;
+  final double? voteAverage;
+  final DateTime addedDate;
+  const NamedListItemsTableData({
+    required this.listId,
+    required this.mediaId,
+    required this.title,
+    this.posterPath,
+    this.releaseDate,
+    required this.mediaType,
+    this.voteAverage,
+    required this.addedDate,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['list_id'] = Variable<int>(listId);
+    map['media_id'] = Variable<int>(mediaId);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || posterPath != null) {
+      map['poster_path'] = Variable<String>(posterPath);
+    }
+    if (!nullToAbsent || releaseDate != null) {
+      map['release_date'] = Variable<String>(releaseDate);
+    }
+    {
+      map['media_type'] = Variable<int>(
+        $NamedListItemsTableTable.$convertermediaType.toSql(mediaType),
+      );
+    }
+    if (!nullToAbsent || voteAverage != null) {
+      map['vote_average'] = Variable<double>(voteAverage);
+    }
+    map['added_date'] = Variable<DateTime>(addedDate);
+    return map;
+  }
+
+  NamedListItemsTableCompanion toCompanion(bool nullToAbsent) {
+    return NamedListItemsTableCompanion(
+      listId: Value(listId),
+      mediaId: Value(mediaId),
+      title: Value(title),
+      posterPath: posterPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(posterPath),
+      releaseDate: releaseDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(releaseDate),
+      mediaType: Value(mediaType),
+      voteAverage: voteAverage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(voteAverage),
+      addedDate: Value(addedDate),
+    );
+  }
+
+  factory NamedListItemsTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NamedListItemsTableData(
+      listId: serializer.fromJson<int>(json['listId']),
+      mediaId: serializer.fromJson<int>(json['mediaId']),
+      title: serializer.fromJson<String>(json['title']),
+      posterPath: serializer.fromJson<String?>(json['posterPath']),
+      releaseDate: serializer.fromJson<String?>(json['releaseDate']),
+      mediaType: $NamedListItemsTableTable.$convertermediaType.fromJson(
+        serializer.fromJson<int>(json['mediaType']),
+      ),
+      voteAverage: serializer.fromJson<double?>(json['voteAverage']),
+      addedDate: serializer.fromJson<DateTime>(json['addedDate']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'listId': serializer.toJson<int>(listId),
+      'mediaId': serializer.toJson<int>(mediaId),
+      'title': serializer.toJson<String>(title),
+      'posterPath': serializer.toJson<String?>(posterPath),
+      'releaseDate': serializer.toJson<String?>(releaseDate),
+      'mediaType': serializer.toJson<int>(
+        $NamedListItemsTableTable.$convertermediaType.toJson(mediaType),
+      ),
+      'voteAverage': serializer.toJson<double?>(voteAverage),
+      'addedDate': serializer.toJson<DateTime>(addedDate),
+    };
+  }
+
+  NamedListItemsTableData copyWith({
+    int? listId,
+    int? mediaId,
+    String? title,
+    Value<String?> posterPath = const Value.absent(),
+    Value<String?> releaseDate = const Value.absent(),
+    GlobalMediaType? mediaType,
+    Value<double?> voteAverage = const Value.absent(),
+    DateTime? addedDate,
+  }) => NamedListItemsTableData(
+    listId: listId ?? this.listId,
+    mediaId: mediaId ?? this.mediaId,
+    title: title ?? this.title,
+    posterPath: posterPath.present ? posterPath.value : this.posterPath,
+    releaseDate: releaseDate.present ? releaseDate.value : this.releaseDate,
+    mediaType: mediaType ?? this.mediaType,
+    voteAverage: voteAverage.present ? voteAverage.value : this.voteAverage,
+    addedDate: addedDate ?? this.addedDate,
+  );
+  NamedListItemsTableData copyWithCompanion(NamedListItemsTableCompanion data) {
+    return NamedListItemsTableData(
+      listId: data.listId.present ? data.listId.value : this.listId,
+      mediaId: data.mediaId.present ? data.mediaId.value : this.mediaId,
+      title: data.title.present ? data.title.value : this.title,
+      posterPath: data.posterPath.present
+          ? data.posterPath.value
+          : this.posterPath,
+      releaseDate: data.releaseDate.present
+          ? data.releaseDate.value
+          : this.releaseDate,
+      mediaType: data.mediaType.present ? data.mediaType.value : this.mediaType,
+      voteAverage: data.voteAverage.present
+          ? data.voteAverage.value
+          : this.voteAverage,
+      addedDate: data.addedDate.present ? data.addedDate.value : this.addedDate,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NamedListItemsTableData(')
+          ..write('listId: $listId, ')
+          ..write('mediaId: $mediaId, ')
+          ..write('title: $title, ')
+          ..write('posterPath: $posterPath, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('voteAverage: $voteAverage, ')
+          ..write('addedDate: $addedDate')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    listId,
+    mediaId,
+    title,
+    posterPath,
+    releaseDate,
+    mediaType,
+    voteAverage,
+    addedDate,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NamedListItemsTableData &&
+          other.listId == this.listId &&
+          other.mediaId == this.mediaId &&
+          other.title == this.title &&
+          other.posterPath == this.posterPath &&
+          other.releaseDate == this.releaseDate &&
+          other.mediaType == this.mediaType &&
+          other.voteAverage == this.voteAverage &&
+          other.addedDate == this.addedDate);
+}
+
+class NamedListItemsTableCompanion
+    extends UpdateCompanion<NamedListItemsTableData> {
+  final Value<int> listId;
+  final Value<int> mediaId;
+  final Value<String> title;
+  final Value<String?> posterPath;
+  final Value<String?> releaseDate;
+  final Value<GlobalMediaType> mediaType;
+  final Value<double?> voteAverage;
+  final Value<DateTime> addedDate;
+  final Value<int> rowid;
+  const NamedListItemsTableCompanion({
+    this.listId = const Value.absent(),
+    this.mediaId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.posterPath = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    this.mediaType = const Value.absent(),
+    this.voteAverage = const Value.absent(),
+    this.addedDate = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  NamedListItemsTableCompanion.insert({
+    required int listId,
+    required int mediaId,
+    required String title,
+    this.posterPath = const Value.absent(),
+    this.releaseDate = const Value.absent(),
+    required GlobalMediaType mediaType,
+    this.voteAverage = const Value.absent(),
+    required DateTime addedDate,
+    this.rowid = const Value.absent(),
+  }) : listId = Value(listId),
+       mediaId = Value(mediaId),
+       title = Value(title),
+       mediaType = Value(mediaType),
+       addedDate = Value(addedDate);
+  static Insertable<NamedListItemsTableData> custom({
+    Expression<int>? listId,
+    Expression<int>? mediaId,
+    Expression<String>? title,
+    Expression<String>? posterPath,
+    Expression<String>? releaseDate,
+    Expression<int>? mediaType,
+    Expression<double>? voteAverage,
+    Expression<DateTime>? addedDate,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (listId != null) 'list_id': listId,
+      if (mediaId != null) 'media_id': mediaId,
+      if (title != null) 'title': title,
+      if (posterPath != null) 'poster_path': posterPath,
+      if (releaseDate != null) 'release_date': releaseDate,
+      if (mediaType != null) 'media_type': mediaType,
+      if (voteAverage != null) 'vote_average': voteAverage,
+      if (addedDate != null) 'added_date': addedDate,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  NamedListItemsTableCompanion copyWith({
+    Value<int>? listId,
+    Value<int>? mediaId,
+    Value<String>? title,
+    Value<String?>? posterPath,
+    Value<String?>? releaseDate,
+    Value<GlobalMediaType>? mediaType,
+    Value<double?>? voteAverage,
+    Value<DateTime>? addedDate,
+    Value<int>? rowid,
+  }) {
+    return NamedListItemsTableCompanion(
+      listId: listId ?? this.listId,
+      mediaId: mediaId ?? this.mediaId,
+      title: title ?? this.title,
+      posterPath: posterPath ?? this.posterPath,
+      releaseDate: releaseDate ?? this.releaseDate,
+      mediaType: mediaType ?? this.mediaType,
+      voteAverage: voteAverage ?? this.voteAverage,
+      addedDate: addedDate ?? this.addedDate,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (listId.present) {
+      map['list_id'] = Variable<int>(listId.value);
+    }
+    if (mediaId.present) {
+      map['media_id'] = Variable<int>(mediaId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (posterPath.present) {
+      map['poster_path'] = Variable<String>(posterPath.value);
+    }
+    if (releaseDate.present) {
+      map['release_date'] = Variable<String>(releaseDate.value);
+    }
+    if (mediaType.present) {
+      map['media_type'] = Variable<int>(
+        $NamedListItemsTableTable.$convertermediaType.toSql(mediaType.value),
+      );
+    }
+    if (voteAverage.present) {
+      map['vote_average'] = Variable<double>(voteAverage.value);
+    }
+    if (addedDate.present) {
+      map['added_date'] = Variable<DateTime>(addedDate.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NamedListItemsTableCompanion(')
+          ..write('listId: $listId, ')
+          ..write('mediaId: $mediaId, ')
+          ..write('title: $title, ')
+          ..write('posterPath: $posterPath, ')
+          ..write('releaseDate: $releaseDate, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('voteAverage: $voteAverage, ')
+          ..write('addedDate: $addedDate, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1363,6 +2895,16 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $MovieNotesTableTable movieNotesTable = $MovieNotesTableTable(
     this,
   );
+  late final $SearchHistoryTableTable searchHistoryTable =
+      $SearchHistoryTableTable(this);
+  late final $FavouritesTableTable favouritesTable = $FavouritesTableTable(
+    this,
+  );
+  late final $NamedListsTableTable namedListsTable = $NamedListsTableTable(
+    this,
+  );
+  late final $NamedListItemsTableTable namedListItemsTable =
+      $NamedListItemsTableTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1371,7 +2913,21 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     watchlistItemsTable,
     watchedItemsTable,
     movieNotesTable,
+    searchHistoryTable,
+    favouritesTable,
+    namedListsTable,
+    namedListItemsTable,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'named_lists_table',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('named_list_items_table', kind: UpdateKind.delete)],
+    ),
+  ]);
 }
 
 typedef $$WatchlistItemsTableTableCreateCompanionBuilder =
@@ -2105,6 +3661,1115 @@ typedef $$MovieNotesTableTableProcessedTableManager =
       MovieNotesTableData,
       PrefetchHooks Function()
     >;
+typedef $$SearchHistoryTableTableCreateCompanionBuilder =
+    SearchHistoryTableCompanion Function({
+      Value<int> id,
+      required String query,
+      required DateTime createdAt,
+    });
+typedef $$SearchHistoryTableTableUpdateCompanionBuilder =
+    SearchHistoryTableCompanion Function({
+      Value<int> id,
+      Value<String> query,
+      Value<DateTime> createdAt,
+    });
+
+class $$SearchHistoryTableTableFilterComposer
+    extends Composer<_$AppDatabase, $SearchHistoryTableTable> {
+  $$SearchHistoryTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get query => $composableBuilder(
+    column: $table.query,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SearchHistoryTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $SearchHistoryTableTable> {
+  $$SearchHistoryTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get query => $composableBuilder(
+    column: $table.query,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SearchHistoryTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SearchHistoryTableTable> {
+  $$SearchHistoryTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get query =>
+      $composableBuilder(column: $table.query, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$SearchHistoryTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SearchHistoryTableTable,
+          SearchHistoryTableData,
+          $$SearchHistoryTableTableFilterComposer,
+          $$SearchHistoryTableTableOrderingComposer,
+          $$SearchHistoryTableTableAnnotationComposer,
+          $$SearchHistoryTableTableCreateCompanionBuilder,
+          $$SearchHistoryTableTableUpdateCompanionBuilder,
+          (
+            SearchHistoryTableData,
+            BaseReferences<
+              _$AppDatabase,
+              $SearchHistoryTableTable,
+              SearchHistoryTableData
+            >,
+          ),
+          SearchHistoryTableData,
+          PrefetchHooks Function()
+        > {
+  $$SearchHistoryTableTableTableManager(
+    _$AppDatabase db,
+    $SearchHistoryTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SearchHistoryTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SearchHistoryTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SearchHistoryTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> query = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => SearchHistoryTableCompanion(
+                id: id,
+                query: query,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String query,
+                required DateTime createdAt,
+              }) => SearchHistoryTableCompanion.insert(
+                id: id,
+                query: query,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SearchHistoryTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SearchHistoryTableTable,
+      SearchHistoryTableData,
+      $$SearchHistoryTableTableFilterComposer,
+      $$SearchHistoryTableTableOrderingComposer,
+      $$SearchHistoryTableTableAnnotationComposer,
+      $$SearchHistoryTableTableCreateCompanionBuilder,
+      $$SearchHistoryTableTableUpdateCompanionBuilder,
+      (
+        SearchHistoryTableData,
+        BaseReferences<
+          _$AppDatabase,
+          $SearchHistoryTableTable,
+          SearchHistoryTableData
+        >,
+      ),
+      SearchHistoryTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$FavouritesTableTableCreateCompanionBuilder =
+    FavouritesTableCompanion Function({
+      required int id,
+      required String title,
+      Value<String?> posterPath,
+      Value<String?> releaseDate,
+      required GlobalMediaType mediaType,
+      required DateTime addedDate,
+      Value<double?> voteAverage,
+      Value<int> rowid,
+    });
+typedef $$FavouritesTableTableUpdateCompanionBuilder =
+    FavouritesTableCompanion Function({
+      Value<int> id,
+      Value<String> title,
+      Value<String?> posterPath,
+      Value<String?> releaseDate,
+      Value<GlobalMediaType> mediaType,
+      Value<DateTime> addedDate,
+      Value<double?> voteAverage,
+      Value<int> rowid,
+    });
+
+class $$FavouritesTableTableFilterComposer
+    extends Composer<_$AppDatabase, $FavouritesTableTable> {
+  $$FavouritesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get posterPath => $composableBuilder(
+    column: $table.posterPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get releaseDate => $composableBuilder(
+    column: $table.releaseDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<GlobalMediaType, GlobalMediaType, int>
+  get mediaType => $composableBuilder(
+    column: $table.mediaType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get addedDate => $composableBuilder(
+    column: $table.addedDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get voteAverage => $composableBuilder(
+    column: $table.voteAverage,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$FavouritesTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $FavouritesTableTable> {
+  $$FavouritesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get posterPath => $composableBuilder(
+    column: $table.posterPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get releaseDate => $composableBuilder(
+    column: $table.releaseDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get mediaType => $composableBuilder(
+    column: $table.mediaType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get addedDate => $composableBuilder(
+    column: $table.addedDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get voteAverage => $composableBuilder(
+    column: $table.voteAverage,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$FavouritesTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FavouritesTableTable> {
+  $$FavouritesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get posterPath => $composableBuilder(
+    column: $table.posterPath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get releaseDate => $composableBuilder(
+    column: $table.releaseDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<GlobalMediaType, int> get mediaType =>
+      $composableBuilder(column: $table.mediaType, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get addedDate =>
+      $composableBuilder(column: $table.addedDate, builder: (column) => column);
+
+  GeneratedColumn<double> get voteAverage => $composableBuilder(
+    column: $table.voteAverage,
+    builder: (column) => column,
+  );
+}
+
+class $$FavouritesTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $FavouritesTableTable,
+          FavouritesTableData,
+          $$FavouritesTableTableFilterComposer,
+          $$FavouritesTableTableOrderingComposer,
+          $$FavouritesTableTableAnnotationComposer,
+          $$FavouritesTableTableCreateCompanionBuilder,
+          $$FavouritesTableTableUpdateCompanionBuilder,
+          (
+            FavouritesTableData,
+            BaseReferences<
+              _$AppDatabase,
+              $FavouritesTableTable,
+              FavouritesTableData
+            >,
+          ),
+          FavouritesTableData,
+          PrefetchHooks Function()
+        > {
+  $$FavouritesTableTableTableManager(
+    _$AppDatabase db,
+    $FavouritesTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FavouritesTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FavouritesTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FavouritesTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> posterPath = const Value.absent(),
+                Value<String?> releaseDate = const Value.absent(),
+                Value<GlobalMediaType> mediaType = const Value.absent(),
+                Value<DateTime> addedDate = const Value.absent(),
+                Value<double?> voteAverage = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FavouritesTableCompanion(
+                id: id,
+                title: title,
+                posterPath: posterPath,
+                releaseDate: releaseDate,
+                mediaType: mediaType,
+                addedDate: addedDate,
+                voteAverage: voteAverage,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int id,
+                required String title,
+                Value<String?> posterPath = const Value.absent(),
+                Value<String?> releaseDate = const Value.absent(),
+                required GlobalMediaType mediaType,
+                required DateTime addedDate,
+                Value<double?> voteAverage = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => FavouritesTableCompanion.insert(
+                id: id,
+                title: title,
+                posterPath: posterPath,
+                releaseDate: releaseDate,
+                mediaType: mediaType,
+                addedDate: addedDate,
+                voteAverage: voteAverage,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$FavouritesTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $FavouritesTableTable,
+      FavouritesTableData,
+      $$FavouritesTableTableFilterComposer,
+      $$FavouritesTableTableOrderingComposer,
+      $$FavouritesTableTableAnnotationComposer,
+      $$FavouritesTableTableCreateCompanionBuilder,
+      $$FavouritesTableTableUpdateCompanionBuilder,
+      (
+        FavouritesTableData,
+        BaseReferences<
+          _$AppDatabase,
+          $FavouritesTableTable,
+          FavouritesTableData
+        >,
+      ),
+      FavouritesTableData,
+      PrefetchHooks Function()
+    >;
+typedef $$NamedListsTableTableCreateCompanionBuilder =
+    NamedListsTableCompanion Function({
+      Value<int> id,
+      required String name,
+      required DateTime createdAt,
+    });
+typedef $$NamedListsTableTableUpdateCompanionBuilder =
+    NamedListsTableCompanion Function({
+      Value<int> id,
+      Value<String> name,
+      Value<DateTime> createdAt,
+    });
+
+final class $$NamedListsTableTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $NamedListsTableTable,
+          NamedListsTableData
+        > {
+  $$NamedListsTableTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static MultiTypedResultKey<
+    $NamedListItemsTableTable,
+    List<NamedListItemsTableData>
+  >
+  _namedListItemsTableRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.namedListItemsTable,
+        aliasName: $_aliasNameGenerator(
+          db.namedListsTable.id,
+          db.namedListItemsTable.listId,
+        ),
+      );
+
+  $$NamedListItemsTableTableProcessedTableManager get namedListItemsTableRefs {
+    final manager = $$NamedListItemsTableTableTableManager(
+      $_db,
+      $_db.namedListItemsTable,
+    ).filter((f) => f.listId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _namedListItemsTableRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$NamedListsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $NamedListsTableTable> {
+  $$NamedListsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> namedListItemsTableRefs(
+    Expression<bool> Function($$NamedListItemsTableTableFilterComposer f) f,
+  ) {
+    final $$NamedListItemsTableTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.namedListItemsTable,
+      getReferencedColumn: (t) => t.listId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$NamedListItemsTableTableFilterComposer(
+            $db: $db,
+            $table: $db.namedListItemsTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$NamedListsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $NamedListsTableTable> {
+  $$NamedListsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$NamedListsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NamedListsTableTable> {
+  $$NamedListsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  Expression<T> namedListItemsTableRefs<T extends Object>(
+    Expression<T> Function($$NamedListItemsTableTableAnnotationComposer a) f,
+  ) {
+    final $$NamedListItemsTableTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.namedListItemsTable,
+          getReferencedColumn: (t) => t.listId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$NamedListItemsTableTableAnnotationComposer(
+                $db: $db,
+                $table: $db.namedListItemsTable,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
+}
+
+class $$NamedListsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NamedListsTableTable,
+          NamedListsTableData,
+          $$NamedListsTableTableFilterComposer,
+          $$NamedListsTableTableOrderingComposer,
+          $$NamedListsTableTableAnnotationComposer,
+          $$NamedListsTableTableCreateCompanionBuilder,
+          $$NamedListsTableTableUpdateCompanionBuilder,
+          (NamedListsTableData, $$NamedListsTableTableReferences),
+          NamedListsTableData,
+          PrefetchHooks Function({bool namedListItemsTableRefs})
+        > {
+  $$NamedListsTableTableTableManager(
+    _$AppDatabase db,
+    $NamedListsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NamedListsTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NamedListsTableTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$NamedListsTableTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => NamedListsTableCompanion(
+                id: id,
+                name: name,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String name,
+                required DateTime createdAt,
+              }) => NamedListsTableCompanion.insert(
+                id: id,
+                name: name,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$NamedListsTableTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({namedListItemsTableRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (namedListItemsTableRefs) db.namedListItemsTable,
+              ],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (namedListItemsTableRefs)
+                    await $_getPrefetchedData<
+                      NamedListsTableData,
+                      $NamedListsTableTable,
+                      NamedListItemsTableData
+                    >(
+                      currentTable: table,
+                      referencedTable: $$NamedListsTableTableReferences
+                          ._namedListItemsTableRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$NamedListsTableTableReferences(
+                            db,
+                            table,
+                            p0,
+                          ).namedListItemsTableRefs,
+                      referencedItemsForCurrentItem: (item, referencedItems) =>
+                          referencedItems.where((e) => e.listId == item.id),
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$NamedListsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NamedListsTableTable,
+      NamedListsTableData,
+      $$NamedListsTableTableFilterComposer,
+      $$NamedListsTableTableOrderingComposer,
+      $$NamedListsTableTableAnnotationComposer,
+      $$NamedListsTableTableCreateCompanionBuilder,
+      $$NamedListsTableTableUpdateCompanionBuilder,
+      (NamedListsTableData, $$NamedListsTableTableReferences),
+      NamedListsTableData,
+      PrefetchHooks Function({bool namedListItemsTableRefs})
+    >;
+typedef $$NamedListItemsTableTableCreateCompanionBuilder =
+    NamedListItemsTableCompanion Function({
+      required int listId,
+      required int mediaId,
+      required String title,
+      Value<String?> posterPath,
+      Value<String?> releaseDate,
+      required GlobalMediaType mediaType,
+      Value<double?> voteAverage,
+      required DateTime addedDate,
+      Value<int> rowid,
+    });
+typedef $$NamedListItemsTableTableUpdateCompanionBuilder =
+    NamedListItemsTableCompanion Function({
+      Value<int> listId,
+      Value<int> mediaId,
+      Value<String> title,
+      Value<String?> posterPath,
+      Value<String?> releaseDate,
+      Value<GlobalMediaType> mediaType,
+      Value<double?> voteAverage,
+      Value<DateTime> addedDate,
+      Value<int> rowid,
+    });
+
+final class $$NamedListItemsTableTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $NamedListItemsTableTable,
+          NamedListItemsTableData
+        > {
+  $$NamedListItemsTableTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $NamedListsTableTable _listIdTable(_$AppDatabase db) =>
+      db.namedListsTable.createAlias(
+        $_aliasNameGenerator(
+          db.namedListItemsTable.listId,
+          db.namedListsTable.id,
+        ),
+      );
+
+  $$NamedListsTableTableProcessedTableManager get listId {
+    final $_column = $_itemColumn<int>('list_id')!;
+
+    final manager = $$NamedListsTableTableTableManager(
+      $_db,
+      $_db.namedListsTable,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_listIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$NamedListItemsTableTableFilterComposer
+    extends Composer<_$AppDatabase, $NamedListItemsTableTable> {
+  $$NamedListItemsTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get mediaId => $composableBuilder(
+    column: $table.mediaId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get posterPath => $composableBuilder(
+    column: $table.posterPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get releaseDate => $composableBuilder(
+    column: $table.releaseDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<GlobalMediaType, GlobalMediaType, int>
+  get mediaType => $composableBuilder(
+    column: $table.mediaType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<double> get voteAverage => $composableBuilder(
+    column: $table.voteAverage,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get addedDate => $composableBuilder(
+    column: $table.addedDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$NamedListsTableTableFilterComposer get listId {
+    final $$NamedListsTableTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.listId,
+      referencedTable: $db.namedListsTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$NamedListsTableTableFilterComposer(
+            $db: $db,
+            $table: $db.namedListsTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NamedListItemsTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $NamedListItemsTableTable> {
+  $$NamedListItemsTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get mediaId => $composableBuilder(
+    column: $table.mediaId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get posterPath => $composableBuilder(
+    column: $table.posterPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get releaseDate => $composableBuilder(
+    column: $table.releaseDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get mediaType => $composableBuilder(
+    column: $table.mediaType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get voteAverage => $composableBuilder(
+    column: $table.voteAverage,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get addedDate => $composableBuilder(
+    column: $table.addedDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$NamedListsTableTableOrderingComposer get listId {
+    final $$NamedListsTableTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.listId,
+      referencedTable: $db.namedListsTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$NamedListsTableTableOrderingComposer(
+            $db: $db,
+            $table: $db.namedListsTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NamedListItemsTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NamedListItemsTableTable> {
+  $$NamedListItemsTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get mediaId =>
+      $composableBuilder(column: $table.mediaId, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get posterPath => $composableBuilder(
+    column: $table.posterPath,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get releaseDate => $composableBuilder(
+    column: $table.releaseDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumnWithTypeConverter<GlobalMediaType, int> get mediaType =>
+      $composableBuilder(column: $table.mediaType, builder: (column) => column);
+
+  GeneratedColumn<double> get voteAverage => $composableBuilder(
+    column: $table.voteAverage,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get addedDate =>
+      $composableBuilder(column: $table.addedDate, builder: (column) => column);
+
+  $$NamedListsTableTableAnnotationComposer get listId {
+    final $$NamedListsTableTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.listId,
+      referencedTable: $db.namedListsTable,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$NamedListsTableTableAnnotationComposer(
+            $db: $db,
+            $table: $db.namedListsTable,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$NamedListItemsTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NamedListItemsTableTable,
+          NamedListItemsTableData,
+          $$NamedListItemsTableTableFilterComposer,
+          $$NamedListItemsTableTableOrderingComposer,
+          $$NamedListItemsTableTableAnnotationComposer,
+          $$NamedListItemsTableTableCreateCompanionBuilder,
+          $$NamedListItemsTableTableUpdateCompanionBuilder,
+          (NamedListItemsTableData, $$NamedListItemsTableTableReferences),
+          NamedListItemsTableData,
+          PrefetchHooks Function({bool listId})
+        > {
+  $$NamedListItemsTableTableTableManager(
+    _$AppDatabase db,
+    $NamedListItemsTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NamedListItemsTableTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NamedListItemsTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$NamedListItemsTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> listId = const Value.absent(),
+                Value<int> mediaId = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> posterPath = const Value.absent(),
+                Value<String?> releaseDate = const Value.absent(),
+                Value<GlobalMediaType> mediaType = const Value.absent(),
+                Value<double?> voteAverage = const Value.absent(),
+                Value<DateTime> addedDate = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NamedListItemsTableCompanion(
+                listId: listId,
+                mediaId: mediaId,
+                title: title,
+                posterPath: posterPath,
+                releaseDate: releaseDate,
+                mediaType: mediaType,
+                voteAverage: voteAverage,
+                addedDate: addedDate,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int listId,
+                required int mediaId,
+                required String title,
+                Value<String?> posterPath = const Value.absent(),
+                Value<String?> releaseDate = const Value.absent(),
+                required GlobalMediaType mediaType,
+                Value<double?> voteAverage = const Value.absent(),
+                required DateTime addedDate,
+                Value<int> rowid = const Value.absent(),
+              }) => NamedListItemsTableCompanion.insert(
+                listId: listId,
+                mediaId: mediaId,
+                title: title,
+                posterPath: posterPath,
+                releaseDate: releaseDate,
+                mediaType: mediaType,
+                voteAverage: voteAverage,
+                addedDate: addedDate,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$NamedListItemsTableTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({listId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (listId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.listId,
+                                referencedTable:
+                                    $$NamedListItemsTableTableReferences
+                                        ._listIdTable(db),
+                                referencedColumn:
+                                    $$NamedListItemsTableTableReferences
+                                        ._listIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$NamedListItemsTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NamedListItemsTableTable,
+      NamedListItemsTableData,
+      $$NamedListItemsTableTableFilterComposer,
+      $$NamedListItemsTableTableOrderingComposer,
+      $$NamedListItemsTableTableAnnotationComposer,
+      $$NamedListItemsTableTableCreateCompanionBuilder,
+      $$NamedListItemsTableTableUpdateCompanionBuilder,
+      (NamedListItemsTableData, $$NamedListItemsTableTableReferences),
+      NamedListItemsTableData,
+      PrefetchHooks Function({bool listId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2115,4 +4780,12 @@ class $AppDatabaseManager {
       $$WatchedItemsTableTableTableManager(_db, _db.watchedItemsTable);
   $$MovieNotesTableTableTableManager get movieNotesTable =>
       $$MovieNotesTableTableTableManager(_db, _db.movieNotesTable);
+  $$SearchHistoryTableTableTableManager get searchHistoryTable =>
+      $$SearchHistoryTableTableTableManager(_db, _db.searchHistoryTable);
+  $$FavouritesTableTableTableManager get favouritesTable =>
+      $$FavouritesTableTableTableManager(_db, _db.favouritesTable);
+  $$NamedListsTableTableTableManager get namedListsTable =>
+      $$NamedListsTableTableTableManager(_db, _db.namedListsTable);
+  $$NamedListItemsTableTableTableManager get namedListItemsTable =>
+      $$NamedListItemsTableTableTableManager(_db, _db.namedListItemsTable);
 }

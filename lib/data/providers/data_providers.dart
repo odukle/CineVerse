@@ -10,11 +10,15 @@ import 'package:cineverse/data/datasources/local/app_database.dart';
 import 'package:cineverse/data/repositories/media_repository_impl.dart';
 import 'package:cineverse/data/repositories/watchlist_repository_impl.dart';
 import 'package:cineverse/data/repositories/watched_repository_impl.dart';
+import 'package:cineverse/data/repositories/library_repository_impl.dart';
 import 'package:cineverse/data/repositories/notes_repository_impl.dart';
+import 'package:cineverse/data/repositories/search_history_repository_impl.dart';
+import 'package:cineverse/domain/repositories/library_repository.dart';
 import 'package:cineverse/domain/repositories/media_repository.dart';
 import 'package:cineverse/domain/repositories/watchlist_repository.dart';
 import 'package:cineverse/domain/repositories/watched_repository.dart';
 import 'package:cineverse/domain/repositories/notes_repository.dart';
+import 'package:cineverse/domain/repositories/search_history_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final tmdbApiClientProvider = Provider<TmdbApiClient>((ref) {
@@ -63,4 +67,12 @@ final watchedRepositoryProvider = Provider<WatchedRepository>((ref) {
 
 final notesRepositoryProvider = Provider<NotesRepository>((ref) {
   return NotesRepositoryImpl(ref.watch(appDatabaseProvider));
+});
+
+final searchHistoryRepositoryProvider = Provider<SearchHistoryRepository>((ref) {
+  return SearchHistoryRepositoryImpl(ref.watch(appDatabaseProvider));
+});
+
+final libraryRepositoryProvider = Provider<LibraryRepository>((ref) {
+  return LibraryRepositoryImpl(ref.watch(appDatabaseProvider));
 });

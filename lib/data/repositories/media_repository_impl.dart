@@ -125,7 +125,27 @@ class MediaRepositoryImpl implements MediaRepository {
   @override
   Future<List<MediaTitle>> searchPersons(String query, {int page = 1}) async {
     final results = await remoteDataSource.searchPersons(query, page: page);
-    return results.map((e) => e.toDomain()).toList();
+    return results.map((m) => m.toDomain()).toList();
+  }
+
+  @override
+  Future<TvSeason> fetchTvSeasonDetails(int tvId, int seasonNumber) async {
+    final dto = await remoteDataSource.fetchTvSeasonDetails(tvId, seasonNumber);
+    return dto.toDomain();
+  }
+
+  @override
+  Future<TvEpisode> fetchTvEpisodeDetails(
+    int tvId,
+    int seasonNumber,
+    int episodeNumber,
+  ) async {
+    final dto = await remoteDataSource.fetchTvEpisodeDetails(
+      tvId,
+      seasonNumber,
+      episodeNumber,
+    );
+    return dto.toDomain();
   }
 
   @override

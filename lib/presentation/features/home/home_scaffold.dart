@@ -34,18 +34,6 @@ class HomeScaffold extends ConsumerWidget {
         leadingWidth: appBarSideWidth,
         leading: Row(
           children: [
-            if (currentTab == HomeTab.watchlist) ...[
-              const SizedBox(width: 4),
-              IconButton(
-                onPressed: () => context.pushNamed(AppRoute.notes.name),
-                icon: const Icon(
-                  Icons.notes_rounded,
-                  size: 24,
-                  color: Colors.white,
-                ),
-                tooltip: 'My Notes',
-              ),
-            ],
             if (isMoviesOrTv)
               _AppBarFilterPill(tab: currentTab)
             else if (isExplore)

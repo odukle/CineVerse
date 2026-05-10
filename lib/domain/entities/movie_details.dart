@@ -26,6 +26,11 @@ class MovieDetails {
     this.watchAvailability,
     this.imdbId,
     this.trailerYouTubeKey,
+    this.seasons = const <TvSeason>[],
+    this.numberOfSeasons,
+    this.numberOfEpisodes,
+    this.lastEpisodeToAir,
+    this.nextEpisodeToAir,
   });
 
   final int id;
@@ -52,6 +57,11 @@ class MovieDetails {
   final MovieWatchAvailability? watchAvailability;
   final String? imdbId;
   final String? trailerYouTubeKey;
+  final List<TvSeason> seasons;
+  final int? numberOfSeasons;
+  final int? numberOfEpisodes;
+  final TvEpisode? lastEpisodeToAir;
+  final TvEpisode? nextEpisodeToAir;
 
   MovieDetails copyWith({
     List<MovieRating>? externalRatings,
@@ -82,8 +92,67 @@ class MovieDetails {
       watchAvailability: watchAvailability ?? this.watchAvailability,
       imdbId: imdbId,
       trailerYouTubeKey: trailerYouTubeKey,
+      seasons: seasons,
+      numberOfSeasons: numberOfSeasons,
+      numberOfEpisodes: numberOfEpisodes,
+      lastEpisodeToAir: lastEpisodeToAir,
+      nextEpisodeToAir: nextEpisodeToAir,
     );
   }
+}
+
+class TvSeason {
+  const TvSeason({
+    required this.id,
+    required this.seasonNumber,
+    required this.name,
+    this.overview,
+    this.posterPath,
+    this.episodeCount,
+    this.airDate,
+    this.voteAverage,
+    this.episodes = const <TvEpisode>[],
+  });
+
+  final int id;
+  final int seasonNumber;
+  final String name;
+  final String? overview;
+  final String? posterPath;
+  final int? episodeCount;
+  final String? airDate;
+  final double? voteAverage;
+  final List<TvEpisode> episodes;
+}
+
+class TvEpisode {
+  const TvEpisode({
+    required this.id,
+    required this.episodeNumber,
+    required this.seasonNumber,
+    required this.name,
+    this.overview,
+    this.airDate,
+    this.stillPath,
+    this.voteAverage,
+    this.runtimeMinutes,
+    this.cast = const <MovieCredit>[],
+    this.crew = const <MovieCredit>[],
+    this.images = const <String>[],
+  });
+
+  final int id;
+  final int episodeNumber;
+  final int seasonNumber;
+  final String name;
+  final String? overview;
+  final String? airDate;
+  final String? stillPath;
+  final double? voteAverage;
+  final int? runtimeMinutes;
+  final List<MovieCredit> cast;
+  final List<MovieCredit> crew;
+  final List<String> images;
 }
 
 class MovieCredit {

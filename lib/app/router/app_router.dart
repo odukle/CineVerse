@@ -16,6 +16,9 @@ import 'package:cineverse/presentation/features/watchlist/notes_screen.dart';
 import 'package:cineverse/presentation/features/watchlist/note_details_screen.dart';
 import 'package:cineverse/presentation/features/movie_details/full_cast_crew_screen.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
+import 'package:cineverse/presentation/features/movie_details/all_seasons_screen.dart';
+import 'package:cineverse/presentation/features/movie_details/season_details_screen.dart';
+import 'package:cineverse/presentation/features/movie_details/episode_details_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -162,6 +165,49 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
+      GoRoute(
+        path: AppRoute.seasonDetails.path,
+        name: AppRoute.seasonDetails.name,
+        builder: (context, state) {
+          final tvId = int.parse(state.pathParameters['tvId']!);
+          final seasonNumber = int.parse(state.pathParameters['seasonNumber']!);
+          final showTitle = state.uri.queryParameters['showTitle'] ?? 'Season';
+          return SeasonDetailsScreen(
+            tvId: tvId,
+            seasonNumber: seasonNumber,
+            showTitle: showTitle,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoute.episodeDetails.path,
+        name: AppRoute.episodeDetails.name,
+        builder: (context, state) {
+          final tvId = int.parse(state.pathParameters['tvId']!);
+          final seasonNumber = int.parse(state.pathParameters['seasonNumber']!);
+          final episodeNumber =
+              int.parse(state.pathParameters['episodeNumber']!);
+          final showTitle = state.uri.queryParameters['showTitle'] ?? 'Episode';
+          return EpisodeDetailsScreen(
+            tvId: tvId,
+            seasonNumber: seasonNumber,
+            episodeNumber: episodeNumber,
+            showTitle: showTitle,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoute.allSeasons.path,
+        name: AppRoute.allSeasons.name,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return AllSeasonsScreen(
+            showTitle: extra['showTitle'] as String,
+            seasons: extra['seasons'] as List<TvSeason>,
+            tvId: extra['tvId'] as int,
+          );
+        },
+      ),
     ],
   );
 });
@@ -179,7 +225,13 @@ enum AppRoute {
   personDetails('/person/:personId', 'person-details'),
   notes('/notes', 'notes'),
   noteDetails('/notes/:noteId', 'note-details'),
-  fullCastCrew('/full-cast-crew', 'full-cast-crew');
+  fullCastCrew('/full-cast-crew', 'full-cast-crew'),
+  seasonDetails('/tv/:tvId/seasons/:seasonNumber', 'season-details'),
+  episodeDetails(
+    '/tv/:tvId/seasons/:seasonNumber/episodes/:episodeNumber',
+    'episode-details',
+  ),
+  allSeasons('/tv/:tvId/seasons', 'all-seasons');
 
   const AppRoute(this.path, this.name);
 

@@ -4,6 +4,7 @@ import 'package:cineverse/data/models/tmdb_movie_dto.dart';
 import 'package:cineverse/data/models/tmdb_movie_genre_dto.dart';
 import 'package:cineverse/data/models/tmdb_movies_response_dto.dart';
 import 'package:cineverse/data/models/tmdb_person_details_dto.dart';
+import 'package:cineverse/data/models/tmdb_tv_details_dto.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_images.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
@@ -51,6 +52,13 @@ abstract interface class RemoteDataSource {
 
   Future<TmdbPersonDetailsDto> fetchPersonDetails(int personId);
   Future<TmdbPersonCombinedCreditsDto> fetchPersonCombinedCredits(int personId);
+
+  Future<TmdbTvSeasonDto> fetchTvSeasonDetails(int tvId, int seasonNumber);
+  Future<TmdbTvEpisodeDto> fetchTvEpisodeDetails(
+    int tvId,
+    int seasonNumber,
+    int episodeNumber,
+  );
 }
 
 class TmdbRemoteDataSource implements RemoteDataSource {
@@ -184,5 +192,19 @@ class TmdbRemoteDataSource implements RemoteDataSource {
     int personId,
   ) {
     return apiClient.fetchPersonCombinedCredits(personId);
+  }
+
+  @override
+  Future<TmdbTvSeasonDto> fetchTvSeasonDetails(int tvId, int seasonNumber) {
+    return apiClient.fetchTvSeasonDetails(tvId, seasonNumber);
+  }
+
+  @override
+  Future<TmdbTvEpisodeDto> fetchTvEpisodeDetails(
+    int tvId,
+    int seasonNumber,
+    int episodeNumber,
+  ) {
+    return apiClient.fetchTvEpisodeDetails(tvId, seasonNumber, episodeNumber);
   }
 }

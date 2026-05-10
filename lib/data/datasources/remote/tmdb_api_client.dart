@@ -5,6 +5,7 @@ import 'package:cineverse/core/constants/app_constants.dart';
 import 'package:cineverse/data/models/tmdb_movie_details_dto.dart';
 import 'package:cineverse/data/models/tmdb_movie_dto.dart';
 import 'package:cineverse/data/models/tmdb_movie_genre_dto.dart';
+import 'package:cineverse/data/models/tmdb_tv_details_dto.dart';
 import 'package:cineverse/data/models/tmdb_movie_watch_providers_dto.dart';
 import 'package:cineverse/data/models/tmdb_movies_response_dto.dart';
 import 'package:cineverse/data/models/tmdb_person_details_dto.dart';
@@ -883,5 +884,36 @@ class TmdbApiClient {
     });
 
     return TmdbMoviesResponseDto(movies: unique);
+  }
+
+  Future<TmdbTvSeasonDto> fetchTvSeasonDetails(int tvId, int seasonNumber) async {
+    _assertMovieApiConfigured();
+
+    final Response<Map<String, dynamic>> response = await client.get<
+        Map<String, dynamic>>(
+      '/tv/$tvId/season/$seasonNumber',
+      queryParameters: _authQueryParameters(),
+    );
+
+    return TmdbTvSeasonDto.fromJson(response.data!);
+  }
+
+  Future<TmdbTvEpisodeDto> fetchTvEpisodeDetails(
+    int tvId,
+    int seasonNumber,
+    int episodeNumber,
+  ) async {
+    _assertMovieApiConfigured();
+
+    final Response<Map<String, dynamic>> response = await client.get<
+        Map<String, dynamic>>(
+      '/tv/$tvId/season/$seasonNumber/episode/$episodeNumber',
+      queryParameters: <String, dynamic>{
+        ..._authQueryParameters(),
+        'append_to_response': 'credits,images',
+      },
+    );
+
+    return TmdbTvEpisodeDto.fromJson(response.data!);
   }
 }

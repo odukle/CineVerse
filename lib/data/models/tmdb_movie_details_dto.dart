@@ -1,8 +1,38 @@
 import 'package:cineverse/core/constants/app_constants.dart';
 import 'package:cineverse/data/models/tmdb_movie_watch_providers_dto.dart';
+import 'package:cineverse/data/models/tmdb_tv_details_dto.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 
 class TmdbMovieDetailsDto {
+  final int id;
+  final String title;
+  final String? posterPath;
+  final String? backdropPath;
+  final String? overview;
+  final String? releaseDate;
+  final List<String> genres;
+  final int? runtimeMinutes;
+  final String? imdbId;
+  final List<MovieCredit> cast;
+  final List<MovieCredit> crew;
+  final String? contentRating;
+  final String? contentRatingDescription;
+  final double? score;
+  final String? tagline;
+  final int? budget;
+  final int? revenue;
+  final String? originalLanguage;
+  final String? status;
+  final int? voteCount;
+  final List<MovieRecommendation> recommendations;
+  final MovieWatchAvailability? watchAvailability;
+  final String? trailerYouTubeKey;
+  final List<TmdbTvSeasonDto> seasons;
+  final int? numberOfSeasons;
+  final int? numberOfEpisodes;
+  final TmdbTvEpisodeDto? lastEpisodeToAir;
+  final TmdbTvEpisodeDto? nextEpisodeToAir;
+
   const TmdbMovieDetailsDto({
     required this.id,
     required this.title,
@@ -27,6 +57,11 @@ class TmdbMovieDetailsDto {
     this.recommendations = const <MovieRecommendation>[],
     this.watchAvailability,
     this.trailerYouTubeKey,
+    this.seasons = const <TmdbTvSeasonDto>[],
+    this.numberOfSeasons,
+    this.numberOfEpisodes,
+    this.lastEpisodeToAir,
+    this.nextEpisodeToAir,
   });
 
   factory TmdbMovieDetailsDto.fromJson(
@@ -114,34 +149,30 @@ class TmdbMovieDetailsDto {
       trailerYouTubeKey: _resolveTrailerKey(
         (rawVideos['results'] as List<dynamic>?) ?? <dynamic>[],
       ),
+      seasons: (json['seasons'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(TmdbTvSeasonDto.fromJson)
+              .toList(growable: false) ??
+          const <TmdbTvSeasonDto>[],
+      numberOfSeasons: (json['number_of_seasons'] as num?)?.toInt(),
+      numberOfEpisodes: (json['number_of_episodes'] as num?)?.toInt(),
+      lastEpisodeToAir: json['last_episode_to_air'] != null
+          ? TmdbTvEpisodeDto.fromJson(
+              json['last_episode_to_air'] as Map<String, dynamic>,
+            )
+          : null,
+      nextEpisodeToAir: json['next_episode_to_air'] != null
+          ? TmdbTvEpisodeDto.fromJson(
+              json['next_episode_to_air'] as Map<String, dynamic>,
+            )
+          : null,
     );
   }
 
-  final int id;
-  final String title;
-  final String? posterPath;
-  final String? backdropPath;
-  final String? overview;
-  final String? releaseDate;
-  final List<String> genres;
-  final int? runtimeMinutes;
-  final String? imdbId;
-  final List<MovieCredit> cast;
-  final List<MovieCredit> crew;
-  final String? contentRating;
-  final String? contentRatingDescription;
-  final double? score;
-  final String? tagline;
-  final int? budget;
-  final int? revenue;
-  final String? originalLanguage;
-  final String? status;
-  final int? voteCount;
-  final List<MovieRecommendation> recommendations;
-  final MovieWatchAvailability? watchAvailability;
-  final String? trailerYouTubeKey;
-
-  TmdbMovieDetailsDto copyWith({MovieWatchAvailability? watchAvailability}) {
+  TmdbMovieDetailsDto copyWith({
+    MovieWatchAvailability? watchAvailability,
+    List<TmdbTvSeasonDto>? seasons,
+  }) {
     return TmdbMovieDetailsDto(
       id: id,
       title: title,
@@ -166,6 +197,11 @@ class TmdbMovieDetailsDto {
       recommendations: recommendations,
       watchAvailability: watchAvailability ?? this.watchAvailability,
       trailerYouTubeKey: trailerYouTubeKey,
+      seasons: seasons ?? this.seasons,
+      numberOfSeasons: numberOfSeasons,
+      numberOfEpisodes: numberOfEpisodes,
+      lastEpisodeToAir: lastEpisodeToAir,
+      nextEpisodeToAir: nextEpisodeToAir,
     );
   }
 
@@ -194,6 +230,11 @@ class TmdbMovieDetailsDto {
       watchAvailability: watchAvailability,
       imdbId: imdbId,
       trailerYouTubeKey: trailerYouTubeKey,
+      seasons: seasons.map((e) => e.toDomain()).toList(),
+      numberOfSeasons: numberOfSeasons,
+      numberOfEpisodes: numberOfEpisodes,
+      lastEpisodeToAir: lastEpisodeToAir?.toDomain(),
+      nextEpisodeToAir: nextEpisodeToAir?.toDomain(),
     );
   }
 

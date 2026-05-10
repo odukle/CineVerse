@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/constants/app_constants.dart';
@@ -5,6 +6,7 @@ import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:cineverse/presentation/features/search/providers/search_provider.dart';
+import 'package:cineverse/presentation/features/search/providers/search_history_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -36,6 +38,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     _controller.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
+    // Reset search state when leaving the screen
+    ref.read(searchProvider.notifier).clear();
     super.dispose();
   }
 
@@ -139,6 +143,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   }
 
   Widget _buildBody(SearchState searchState) {
+    if (searchState.query.isEmpty && searchState.filter.isDefault) {
+      return _buildHistory();
+    }
+
     if (searchState.isLoading &&
         searchState.suggestions.isEmpty &&
         searchState.results.isEmpty) {
@@ -196,6 +204,108 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 
+  Widget _buildHistory() {
+    final historyAsync = ref.watch(searchHistoryProvider);
+
+    return historyAsync.when(
+      data: (history) {
+        if (history.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.search,
+                  size: 64,
+                  color: Colors.white.withValues(alpha: 0.15),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Start typing to search',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.4),
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Recent Searches',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      ref.read(searchHistoryProvider.notifier).clearAll();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Search history cleared'),
+                          duration: Duration(seconds: 2),
+                          behavior: SnackBarBehavior.floating,
+                          width: 200,
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      'Clear All',
+                      style: TextStyle(color: AppColors.cinemaAccent),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: history.length,
+                itemBuilder: (context, index) {
+                  final entry = history[index];
+                  return ListTile(
+                    leading: const Icon(Icons.history, color: Colors.white54),
+                    title: Text(
+                      entry.query,
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white24),
+                      onPressed: () {
+                        ref
+                            .read(searchHistoryProvider.notifier)
+                            .removeEntry(entry.id);
+                      },
+                    ),
+                    onTap: () {
+                      _controller.text = entry.query;
+                      ref
+                          .read(searchProvider.notifier)
+                          .submitSearch(entry.query);
+                      _focusNode.unfocus();
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
+    );
+  }
+
   Widget _buildSuggestions(List<MediaTitle> suggestions) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -206,12 +316,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           leading: ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: item.posterPath != null
-                ? Image.network(
-                    item.posterPath!,
+                ? CachedNetworkImage(
+                    imageUrl: item.posterPath!,
                     width: 40,
                     height: 60,
                     fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => _placeholderPoster(),
+                    placeholder: (_, _) => _placeholderPoster(),
+                    errorWidget: (_, _, _) => _placeholderPoster(),
                   )
                 : _placeholderPoster(),
           ),
@@ -229,9 +340,29 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
             ),
           ),
           onTap: () {
-            _controller.text = item.title;
-            ref.read(searchProvider.notifier).submitSearch(item.title);
             _focusNode.unfocus();
+            final String routeName;
+            final Map<String, String> params = {};
+            final Map<String, String> queryParams = {};
+
+            if (item.mediaType == GlobalMediaType.person) {
+              routeName = AppRoute.personDetails.name;
+              params['personId'] = item.id.toString();
+            } else {
+              routeName = AppRoute.movieDetails.name;
+              params['movieId'] = item.id.toString();
+              queryParams['isTv'] = (item.mediaType == GlobalMediaType.tv)
+                  .toString();
+            }
+
+            // Save to history before navigating
+            ref.read(searchHistoryProvider.notifier).addEntry(item.title);
+
+            context.pushNamed(
+              routeName,
+              pathParameters: params,
+              queryParameters: queryParams,
+            );
           },
         );
       },

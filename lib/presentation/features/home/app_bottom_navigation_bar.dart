@@ -44,7 +44,7 @@ extension _HomeTabRoute on HomeTab {
       case HomeTab.tvShows:
         return 'TV Shows';
       case HomeTab.watchlist:
-        return 'Watchlist';
+        return 'Library';
       case HomeTab.account:
         return 'Account';
     }

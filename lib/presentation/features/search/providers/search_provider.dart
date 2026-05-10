@@ -6,6 +6,7 @@ import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/usecases/search_multi_use_case.dart';
 import 'package:cineverse/domain/usecases/discover_media_use_case.dart';
+import 'package:cineverse/presentation/features/search/providers/search_history_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final searchMultiUseCaseProvider = Provider<SearchMultiUseCase>((ref) {
@@ -138,6 +139,10 @@ class SearchNotifier extends Notifier<SearchState> {
       currentPage: 1,
       hasMore: false,
     );
+
+    if (query.isNotEmpty) {
+      ref.read(searchHistoryProvider.notifier).addEntry(query);
+    }
 
     try {
       final List<MediaTitle> results;
