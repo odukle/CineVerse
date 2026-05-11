@@ -52,6 +52,21 @@ class MediaFilter {
   final Set<int> personIds;
   final Set<String> personNames;
 
+  bool get isDefault =>
+      sortField == SortField.popularity &&
+      sortOrder == SortOrder.descending &&
+      availabilities.isEmpty &&
+      userScore == const RangeValues(0, 10) &&
+      includeNotRated == true &&
+      releaseDateFrom == null &&
+      releaseDateTo == null &&
+      releaseTypes.isEmpty &&
+      minUserVotes == 0 &&
+      genres.isEmpty &&
+      runtime == const RangeValues(0, 390) &&
+      personIds.isEmpty &&
+      personNames.isEmpty;
+
   String get sortByValue => '${sortField.value}.${sortOrder.value}';
 
   MediaFilter copyWith({

@@ -3,6 +3,8 @@ import 'package:cineverse/core/constants/app_constants.dart';
 import 'package:cineverse/presentation/features/home/app_bottom_navigation_bar.dart';
 import 'package:cineverse/presentation/features/home/widgets/explore_media_type_toggle.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
+import 'package:cineverse/domain/entities/media_filter.dart';
+import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -35,8 +37,16 @@ class HomeScaffold extends ConsumerWidget {
         leading: Row(
           children: [
             if (isMoviesOrTv)
-              _AppBarFilterPill(tab: currentTab)
-            else if (isExplore)
+              IconButton(
+                onPressed: () => _showSortSheet(context, ref, currentTab == HomeTab.tvShows),
+                icon: const Icon(
+                  Icons.sort_rounded,
+                  size: 24,
+                  color: Colors.white,
+                ),
+                tooltip: 'Sort titles',
+              ),
+            if (isExplore)
               const ExploreMediaTypeToggle(),
           ],
         ),
@@ -91,103 +101,147 @@ class HomeScaffold extends ConsumerWidget {
       ),
     );
   }
-}
 
-class _AppBarFilterPill extends ConsumerStatefulWidget {
-  const _AppBarFilterPill({required this.tab});
-  final HomeTab tab;
+  void _showSortSheet(BuildContext context, WidgetRef ref, bool isTv) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.cinemaSurface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Consumer(
+          builder: (context, ref, _) {
+            final currentSort = ref.watch(genreSortProvider);
+            final bool isDescending = currentSort.sortOrder == SortOrder.descending;
+            final List<SortField> options = [
+              SortField.popularity,
+              SortField.voteAverage,
+              SortField.releaseDate,
+              SortField.revenue,
+              SortField.voteCount,
+            ];
 
-  @override
-  ConsumerState<_AppBarFilterPill> createState() => _AppBarFilterPillState();
-}
-
-class _AppBarFilterPillState extends ConsumerState<_AppBarFilterPill> {
-  bool _isExpanded = false;
-
-  @override
-  Widget build(BuildContext context) {
-    final filterOptions = widget.tab == HomeTab.movies
-        ? ref.watch(movieFilterOptions)
-        : ref.watch(tvFilterOptions);
-    final selectedFilter = widget.tab == HomeTab.movies
-        ? ref.watch(selectedMovieFilterProvider)
-        : ref.watch(selectedTvFilterProvider);
-
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 12),
-        child: Theme(
-          data: Theme.of(
-            context,
-          ).copyWith(canvasColor: AppColors.cinemaSurface),
-          child: PopupMenuButton<MediaFilterOption>(
-            initialValue: selectedFilter,
-            tooltip: 'Change category',
-            onSelected: (option) {
-              if (widget.tab == HomeTab.movies) {
-                ref
-                    .read(selectedMovieFilterProvider.notifier)
-                    .setFilter(option);
-              } else {
-                ref.read(selectedTvFilterProvider.notifier).setFilter(option);
-              }
-            },
-            onOpened: () => setState(() => _isExpanded = true),
-            onCanceled: () => setState(() => _isExpanded = false),
-            offset: const Offset(0, 40),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            itemBuilder: (context) => filterOptions.map((option) {
-              final bool isSelected = option.section == selectedFilter.section;
-              return PopupMenuItem<MediaFilterOption>(
-                value: option,
-                child: Text(
-                  option.label,
-                  style: TextStyle(
-                    color: isSelected ? AppColors.cinemaAccent : Colors.white,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                  ),
-                ),
-              );
-            }).toList(),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppColors.cinemaSurface,
-                borderRadius: BorderRadius.circular(999),
-                border: Border.all(
-                  color: AppColors.cinemaAccent.withValues(alpha: 0.2),
-                ),
-              ),
-              child: Row(
+            return Container(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    selectedFilter.label,
-                    style: const TextStyle(
-                      color: AppColors.cinemaPillText,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
+                  const Text(
+                    'Sort By',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  AnimatedRotation(
-                    turns: _isExpanded ? 0.25 : 0,
-                    duration: const Duration(milliseconds: 180),
-                    child: const Icon(
-                      Icons.chevron_right_rounded,
-                      color: AppColors.cinemaAccent,
-                      size: 16,
+                  const SizedBox(height: 8),
+                  SwitchListTile(
+                    title: const Text(
+                      'Descending Order',
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
                     ),
+                    value: isDescending,
+                    activeThumbColor: AppColors.cinemaAccent,
+                    onChanged: (value) {
+                      final newOrder = value ? SortOrder.descending : SortOrder.ascending;
+                      ref.read(genreSortProvider.notifier).updateSort(currentSort.sortField, newOrder);
+                      
+                      // Refresh data
+                      final genreId = isTv 
+                          ? ref.read(selectedTvGenreIdProvider)
+                          : ref.read(selectedMovieGenreIdProvider);
+                      if (genreId != null) {
+                        resetGenreSection(ref, genreId, isTv: isTv);
+                      } else {
+                        final section = isTv ? MovieSection.tvPopular : MovieSection.popular;
+                        resetMovieSection(ref, section);
+                      }
+                    },
                   ),
+                  const Divider(color: Colors.white10),
+                  const SizedBox(height: 4),
+                  ...options.map((field) {
+                    final isSelected = currentSort.sortField == field;
+                    IconData fieldIcon;
+                    switch (field) {
+                      case SortField.popularity:
+                        fieldIcon = Icons.trending_up_rounded;
+                        break;
+                      case SortField.voteAverage:
+                        fieldIcon = Icons.star_rounded;
+                        break;
+                      case SortField.releaseDate:
+                        fieldIcon = Icons.calendar_today_rounded;
+                        break;
+                      case SortField.revenue:
+                        fieldIcon = Icons.attach_money_rounded;
+                        break;
+                      case SortField.voteCount:
+                        fieldIcon = Icons.people_rounded;
+                        break;
+                    }
+
+                    return ListTile(
+                      leading: Icon(
+                        fieldIcon,
+                        color:
+                            isSelected ? AppColors.cinemaAccent : Colors.white70,
+                        size: 20,
+                      ),
+                      title: Text(
+                        field.label,
+                        style: TextStyle(
+                          color:
+                              isSelected ? AppColors.cinemaAccent : Colors.white,
+                          fontWeight:
+                              isSelected ? FontWeight.bold : FontWeight.normal,
+                        ),
+                      ),
+                      trailing:
+                          isSelected
+                              ? Icon(
+                                currentSort.sortOrder == SortOrder.descending
+                                    ? Icons.arrow_downward_rounded
+                                    : Icons.arrow_upward_rounded,
+                                color: AppColors.cinemaAccent,
+                                size: 18,
+                              )
+                              : null,
+                      onTap: () {
+                        // Use current switch state for the new field
+                        ref
+                            .read(genreSortProvider.notifier)
+                            .updateSort(field, currentSort.sortOrder);
+
+                        // Reset current genre/section to trigger re-fetch with new sort
+                        final genreId =
+                            isTv
+                                ? ref.read(selectedTvGenreIdProvider)
+                                : ref.read(selectedMovieGenreIdProvider);
+
+                        if (genreId != null) {
+                          resetGenreSection(ref, genreId, isTv: isTv);
+                        } else {
+                          final section =
+                              isTv
+                                  ? MovieSection.tvPopular
+                                  : MovieSection.popular;
+                          resetMovieSection(ref, section);
+                        }
+
+                        Navigator.pop(context);
+                      },
+                    );
+                  }),
+                  const SizedBox(height: 16),
                 ],
               ),
-            ),
-          ),
-        ),
-      ),
+            );
+          },
+        );
+      },
     );
   }
 }
+

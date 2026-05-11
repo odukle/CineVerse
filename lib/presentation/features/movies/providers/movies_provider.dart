@@ -4,6 +4,7 @@ import 'package:cineverse/domain/entities/media_images.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_genre.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
+import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/usecases/get_movie_section_use_case.dart';
 import 'package:cineverse/domain/usecases/discover_media_use_case.dart';
 import 'package:cineverse/presentation/features/movies/providers/filter_provider.dart';
@@ -48,6 +49,36 @@ class SelectedTvFilter extends Notifier<MediaFilterOption> {
   MediaFilterOption build() => ref.watch(tvFilterOptions).first;
   void setFilter(MediaFilterOption option) => state = option;
 }
+
+class SelectedMovieGenreId extends Notifier<int?> {
+  @override
+  int? build() => null;
+  void setGenre(int? id) => state = id;
+}
+
+final selectedMovieGenreIdProvider =
+    NotifierProvider<SelectedMovieGenreId, int?>(SelectedMovieGenreId.new);
+
+class SelectedTvGenreId extends Notifier<int?> {
+  @override
+  int? build() => null;
+  void setGenre(int? id) => state = id;
+}
+
+final selectedTvGenreIdProvider =
+    NotifierProvider<SelectedTvGenreId, int?>(SelectedTvGenreId.new);
+
+class GenreSortNotifier extends Notifier<MediaFilter> {
+  @override
+  MediaFilter build() => const MediaFilter();
+
+  void updateSort(SortField field, SortOrder order) {
+    state = state.copyWith(sortField: field, sortOrder: order);
+  }
+}
+
+final genreSortProvider =
+    NotifierProvider<GenreSortNotifier, MediaFilter>(GenreSortNotifier.new);
 
 final getMovieSectionUseCaseProvider = Provider<GetMovieSectionUseCase>((ref) {
   return GetMovieSectionUseCase(ref.watch(mediaRepositoryProvider));
@@ -116,6 +147,19 @@ void loadNextGenrePages(WidgetRef ref, int genreId, {bool isTv = false}) {
     return;
   }
   _genreTargetPages[cacheKey] = _getGenreTargetPage(cacheKey) + 2;
+  ref.invalidate(genreSectionProvider((id: genreId, isTv: isTv)));
+}
+
+void resetGenreSection(WidgetRef ref, int genreId, {bool isTv = false}) {
+  final _GenreCacheKey cacheKey = (
+    regionCode: ref.read(preferredRegionCodeProvider),
+    genreId: genreId,
+    isTv: isTv,
+  );
+  _genreSectionCache.remove(cacheKey);
+  _genreLoadedPagesCache.remove(cacheKey);
+  _genreExhaustedCache.remove(cacheKey);
+  _genreTargetPages[cacheKey] = 2;
   ref.invalidate(genreSectionProvider((id: genreId, isTv: isTv)));
 }
 
@@ -223,6 +267,8 @@ final movieSectionProvider =
 final genreSectionProvider =
     FutureProvider.family<List<MediaTitle>, ({int id, bool isTv})>((ref, params) async {
       final String regionCode = ref.watch(preferredRegionCodeProvider);
+      final sortFilter = ref.watch(genreSortProvider);
+
       final _GenreCacheKey cacheKey = (
         regionCode: regionCode,
         genreId: params.id,
@@ -231,6 +277,8 @@ final genreSectionProvider =
       final int targetPage = _getGenreTargetPage(cacheKey);
 
       final repository = ref.watch(mediaRepositoryProvider);
+      final discoverUseCase = DiscoverMediaUseCase(repository);
+
       final List<MediaTitle> results = List<MediaTitle>.from(
         _genreSectionCache[cacheKey] ?? const <MediaTitle>[],
       );
@@ -241,9 +289,15 @@ final genreSectionProvider =
         _genreFetchingCache[cacheKey] = true;
         for (int i = startPage; i <= targetPage; i++) {
           try {
-            final List<MediaTitle> pageResults = params.isTv 
-                ? await repository.fetchTvShowsForGenre(params.id, page: i)
-                : await repository.fetchMoviesForGenre(params.id, page: i);
+            final List<MediaTitle> pageResults = await discoverUseCase(DiscoverMediaParams(
+              isTv: params.isTv,
+              filter: MediaFilter(
+                sortField: sortFilter.sortField,
+                sortOrder: sortFilter.sortOrder,
+                genres: {params.id},
+              ),
+              page: i,
+            ));
             results.addAll(pageResults);
             _genreLoadedPagesCache[cacheKey] = i;
             if (pageResults.isEmpty || pageResults.length < 20) {
