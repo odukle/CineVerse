@@ -7,16 +7,21 @@ import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/config/app_config.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
-import 'package:cineverse/domain/entities/movie_genre.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
 import 'package:cineverse/app/router/app_router.dart' show AppRoute;
 import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/explore_provider.dart';
+import 'package:cineverse/presentation/features/movies/models/explore_models.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:cineverse/presentation/features/movies/widgets/rating_badge.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
+import 'package:cineverse/domain/entities/global_media_filter.dart';
+import 'package:cineverse/presentation/features/movies/providers/library_recommendations_provider.dart';
+import 'package:cineverse/presentation/features/watchlist/providers/library_provider.dart';
+import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
+import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -28,91 +33,91 @@ _DiscoverSpotlightState? _discoverSpotlightState;
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
 
-  static const List<_MovieShelfData> _movieBaseSections = <_MovieShelfData>[
-    _MovieShelfData(
+  static const List<ExploreShelfData> _movieBaseSections = <ExploreShelfData>[
+    ExploreShelfData(
       title: 'Trending',
-      filters: <_ShelfFilterOption>[
-        _ShelfFilterOption(label: 'Today', section: MovieSection.trendingDay),
-        _ShelfFilterOption(
+      filters: <ExploreFilterOption>[
+        ExploreFilterOption(label: 'Today', section: MovieSection.trendingDay),
+        ExploreFilterOption(
           label: 'This Week',
           section: MovieSection.trendingWeek,
         ),
       ],
       variant: _ShelfVariant.featured,
     ),
-    _MovieShelfData(
+    ExploreShelfData(
       title: "What's Popular",
-      filters: <_ShelfFilterOption>[
-        _ShelfFilterOption(label: 'Popular', section: MovieSection.popular),
-        _ShelfFilterOption(label: 'Top Rated', section: MovieSection.topRated),
-        _ShelfFilterOption(
+      filters: <ExploreFilterOption>[
+        ExploreFilterOption(label: 'Popular', section: MovieSection.popular),
+        ExploreFilterOption(label: 'Top Rated', section: MovieSection.topRated),
+        ExploreFilterOption(
           label: 'In Theaters',
           section: MovieSection.nowPlaying,
         ),
-        _ShelfFilterOption(
+        ExploreFilterOption(
           label: 'Coming Soon',
           section: MovieSection.upcoming,
         ),
       ],
     ),
-    _MovieShelfData(
+    ExploreShelfData(
       title: 'Now Playing',
-      filters: <_ShelfFilterOption>[
-        _ShelfFilterOption(
+      filters: <ExploreFilterOption>[
+        ExploreFilterOption(
           label: 'In Theaters',
           section: MovieSection.nowPlaying,
         ),
-        _ShelfFilterOption(
+        ExploreFilterOption(
           label: 'Coming Soon',
           section: MovieSection.upcoming,
         ),
-        _ShelfFilterOption(label: 'Top Rated', section: MovieSection.topRated),
+        ExploreFilterOption(label: 'Top Rated', section: MovieSection.topRated),
       ],
     ),
   ];
 
-  static const List<_MovieShelfData> _tvBaseSections = <_MovieShelfData>[
-    _MovieShelfData(
+  static const List<ExploreShelfData> _tvBaseSections = <ExploreShelfData>[
+    ExploreShelfData(
       title: 'TV Trending',
-      filters: <_ShelfFilterOption>[
-        _ShelfFilterOption(label: 'Today', section: MovieSection.tvTrendingDay),
-        _ShelfFilterOption(
+      filters: <ExploreFilterOption>[
+        ExploreFilterOption(label: 'Today', section: MovieSection.tvTrendingDay),
+        ExploreFilterOption(
           label: 'This Week',
           section: MovieSection.tvTrendingWeek,
         ),
       ],
       variant: _ShelfVariant.featured,
     ),
-    _MovieShelfData(
+    ExploreShelfData(
       title: "What's Popular",
-      filters: <_ShelfFilterOption>[
-        _ShelfFilterOption(label: 'Popular', section: MovieSection.tvPopular),
-        _ShelfFilterOption(
+      filters: <ExploreFilterOption>[
+        ExploreFilterOption(label: 'Popular', section: MovieSection.tvPopular),
+        ExploreFilterOption(
           label: 'Top Rated',
           section: MovieSection.tvTopRated,
         ),
-        _ShelfFilterOption(
+        ExploreFilterOption(
           label: 'On The Air',
           section: MovieSection.tvOnTheAir,
         ),
-        _ShelfFilterOption(
+        ExploreFilterOption(
           label: 'Airing Today',
           section: MovieSection.tvAiringToday,
         ),
       ],
     ),
-    _MovieShelfData(
+    ExploreShelfData(
       title: 'On The Air',
-      filters: <_ShelfFilterOption>[
-        _ShelfFilterOption(
+      filters: <ExploreFilterOption>[
+        ExploreFilterOption(
           label: 'On The Air',
           section: MovieSection.tvOnTheAir,
         ),
-        _ShelfFilterOption(
+        ExploreFilterOption(
           label: 'Airing Today',
           section: MovieSection.tvAiringToday,
         ),
-        _ShelfFilterOption(
+        ExploreFilterOption(
           label: 'Top Rated',
           section: MovieSection.tvTopRated,
         ),
@@ -125,85 +130,12 @@ class ExploreScreen extends ConsumerStatefulWidget {
 }
 
 class _ExploreScreenState extends ConsumerState<ExploreScreen> {
-  static const int _genreShelfBatchSize = 3;
-
   final ScrollController _scrollController = ScrollController();
-  int _visibleGenreCount = _genreShelfBatchSize;
-  bool _isAppendingGenres = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _scrollController.addListener(_handleScroll);
-  }
 
   @override
   void dispose() {
-    _scrollController.removeListener(_handleScroll);
     _scrollController.dispose();
     super.dispose();
-  }
-
-  void _handleScroll() {
-    if (!_scrollController.hasClients) {
-      return;
-    }
-
-    final mediaType = ref.read(exploreMediaTypeProvider);
-    final List<MovieGenre>? genres =
-        (mediaType == ExploreMediaType.movie
-                ? ref.read(movieGenresProvider)
-                : ref.read(tvGenresProvider))
-            .asData
-            ?.value;
-
-    if (genres == null || genres.isEmpty || _isAppendingGenres) {
-      return;
-    }
-
-    final ScrollPosition position = _scrollController.position;
-    if (position.pixels < position.maxScrollExtent - 320) {
-      return;
-    }
-
-    if (_visibleGenreCount >= genres.length) {
-      return;
-    }
-
-    // Use a microtask to defer the state change if we're currently in a build phase,
-    // though setState in a scroll listener is generally safe.
-    Future.microtask(() {
-      if (!mounted || _isAppendingGenres) return;
-
-      setState(() {
-        _isAppendingGenres = true;
-        _visibleGenreCount = math.min(
-          _visibleGenreCount + _genreShelfBatchSize,
-          genres.length,
-        );
-      });
-
-      // Allow for a small cooling period before next load trigger
-      Future.delayed(const Duration(milliseconds: 100), () {
-        if (mounted) {
-          _isAppendingGenres = false;
-        }
-      });
-    });
-  }
-
-  List<_MovieShelfData> _genreSections(List<MovieGenre> genres) {
-    return genres
-        .take(math.min(_visibleGenreCount, genres.length))
-        .map(
-          (MovieGenre genre) => _MovieShelfData(
-            title: genre.name,
-            filters: <_ShelfFilterOption>[
-              _ShelfFilterOption(label: genre.name, genreId: genre.id),
-            ],
-          ),
-        )
-        .toList(growable: false);
   }
 
   @override
@@ -212,21 +144,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final mediaType = ref.watch(exploreMediaTypeProvider);
     final bool isTv = mediaType == ExploreMediaType.tv;
 
-    final bool hasMovieApiAccess = ref.watch(
-      appConfigProvider.select((config) => config.hasMovieApiAccess),
-    );
+    final appConfig = ref.watch(appConfigProvider);
+    final bool hasMovieApiAccess = appConfig.hasMovieApiAccess;
 
-    final AsyncValue<List<MovieGenre>> genresAsync = ref.watch(
-      isTv ? tvGenresProvider : movieGenresProvider,
-    );
-
-    final List<_MovieShelfData> genreSections = _genreSections(
-      genresAsync.asData?.value ?? const <MovieGenre>[],
-    );
-    final int totalGenres = genresAsync.asData?.value.length ?? 0;
-    final bool hasMoreGenres = genreSections.length < totalGenres;
-
-    final List<_MovieShelfData> baseSections = isTv
+    final List<ExploreShelfData> baseSections = isTv
         ? ExploreScreen._tvBaseSections
         : ExploreScreen._movieBaseSections;
 
@@ -296,90 +217,20 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             1500, // Pre-build shelves in the background to eliminate stutter
         slivers: [
           const SliverToBoxAdapter(child: SizedBox(height: 12)),
-          const SliverToBoxAdapter(child: _DiscoverSpotlightSection()),
+          SliverToBoxAdapter(child: _DiscoverSpotlightSection()),
 
-          // Optimized combined shelf list (Base + Genres)
+          // Optimized combined shelf list (Base sections only)
           SliverList(
             delegate: SliverChildBuilderDelegate((
               BuildContext context,
               int index,
             ) {
-              if (index < baseSections.length) {
-                return _MovieShelfSection(section: baseSections[index]);
-              }
-              final int genreIndex = index - baseSections.length;
-              return _MovieShelfSection(section: genreSections[genreIndex]);
-            }, childCount: baseSections.length + genreSections.length),
+              return _MovieShelfSection(section: baseSections[index]);
+            }, childCount: baseSections.length),
           ),
 
-          if (genresAsync.isLoading && genreSections.isEmpty)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 32),
-                child: Column(
-                  children: List.generate(3, (index) => const _ShelfShimmer()),
-                ),
-              ),
-            ),
+          const SliverToBoxAdapter(child: _LibraryRecommendationsSection()),
 
-          if (genresAsync.hasError)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Failed to load genre shelves. ${genresAsync.error}',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.error,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    TextButton.icon(
-                      onPressed: () => ref.invalidate(isTv ? tvGenresProvider : movieGenresProvider),
-                      icon: const Icon(Icons.refresh_rounded, size: 18),
-                      label: const Text('Retry'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: AppColors.cinemaAccent,
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size(0, 36),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-          if (hasMoreGenres)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-                child: Text(
-                  'Keep scrolling to load more genres.',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.4),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            )
-          else if (!genresAsync.isLoading && totalGenres > 0)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-                child: Text(
-                  'No more genres to load.',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.4),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
         ],
       ),
@@ -387,35 +238,197 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   }
 }
 
+class _LibraryRecommendationsSection extends ConsumerWidget {
+  const _LibraryRecommendationsSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ThemeData theme = Theme.of(context);
+    final mediaType = ref.watch(exploreMediaTypeProvider);
+    final bool isTv = mediaType == ExploreMediaType.tv;
+    final targetType = isTv ? GlobalMediaType.tv : GlobalMediaType.movie;
+
+    // Fast check for empty library to show prompt
+    final watchlist = ref.watch(watchlistProvider).value ?? [];
+    final watched = ref.watch(watchedItemsProvider).value ?? [];
+    final favourites = ref.watch(favouritesProvider).value ?? [];
+    final namedLists = ref.watch(namedListsProvider).value ?? [];
+
+    bool hasItems = false;
+    if (watchlist.any((item) => item.mediaType == targetType)) {
+      hasItems = true;
+    } else if (watched.any((item) => item.mediaType == targetType)) {
+      hasItems = true;
+    } else if (favourites.any((item) => item.mediaType == targetType)) {
+      hasItems = true;
+    } else if (namedLists.any(
+      (list) => list.items.any((item) => item.mediaType == targetType),
+    )) {
+      hasItems = true;
+    }
+
+    if (!hasItems) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                isTv ? Icons.tv_off_rounded : Icons.movie_filter_rounded,
+                size: 40,
+                color: Colors.white.withValues(alpha: 0.3),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Text(
+              'Start adding titles for recommendations',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Add ${isTv ? 'TV shows' : 'movies'} to your watchlist, favourites, or watched list to see titles you might love.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: Colors.white.withValues(alpha: 0.5),
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    final recommendations = ref.watch(libraryRecommendationsProvider(RecSource.all));
+
+    void navigateToSection() {
+      context.pushNamed(
+        AppRoute.exploreSection.name,
+        queryParameters: {'isTv': isTv.toString()},
+        extra: {
+          'sectionTitle': 'Recommended for You',
+          'filters': [
+            const ExploreFilterOption(
+              label: 'All',
+              isLibraryRecommendations: true,
+              recSource: RecSource.all,
+            ),
+            const ExploreFilterOption(
+              label: 'Watchlist',
+              isLibraryRecommendations: true,
+              recSource: RecSource.watchlist,
+            ),
+            const ExploreFilterOption(
+              label: 'Favourites',
+              isLibraryRecommendations: true,
+              recSource: RecSource.favourites,
+            ),
+            const ExploreFilterOption(
+              label: 'Lists',
+              isLibraryRecommendations: true,
+              recSource: RecSource.lists,
+            ),
+            const ExploreFilterOption(
+              label: 'Watched',
+              isLibraryRecommendations: true,
+              recSource: RecSource.watched,
+            ),
+          ],
+        },
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 14),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Recommended for You',
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Based on titles in your library',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.5),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _SectionFilterPill(
+                label: 'See All',
+                onTap: navigateToSection,
+              ),
+            ],
+          ),
+        ),
+        recommendations.when(
+          skipLoadingOnReload: true,
+          data: (data) {
+            if (data.isEmpty) return const SizedBox.shrink();
+
+            const double horizontalPadding = 16;
+            const double itemSpacing = 12;
+            final double screenWidth = MediaQuery.sizeOf(context).width;
+            final double cardWidth =
+                (screenWidth - (horizontalPadding * 2) - (itemSpacing * 2)) / 3;
+            final double finalCardWidth = cardWidth.clamp(100.0, 108.0);
+
+            return SizedBox(
+              height: 220,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                ),
+                scrollDirection: Axis.horizontal,
+                itemCount: data.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(width: itemSpacing),
+                itemBuilder: (context, index) {
+                  return RepaintBoundary(
+                    child: MediaPosterGridCard(
+                      movie: data[index],
+                      sectionTitle: 'Recommended for You',
+                      width: finalCardWidth,
+                      isTvTitle: isTv,
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+          loading: () => const _ShelfShimmer(),
+          error: (err, stack) => const SizedBox.shrink(),
+        ),
+      ],
+    );
+  }
+}
+
 class _ShelfVariant {
   static const String featured = 'featured';
-  static const String normal = 'normal';
-}
-
-class _MovieShelfData {
-  const _MovieShelfData({
-    required this.title,
-    required this.filters,
-    this.variant = _ShelfVariant.normal,
-  });
-
-  final String title;
-  final List<_ShelfFilterOption> filters;
-  final String variant;
-}
-
-class _ShelfFilterOption {
-  const _ShelfFilterOption({required this.label, this.section, this.genreId});
-
-  final String label;
-  final MovieSection? section;
-  final int? genreId;
-
-  bool matches(_ShelfFilterOption other) {
-    if (section != null) return section == other.section;
-    if (genreId != null) return genreId == other.genreId;
-    return false;
-  }
 }
 
 class _DiscoverSpotlightSection extends ConsumerStatefulWidget {
@@ -770,11 +783,11 @@ class _DiscoverSpotlightSectionState
                                         milliseconds: 1000,
                                       ),
                                       child: currentSlideshowUrl == null
-                                          ? const ColoredBox(
-                                              key: ValueKey('placeholder'),
+                                          ? ColoredBox(
+                                              key: const ValueKey('placeholder'),
                                               color:
                                                   AppColors.cinemaPlaceholder,
-                                              child: Center(
+                                              child: const Center(
                                                 child: Icon(
                                                   Icons.movie_outlined,
                                                   size: 52,
@@ -978,7 +991,7 @@ class _DiscoverSpotlightSectionState
                                         scale: _scaleAnimation,
                                         child: RotationTransition(
                                           turns: _diceAnimation,
-                                          child: const Icon(
+                                          child: Icon(
                                             Icons.casino_outlined,
                                             color: AppColors.cinemaSelected,
                                             size: 24,
@@ -1140,15 +1153,14 @@ class _DiscoverSpotlightState {
 class _MovieShelfSection extends ConsumerStatefulWidget {
   const _MovieShelfSection({required this.section});
 
-  final _MovieShelfData section;
+  final ExploreShelfData section;
 
   @override
   ConsumerState<_MovieShelfSection> createState() => _MovieShelfSectionState();
 }
 
 class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
-  late _ShelfFilterOption _selectedFilter;
-  bool _isFilterExpanded = false;
+  late ExploreFilterOption _selectedFilter;
 
   @override
   void initState() {
@@ -1161,21 +1173,21 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
     super.didUpdateWidget(oldWidget);
     if (widget.section.title != oldWidget.section.title) {
       _selectedFilter = widget.section.filters.first;
-      _isFilterExpanded = false;
     }
   }
 
-  void _toggleExpanded() {
-    setState(() {
-      _isFilterExpanded = !_isFilterExpanded;
-    });
-  }
-
-  void _selectFilter(_ShelfFilterOption option) {
-    setState(() {
-      _selectedFilter = option;
-      _isFilterExpanded = false;
-    });
+  void _navigateToSection() {
+    final mediaType = ref.read(exploreMediaTypeProvider);
+    final bool isTv = mediaType == ExploreMediaType.tv;
+    
+    context.pushNamed(
+      AppRoute.exploreSection.name,
+      queryParameters: {'isTv': isTv.toString()},
+      extra: {
+        'sectionTitle': widget.section.title,
+        'filters': widget.section.filters,
+      },
+    );
   }
 
   @override
@@ -1220,37 +1232,12 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                       ),
                     ),
                   ),
-                  if (widget.section.filters.length > 1)
-                    _SectionFilterPill(
-                      label: _selectedFilter.label,
-                      isExpanded: _isFilterExpanded,
-                      isInteractive: widget.section.filters.length > 1,
-                      onTap: _toggleExpanded,
-                    ),
+                  _SectionFilterPill(
+                    label: _selectedFilter.label,
+                    onTap: _navigateToSection,
+                  ),
                 ],
               ),
-            ),
-            AnimatedSize(
-              duration: const Duration(milliseconds: 220),
-              curve: Curves.easeOutCubic,
-              child: _isFilterExpanded
-                  ? Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: widget.section.filters
-                            .map(
-                              (option) => _SectionFilterChoice(
-                                label: option.label,
-                                selected: option.matches(_selectedFilter),
-                                onTap: () => _selectFilter(option),
-                              ),
-                            )
-                            .toList(growable: false),
-                      ),
-                    )
-                  : const SizedBox.shrink(),
             ),
             movies.when(
               skipLoadingOnReload: !movies.hasError,
@@ -1303,41 +1290,27 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
 
                 return SizedBox(
                   height: shelfHeight,
-                  child: NotificationListener<ScrollNotification>(
-                    onNotification: (ScrollNotification scrollInfo) {
-                      if (scrollInfo.metrics.pixels >=
-                          scrollInfo.metrics.maxScrollExtent - 200) {
-                        final int? genreId = _selectedFilter.genreId;
-                        if (genreId != null) {
-                          loadNextGenrePages(ref, genreId, isTv: isTv);
-                        } else {
-                          loadNextPages(ref, _selectedFilter.section!);
-                        }
-                      }
-                      return false;
-                    },
-                    child: ListView.separated(
-                      cacheExtent:
-                          500, // Pre-render slightly more items for smoothness
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: horizontalPadding,
-                      ),
-                      scrollDirection: Axis.horizontal,
-                      addAutomaticKeepAlives: true, // Keep posters in memory
-                      itemCount: data.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(width: itemSpacing),
-                      itemBuilder: (context, index) {
-                        return RepaintBoundary(
-                          child: MediaPosterGridCard(
-                            movie: data[index],
-                            sectionTitle: widget.section.title,
-                            width: finalCardWidth,
-                            isTvTitle: isTv,
-                          ),
-                        );
-                      },
+                  child: ListView.separated(
+                    cacheExtent:
+                        500, // Pre-render slightly more items for smoothness
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
                     ),
+                    scrollDirection: Axis.horizontal,
+                    addAutomaticKeepAlives: true, // Keep posters in memory
+                    itemCount: data.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: itemSpacing),
+                    itemBuilder: (context, index) {
+                      return RepaintBoundary(
+                        child: MediaPosterGridCard(
+                          movie: data[index],
+                          sectionTitle: widget.section.title,
+                          width: finalCardWidth,
+                          isTvTitle: isTv,
+                        ),
+                      );
+                    },
                   ),
                 );
               },
@@ -1379,33 +1352,24 @@ class _ShelfShimmer extends StatelessWidget {
 class _SectionFilterPill extends StatelessWidget {
   const _SectionFilterPill({
     required this.label,
-    required this.isExpanded,
     required this.onTap,
-    this.isInteractive = true,
   });
 
   final String label;
-  final bool isExpanded;
-  final bool isInteractive;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      onTap: isInteractive ? onTap : null,
+      onTap: onTap,
       borderRadius: BorderRadius.circular(20),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
+      child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: isExpanded
-              ? AppColors.cinemaAccent
-              : AppColors.cinemaSurface.withValues(alpha: 0.7),
+          color: AppColors.cinemaSurface.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isExpanded
-                ? Colors.transparent
-                : AppColors.cinemaAccent.withValues(alpha: 0.2),
+            color: AppColors.cinemaAccent.withValues(alpha: 0.2),
           ),
         ),
         child: Row(
@@ -1414,64 +1378,20 @@ class _SectionFilterPill extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                color: isExpanded ? Colors.black : AppColors.cinemaPillText,
+                color: AppColors.cinemaPillText,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
             ),
-            if (isInteractive) ...[
-              const SizedBox(width: 6),
-              AnimatedRotation(
-                turns: isExpanded ? 0.25 : 0,
-                duration: const Duration(milliseconds: 180),
-                child: Icon(
-                  Icons.chevron_right_rounded,
-                  color: isExpanded ? Colors.black : AppColors.cinemaAccent,
-                  size: 16,
-                ),
-              ),
-            ],
+            const SizedBox(width: 6),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.cinemaAccent,
+              size: 16,
+            ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _SectionFilterChoice extends StatelessWidget {
-  const _SectionFilterChoice({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return ChoiceChip(
-      label: Text(label),
-      selected: selected,
-      onSelected: (_) => onTap(),
-      backgroundColor: AppColors.cinemaSurface.withValues(alpha: 0.5),
-      selectedColor: AppColors.cinemaAccent,
-      labelStyle: TextStyle(
-        color: selected ? Colors.black : Colors.white.withValues(alpha: 0.7),
-        fontSize: 12,
-        fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-      ),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: selected
-              ? Colors.transparent
-              : Colors.white.withValues(alpha: 0.1),
-        ),
-      ),
-      showCheckmark: false,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
     );
   }
 }

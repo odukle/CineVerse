@@ -20,6 +20,7 @@ abstract interface class MediaRepository {
   Future<List<MediaTitle>> fetchMoviesForSectionPage(
     MovieSection section, {
     int page = 1,
+    MediaFilter? filter,
   });
 
   Future<List<MediaTitle>> discoverMedia({
@@ -29,6 +30,8 @@ abstract interface class MediaRepository {
     int page = 1,
   });
 
+  Future<List<MediaTitle>> searchMovies(String query, {int page = 1});
+  Future<List<MediaTitle>> searchTvShows(String query, {int page = 1});
   Future<List<MediaTitle>> searchMulti(String query, {int page = 1});
 
   Future<MovieDetails> fetchMovieDetails(int movieId, {bool isTv = false});

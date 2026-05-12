@@ -8,10 +8,12 @@ import 'package:cineverse/data/providers/data_providers.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
+import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
+import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/watchlist_item.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
@@ -33,6 +35,7 @@ import 'package:go_router/go_router.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/library_provider.dart';
 import 'package:cineverse/domain/entities/library_item.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
+import 'package:cineverse/presentation/widgets/media_actions_dialogs.dart';
 
 class MovieDetailsScreen extends ConsumerWidget {
   const MovieDetailsScreen({
@@ -243,8 +246,12 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
         widget.details.watchAvailability;
     final bool hasWatchAvailability = watchAvailability?.hasProviders ?? false;
 
+    final mediaType = widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie;
+    final watchedItemAsync = ref.watch(watchedItemProvider((id: widget.details.id, type: mediaType)));
+    final userRating = watchedItemAsync.value?.rating;
+
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -296,21 +303,20 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 1000),
                       child: backdropUrl == null
-                          ? const ColoredBox(
-                              key: ValueKey('placeholder'),
+                          ? ColoredBox(
+                              key: const ValueKey('placeholder'),
                               color: AppColors.detailsBackdropPlaceholder,
                             )
                           : CachedNetworkImage(
                               key: ValueKey(backdropUrl),
                               imageUrl: backdropUrl,
                               fit: BoxFit.cover,
-                              placeholder: (context, url) => const ColoredBox(
+                              placeholder: (context, url) => ColoredBox(
                                 color: AppColors.detailsBackdropPlaceholder,
                               ),
-                              errorWidget: (context, url, error) =>
-                                  const ColoredBox(
-                                    color: AppColors.detailsBackdropPlaceholder,
-                                  ),
+                              errorWidget: (context, url, error) => ColoredBox(
+                                color: AppColors.detailsBackdropPlaceholder,
+                              ),
                             ),
                     ),
                   ),
@@ -345,11 +351,11 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(12),
-                              boxShadow: const <BoxShadow>[
+                              boxShadow: <BoxShadow>[
                                 BoxShadow(
                                   color: AppColors.detailsPosterShadow,
                                   blurRadius: 16,
-                                  offset: Offset(0, 8),
+                                  offset: const Offset(0, 8),
                                 ),
                               ],
                             ),
@@ -359,9 +365,9 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                                 width: 100,
                                 height: 150,
                                 child: widget.details.posterPath == null
-                                    ? const ColoredBox(
+                                    ? ColoredBox(
                                         color: AppColors.detailsPosterSurface,
-                                        child: Center(
+                                        child: const Center(
                                           child: Icon(
                                             Icons.movie_outlined,
                                             size: 36,
@@ -378,16 +384,16 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                                               borderRadius: 12,
                                             ),
                                         errorWidget: (context, url, error) =>
-                                            const ColoredBox(
-                                              color: AppColors
-                                                  .detailsPosterSurface,
-                                              child: Center(
-                                                child: Icon(
-                                                  Icons.broken_image_outlined,
-                                                  size: 36,
-                                                ),
+                                          ColoredBox(
+                                            color: AppColors
+                                                .detailsPosterSurface,
+                                            child: const Center(
+                                              child: Icon(
+                                                Icons.broken_image_outlined,
+                                                size: 36,
                                               ),
                                             ),
+                                          ),
                                       ),
                               ),
                             ),
@@ -529,11 +535,14 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
               ),
             ),
 
-          if (externalRatings.isNotEmpty)
+          if (externalRatings.isNotEmpty || userRating != null)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-                child: _ExternalRatingsRow(ratings: externalRatings),
+                child: _ExternalRatingsRow(
+                  ratings: externalRatings,
+                  userRating: userRating,
+                ),
               ),
             ),
 
@@ -546,9 +555,9 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                 padding: const EdgeInsets.symmetric(vertical: 10),
                 decoration: BoxDecoration(
                   color: AppColors.detailsCard.withValues(alpha: 0.6),
-                  border: Border.symmetric(
+                  border: const Border.symmetric(
                     horizontal: BorderSide(
-                      color: Colors.white.withValues(alpha: 0.08),
+                      color: Colors.white10,
                     ),
                   ),
                 ),
@@ -838,7 +847,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
   }
 
   void _showTrailer(BuildContext context, String videoKey) {
-    showDialog(
+    showAnimatedDialog(
       context: context,
       barrierColor: Colors.black.withValues(alpha: 0.85),
       builder: (context) => Dialog(
@@ -1002,8 +1011,8 @@ class _FullCastCrewChip extends StatelessWidget {
         );
       },
       backgroundColor: AppColors.cinemaAccent.withValues(alpha: 0.1),
-      side: const BorderSide(color: AppColors.cinemaAccent, width: 1),
-      label: const Text(
+      side: BorderSide(color: AppColors.cinemaAccent, width: 1),
+      label: Text(
         'Full Cast & Crew',
         style: TextStyle(
           color: AppColors.cinemaAccent,
@@ -1112,9 +1121,10 @@ class _ImagesCarousel extends ConsumerWidget {
 }
 
 class _ExternalRatingsRow extends StatelessWidget {
-  const _ExternalRatingsRow({required this.ratings});
+  const _ExternalRatingsRow({required this.ratings, this.userRating});
 
   final List<MovieRating> ratings;
+  final int? userRating;
 
   @override
   Widget build(BuildContext context) {
@@ -1125,6 +1135,20 @@ class _ExternalRatingsRow extends StatelessWidget {
     final MovieRating? imdb = _ratingForSource(ratings, 'IMDb');
     final MovieRating? metacritic = _ratingForSource(ratings, 'Metacritic');
     final List<Widget> chips = <Widget>[];
+
+    if (userRating != null) {
+      chips.add(
+        _ExternalRatingChip(
+          value: '$userRating.0',
+          sourceIcon: Icon(
+            Icons.person_rounded,
+            color: AppColors.cinemaAccent,
+            size: 18,
+          ),
+          label: 'YOURS',
+        ),
+      );
+    }
 
     if (rottenTomatoes != null) {
       chips.add(
@@ -1182,11 +1206,13 @@ class _ExternalRatingChip extends StatelessWidget {
     required this.value,
     required this.sourceIcon,
     this.url,
+    this.label,
   });
 
   final String value;
   final Widget sourceIcon;
   final String? url;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -1216,15 +1242,27 @@ class _ExternalRatingChip extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
+              if (label != null) ...[
+                Text(
+                  label!,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: AppColors.cinemaAccent,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 9,
+                        letterSpacing: 0.5,
+                      ),
+                ),
+                const SizedBox(width: 8),
+              ],
               sourceIcon,
               const SizedBox(width: 8),
               Text(
                 value,
                 style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  height: 1,
-                ),
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      height: 1,
+                    ),
               ),
             ],
           ),
@@ -1390,7 +1428,7 @@ class _WatchProviderRow extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           SizedBox(
-            height: 94,
+            height: 90,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               itemCount: providers.length,
@@ -1427,7 +1465,7 @@ class _WatchProviderCard extends StatelessWidget {
               }
             },
       child: Container(
-        width: 86,
+        width: 78,
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 8),
         decoration: BoxDecoration(
           color: AppColors.detailsCard.withValues(alpha: 0.92),
@@ -1438,29 +1476,29 @@ class _WatchProviderCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(8),
               ),
               clipBehavior: Clip.antiAlias,
               child: provider.logoPath == null
                   ? const Icon(
                       Icons.play_circle_outline_rounded,
                       color: Colors.white70,
-                      size: 24,
+                      size: 20,
                     )
                   : CachedNetworkImage(
                       imageUrl: provider.logoPath!,
                       fit: BoxFit.cover,
-                      placeholder: (context, url) => const ColoredBox(
+                      placeholder: (context, url) => ColoredBox(
                         color: AppColors.detailsPosterSurface,
                       ),
                       errorWidget: (context, url, error) => const Icon(
                         Icons.play_circle_outline_rounded,
                         color: Colors.white70,
-                        size: 24,
+                        size: 20,
                       ),
                     ),
             ),
@@ -1473,8 +1511,8 @@ class _WatchProviderCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 11,
+                  fontWeight: FontWeight.normal,
+                  fontSize: 10,
                   height: 1.2,
                 ),
               ),
@@ -1647,7 +1685,7 @@ class _RecommendationsCarouselState
               separatorBuilder: (context, index) => const SizedBox(width: 12),
               itemBuilder: (context, index) {
                 if (index == _items.length) {
-                  return const SizedBox(
+                  return SizedBox(
                     width: 108,
                     child: Center(
                       child: CircularProgressIndicator(
@@ -1832,8 +1870,9 @@ class _WatchedButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isWatchedAsync = ref.watch(isWatchedProvider(details.id));
-    final watchedItemAsync = ref.watch(watchedItemProvider(details.id));
+    final mediaType = isTv ? GlobalMediaType.tv : GlobalMediaType.movie;
+    final isWatchedAsync = ref.watch(isWatchedProvider((id: details.id, type: mediaType)));
+    final watchedItemAsync = ref.watch(watchedItemProvider((id: details.id, type: mediaType)));
 
     return isWatchedAsync.when(
       data: (isWatched) => _CircleActionButton(
@@ -1855,239 +1894,12 @@ class _WatchedButton extends ConsumerWidget {
     bool isWatched,
     WatchedItem? existingItem,
   ) {
-    showDialog(
+    showAnimatedDialog(
       context: context,
-      builder: (context) => _WatchedDialog(
+      builder: (context) => WatchedDialog(
         details: details,
         isTv: isTv,
         existingItem: existingItem,
-      ),
-    );
-  }
-}
-
-class _WatchedDialog extends StatefulWidget {
-  const _WatchedDialog({
-    required this.details,
-    required this.isTv,
-    this.existingItem,
-  });
-
-  final MovieDetails details;
-  final bool isTv;
-  final WatchedItem? existingItem;
-
-  @override
-  State<_WatchedDialog> createState() => _WatchedDialogState();
-}
-
-class _WatchedDialogState extends State<_WatchedDialog> {
-  late int _rating;
-  late DateTime _watchDate;
-  late int _rewatchCount;
-
-  @override
-  void initState() {
-    super.initState();
-    _rating = widget.existingItem?.rating ?? 5;
-    _watchDate = widget.existingItem?.watchDate ?? DateTime.now();
-    _rewatchCount = widget.existingItem?.rewatchCount ?? 0;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isEditing = widget.existingItem != null;
-
-    return AlertDialog(
-      backgroundColor: AppColors.detailsCard,
-      title: Text(
-        isEditing ? 'Edit Watched Info' : 'Mark as Watched',
-        style: const TextStyle(color: Colors.white),
-      ),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Rating',
-            style: TextStyle(color: Colors.white70, fontSize: 12),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(5, (index) {
-              return IconButton(
-                onPressed: () => setState(() => _rating = index + 1),
-                icon: Icon(
-                  index < _rating
-                      ? Icons.star_rounded
-                      : Icons.star_outline_rounded,
-                  color: AppColors.cinemaAccent,
-                  size: 32,
-                ),
-              );
-            }),
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Watch Date',
-            style: TextStyle(color: Colors.white70, fontSize: 12),
-          ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(
-              '${_watchDate.year}-${_watchDate.month.toString().padLeft(2, '0')}-${_watchDate.day.toString().padLeft(2, '0')}',
-              style: const TextStyle(color: Colors.white),
-            ),
-            trailing: const Icon(
-              Icons.calendar_today_rounded,
-              color: Colors.white70,
-            ),
-            onTap: () async {
-              final picked = await showDatePicker(
-                context: context,
-                initialDate: _watchDate,
-                firstDate: DateTime(1900),
-                lastDate: DateTime.now(),
-              );
-              if (picked != null) {
-                setState(() => _watchDate = picked);
-              }
-            },
-          ),
-          const SizedBox(height: 16),
-          const Text(
-            'Rewatch Count',
-            style: TextStyle(color: Colors.white70, fontSize: 12),
-          ),
-          Row(
-            children: [
-              IconButton(
-                onPressed: _rewatchCount > 0
-                    ? () => setState(() => _rewatchCount--)
-                    : null,
-                icon: const Icon(
-                  Icons.remove_circle_outline_rounded,
-                  color: Colors.white70,
-                ),
-              ),
-              Text(
-                '$_rewatchCount',
-                style: const TextStyle(color: Colors.white, fontSize: 18),
-              ),
-              IconButton(
-                onPressed: () => setState(() => _rewatchCount++),
-                icon: const Icon(
-                  Icons.add_circle_outline_rounded,
-                  color: Colors.white70,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-      actions: [
-        if (isEditing)
-          Consumer(
-            builder: (context, ref, _) => TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-                _removeWatched(context, ref);
-              },
-              child: const Text(
-                'Remove',
-                style: TextStyle(color: Colors.redAccent),
-              ),
-            ),
-          ),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
-        ),
-        Consumer(
-          builder: (context, ref, _) => ElevatedButton(
-            onPressed: () => _saveWatched(context, ref),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.cinemaAccent,
-              foregroundColor: Colors.black,
-            ),
-            child: Text(isEditing ? 'Update' : 'Save'),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void _saveWatched(BuildContext context, WidgetRef ref) {
-    final item = WatchedItem(
-      id: widget.details.id,
-      title: widget.details.title,
-      posterPath: widget.details.posterPath,
-      mediaType: widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
-      watchDate: _watchDate,
-      rating: _rating,
-      rewatchCount: _rewatchCount,
-      voteAverage: widget.details.catalogScore,
-    );
-
-    final isUpdate = widget.existingItem != null;
-    if (isUpdate) {
-      ref.read(watchedItemsProvider.notifier).updateItem(item);
-    } else {
-      ref.read(watchedItemsProvider.notifier).addItem(item);
-    }
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(isUpdate ? 'Watched info updated' : 'Marked as Watched'),
-        duration: const Duration(seconds: 2),
-        behavior: SnackBarBehavior.floating,
-        width: 200,
-      ),
-    );
-  }
-
-  void _removeWatched(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.detailsCard,
-        title: const Text(
-          'Remove from Watched?',
-          style: TextStyle(color: Colors.white),
-        ),
-        content: const Text(
-          'Are you sure you want to remove this from your watched list?',
-          style: TextStyle(color: Colors.white70),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: Colors.white70),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              ref
-                  .read(watchedItemsProvider.notifier)
-                  .removeItem(widget.details.id);
-              Navigator.pop(context); // close confirm dialog
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Removed from Watched'),
-                  duration: Duration(seconds: 2),
-                  behavior: SnackBarBehavior.floating,
-                  width: 200,
-                ),
-              );
-            },
-            child: const Text(
-              'Remove',
-              style: TextStyle(color: Colors.redAccent),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -2232,7 +2044,7 @@ class _NoteItem extends ConsumerWidget {
   }
 
   void _confirmDelete(BuildContext context, WidgetRef ref) {
-    showDialog(
+    showAnimatedDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.detailsCard,
@@ -2301,14 +2113,7 @@ class _NoteInputState extends ConsumerState<_NoteInput> {
           .addNote(widget.mediaId, widget.mediaType, text);
       _controller.clear();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Note added'),
-            duration: Duration(seconds: 2),
-            behavior: SnackBarBehavior.floating,
-            width: 150,
-          ),
-        );
+        ToastUtils.showToast(context, 'Note added');
         FocusScope.of(context).unfocus();
       }
     } finally {
@@ -2345,7 +2150,7 @@ class _NoteInputState extends ConsumerState<_NoteInput> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.cinemaAccent),
+                borderSide: BorderSide(color: AppColors.cinemaAccent),
               ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -2358,7 +2163,7 @@ class _NoteInputState extends ConsumerState<_NoteInput> {
         IconButton(
           onPressed: _isSubmitting ? null : _submit,
           icon: _isSubmitting
-              ? const SizedBox(
+              ? SizedBox(
                   width: 20,
                   height: 20,
                   child: CircularProgressIndicator(
@@ -2366,7 +2171,7 @@ class _NoteInputState extends ConsumerState<_NoteInput> {
                     color: AppColors.cinemaAccent,
                   ),
                 )
-              : const Icon(Icons.send_rounded, color: AppColors.cinemaAccent),
+              : Icon(Icons.send_rounded, color: AppColors.cinemaAccent),
         ),
       ],
     );
@@ -2558,9 +2363,9 @@ class _LibraryListButton extends ConsumerWidget {
   }
 
   void _showAddToListDialog(BuildContext context, WidgetRef ref) {
-    showDialog(
+    showAnimatedDialog(
       context: context,
-      builder: (context) => _AddToListDialog(details: details, isTv: isTv),
+      builder: (context) => AddToListDialog(details: details, isTv: isTv),
     );
   }
 }
@@ -2590,14 +2395,7 @@ class _LibraryFavouriteButton extends ConsumerWidget {
         );
         await ref.read(favouritesProvider.notifier).toggleFavourite(item);
         if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(isFav ? 'Removed from Favourites' : 'Added to Favourites'),
-              duration: const Duration(seconds: 2),
-              behavior: SnackBarBehavior.floating,
-              width: 200,
-            ),
-          );
+        ToastUtils.showToast(context, isFav ? 'Removed from Favourites' : 'Added to Favourites');
         }
       },
     );
@@ -2629,14 +2427,7 @@ class _LibraryWatchlistButton extends ConsumerWidget {
           );
           await ref.read(watchlistProvider.notifier).toggleItem(item);
           if (context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(isAdded ? 'Removed from Watchlist' : 'Added to Watchlist'),
-                duration: const Duration(seconds: 2),
-                behavior: SnackBarBehavior.floating,
-                width: 200,
-              ),
-            );
+            ToastUtils.showToast(context, isAdded ? 'Removed from Watchlist' : 'Added to Watchlist');
           }
         },
       ),
@@ -2685,170 +2476,4 @@ class _CircleActionShimmer extends StatelessWidget {
   }
 }
 
-class _AddToListDialog extends StatefulWidget {
-  const _AddToListDialog({required this.details, required this.isTv});
-  final MovieDetails details;
-  final bool isTv;
 
-  @override
-  State<_AddToListDialog> createState() => _AddToListDialogState();
-}
-
-class _AddToListDialogState extends State<_AddToListDialog> {
-  bool _addToWatchlist = false;
-  final _newListNameController = TextEditingController();
-
-  @override
-  void dispose() {
-    _newListNameController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer(
-      builder: (context, ref, _) {
-        final listsAsync = ref.watch(namedListsProvider);
-
-        return AlertDialog(
-          backgroundColor: AppColors.detailsCard,
-          title: const Text(
-            'Add to List',
-            style: TextStyle(color: Colors.white),
-          ),
-          content: SizedBox(
-            width: double.maxFinite,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                listsAsync.when(
-                  data: (lists) {
-                    if (lists.isEmpty) {
-                      return const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 8.0),
-                        child: Text(
-                          'No lists yet.',
-                          style: TextStyle(color: Colors.white54),
-                        ),
-                      );
-                    }
-                    return Flexible(
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: lists.length,
-                        itemBuilder: (context, index) {
-                          final list = lists[index];
-                          return ListTile(
-                            title: Text(
-                              list.name,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                            trailing: const Icon(
-                              Icons.add,
-                              color: AppColors.cinemaAccent,
-                            ),
-                            onTap: () {
-                              _addItemToList(ref, list.id);
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(_addToWatchlist 
-                                    ? 'Added to ${list.name} and Watchlist'
-                                    : 'Added to ${list.name}'),
-                                  duration: const Duration(seconds: 2),
-                                  behavior: SnackBarBehavior.floating,
-                                  width: 250,
-                                ),
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    );
-                  },
-                  loading: () => const CircularProgressIndicator(),
-                  error: (_, _) => const Text('Error loading lists'),
-                ),
-                const Divider(color: Colors.white10),
-                TextField(
-                  controller: _newListNameController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    hintText: 'Create new list...',
-                    hintStyle: TextStyle(color: Colors.white38),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                CheckboxListTile(
-                  title: const Text(
-                    'Also add to Watchlist',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                  value: _addToWatchlist,
-                  onChanged: (val) =>
-                      setState(() => _addToWatchlist = val ?? false),
-                  controlAffinity: ListTileControlAffinity.leading,
-                  contentPadding: EdgeInsets.zero,
-                  activeColor: AppColors.cinemaAccent,
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text(
-                'Cancel',
-                style: TextStyle(color: Colors.white54),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                final name = _newListNameController.text.trim();
-                if (name.isNotEmpty) {
-                  // Hide keyboard immediately
-                  FocusScope.of(context).unfocus();
-                  await ref.read(namedListsProvider.notifier).createList(name);
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('List "$name" created'),
-                        duration: const Duration(seconds: 2),
-                        behavior: SnackBarBehavior.floating,
-                        width: 200,
-                      ),
-                    );
-                  }
-                  _newListNameController.clear();
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.cinemaAccent,
-              ),
-              child: const Text(
-                'Create',
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _addItemToList(WidgetRef ref, int listId) {
-    final item = NamedListItem(
-      listId: listId,
-      mediaId: widget.details.id,
-      title: widget.details.title,
-      posterPath: widget.details.posterPath,
-      releaseDate: widget.details.releaseDate,
-      mediaType: widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
-      addedDate: DateTime.now(),
-      voteAverage: widget.details.catalogScore,
-    );
-    ref
-        .read(namedListsProvider.notifier)
-        .addItemToList(item: item, addToWatchlist: _addToWatchlist);
-  }
-}

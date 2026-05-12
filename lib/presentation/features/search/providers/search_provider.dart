@@ -21,12 +21,21 @@ class SearchState {
   const SearchState({
     this.query = '',
     this.suggestions = const [],
-    this.results = const [],
+    this.results = const [], // Keep for backward compatibility or mixed results
+    this.movieResults = const [],
+    this.tvResults = const [],
+    this.personResults = const [],
     this.isLoading = false,
     this.isLoadingMore = false,
     this.hasSearched = false,
     this.currentPage = 1,
+    this.moviePage = 1,
+    this.tvPage = 1,
+    this.personPage = 1,
     this.hasMore = false,
+    this.movieHasMore = false,
+    this.tvHasMore = false,
+    this.personHasMore = false,
     this.error,
     this.filter = const GlobalMediaFilter(),
   });
@@ -34,11 +43,20 @@ class SearchState {
   final String query;
   final List<MediaTitle> suggestions;
   final List<MediaTitle> results;
+  final List<MediaTitle> movieResults;
+  final List<MediaTitle> tvResults;
+  final List<MediaTitle> personResults;
   final bool isLoading;
   final bool isLoadingMore;
   final bool hasSearched;
   final int currentPage;
+  final int moviePage;
+  final int tvPage;
+  final int personPage;
   final bool hasMore;
+  final bool movieHasMore;
+  final bool tvHasMore;
+  final bool personHasMore;
   final String? error;
   final GlobalMediaFilter filter;
 
@@ -46,11 +64,20 @@ class SearchState {
     String? query,
     List<MediaTitle>? suggestions,
     List<MediaTitle>? results,
+    List<MediaTitle>? movieResults,
+    List<MediaTitle>? tvResults,
+    List<MediaTitle>? personResults,
     bool? isLoading,
     bool? isLoadingMore,
     bool? hasSearched,
     int? currentPage,
+    int? moviePage,
+    int? tvPage,
+    int? personPage,
     bool? hasMore,
+    bool? movieHasMore,
+    bool? tvHasMore,
+    bool? personHasMore,
     String? error,
     GlobalMediaFilter? filter,
   }) {
@@ -58,11 +85,20 @@ class SearchState {
       query: query ?? this.query,
       suggestions: suggestions ?? this.suggestions,
       results: results ?? this.results,
+      movieResults: movieResults ?? this.movieResults,
+      tvResults: tvResults ?? this.tvResults,
+      personResults: personResults ?? this.personResults,
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       hasSearched: hasSearched ?? this.hasSearched,
       currentPage: currentPage ?? this.currentPage,
+      moviePage: moviePage ?? this.moviePage,
+      tvPage: tvPage ?? this.tvPage,
+      personPage: personPage ?? this.personPage,
       hasMore: hasMore ?? this.hasMore,
+      movieHasMore: movieHasMore ?? this.movieHasMore,
+      tvHasMore: tvHasMore ?? this.tvHasMore,
+      personHasMore: personHasMore ?? this.personHasMore,
       error: error,
       filter: filter ?? this.filter,
     );
@@ -136,8 +172,17 @@ class SearchNotifier extends Notifier<SearchState> {
       hasSearched: true,
       error: null,
       results: [],
+      movieResults: [],
+      tvResults: [],
+      personResults: [],
       currentPage: 1,
+      moviePage: 1,
+      tvPage: 1,
+      personPage: 1,
       hasMore: false,
+      movieHasMore: false,
+      tvHasMore: false,
+      personHasMore: false,
     );
 
     if (query.isNotEmpty) {
@@ -145,22 +190,33 @@ class SearchNotifier extends Notifier<SearchState> {
     }
 
     try {
-      final List<MediaTitle> results;
       if (isDiscoverMode) {
-        results = await _performDiscover(1, query);
+        final results = await _performDiscover(1, query);
+        state = state.copyWith(
+          results: results,
+          isLoading: false,
+          hasMore: results.length >= 20,
+        );
       } else {
-        final useCase = ref.read(searchMultiUseCaseProvider);
-        results = await useCase(
-          SearchMultiParams(query: query, page: 1),
+        final repo = ref.read(mediaRepositoryProvider);
+        
+        final results = await Future.wait([
+          repo.searchMovies(query, page: 1),
+          repo.searchTvShows(query, page: 1),
+          repo.searchPersons(query, page: 1),
+        ]);
+
+        state = state.copyWith(
+          movieResults: results[0],
+          tvResults: results[1],
+          personResults: results[2],
+          suggestions: const [],
+          isLoading: false,
+          movieHasMore: results[0].length >= 20,
+          tvHasMore: results[1].length >= 20,
+          personHasMore: results[2].length >= 20,
         );
       }
-
-      state = state.copyWith(
-        results: results,
-        suggestions: const [],
-        isLoading: false,
-        hasMore: results.length >= 20,
-      );
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
@@ -234,34 +290,87 @@ class SearchNotifier extends Notifier<SearchState> {
     }
   }
 
-  Future<void> loadMore() async {
-    if (state.isLoadingMore || !state.hasMore) return;
-
-    state = state.copyWith(isLoadingMore: true);
-
-    try {
-      final nextPage = state.currentPage + 1;
-      final List<MediaTitle> newResults;
-
-      if (!state.filter.isDefault) {
-        newResults = await _performDiscover(nextPage, state.query);
-      } else {
-        final useCase = ref.read(searchMultiUseCaseProvider);
-        newResults = await useCase(
-          SearchMultiParams(query: state.query, page: nextPage),
-        );
-      }
-
-      if (newResults.isEmpty) {
-        state = state.copyWith(isLoadingMore: false, hasMore: false);
-      } else {
+  Future<void> loadMore([GlobalMediaType? type]) async {
+    final isDiscoverMode = !state.filter.isDefault;
+    
+    if (isDiscoverMode) {
+      if (state.isLoadingMore || !state.hasMore) return;
+      state = state.copyWith(isLoadingMore: true);
+      try {
+        final nextPage = state.currentPage + 1;
+        final newResults = await _performDiscover(nextPage, state.query);
         state = state.copyWith(
           results: [...state.results, ...newResults],
           currentPage: nextPage,
           isLoadingMore: false,
           hasMore: newResults.length >= 20,
         );
+      } catch (e) {
+        state = state.copyWith(isLoadingMore: false);
       }
+      return;
+    }
+
+    // Tabbed mode
+    if (type == null) return;
+
+    final bool canLoadMore;
+    final int nextPage;
+    switch (type) {
+      case GlobalMediaType.movie:
+        canLoadMore = state.movieHasMore;
+        nextPage = state.moviePage + 1;
+        break;
+      case GlobalMediaType.tv:
+        canLoadMore = state.tvHasMore;
+        nextPage = state.tvPage + 1;
+        break;
+      case GlobalMediaType.person:
+        canLoadMore = state.personHasMore;
+        nextPage = state.personPage + 1;
+        break;
+      default:
+        return;
+    }
+
+    if (state.isLoadingMore || !canLoadMore) return;
+
+    state = state.copyWith(isLoadingMore: true);
+
+    try {
+      final repo = ref.read(mediaRepositoryProvider);
+      final List<MediaTitle> newResults;
+      
+      switch (type) {
+        case GlobalMediaType.movie:
+          newResults = await repo.searchMovies(state.query, page: nextPage);
+          state = state.copyWith(
+            movieResults: [...state.movieResults, ...newResults],
+            moviePage: nextPage,
+            movieHasMore: newResults.length >= 20,
+          );
+          break;
+        case GlobalMediaType.tv:
+          newResults = await repo.searchTvShows(state.query, page: nextPage);
+          state = state.copyWith(
+            tvResults: [...state.tvResults, ...newResults],
+            tvPage: nextPage,
+            tvHasMore: newResults.length >= 20,
+          );
+          break;
+        case GlobalMediaType.person:
+          newResults = await repo.searchPersons(state.query, page: nextPage);
+          state = state.copyWith(
+            personResults: [...state.personResults, ...newResults],
+            personPage: nextPage,
+            personHasMore: newResults.length >= 20,
+          );
+          break;
+        default:
+          newResults = [];
+      }
+      
+      state = state.copyWith(isLoadingMore: false);
     } catch (e) {
       state = state.copyWith(isLoadingMore: false);
     }

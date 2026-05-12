@@ -24,6 +24,7 @@ abstract interface class RemoteDataSource {
   Future<List<TmdbMovieDto>> fetchMoviesForSectionPage(
     MovieSection section, {
     int page = 1,
+    MediaFilter? filter,
   });
 
   Future<List<TmdbMovieDto>> discoverMedia({
@@ -33,6 +34,8 @@ abstract interface class RemoteDataSource {
     int page = 1,
   });
 
+  Future<List<TmdbMovieDto>> searchMovies(String query, {int page = 1});
+  Future<List<TmdbMovieDto>> searchTvShows(String query, {int page = 1});
   Future<List<TmdbMovieDto>> searchMulti(String query, {int page = 1});
   Future<List<TmdbMovieDto>> searchPersons(String query, {int page = 1});
 
@@ -115,9 +118,10 @@ class TmdbRemoteDataSource implements RemoteDataSource {
   Future<List<TmdbMovieDto>> fetchMoviesForSectionPage(
     MovieSection section, {
     int page = 1,
+    MediaFilter? filter,
   }) async {
     final TmdbMoviesResponseDto response = await apiClient
-        .fetchMoviesForSection(section, page: page);
+        .fetchMoviesForSection(section, page: page, filter: filter);
     return response.movies;
   }
 
@@ -132,6 +136,24 @@ class TmdbRemoteDataSource implements RemoteDataSource {
       isTv: isTv,
       filter: filter,
       query: query,
+      page: page,
+    );
+    return response.movies;
+  }
+
+  @override
+  Future<List<TmdbMovieDto>> searchMovies(String query, {int page = 1}) async {
+    final TmdbMoviesResponseDto response = await apiClient.searchMovies(
+      query,
+      page: page,
+    );
+    return response.movies;
+  }
+
+  @override
+  Future<List<TmdbMovieDto>> searchTvShows(String query, {int page = 1}) async {
+    final TmdbMoviesResponseDto response = await apiClient.searchTvShows(
+      query,
       page: page,
     );
     return response.movies;

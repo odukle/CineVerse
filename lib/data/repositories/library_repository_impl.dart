@@ -61,13 +61,46 @@ class LibraryRepositoryImpl implements LibraryRepository {
   // Named Lists
   @override
   Stream<List<NamedList>> watchNamedLists() {
-    return _database.select(_database.namedListsTable).watch().map((rows) => rows
-        .map((row) => NamedList(
-              id: row.id,
-              name: row.name,
-              createdAt: row.createdAt,
-            ))
-        .toList());
+    final query = _database.select(_database.namedListsTable).join([
+      leftOuterJoin(
+        _database.namedListItemsTable,
+        _database.namedListItemsTable.listId.equalsExp(_database.namedListsTable.id),
+      ),
+    ]);
+
+    return query.watch().map((rows) {
+      final grouped = <int, NamedList>{};
+
+      for (final row in rows) {
+        final listRow = row.readTable(_database.namedListsTable);
+        final itemRow = row.readTableOrNull(_database.namedListItemsTable);
+
+        final list = grouped.putIfAbsent(
+          listRow.id,
+          () => NamedList(
+            id: listRow.id,
+            name: listRow.name,
+            createdAt: listRow.createdAt,
+            items: [],
+          ),
+        );
+
+        if (itemRow != null) {
+          list.items.add(NamedListItem(
+            listId: itemRow.listId,
+            mediaId: itemRow.mediaId,
+            title: itemRow.title,
+            posterPath: itemRow.posterPath,
+            releaseDate: itemRow.releaseDate,
+            mediaType: itemRow.mediaType,
+            addedDate: itemRow.addedDate,
+            voteAverage: itemRow.voteAverage,
+          ));
+        }
+      }
+
+      return grouped.values.toList();
+    });
   }
 
   @override
@@ -140,5 +173,11 @@ class LibraryRepositoryImpl implements LibraryRepository {
           t.mediaType.equals(mediaType));
     final result = await query.getSingleOrNull();
     return result != null;
+  }
+
+  @override
+  Future<void> renameNamedList(int id, String newName) async {
+    await (_database.update(_database.namedListsTable)..where((t) => t.id.equals(id)))
+        .write(NamedListsTableCompanion(name: Value(newName)));
   }
 }

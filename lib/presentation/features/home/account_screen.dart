@@ -1,7 +1,9 @@
+import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/config/region_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -11,7 +13,7 @@ class AccountScreen extends ConsumerWidget {
     final ThemeData theme = Theme.of(context);
 
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -99,11 +101,11 @@ class AccountScreen extends ConsumerWidget {
             subtitle: 'Control premiere alerts and release reminders.',
           ),
           const SizedBox(height: 14),
-          const _AccountActionCard(
+          _AccountActionCard(
             icon: Icons.palette_outlined,
             title: 'Appearance',
-            subtitle:
-                'Tune the app feel while keeping the Lumi palette intact.',
+            subtitle: 'Choose your theme and customize the app look.',
+            onTap: () => context.pushNamed(AppRoute.appearance.name),
           ),
         ],
       ),

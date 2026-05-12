@@ -154,7 +154,7 @@ class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
                           errorWidget: (context, url, error) => Container(color: Colors.white10),
                         ),
                 ),
-                const DecoratedBox(
+                DecoratedBox(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topCenter,
@@ -191,7 +191,7 @@ class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.star,
                         color: AppColors.cinemaAccent,
                         size: 16,
@@ -267,7 +267,7 @@ class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
                   },
                 );
               },
-              child: const Text(
+              child: Text(
                 'View Full',
                 style: TextStyle(color: AppColors.cinemaAccent),
               ),
@@ -399,7 +399,7 @@ class _EpisodeDetailsShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(
+    return Center(
       child: CircularProgressIndicator(color: AppColors.cinemaAccent),
     );
   }

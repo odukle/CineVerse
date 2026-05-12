@@ -83,10 +83,12 @@ class MediaRepositoryImpl implements MediaRepository {
   Future<List<MediaTitle>> fetchMoviesForSectionPage(
     MovieSection section, {
     int page = 1,
+    MediaFilter? filter,
   }) async {
     final movieDtos = await remoteDataSource.fetchMoviesForSectionPage(
       section,
       page: page,
+      filter: filter,
     );
 
     return movieDtos
@@ -111,6 +113,18 @@ class MediaRepositoryImpl implements MediaRepository {
     return movieDtos
         .map((movieDto) => movieDto.toDomain())
         .toList(growable: false);
+  }
+
+  @override
+  Future<List<MediaTitle>> searchMovies(String query, {int page = 1}) async {
+    final results = await remoteDataSource.searchMovies(query, page: page);
+    return results.map((m) => m.toDomain()).toList();
+  }
+
+  @override
+  Future<List<MediaTitle>> searchTvShows(String query, {int page = 1}) async {
+    final results = await remoteDataSource.searchTvShows(query, page: page);
+    return results.map((m) => m.toDomain()).toList();
   }
 
   @override

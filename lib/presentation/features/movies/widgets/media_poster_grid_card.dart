@@ -2,9 +2,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
+import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
+import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:cineverse/presentation/features/movies/widgets/rating_badge.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
+import 'package:cineverse/presentation/widgets/media_actions_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -34,12 +37,56 @@ class MediaPosterGridCard extends ConsumerWidget {
     final bool isPerson = movie.mediaType == GlobalMediaType.person;
     final String heroTag = 'media-poster-${movie.id}-$sectionTitle';
 
-    final bool isWatched =
-        ref.watch(isWatchedProvider(movie.id)).value ?? false;
+    final mediaType = movie.mediaType ?? (isTvTitle ? GlobalMediaType.tv : GlobalMediaType.movie);
+    final bool isWatched = isPerson
+        ? false
+        : ref.watch(isWatchedProvider((id: movie.id, type: mediaType))).value ??
+            false;
 
     final Widget scoreBadge = isPerson
         ? const SizedBox.shrink()
         : RatingBadge.tmdb(catalogScore: movie.voteAverage, size: badgeSize);
+
+    // Check if we are currently sorting by a specific field to show it below the title
+    final currentSort = ref.watch(genreSortProvider);
+    final SortField activeField = currentSort.sortField;
+    final bool isDefaultSort = currentSort.isDefault;
+
+    // Determine what to display as the primary subtitle
+    String? subtitleText;
+
+    if (!isDefaultSort) {
+      switch (activeField) {
+        case SortField.revenue:
+          int? effectiveRevenue = movie.revenue;
+          if (effectiveRevenue == null && !isTvTitle && !isPerson) {
+            effectiveRevenue = ref.watch(mediaRevenueProvider(movie.id)).value;
+          }
+          if (effectiveRevenue != null && effectiveRevenue > 0) {
+            subtitleText = _formatRevenue(effectiveRevenue);
+          }
+          break;
+        case SortField.popularity:
+          subtitleText = '${movie.popularity.toStringAsFixed(1)} Popularity';
+          break;
+        case SortField.voteAverage:
+          if (movie.voteAverage != null && movie.voteAverage! > 0) {
+            subtitleText = '${movie.voteAverage!.toStringAsFixed(1)} Rating';
+          }
+          break;
+        case SortField.voteCount:
+          subtitleText = '${_formatCount(movie.voteCount)} Votes';
+          break;
+        case SortField.releaseDate:
+          subtitleText = movie.releaseDate;
+          break;
+      }
+    }
+
+    // Fallback if the specific attribute is not available or we are not in a specific sort
+    subtitleText ??= movie.subtitle ??
+        movie.releaseDate ??
+        (sectionTitle == 'search' ? '' : sectionTitle);
 
     return SizedBox(
       width: width,
@@ -63,6 +110,7 @@ class MediaPosterGridCard extends ConsumerWidget {
             );
           }
         },
+        onLongPress: isPerson ? null : () => _showMediaActionsMenu(context, ref),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -90,9 +138,9 @@ class MediaPosterGridCard extends ConsumerWidget {
                           : CachedNetworkImage(
                               imageUrl: movie.posterPath!,
                               fit: BoxFit.cover,
-                              placeholder: (context, url) => const ColoredBox(
+                              placeholder: (context, url) => ColoredBox(
                                 color: AppColors.cinemaPlaceholder,
-                                child: Center(
+                                child: const Center(
                                   child: CircularProgressIndicator(),
                                 ),
                               ),
@@ -117,10 +165,10 @@ class MediaPosterGridCard extends ConsumerWidget {
                     top: 6,
                     child: Container(
                       padding: const EdgeInsets.all(4),
-                      decoration: const BoxDecoration(
+                      decoration: BoxDecoration(
                         color: AppColors.cinemaAccent,
                         shape: BoxShape.circle,
-                        boxShadow: [
+                        boxShadow: const [
                           BoxShadow(
                             color: Colors.black26,
                             blurRadius: 4,
@@ -149,8 +197,7 @@ class MediaPosterGridCard extends ConsumerWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              movie.releaseDate ??
-                  (sectionTitle == 'watchlist' ? '' : sectionTitle),
+              subtitleText,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.labelSmall?.copyWith(
@@ -160,6 +207,37 @@ class MediaPosterGridCard extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+
+  String _formatRevenue(int amount) {
+    if (amount >= 1000000000) {
+      return '\$${(amount / 1000000000).toStringAsFixed(1)}B';
+    } else if (amount >= 1000000) {
+      return '\$${(amount / 1000000).toStringAsFixed(1)}M';
+    } else if (amount >= 1000) {
+      return '\$${(amount / 1000).toStringAsFixed(1)}K';
+    } else {
+      return '\$$amount';
+    }
+  }
+
+  String _formatCount(int count) {
+    if (count >= 1000000) {
+      return '${(count / 1000000).toStringAsFixed(1)}M';
+    } else if (count >= 1000) {
+      return '${(count / 1000).toStringAsFixed(1)}K';
+    } else {
+      return '$count';
+    }
+  }
+
+  void _showMediaActionsMenu(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => MediaActionsBottomSheet(movie: movie, isTv: isTvTitle),
     );
   }
 }

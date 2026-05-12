@@ -8,12 +8,16 @@ import 'package:cineverse/presentation/features/movies/explore_screen.dart';
 import 'package:cineverse/presentation/features/movies/widgets/filter_screen.dart';
 import 'package:cineverse/presentation/features/search/search_screen.dart';
 import 'package:cineverse/presentation/features/search/widgets/global_filter_screen.dart';
+import 'package:cineverse/presentation/features/movies/explore_section_screen.dart';
+import 'package:cineverse/presentation/features/movies/models/explore_models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cineverse/presentation/features/person/person_details_screen.dart';
 import 'package:cineverse/presentation/features/watchlist/notes_screen.dart';
 import 'package:cineverse/presentation/features/watchlist/note_details_screen.dart';
+import 'package:cineverse/presentation/features/home/appearance_screen.dart';
+
 import 'package:cineverse/presentation/features/movie_details/full_cast_crew_screen.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/presentation/features/movie_details/all_seasons_screen.dart';
@@ -208,6 +212,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
+      GoRoute(
+        path: AppRoute.exploreSection.path,
+        name: AppRoute.exploreSection.name,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          final bool isTv = state.uri.queryParameters['isTv'] == 'true';
+          return ExploreSectionScreen(
+            sectionTitle: extra['sectionTitle'] as String,
+            filters: extra['filters'] as List<ExploreFilterOption>,
+            isTv: isTv,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoute.appearance.path,
+        name: AppRoute.appearance.name,
+        builder: (context, state) => const AppearanceScreen(),
+      ),
     ],
   );
 });
@@ -231,7 +253,9 @@ enum AppRoute {
     '/tv/:tvId/seasons/:seasonNumber/episodes/:episodeNumber',
     'episode-details',
   ),
-  allSeasons('/tv/:tvId/seasons', 'all-seasons');
+  allSeasons('/tv/:tvId/seasons', 'all-seasons'),
+  exploreSection('/explore-section', 'explore-section'),
+  appearance('/appearance', 'appearance');
 
   const AppRoute(this.path, this.name);
 

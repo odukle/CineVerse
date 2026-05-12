@@ -127,6 +127,32 @@ class TmdbApiClient {
 
 
 
+  Future<TmdbMoviesResponseDto> searchMovies(String query, {int page = 1}) {
+    return _getMovies(
+      operation: 'searchMovies($query)',
+      path: AppConstants.tmdbDiscoverMoviePath,
+      queryParameters: <String, dynamic>{
+        ..._pagedQueryParameters(page: page),
+        'with_text_query': query,
+        'include_adult': false,
+        'sort_by': 'popularity.desc',
+      },
+    );
+  }
+
+  Future<TmdbMoviesResponseDto> searchTvShows(String query, {int page = 1}) {
+    return _getMovies(
+      operation: 'searchTvShows($query)',
+      path: AppConstants.tmdbDiscoverTvPath,
+      queryParameters: <String, dynamic>{
+        ..._pagedQueryParameters(page: page),
+        'with_text_query': query,
+        'include_adult': false,
+        'sort_by': 'popularity.desc',
+      },
+    );
+  }
+
   Future<TmdbMoviesResponseDto> searchMulti(String query, {int page = 1}) {
     return _getMovies(
       operation: 'searchMulti($query)',
@@ -154,9 +180,10 @@ class TmdbApiClient {
   Future<TmdbMoviesResponseDto> fetchMoviesForSection(
     MovieSection section, {
     int page = 1,
+    MediaFilter? filter,
   }) {
     final ({String path, Map<String, dynamic> queryParameters}) request =
-        _requestForSection(section, page: page);
+        _requestForSection(section, page: page, filter: filter);
 
     return _getMovies(
       operation: 'fetchMoviesForSection($section)',
@@ -561,7 +588,33 @@ class TmdbApiClient {
   ({String path, Map<String, dynamic> queryParameters}) _requestForSection(
     MovieSection section, {
     int page = 1,
+    MediaFilter? filter,
   }) {
+    final Map<String, dynamic> pagedParams = _pagedQueryParameters(page: page);
+    
+    // Apply sort if filter is provided
+    if (filter != null) {
+      final bool isTv = section.name.startsWith('tv');
+      pagedParams['sort_by'] = isTv
+          ? filter.sortByValue.replaceAll(
+            'primary_release_date',
+            'first_air_date',
+          )
+          : filter.sortByValue;
+          
+      // Special handling for discover endpoints
+      if (section == MovieSection.discover || section == MovieSection.tvDiscover) {
+        return (
+          path: isTv ? AppConstants.tmdbDiscoverTvPath : AppConstants.tmdbDiscoverMoviePath,
+          queryParameters: <String, dynamic>{
+            ...pagedParams,
+            'include_adult': false,
+            if (!isTv) 'include_video': false,
+          },
+        );
+      }
+    }
+
     return switch (section) {
       MovieSection.discover => (
         path: AppConstants.tmdbDiscoverMoviePath,

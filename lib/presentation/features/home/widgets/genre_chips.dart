@@ -33,18 +33,18 @@ class GenreChips extends ConsumerWidget {
                 ref.read(movieFilterProvider.notifier).reset();
               }
             },
-            deleteIcon: const Icon(
+            deleteIcon: Icon(
               Icons.close,
               size: 14,
               color: AppColors.cinemaAccent,
             ),
             backgroundColor: AppColors.cinemaAccent.withValues(alpha: 0.1),
-            labelStyle: const TextStyle(
+            labelStyle: TextStyle(
               color: AppColors.cinemaAccent,
               fontWeight: FontWeight.bold,
               fontSize: 12,
             ),
-            side: const BorderSide(color: AppColors.cinemaAccent),
+            side: BorderSide(color: AppColors.cinemaAccent),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(99),
             ),

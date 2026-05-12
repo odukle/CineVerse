@@ -10,9 +10,11 @@ class TmdbMovieDto {
     this.releaseDate,
     this.voteAverage,
     this.mediaType,
+    this.subtitle,
     this.genreIds = const [],
     this.voteCount = 0,
     this.popularity = 0.0,
+    this.revenue,
   });
 
   factory TmdbMovieDto.fromJson(Map<String, dynamic> json) {
@@ -42,6 +44,7 @@ class TmdbMovieDto {
           (json['first_air_date'] as String?),
       voteAverage: (json['vote_average'] as num?)?.toDouble(),
       mediaType: mediaType,
+      subtitle: json['known_for_department'] as String?,
       genreIds:
           (json['genre_ids'] as List<dynamic>?)
               ?.map((e) => (e as num).toInt())
@@ -49,6 +52,7 @@ class TmdbMovieDto {
           const [],
       voteCount: (json['vote_count'] as num?)?.toInt() ?? 0,
       popularity: (json['popularity'] as num?)?.toDouble() ?? 0.0,
+      revenue: (json['revenue'] as num?)?.toInt(),
     );
   }
 
@@ -58,9 +62,11 @@ class TmdbMovieDto {
   final String? releaseDate;
   final double? voteAverage;
   final GlobalMediaType? mediaType;
+  final String? subtitle;
   final List<int> genreIds;
   final int voteCount;
   final double popularity;
+  final int? revenue;
 
   MediaTitle toDomain() {
     return MediaTitle(
@@ -70,9 +76,11 @@ class TmdbMovieDto {
       releaseDate: releaseDate,
       voteAverage: voteAverage,
       mediaType: mediaType,
+      subtitle: subtitle,
       genreIds: genreIds,
       voteCount: voteCount,
       popularity: popularity,
+      revenue: revenue,
     );
   }
 

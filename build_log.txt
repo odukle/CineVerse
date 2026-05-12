@@ -1,0 +1,1 @@
+/usr/bin/bash: line 2: C:\dev-flutter\flutter\bin\flutter.bat build apk --debug: command not found

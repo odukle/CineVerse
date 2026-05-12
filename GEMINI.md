@@ -53,6 +53,23 @@ If you add or modify TMDB endpoints:
 - **Implementation**: Follow Clean Architecture layers.
 - **Validation**: Run tests and verify on a real device/emulator.
 
+### Validation & Analysis (MANDATORY)
+1. **Analysis**: After making ANY code change, you MUST run `mcp_dart_analyze_files` (or `dart analyze` via shell) on the project root.
+2. **Resolution**: You MUST resolve all errors and warnings reported by the analyzer before finalizing your response. 
+3. **Verification**: A task is only considered complete when the analyzer reports "No errors".
+
+### Automated APK Delivery (NEW)
+Whenever the user requests "send me the apk":
+1. **Preparation**:
+   - Ensure `config/api_keys.json` contains the correct values for Telegram delivery. API keys for the app should be provided via `--dart-define` at build time for security.
+2. **Build**: 
+   - **MANDATORY**: Always run `flutter clean` before a new build to ensure no cached configuration persists.
+   - On WSL/Windows: Use `powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "flutter clean; flutter build apk --release --split-per-abi"`.
+   - Note: Split APKs (`--split-per-abi`) are required to stay under the 50MB Telegram Bot API limit.
+3. **Delivery**: 
+   - Use the standardized script: `python3 scripts/send_apk.py build/app/outputs/flutter-apk/app-arm64-v8a-release.apk`.
+   - The script automatically handles unique filenames and retrieves Telegram credentials from `config/api_keys.json`.
+
 ## 5. Subdirectory Instructions
 
 - **Dart & Flutter Standards**: Detailed coding and architecture rules for the Dart codebase are located in [lib/GEMINI.md](./lib/GEMINI.md).

@@ -192,7 +192,7 @@ class _PersonDetailsViewState extends ConsumerState<_PersonDetailsView> {
     });
 
     return DecoratedBox(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
@@ -256,7 +256,7 @@ class _PersonDetailsViewState extends ConsumerState<_PersonDetailsView> {
                                           color: Colors.white54,
                                         ),
                                   )
-                                : const ColoredBox(
+                                : ColoredBox(
                                     color: AppColors.detailsPosterSurface,
                                     child: Icon(
                                       Icons.person,
@@ -342,7 +342,7 @@ class _PersonDetailsViewState extends ConsumerState<_PersonDetailsView> {
                       ),
                       child: Text(
                         _isBiographyExpanded ? 'Read less' : 'Read more...',
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.cinemaAccent,
                           fontWeight: FontWeight.bold,
                           fontSize: 14,
@@ -527,7 +527,7 @@ class _PersonImagesCarousel extends ConsumerWidget {
                           imageUrl: imageUrl,
                           fit: BoxFit.cover,
                           placeholder: (context, url) =>
-                              const Center(child: CircularProgressIndicator()),
+                              Center(child: CircularProgressIndicator(color: AppColors.cinemaAccent)),
                           errorWidget: (context, url, error) => const Icon(
                             Icons.broken_image,
                             color: Colors.white24,
@@ -635,17 +635,17 @@ class _CreditCard extends StatelessWidget {
                         borderRadius: 8,
                       ),
                       errorWidget: (context, url, error) =>
-                          const SizedBox.expand(
-                            child: ColoredBox(
-                              color: AppColors.detailsPosterSurface,
-                              child: Icon(
-                                Icons.movie_outlined,
-                                color: Colors.white24,
-                              ),
-                            ),
-                          ),
+                           SizedBox.expand(
+                             child: ColoredBox(
+                               color: AppColors.detailsPosterSurface,
+                               child: Icon(
+                                 Icons.movie_outlined,
+                                 color: Colors.white24,
+                               ),
+                             ),
+                           ),
                     )
-                  : const SizedBox.expand(
+                  : SizedBox.expand(
                       child: ColoredBox(
                         color: AppColors.detailsPosterSurface,
                         child: Icon(

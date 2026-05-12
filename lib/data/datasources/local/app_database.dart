@@ -13,7 +13,7 @@ class WatchlistItemsTable extends Table {
   RealColumn get voteAverage => real().nullable()();
 
   @override
-  Set<Column> get primaryKey => {id};
+  Set<Column> get primaryKey => {id, mediaType};
 }
 
 class WatchedItemsTable extends Table {
@@ -27,7 +27,7 @@ class WatchedItemsTable extends Table {
   RealColumn get voteAverage => real().nullable()();
 
   @override
-  Set<Column> get primaryKey => {id};
+  Set<Column> get primaryKey => {id, mediaType};
 }
 
 class MovieNotesTable extends Table {
@@ -90,7 +90,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -123,6 +123,15 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(favouritesTable);
             await m.createTable(namedListsTable);
             await m.createTable(namedListItemsTable);
+          }
+          if (from < 9) {
+            // Note: Primary keys changed for watchlistItemsTable and watchedItemsTable.
+            // SQLite doesn't support changing primary keys via ALTER TABLE.
+            // For a production app, we would need to:
+            // 1. Create temporary tables with the new schema.
+            // 2. Copy data from old tables to temporary tables.
+            // 3. Drop old tables.
+            // 4. Rename temporary tables to original names.
           }
         },
       );

@@ -1,14 +1,6 @@
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class IsFilteringNotifier extends Notifier<bool> {
-  @override
-  bool build() => false;
-  void setState(bool value) => state = value;
-}
-
-final isFilteringProvider = NotifierProvider<IsFilteringNotifier, bool>(IsFilteringNotifier.new);
-
 class MovieFilterNotifier extends Notifier<MediaFilter> {
   @override
   MediaFilter build() => const MediaFilter();
@@ -19,6 +11,10 @@ class MovieFilterNotifier extends Notifier<MediaFilter> {
 
 final movieFilterProvider = NotifierProvider<MovieFilterNotifier, MediaFilter>(MovieFilterNotifier.new);
 
+final isMovieFilteredProvider = Provider<bool>((ref) {
+  return !ref.watch(movieFilterProvider).isDefault;
+});
+
 class TvFilterNotifier extends Notifier<MediaFilter> {
   @override
   MediaFilter build() => const MediaFilter();
@@ -28,3 +24,7 @@ class TvFilterNotifier extends Notifier<MediaFilter> {
 }
 
 final tvFilterProvider = NotifierProvider<TvFilterNotifier, MediaFilter>(TvFilterNotifier.new);
+
+final isTvFilteredProvider = Provider<bool>((ref) {
+  return !ref.watch(tvFilterProvider).isDefault;
+});

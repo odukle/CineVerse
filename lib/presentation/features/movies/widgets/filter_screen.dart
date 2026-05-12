@@ -24,25 +24,27 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
   @override
   void initState() {
     super.initState();
-    _currentFilter = widget.isTv
+    final baseFilter = widget.isTv
         ? ref.read(tvFilterProvider)
         : ref.read(movieFilterProvider);
+    final globalSort = ref.read(genreSortProvider);
+    
+    _currentFilter = baseFilter.copyWith(
+      sortField: globalSort.sortField,
+      sortOrder: globalSort.sortOrder,
+    );
   }
 
   void _applyFilters() {
-    ref.read(isFilteringProvider.notifier).setState(true);
+    // Update global sort first
+    ref.read(genreSortProvider.notifier).updateSort(_currentFilter.sortField, _currentFilter.sortOrder);
+    
     if (widget.isTv) {
       resetMovieSection(ref, MovieSection.tvDiscover);
       ref.read(tvFilterProvider.notifier).updateFilter(_currentFilter);
-      ref.read(selectedTvFilterProvider.notifier).setFilter(
-        const MediaFilterOption(label: 'Filtered', section: MovieSection.tvDiscover),
-      );
     } else {
       resetMovieSection(ref, MovieSection.discover);
       ref.read(movieFilterProvider.notifier).updateFilter(_currentFilter);
-      ref.read(selectedMovieFilterProvider.notifier).setFilter(
-        const MediaFilterOption(label: 'Filtered', section: MovieSection.discover),
-      );
     }
     Navigator.of(context).pop();
   }
@@ -68,7 +70,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
         actions: [
           TextButton(
             onPressed: _resetFilters,
-            child: const Text('Reset', style: TextStyle(color: AppColors.cinemaAccent)),
+            child: Text('Reset', style: TextStyle(color: AppColors.cinemaAccent)),
           ),
         ],
       ),
@@ -388,7 +390,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
           builder: (context, child) {
             return Theme(
               data: Theme.of(context).copyWith(
-                colorScheme: const ColorScheme.dark(
+                colorScheme: ColorScheme.dark(
                   primary: AppColors.cinemaAccent,
                   onPrimary: Colors.black,
                   surface: AppColors.cinemaSurface,
@@ -486,7 +488,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
           );
         }).toList(),
       ),
-      loading: () => const Center(child: CircularProgressIndicator(color: AppColors.cinemaAccent)),
+      loading: () => Center(child: CircularProgressIndicator(color: AppColors.cinemaAccent)),
       error: (error, stack) => Row(
         children: [
           const Text(
@@ -496,7 +498,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
           const SizedBox(width: 12),
           TextButton(
             onPressed: () => ref.invalidate(movieGenresProvider),
-            child: const Text('Retry', style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12)),
+            child: Text('Retry', style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12)),
           ),
         ],
       ),
@@ -631,7 +633,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
-                      side: const BorderSide(color: AppColors.cinemaAccent),
+                      side: BorderSide(color: AppColors.cinemaAccent),
                     ),
                   );
                 }).toList(),

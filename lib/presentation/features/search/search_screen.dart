@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/constants/app_constants.dart';
+import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
@@ -19,40 +20,67 @@ class SearchScreen extends ConsumerStatefulWidget {
   ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends ConsumerState<SearchScreen> {
+class _SearchScreenState extends ConsumerState<SearchScreen>
+    with SingleTickerProviderStateMixin {
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
-  late final ScrollController _scrollController;
+  late final TabController _tabController;
+  late final ScrollController _moviesScrollController;
+  late final ScrollController _tvScrollController;
+  late final ScrollController _personsScrollController;
+  late final ScrollController _discoverScrollController;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
     _focusNode = FocusNode();
-    _scrollController = ScrollController()..addListener(_onScroll);
+    _tabController = TabController(length: 3, vsync: this);
+    
+    _moviesScrollController = ScrollController()
+      ..addListener(() => _onScroll(_moviesScrollController, GlobalMediaType.movie));
+    _tvScrollController = ScrollController()
+      ..addListener(() => _onScroll(_tvScrollController, GlobalMediaType.tv));
+    _personsScrollController = ScrollController()
+      ..addListener(() => _onScroll(_personsScrollController, GlobalMediaType.person));
+    _discoverScrollController = ScrollController()
+      ..addListener(() => _onScroll(_discoverScrollController, null));
+      
     _focusNode.requestFocus();
+
+    // Clear search results on launch
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        ref.read(searchProvider.notifier).clear();
+      }
+    });
   }
 
   @override
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
-    _scrollController.dispose();
+    _tabController.dispose();
+    _moviesScrollController.dispose();
+    _tvScrollController.dispose();
+    _personsScrollController.dispose();
+    _discoverScrollController.dispose();
     // Reset search state when leaving the screen
     ref.read(searchProvider.notifier).clear();
     super.dispose();
   }
 
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent - 400) {
-      ref.read(searchProvider.notifier).loadMore();
+  void _onScroll(ScrollController controller, GlobalMediaType? type) {
+    if (controller.position.pixels >=
+        controller.position.maxScrollExtent - 400) {
+      ref.read(searchProvider.notifier).loadMore(type);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final searchState = ref.watch(searchProvider);
+    final isDiscoverMode = !searchState.filter.isDefault;
 
     return Scaffold(
       backgroundColor: AppColors.cinemaBackground,
@@ -91,50 +119,69 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           const SizedBox(width: 8),
         ],
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(56),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-            child: TextField(
-              controller: _controller,
-              focusNode: _focusNode,
-              style: const TextStyle(color: Colors.white),
-              textInputAction: TextInputAction.search,
-              onChanged: (value) {
-                ref.read(searchProvider.notifier).onQueryChanged(value);
-              },
-              onSubmitted: (_) {
-                ref.read(searchProvider.notifier).submitSearch();
-              },
-              decoration: InputDecoration(
-                hintText: 'Search movies, TV shows...',
-                hintStyle: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.5),
+          preferredSize: Size.fromHeight(
+            (searchState.hasSearched && !isDiscoverMode) ? 104 : 56,
+          ),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: TextField(
+                  controller: _controller,
+                  focusNode: _focusNode,
+                  style: const TextStyle(color: Colors.white),
+                  textInputAction: TextInputAction.search,
+                  onChanged: (value) {
+                    ref.read(searchProvider.notifier).onQueryChanged(value);
+                  },
+                  onSubmitted: (_) {
+                    ref.read(searchProvider.notifier).submitSearch();
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search movies, TV shows...',
+                    hintStyle: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.5),
+                    ),
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: Colors.white.withValues(alpha: 0.5),
+                    ),
+                    suffixIcon: searchState.query.isNotEmpty
+                        ? IconButton(
+                            icon: Icon(
+                              Icons.clear,
+                              color: Colors.white.withValues(alpha: 0.7),
+                            ),
+                            onPressed: () {
+                              _controller.clear();
+                              ref.read(searchProvider.notifier).clear();
+                            },
+                          )
+                        : null,
+                    filled: true,
+                    fillColor: Colors.white.withValues(alpha: 0.08),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                  ),
                 ),
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: Colors.white.withValues(alpha: 0.5),
-                ),
-                suffixIcon: searchState.query.isNotEmpty
-                    ? IconButton(
-                        icon: Icon(
-                          Icons.clear,
-                          color: Colors.white.withValues(alpha: 0.7),
-                        ),
-                        onPressed: () {
-                          _controller.clear();
-                          ref.read(searchProvider.notifier).clear();
-                        },
-                      )
-                    : null,
-                filled: true,
-                fillColor: Colors.white.withValues(alpha: 0.08),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 14),
               ),
-            ),
+              if (searchState.hasSearched && !isDiscoverMode)
+                TabBar(
+                  controller: _tabController,
+                  indicatorColor: AppColors.cinemaAccent,
+                  labelColor: AppColors.cinemaAccent,
+                  unselectedLabelColor: Colors.white54,
+                  dividerColor: Colors.white10,
+                  tabs: const [
+                    Tab(text: 'Movies'),
+                    Tab(text: 'TV Shows'),
+                    Tab(text: 'Persons'),
+                  ],
+                ),
+            ],
           ),
         ),
       ),
@@ -149,14 +196,20 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
     if (searchState.isLoading &&
         searchState.suggestions.isEmpty &&
+        searchState.movieResults.isEmpty &&
+        searchState.tvResults.isEmpty &&
+        searchState.personResults.isEmpty &&
         searchState.results.isEmpty) {
-      return const Center(
+      return Center(
         child: CircularProgressIndicator(color: AppColors.cinemaAccent),
       );
     }
 
     if (searchState.error != null &&
         searchState.suggestions.isEmpty &&
+        searchState.movieResults.isEmpty &&
+        searchState.tvResults.isEmpty &&
+        searchState.personResults.isEmpty &&
         searchState.results.isEmpty) {
       return Center(
         child: Padding(
@@ -175,10 +228,41 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
 
     if (searchState.hasSearched) {
-      return _buildResults(
-        searchState.results,
-        searchState.isLoadingMore,
-        searchState.hasMore,
+      if (!searchState.filter.isDefault) {
+        return _buildResults(
+          searchState.results,
+          searchState.isLoadingMore,
+          searchState.hasMore,
+          _discoverScrollController,
+          null,
+        );
+      }
+
+      return TabBarView(
+        controller: _tabController,
+        children: [
+          _buildResults(
+            searchState.movieResults,
+            searchState.isLoadingMore,
+            searchState.movieHasMore,
+            _moviesScrollController,
+            GlobalMediaType.movie,
+          ),
+          _buildResults(
+            searchState.tvResults,
+            searchState.isLoadingMore,
+            searchState.tvHasMore,
+            _tvScrollController,
+            GlobalMediaType.tv,
+          ),
+          _buildResults(
+            searchState.personResults,
+            searchState.isLoadingMore,
+            searchState.personHasMore,
+            _personsScrollController,
+            GlobalMediaType.person,
+          ),
+        ],
       );
     }
 
@@ -201,6 +285,103 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildResults(
+    List<MediaTitle> results,
+    bool isLoadingMore,
+    bool hasMore,
+    ScrollController controller,
+    GlobalMediaType? type,
+  ) {
+    if (results.isEmpty && !isLoadingMore) {
+      return Center(
+        child: Text(
+          'No results found',
+          style: TextStyle(color: Colors.white.withValues(alpha: 0.72)),
+        ),
+      );
+    }
+
+    const double crossAxisSpacing = 10;
+    const double mainAxisSpacing = 0;
+    const int crossAxisCount = 3;
+    final double availableCardWidth =
+        (MediaQuery.sizeOf(context).width - (16 * 2) - (crossAxisSpacing * 2)) /
+        crossAxisCount;
+    final double cardWidth = availableCardWidth > 108
+        ? 108
+        : availableCardWidth;
+
+    return CustomScrollView(
+      key: PageStorageKey(type?.name ?? 'discover'),
+      controller: controller,
+      physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+          sliver: SliverGrid(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              crossAxisSpacing: crossAxisSpacing,
+              mainAxisSpacing: mainAxisSpacing,
+              mainAxisExtent: 220,
+            ),
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final media = results[index];
+              return MediaPosterGridCard(
+                movie: media,
+                sectionTitle: 'search',
+                width: cardWidth,
+                isTvTitle: media.mediaType == GlobalMediaType.tv,
+              );
+            }, childCount: results.length),
+          ),
+        ),
+        if (isLoadingMore)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 32),
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.cinemaAccent),
+              ),
+            ),
+          )
+        else if (hasMore)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 32),
+              child: Center(
+                child: TextButton(
+                  onPressed: () {
+                    ref.read(searchProvider.notifier).loadMore(type);
+                  },
+                  child: Text(
+                    'Load More',
+                    style: TextStyle(color: AppColors.cinemaAccent),
+                  ),
+                ),
+              ),
+            ),
+          )
+        else if (results.isNotEmpty)
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 32),
+              child: Center(
+                child: Text(
+                  'No more results found.',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.4),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -251,16 +432,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   TextButton(
                     onPressed: () {
                       ref.read(searchHistoryProvider.notifier).clearAll();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Search history cleared'),
-                          duration: Duration(seconds: 2),
-                          behavior: SnackBarBehavior.floating,
-                          width: 200,
-                        ),
-                      );
+                      ToastUtils.showToast(context, 'Search history cleared');
                     },
-                    child: const Text(
+                    child: Text(
                       'Clear All',
                       style: TextStyle(color: AppColors.cinemaAccent),
                     ),
@@ -366,100 +540,6 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           },
         );
       },
-    );
-  }
-
-  Widget _buildResults(
-    List<MediaTitle> results,
-    bool isLoadingMore,
-    bool hasMore,
-  ) {
-    if (results.isEmpty && !hasMore) {
-      return Center(
-        child: Text(
-          'No results found',
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.72)),
-        ),
-      );
-    }
-
-    const double crossAxisSpacing = 10;
-    const double mainAxisSpacing = 0;
-    const int crossAxisCount = 3;
-    final double availableCardWidth =
-        (MediaQuery.sizeOf(context).width - (16 * 2) - (crossAxisSpacing * 2)) /
-        crossAxisCount;
-    final double cardWidth = availableCardWidth > 108
-        ? 108
-        : availableCardWidth;
-
-    return CustomScrollView(
-      controller: _scrollController,
-      physics: const AlwaysScrollableScrollPhysics(),
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
-          sliver: SliverGrid(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              crossAxisSpacing: crossAxisSpacing,
-              mainAxisSpacing: mainAxisSpacing,
-              mainAxisExtent: 220,
-            ),
-            delegate: SliverChildBuilderDelegate((context, index) {
-              final media = results[index];
-              return MediaPosterGridCard(
-                movie: media,
-                sectionTitle: 'search',
-                width: cardWidth,
-                isTvTitle: media.mediaType == GlobalMediaType.tv,
-              );
-            }, childCount: results.length),
-          ),
-        ),
-        if (isLoadingMore)
-          const SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 32),
-              child: Center(
-                child: CircularProgressIndicator(color: AppColors.cinemaAccent),
-              ),
-            ),
-          )
-        else if (hasMore)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 32),
-              child: Center(
-                child: TextButton(
-                  onPressed: () {
-                    ref.read(searchProvider.notifier).loadMore();
-                  },
-                  child: const Text(
-                    'Load More',
-                    style: TextStyle(color: AppColors.cinemaAccent),
-                  ),
-                ),
-              ),
-            ),
-          )
-        else if (results.isNotEmpty)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 32),
-              child: Center(
-                child: Text(
-                  'No more results found.',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.4),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
     );
   }
 

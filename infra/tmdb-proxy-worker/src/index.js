@@ -17,6 +17,8 @@ const ALLOWED_STATIC_PATHS = new Set([
   "/tv/airing_today",
   "/search/multi",
   "/search/person",
+  "/search/movie",
+  "/search/tv",
 ]);
 
 const TMDB_MOVIE_DETAILS_PATTERN = /^\/movie\/\d+$/;

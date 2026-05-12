@@ -15,4 +15,5 @@ abstract class LibraryRepository {
   Future<void> removeItemFromNamedList(int listId, int mediaId, int mediaType);
   Future<List<NamedListItem>> getItemsForList(int listId);
   Future<bool> isItemInList(int listId, int mediaId, int mediaType);
+  Future<void> renameNamedList(int id, String newName);
 }

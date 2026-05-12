@@ -2,6 +2,7 @@ import 'package:cineverse/data/datasources/local/app_database.dart';
 import 'package:cineverse/domain/entities/watched_item.dart';
 import 'package:cineverse/domain/repositories/watched_repository.dart';
 import 'package:drift/drift.dart';
+import 'package:cineverse/domain/entities/global_media_filter.dart';
 
 class WatchedRepositoryImpl implements WatchedRepository {
   WatchedRepositoryImpl(this._database);
@@ -45,39 +46,38 @@ class WatchedRepositoryImpl implements WatchedRepository {
   }
 
   @override
-  Future<void> removeFromWatched(int id) async {
+  Future<void> removeFromWatched(int id, GlobalMediaType mediaType) async {
     await (_database.delete(_database.watchedItemsTable)
-          ..where((t) => t.id.equals(id)))
+          ..where((t) => t.id.equals(id) & t.mediaType.equals(mediaType.index)))
         .go();
   }
 
   @override
-  Future<bool> isWatched(int id) async {
-    final query =
-        _database.select(_database.watchedItemsTable)
-          ..where((t) => t.id.equals(id));
-    final result = await query.getSingleOrNull();
-    return result != null;
+  Future<bool> isWatched(int id, GlobalMediaType mediaType) async {
+    final query = _database.select(_database.watchedItemsTable)
+      ..where((t) => t.id.equals(id) & t.mediaType.equals(mediaType.index));
+    final item = await query.getSingleOrNull();
+    return item != null;
   }
 
   @override
   Future<void> updateWatchedItem(WatchedItem item) async {
     await (_database.update(_database.watchedItemsTable)
-          ..where((t) => t.id.equals(item.id)))
+          ..where((t) =>
+              t.id.equals(item.id) & t.mediaType.equals(item.mediaType.index)))
         .write(
       WatchedItemsTableCompanion(
-        rating: Value(item.rating),
         watchDate: Value(item.watchDate),
+        rating: Value(item.rating),
         rewatchCount: Value(item.rewatchCount),
       ),
     );
   }
 
   @override
-  Future<WatchedItem?> getWatchedItem(int id) async {
-    final query =
-        _database.select(_database.watchedItemsTable)
-          ..where((t) => t.id.equals(id));
+  Future<WatchedItem?> getWatchedItem(int id, GlobalMediaType mediaType) async {
+    final query = _database.select(_database.watchedItemsTable)
+      ..where((t) => t.id.equals(id) & t.mediaType.equals(mediaType.index));
     final row = await query.getSingleOrNull();
     if (row == null) return null;
     return WatchedItem(

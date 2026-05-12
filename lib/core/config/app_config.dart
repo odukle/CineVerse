@@ -9,12 +9,9 @@ class AppConfig {
 
   factory AppConfig.fromEnvironment() {
     return const AppConfig(
-      tmdbApiKey: String.fromEnvironment('TMDB_API_KEY', defaultValue: ''),
-      omdbApiKey: String.fromEnvironment('OMDB_API_KEY', defaultValue: ''),
-      movieProxyBaseUrl: String.fromEnvironment(
-        'MOVIE_PROXY_BASE_URL',
-        defaultValue: '',
-      ),
+      tmdbApiKey: String.fromEnvironment('TMDB_API_KEY'),
+      omdbApiKey: String.fromEnvironment('OMDB_API_KEY'),
+      movieProxyBaseUrl: String.fromEnvironment('MOVIE_PROXY_BASE_URL'),
     );
   }
 

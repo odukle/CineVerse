@@ -40,8 +40,8 @@ class NamedListsNotifier extends StreamNotifier<List<NamedList>> {
     return ref.watch(libraryRepositoryProvider).watchNamedLists();
   }
 
-  Future<void> createList(String name) async {
-    await ref.read(libraryRepositoryProvider).createNamedList(name);
+  Future<int> createList(String name) async {
+    return await ref.read(libraryRepositoryProvider).createNamedList(name);
   }
 
   Future<void> deleteList(int id) async {
@@ -73,6 +73,10 @@ class NamedListsNotifier extends StreamNotifier<List<NamedList>> {
 
   Future<List<NamedListItem>> getItemsForList(int listId) {
     return ref.read(libraryRepositoryProvider).getItemsForList(listId);
+  }
+
+  Future<void> renameList(int id, String newName) async {
+    await ref.read(libraryRepositoryProvider).renameNamedList(id, newName);
   }
 }
 

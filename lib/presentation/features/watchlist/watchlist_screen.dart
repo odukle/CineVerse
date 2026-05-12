@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_note.dart';
@@ -14,6 +15,7 @@ import 'package:cineverse/presentation/features/watchlist/providers/library_prov
 import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
+import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -39,14 +41,14 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           toolbarHeight: 0,
-          bottom: const TabBar(
+          bottom: TabBar(
             isScrollable: true,
             tabAlignment: TabAlignment.start,
             indicatorColor: AppColors.cinemaAccent,
             labelColor: AppColors.cinemaAccent,
             unselectedLabelColor: Colors.white54,
             indicatorSize: TabBarIndicatorSize.label,
-            tabs: [
+            tabs: const [
               Tab(text: 'Watchlist'),
               Tab(text: 'Favourites'),
               Tab(text: 'Lists'),
@@ -264,7 +266,7 @@ class _ListsTab extends ConsumerWidget {
                           ),
                         ),
                         if (lists.any((l) => l.id == currentId))
-                          _buildDeleteButton(context, ref, selectedList),
+                          _buildListActions(context, ref, selectedList),
                       ],
                     );
                   }
@@ -305,7 +307,7 @@ class _ListsTab extends ConsumerWidget {
                       ),
                       if (lists.any((l) => l.id == currentId))
                         SliverToBoxAdapter(
-                          child: _buildDeleteButton(context, ref, selectedList),
+                          child: _buildListActions(context, ref, selectedList),
                         ),
                       const SliverToBoxAdapter(child: SizedBox(height: 32)),
                     ],
@@ -316,7 +318,7 @@ class _ListsTab extends ConsumerWidget {
           ],
         );
       },
-      loading: () => const Center(
+      loading: () => Center(
         child: CircularProgressIndicator(color: AppColors.cinemaAccent),
       ),
       error: (e, _) => Center(child: Text('Error: $e')),
@@ -342,7 +344,7 @@ class _ListsTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildDeleteButton(
+  Widget _buildListActions(
     BuildContext context,
     WidgetRef ref,
     NamedList selectedList,
@@ -352,6 +354,26 @@ class _ListsTab extends ConsumerWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          TextButton.icon(
+            onPressed: () => _showRenameDialog(context, ref, selectedList),
+            icon: Icon(
+              Icons.edit_rounded,
+              color: AppColors.cinemaAccent,
+              size: 18,
+            ),
+            label: Text(
+              'Rename List',
+              style: TextStyle(color: AppColors.cinemaAccent, fontSize: 13),
+            ),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              backgroundColor: AppColors.cinemaAccent.withValues(alpha: 0.1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
           TextButton.icon(
             onPressed: () => _confirmDeleteList(context, ref, selectedList),
             icon: const Icon(
@@ -376,8 +398,50 @@ class _ListsTab extends ConsumerWidget {
     );
   }
 
+  void _showRenameDialog(BuildContext context, WidgetRef ref, NamedList list) {
+    final controller = TextEditingController(text: list.name);
+    showAnimatedDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.detailsCard,
+        title: const Text('Rename List', style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: controller,
+          style: const TextStyle(color: Colors.white),
+          autofocus: true,
+          decoration: const InputDecoration(
+            hintText: 'Enter new name...',
+            hintStyle: TextStyle(color: Colors.white38),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final newName = controller.text.trim();
+              if (newName.isNotEmpty && newName != list.name) {
+                await ref.read(namedListsProvider.notifier).renameList(list.id, newName);
+                if (context.mounted) {
+                  Navigator.pop(context);
+                  ToastUtils.showToast(context, 'List renamed to "$newName"');
+                }
+              } else {
+                Navigator.pop(context);
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.cinemaAccent),
+            child: const Text('Rename', style: TextStyle(color: Colors.black)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _confirmDeleteList(BuildContext context, WidgetRef ref, NamedList list) {
-    showDialog(
+    showAnimatedDialog(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.detailsCard,
@@ -402,14 +466,7 @@ class _ListsTab extends ConsumerWidget {
               await ref.read(namedListsProvider.notifier).deleteList(list.id);
               if (context.mounted) {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('List "${list.name}" deleted'),
-                    duration: const Duration(seconds: 2),
-                    behavior: SnackBarBehavior.floating,
-                    width: 250,
-                  ),
-                );
+              ToastUtils.showToast(context, 'List "${list.name}" deleted');
               }
             },
             child: const Text(
@@ -530,7 +587,7 @@ class _NoteListTile extends ConsumerWidget {
                                 imageUrl: details.posterPath!,
                                 fit: BoxFit.cover,
                               )
-                            : const ColoredBox(
+                            : ColoredBox(
                                 color: AppColors.detailsPosterSurface,
                               ),
                       ),
@@ -602,7 +659,6 @@ class _NoteListTile extends ConsumerWidget {
   }
 
   void _handleDelete(BuildContext context, WidgetRef ref) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
     final actions = ref.read(movieNotesActionsProvider);
 
     final deletedNoteText = note.text;
@@ -611,20 +667,21 @@ class _NoteListTile extends ConsumerWidget {
 
     await actions.deleteNote(note.movieId, note.mediaType, note.id);
 
-    scaffoldMessenger.clearSnackBars();
-    scaffoldMessenger.showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 5),
-        backgroundColor: AppColors.detailsCard,
-        content: _UndoSnackBarContent(
-          onUndo: () async {
-            await actions.addNote(
-              deletedNoteMediaId,
-              deletedNoteMediaType,
-              deletedNoteText,
-            );
-          },
-        ),
+    if (!context.mounted) return;
+    ToastUtils.showToast(
+      context, 
+      'Note deleted',
+      duration: const Duration(seconds: 5),
+      action: SnackBarAction(
+        label: 'UNDO',
+        textColor: AppColors.cinemaAccent,
+        onPressed: () async {
+          await actions.addNote(
+            deletedNoteMediaId,
+            deletedNoteMediaType,
+            deletedNoteText,
+          );
+        },
       ),
     );
   }
@@ -679,7 +736,7 @@ class _UndoSnackBarContentState extends State<_UndoSnackBarContent> {
             widget.onUndo();
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
           },
-          child: const Text(
+          child: Text(
             'UNDO',
             style: TextStyle(
               color: AppColors.cinemaAccent,

@@ -58,7 +58,7 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
         actions: [
           TextButton(
             onPressed: _resetFilters,
-            child: const Text(
+            child: Text(
               'Reset',
               style: TextStyle(color: AppColors.cinemaAccent),
             ),
@@ -506,7 +506,7 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
           builder: (context, child) {
             return Theme(
               data: Theme.of(context).copyWith(
-                colorScheme: const ColorScheme.dark(
+                colorScheme: ColorScheme.dark(
                   primary: AppColors.cinemaAccent,
                   onPrimary: Colors.black,
                   surface: AppColors.cinemaSurface,
@@ -713,7 +713,7 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
-                      side: const BorderSide(color: AppColors.cinemaAccent),
+                      side: BorderSide(color: AppColors.cinemaAccent),
                     ),
                   );
                 }).toList(),
@@ -796,7 +796,7 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
             }).toList(),
           );
         },
-        loading: () => const Center(
+        loading: () => Center(
           child: CircularProgressIndicator(color: AppColors.cinemaAccent),
         ),
         error: (error, stack) => Row(
@@ -808,12 +808,12 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
             const SizedBox(width: 12),
             TextButton(
               onPressed: () => ref.invalidate(tvGenresProvider),
-              child: const Text('Retry', style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12)),
+              child: Text('Retry', style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12)),
             ),
           ],
         ),
       ),
-      loading: () => const Center(
+      loading: () => Center(
         child: CircularProgressIndicator(color: AppColors.cinemaAccent),
       ),
       error: (error, stack) => Row(
@@ -825,7 +825,7 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
           const SizedBox(width: 12),
           TextButton(
             onPressed: () => ref.invalidate(movieGenresProvider),
-            child: const Text('Retry', style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12)),
+            child: Text('Retry', style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12)),
           ),
         ],
       ),

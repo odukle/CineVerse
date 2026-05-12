@@ -122,7 +122,7 @@ class SeasonDetailsScreen extends ConsumerWidget {
                     backgroundColor: AppColors.cinemaAccent,
                     foregroundColor: Colors.black,
                   ),
-                  child: const Text('Retry'),
+                  child: Text('Retry'),
                 ),
               ],
             ),
@@ -350,7 +350,7 @@ class _RatingChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.star_rounded, size: 10, color: AppColors.cinemaAccent),
+          Icon(Icons.star_rounded, size: 10, color: AppColors.cinemaAccent),
           const SizedBox(width: 4),
           Text(
             '${(voteAverage * 10).toInt()}%',

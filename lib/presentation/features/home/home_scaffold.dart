@@ -6,6 +6,7 @@ import 'package:cineverse/presentation/features/movies/providers/movies_provider
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cineverse/app/router/app_router.dart' show AppRoute;
@@ -25,8 +26,49 @@ class HomeScaffold extends ConsumerWidget {
     final bool isExplore = currentTab == HomeTab.explore;
     const double appBarSideWidth = 150;
 
-    return Scaffold(
-      backgroundColor: AppColors.cinemaBackground,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+
+        final bool? shouldPop = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            backgroundColor: AppColors.detailsCard,
+            title: const Text(
+              'Exit App',
+              style: TextStyle(color: Colors.white),
+            ),
+            content: const Text(
+              'Are you sure you want to exit CineVerse?',
+              style: TextStyle(color: Colors.white70),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.white70),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(
+                  'Exit',
+                  style: TextStyle(color: AppColors.cinemaAccent),
+                ),
+              ),
+            ],
+          ),
+        );
+
+        if (shouldPop == true && context.mounted) {
+          // Properly request the platform to exit the application
+          await SystemNavigator.pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.cinemaBackground,
       appBar: AppBar(
         toolbarHeight: 60,
         backgroundColor: AppColors.cinemaGradientTop,
@@ -99,6 +141,7 @@ class HomeScaffold extends ConsumerWidget {
         currentTab: currentTab,
         onTabSelected: (index) => navigationShell.goBranch(index),
       ),
+    ),
     );
   }
 

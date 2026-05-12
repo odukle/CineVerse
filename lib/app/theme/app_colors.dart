@@ -1,7 +1,13 @@
+import 'package:cineverse/app/theme/theme_palette.dart';
 import 'package:flutter/material.dart';
 
 class AppColors {
   AppColors._();
+
+  static ThemePalette _palette = ThemePalette.lumi;
+  
+  static ThemePalette get palette => _palette;
+  static set palette(ThemePalette p) => _palette = p;
 
   static const seed = Color(0xFFD4A756);
   static const background = Color(0xFF070B12);
@@ -10,29 +16,30 @@ class AppColors {
   static const outline = Color(0xFF314155);
   static const accent = Color(0xFFC76B5F);
 
-  static const cinemaBackground = Color(0xFF171336);
-  static const cinemaGradientTop = Color(0xFF221D4B);
-  static const cinemaGradientBottom = Color(0xFF120F2A);
-  static const cinemaSurface = Color(0xFF2D2A34);
-  static const cinemaBottomBar = Color(0xFF2F2A33);
-  static const cinemaPlaceholder = Color(0xFF2B255B);
-  static const cinemaPillText = Color(0xFF85E4C2);
-  static const cinemaAccent = Color(0xFF39D0B8);
-  static const cinemaSelected = Color(0xFF19B7ED);
-  static const cinemaScoreRing = Color(0xFF38D6A7);
+  static Color get cinemaBackground => _palette.background;
+  static Color get cinemaGradientTop => _palette.gradientTop;
+  static Color get cinemaGradientBottom => _palette.gradientBottom;
+  static Color get cinemaSurface => _palette.surface;
+  static Color get cinemaBottomBar => _palette.bottomBar;
+  static Color get cinemaPlaceholder => _palette.background.withValues(alpha: 0.8);
+  static Color get cinemaPillText => _palette.accent.withValues(alpha: 0.9);
+  static Color get cinemaAccent => _palette.accent;
+  static Color get cinemaSelected => _palette.selected;
+  static Color get cinemaScoreRing => _palette.accent;
 
-  static const detailsBackdropPlaceholder = Color(0xFF251F50);
-  static const detailsCard = Color(0xFF2B2555);
-  static const detailsCardShadow = Color(0x6620104E);
-  static const detailsPosterSurface = Color(0xFF342F61);
-  static const detailsPosterShadow = Color(0x55120735);
+  static Color get detailsBackdropPlaceholder => _palette.gradientTop;
+  static Color get detailsCard => _palette.card;
+  static Color get detailsCardShadow => _palette.gradientBottom.withValues(alpha: 0.4);
+  static Color get detailsPosterSurface => _palette.surface;
+  static Color get detailsPosterShadow => _palette.gradientBottom.withValues(alpha: 0.3);
   static const detailsPositiveRating = Color(0xFF58D356);
-  static const detailsOutline = Color(0xFF8769FF);
-  static const detailsSecondary = Color(0xFFA895FF);
+  static Color get detailsOutline => _palette.outline;
+  static Color get detailsSecondary => _palette.outline.withValues(alpha: 0.8);
 
-  static const cinemaGradient = <Color>[
-    cinemaGradientTop,
-    cinemaBackground,
-    cinemaGradientBottom,
+  static List<Color> get cinemaGradient => [
+    _palette.gradientTop,
+    _palette.background,
+    _palette.gradientBottom,
   ];
 }
+

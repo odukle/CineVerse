@@ -1,3 +1,4 @@
+import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/domain/repositories/media_repository.dart';
@@ -10,7 +11,7 @@ class GetMovieSectionUseCase
   final MediaRepository repository;
 
   @override
-  Future<List<MediaTitle>> call(MovieSection params, {int page = 1}) {
-    return repository.fetchMoviesForSectionPage(params, page: page);
+  Future<List<MediaTitle>> call(MovieSection params, {int page = 1, MediaFilter? filter}) {
+    return repository.fetchMoviesForSectionPage(params, page: page, filter: filter);
   }
 }

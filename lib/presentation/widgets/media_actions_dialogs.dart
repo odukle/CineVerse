@@ -1,0 +1,700 @@
+import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/utils/toast_utils.dart';
+import 'package:cineverse/domain/entities/global_media_filter.dart';
+import 'package:cineverse/domain/entities/library_item.dart';
+import 'package:cineverse/domain/entities/movie_details.dart';
+import 'package:cineverse/domain/entities/watched_item.dart';
+import 'package:cineverse/domain/entities/watchlist_item.dart';
+import 'package:cineverse/presentation/features/watchlist/providers/library_provider.dart';
+import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
+import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
+import 'package:cineverse/presentation/features/movie_details/providers/notes_provider.dart';
+import 'package:cineverse/presentation/widgets/animated_dialog.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cineverse/domain/entities/media_title.dart';
+import 'dart:ui';
+
+class AddToListDialog extends StatefulWidget {
+  const AddToListDialog({super.key, required this.details, required this.isTv});
+  final MovieDetails details;
+  final bool isTv;
+
+  @override
+  State<AddToListDialog> createState() => _AddToListDialogState();
+}
+
+class _AddToListDialogState extends State<AddToListDialog> {
+  bool _addToWatchlist = false;
+  final _newListNameController = TextEditingController();
+
+  @override
+  void dispose() {
+    _newListNameController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, _) {
+        final listsAsync = ref.watch(namedListsProvider);
+
+        return AlertDialog(
+          backgroundColor: AppColors.detailsCard,
+          title: const Text(
+            'Add to List',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                listsAsync.when(
+                  data: (lists) {
+                    if (lists.isEmpty) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8.0),
+                        child: Text(
+                          'No lists yet.',
+                          style: TextStyle(color: Colors.white54),
+                        ),
+                      );
+                    }
+                    return Flexible(
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: lists.length,
+                        itemBuilder: (context, index) {
+                          final list = lists[index];
+                          final isInList = list.items.any((item) => 
+                            item.mediaId == widget.details.id && 
+                            item.mediaType == (widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie)
+                          );
+
+                          return ListTile(
+                            title: Text(
+                              list.name,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                            trailing: Icon(
+                              isInList ? Icons.remove : Icons.add,
+                              color: isInList ? Colors.redAccent : AppColors.cinemaAccent,
+                            ),
+                            onTap: () {
+                              if (isInList) {
+                                ref.read(namedListsProvider.notifier).removeItemFromList(
+                                  list.id, 
+                                  widget.details.id, 
+                                  widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie
+                                );
+                                if (context.mounted) {
+                                  ToastUtils.showToast(context, 'Removed from ${list.name}');
+                                  Navigator.pop(context);
+                                }
+                              } else {
+                                _addItemToList(ref, list.id);
+                                if (context.mounted) {
+                                  ToastUtils.showToast(context, _addToWatchlist 
+                                        ? 'Added to ${list.name} and Watchlist'
+                                        : 'Added to ${list.name}');
+                                  Navigator.pop(context);
+                                }
+                              }
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  },
+                  loading: () => const Center(child: CircularProgressIndicator()),
+                  error: (_, _) => const Text('Error loading lists'),
+                ),
+                const Divider(color: Colors.white10),
+                TextField(
+                  controller: _newListNameController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: const InputDecoration(
+                    hintText: 'Create new list...',
+                    hintStyle: TextStyle(color: Colors.white38),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                CheckboxListTile(
+                  title: const Text(
+                    'Also add to Watchlist',
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                  value: _addToWatchlist,
+                  onChanged: (val) =>
+                      setState(() => _addToWatchlist = val ?? false),
+                  controlAffinity: ListTileControlAffinity.leading,
+                  contentPadding: EdgeInsets.zero,
+                  activeColor: AppColors.cinemaAccent,
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white54),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final name = _newListNameController.text.trim();
+                if (name.isNotEmpty) {
+                  FocusScope.of(context).unfocus();
+                  final newListId = await ref.read(namedListsProvider.notifier).createList(name);
+                  
+                  _addItemToList(ref, newListId);
+                  
+                  if (context.mounted) {
+                    ToastUtils.showToast(context, _addToWatchlist 
+                          ? 'Added to $name and Watchlist'
+                          : 'Added to $name');
+                    Navigator.pop(context);
+                  }
+                  _newListNameController.clear();
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.cinemaAccent,
+              ),
+              child: const Text(
+                'Create',
+                style: TextStyle(color: Colors.black),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _addItemToList(WidgetRef ref, int listId) {
+    final item = NamedListItem(
+      listId: listId,
+      mediaId: widget.details.id,
+      title: widget.details.title,
+      posterPath: widget.details.posterPath,
+      releaseDate: widget.details.releaseDate,
+      mediaType: widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
+      addedDate: DateTime.now(),
+      voteAverage: widget.details.catalogScore,
+    );
+    ref
+        .read(namedListsProvider.notifier)
+        .addItemToList(item: item, addToWatchlist: _addToWatchlist);
+  }
+}
+
+class WatchedDialog extends StatefulWidget {
+  const WatchedDialog({
+    super.key,
+    required this.details,
+    required this.isTv,
+    this.existingItem,
+  });
+
+  final MovieDetails details;
+  final bool isTv;
+  final WatchedItem? existingItem;
+
+  @override
+  State<WatchedDialog> createState() => _WatchedDialogState();
+}
+
+class _WatchedDialogState extends State<WatchedDialog> {
+  late int _rating;
+  late DateTime _watchDate;
+  late int _rewatchCount;
+
+  @override
+  void initState() {
+    super.initState();
+    _rating = widget.existingItem?.rating ?? 5;
+    _watchDate = widget.existingItem?.watchDate ?? DateTime.now();
+    _rewatchCount = widget.existingItem?.rewatchCount ?? 0;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isEditing = widget.existingItem != null;
+
+    return AlertDialog(
+      backgroundColor: AppColors.detailsCard,
+      title: Text(
+        isEditing ? 'Edit Watched Info' : 'Mark as Watched',
+        style: const TextStyle(color: Colors.white),
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Rating',
+            style: TextStyle(color: Colors.white70, fontSize: 12),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(5, (index) {
+              return IconButton(
+                onPressed: () => setState(() => _rating = index + 1),
+                icon: Icon(
+                  index < _rating
+                      ? Icons.star_rounded
+                      : Icons.star_outline_rounded,
+                  color: AppColors.cinemaAccent,
+                  size: 32,
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Watch Date',
+            style: TextStyle(color: Colors.white70, fontSize: 12),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text(
+              '${_watchDate.year}-${_watchDate.month.toString().padLeft(2, '0')}-${_watchDate.day.toString().padLeft(2, '0')}',
+              style: const TextStyle(color: Colors.white),
+            ),
+            trailing: const Icon(
+              Icons.calendar_today_rounded,
+              color: Colors.white70,
+            ),
+            onTap: () async {
+              final picked = await showDatePicker(
+                context: context,
+                initialDate: _watchDate,
+                firstDate: DateTime(1900),
+                lastDate: DateTime.now(),
+              );
+              if (picked != null) {
+                setState(() => _watchDate = picked);
+              }
+            },
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Rewatch Count',
+            style: TextStyle(color: Colors.white70, fontSize: 12),
+          ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: _rewatchCount > 0
+                    ? () => setState(() => _rewatchCount--)
+                    : null,
+                icon: const Icon(
+                  Icons.remove_circle_outline_rounded,
+                  color: Colors.white70,
+                ),
+              ),
+              Text(
+                '$_rewatchCount',
+                style: const TextStyle(color: Colors.white, fontSize: 18),
+              ),
+              IconButton(
+                onPressed: () => setState(() => _rewatchCount++),
+                icon: const Icon(
+                  Icons.add_circle_outline_rounded,
+                  color: Colors.white70,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: [
+        if (isEditing)
+          Consumer(
+            builder: (context, ref, _) => TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                _removeWatched(context, ref);
+              },
+              child: const Text(
+                'Remove',
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            ),
+          ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+        ),
+        Consumer(
+          builder: (context, ref, _) => ElevatedButton(
+            onPressed: () => _saveWatched(context, ref),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.cinemaAccent,
+              foregroundColor: Colors.black,
+            ),
+            child: Text(isEditing ? 'Update' : 'Save'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _saveWatched(BuildContext context, WidgetRef ref) {
+    final item = WatchedItem(
+      id: widget.details.id,
+      title: widget.details.title,
+      posterPath: widget.details.posterPath,
+      mediaType: widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
+      watchDate: _watchDate,
+      rating: _rating,
+      rewatchCount: _rewatchCount,
+      voteAverage: widget.details.catalogScore,
+    );
+
+    final isUpdate = widget.existingItem != null;
+    if (isUpdate) {
+      ref.read(watchedItemsProvider.notifier).updateItem(item);
+    } else {
+      ref.read(watchedItemsProvider.notifier).addItem(item);
+    }
+    if (context.mounted) {
+      ToastUtils.showToast(context, isUpdate ? 'Watched info updated' : 'Marked as Watched');
+      Navigator.pop(context);
+    }
+  }
+
+  void _removeWatched(BuildContext context, WidgetRef ref) {
+    showAnimatedDialog(
+      context: context,
+      builder: (context) => Consumer(
+        builder: (context, ref, child) => AlertDialog(
+          backgroundColor: AppColors.detailsCard,
+          title: const Text(
+            'Remove from Watched?',
+            style: TextStyle(color: Colors.white),
+          ),
+          content: const Text(
+            'Are you sure you want to remove this from your watched list?',
+            style: TextStyle(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+            ),
+            TextButton(
+              onPressed: () {
+                ref.read(watchedItemsProvider.notifier).removeItem(
+                      widget.details.id,
+                      widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
+                    );
+                if (context.mounted) {
+                  ToastUtils.showToast(context, 'Removed from Watched');
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Remove', style: TextStyle(color: Colors.redAccent)),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AddNoteDialog extends StatefulWidget {
+  const AddNoteDialog({super.key, required this.mediaId, required this.mediaType});
+  final int mediaId;
+  final GlobalMediaType mediaType;
+
+  @override
+  State<AddNoteDialog> createState() => _AddNoteDialogState();
+}
+
+class _AddNoteDialogState extends State<AddNoteDialog> {
+  final _controller = TextEditingController();
+  bool _isSubmitting = false;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, _) => AlertDialog(
+        backgroundColor: AppColors.detailsCard,
+        title: const Text('Add Note', style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: _controller,
+          maxLines: 3,
+          autofocus: true,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: 'Enter your note here...',
+            hintStyle: const TextStyle(color: Colors.white38),
+            enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white12)),
+            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.cinemaAccent)),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+          ),
+          ElevatedButton(
+            onPressed: _isSubmitting ? null : () async {
+              final text = _controller.text.trim();
+              if (text.isEmpty) return;
+              
+              setState(() => _isSubmitting = true);
+              try {
+                await ref.read(movieNotesActionsProvider).addNote(widget.mediaId, widget.mediaType, text);
+                if (context.mounted) {
+                  ToastUtils.showToast(context, 'Note added');
+                  Navigator.pop(context);
+                }
+              } catch (e) {
+                if (context.mounted) {
+                  ToastUtils.showToast(context, 'Failed to add note');
+                }
+              } finally {
+                if (mounted) setState(() => _isSubmitting = false);
+              }
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.cinemaAccent),
+            child: _isSubmitting 
+              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
+              : const Text('Save', style: TextStyle(color: Colors.black)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class MediaActionsBottomSheet extends ConsumerWidget {
+  const MediaActionsBottomSheet({
+    super.key,
+    required this.movie,
+    required this.isTv,
+  });
+
+  final MediaTitle movie;
+  final bool isTv;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mediaType = isTv ? GlobalMediaType.tv : GlobalMediaType.movie;
+    
+    // Providers for current state
+    final isFav = ref.watch(isFavouriteProvider((id: movie.id, type: mediaType)));
+    final isInWatchlist = ref.watch(isInWatchlistProvider(movie.id)).value ?? false;
+    final isWatched = ref.watch(isWatchedProvider((id: movie.id, type: mediaType))).value ?? false;
+    final watchedItem = ref.watch(watchedItemProvider((id: movie.id, type: mediaType))).value;
+
+    final details = MovieDetails(
+      id: movie.id,
+      title: movie.title,
+      posterPath: movie.posterPath,
+      releaseDate: movie.releaseDate,
+      catalogScore: movie.voteAverage,
+    );
+
+    return BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: AppColors.detailsCard.withValues(alpha: 0.9),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            
+            // Movie Title & Info
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  if (movie.posterPath != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        movie.posterPath!,
+                        width: 60,
+                        height: 90,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          movie.title,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (movie.releaseDate != null)
+                          Text(
+                            movie.releaseDate!,
+                            style: const TextStyle(
+                              color: Colors.white54,
+                              fontSize: 14,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            const Divider(color: Colors.white10, height: 1),
+            
+            // Action items
+            _ActionTile(
+              icon: Icons.list_rounded,
+              title: 'Add to Lists',
+              onTap: () {
+                Navigator.pop(context);
+                showAnimatedDialog(
+                  context: context,
+                  builder: (context) => AddToListDialog(details: details, isTv: isTv),
+                );
+              },
+            ),
+            _ActionTile(
+              icon: isFav ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+              iconColor: isFav ? Colors.redAccent : Colors.white,
+              title: isFav ? 'Remove from Favourites' : 'Add to Favourites',
+              onTap: () async {
+                Navigator.pop(context);
+                final item = FavouriteItem(
+                  id: movie.id,
+                  title: movie.title,
+                  posterPath: movie.posterPath,
+                  releaseDate: movie.releaseDate,
+                  mediaType: mediaType,
+                  addedDate: DateTime.now(),
+                  voteAverage: movie.voteAverage,
+                );
+                await ref.read(favouritesProvider.notifier).toggleFavourite(item);
+                if (context.mounted) {
+                  ToastUtils.showToast(context, isFav ? 'Removed from Favourites' : 'Added to Favourites');
+                }
+              },
+            ),
+            _ActionTile(
+              icon: isInWatchlist ? Icons.bookmark_rounded : Icons.bookmark_add_outlined,
+              iconColor: isInWatchlist ? AppColors.cinemaAccent : Colors.white,
+              title: isInWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist',
+              onTap: () async {
+                Navigator.pop(context);
+                final item = WatchlistItem(
+                  id: movie.id,
+                  title: movie.title,
+                  posterPath: movie.posterPath,
+                  releaseDate: movie.releaseDate,
+                  mediaType: mediaType,
+                  addedDate: DateTime.now(),
+                  voteAverage: movie.voteAverage,
+                );
+                await ref.read(watchlistProvider.notifier).toggleItem(item);
+                if (context.mounted) {
+                  ToastUtils.showToast(context, isInWatchlist ? 'Removed from Watchlist' : 'Added to Watchlist');
+                }
+              },
+            ),
+            _ActionTile(
+              icon: isWatched ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
+              iconColor: isWatched ? AppColors.cinemaAccent : Colors.white,
+              title: isWatched ? 'Edit Watched Status' : 'Mark as Watched',
+              onTap: () {
+                Navigator.pop(context);
+                showAnimatedDialog(
+                  context: context,
+                  builder: (context) => WatchedDialog(
+                    details: details,
+                    isTv: isTv,
+                    existingItem: watchedItem,
+                  ),
+                );
+              },
+            ),
+            _ActionTile(
+              icon: Icons.note_add_rounded,
+              title: 'Add Note',
+              onTap: () {
+                Navigator.pop(context);
+                showAnimatedDialog(
+                  context: context,
+                  builder: (context) => AddNoteDialog(
+                    mediaId: movie.id,
+                    mediaType: mediaType,
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionTile extends StatelessWidget {
+  const _ActionTile({
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.iconColor = Colors.white,
+  });
+
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+  final Color iconColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Icon(icon, color: iconColor),
+      title: Text(
+        title,
+        style: const TextStyle(color: Colors.white, fontSize: 16),
+      ),
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      hoverColor: Colors.white10,
+    );
+  }
+}

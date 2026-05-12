@@ -115,11 +115,11 @@ class _FullCastCrewScreenState extends State<FullCastCrewScreen> {
               },
             ),
           ],
-          bottom: const TabBar(
+          bottom: TabBar(
             indicatorColor: AppColors.cinemaAccent,
             labelColor: AppColors.cinemaAccent,
             unselectedLabelColor: Colors.white54,
-            tabs: [
+            tabs: const [
               Tab(text: 'Cast'),
               Tab(text: 'Crew'),
             ],

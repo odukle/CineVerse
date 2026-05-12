@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/movie_note.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/notes_provider.dart';
@@ -137,7 +138,7 @@ class _NoteListTile extends ConsumerWidget {
                                 imageUrl: details.posterPath!,
                                 fit: BoxFit.cover,
                               )
-                            : const ColoredBox(
+                            : ColoredBox(
                                 color: AppColors.detailsPosterSurface,
                               ),
                       ),
@@ -209,7 +210,6 @@ class _NoteListTile extends ConsumerWidget {
   }
 
   void _handleDelete(BuildContext context, WidgetRef ref) async {
-    final scaffoldMessenger = ScaffoldMessenger.of(context);
     final actions = ref.read(movieNotesActionsProvider);
 
     // Save data for undo
@@ -220,20 +220,21 @@ class _NoteListTile extends ConsumerWidget {
     // Actually delete
     await actions.deleteNote(note.movieId, note.mediaType, note.id);
 
-    scaffoldMessenger.clearSnackBars();
-    scaffoldMessenger.showSnackBar(
-      SnackBar(
-        duration: const Duration(seconds: 5),
-        backgroundColor: AppColors.detailsCard,
-        content: _UndoSnackBarContent(
-          onUndo: () async {
-            await actions.addNote(
-              deletedNoteMediaId,
-              deletedNoteMediaType,
-              deletedNoteText,
-            );
-          },
-        ),
+    if (!context.mounted) return;
+    ToastUtils.showToast(
+      context, 
+      'Note deleted',
+      duration: const Duration(seconds: 5),
+      action: SnackBarAction(
+        label: 'UNDO',
+        textColor: AppColors.cinemaAccent,
+        onPressed: () async {
+          await actions.addNote(
+            deletedNoteMediaId,
+            deletedNoteMediaType,
+            deletedNoteText,
+          );
+        },
       ),
     );
   }
@@ -288,7 +289,7 @@ class _UndoSnackBarContentState extends State<_UndoSnackBarContent> {
             widget.onUndo();
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
           },
-          child: const Text(
+          child: Text(
             'UNDO',
             style: TextStyle(
               color: AppColors.cinemaAccent,
