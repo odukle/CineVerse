@@ -14,15 +14,7 @@ class TvShowsScreen extends ConsumerWidget {
     final genresAsync = ref.watch(tvGenresProvider);
     final isFiltered = ref.watch(isTvFilteredProvider);
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: AppColors.cinemaGradient,
-        ),
-      ),
-      child: isFiltered
+    return isFiltered
           ? Column(
               children: [
                 const FilterChipsList(isTv: true),
@@ -69,7 +61,6 @@ class TvShowsScreen extends ConsumerWidget {
                       CircularProgressIndicator(color: AppColors.cinemaAccent)),
               error: (error, _) =>
                   Center(child: Text('Error loading genres: $error')),
-            ),
-    );
+            );
   }
 }

@@ -5,6 +5,7 @@ import 'package:cineverse/presentation/features/movies/providers/library_recomme
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
+import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -105,10 +106,11 @@ class _ExploreSectionScreenState extends ConsumerState<ExploreSectionScreen> {
             ? ref.watch(genreSectionExhaustedProvider((id: _selectedFilter.genreId!, isTv: widget.isTv)))
             : ref.watch(movieSectionExhaustedProvider(_selectedFilter.section!)));
 
-    return Scaffold(
-      backgroundColor: AppColors.cinemaBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.cinemaBackground,
+    return BackgroundGradient(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
         title: Text(
           widget.sectionTitle,
           style: theme.textTheme.titleLarge?.copyWith(
@@ -237,6 +239,7 @@ class _ExploreSectionScreenState extends ConsumerState<ExploreSectionScreen> {
           ),
         ],
       ),
+    ),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/app/theme/theme_palette.dart';
 import 'package:cineverse/app/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AppearanceScreen extends ConsumerWidget {
@@ -11,8 +12,9 @@ class AppearanceScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final currentTheme = ref.watch(appThemeTypeProvider);
 
-    return Scaffold(
-      backgroundColor: AppColors.cinemaBackground,
+    return BackgroundGradient(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -76,6 +78,7 @@ class AppearanceScreen extends ConsumerWidget {
           ),
         ],
       ),
+    ),
     );
   }
 }

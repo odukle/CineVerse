@@ -26,6 +26,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:go_router/go_router.dart';
 
 _DiscoverSpotlightState? _discoverSpotlightState;
@@ -181,7 +182,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       );
     }
 
-    return AnimatedSwitcher(
+    return BackgroundGradient(
+      child: AnimatedSwitcher(
       duration: const Duration(milliseconds: 550),
       switchInCurve: Curves.easeInQuad,
       switchOutCurve: Curves.easeOutQuad,
@@ -234,6 +236,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           const SliverToBoxAdapter(child: SizedBox(height: 24)),
         ],
       ),
+    ),
     );
   }
 }

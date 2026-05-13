@@ -1,4 +1,3 @@
-import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/config/region_preferences.dart';
 import 'package:flutter/material.dart';
@@ -12,15 +11,7 @@ class AccountScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: AppColors.cinemaGradient,
-        ),
-      ),
-      child: ListView(
+    return ListView(
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
         children: [
           Text(
@@ -35,8 +26,13 @@ class AccountScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: const Color(0xFF1E1E22),
+              color: theme.cardTheme.color,
               borderRadius: BorderRadius.circular(24),
+              border: theme.cardTheme.shape is RoundedRectangleBorder
+                  ? Border.fromBorderSide(
+                      (theme.cardTheme.shape as RoundedRectangleBorder).side,
+                    )
+                  : null,
             ),
             child: Row(
               children: [
@@ -105,11 +101,10 @@ class AccountScreen extends ConsumerWidget {
             icon: Icons.palette_outlined,
             title: 'Appearance',
             subtitle: 'Choose your theme and customize the app look.',
-            onTap: () => context.pushNamed(AppRoute.appearance.name),
+            onTap: () => context.pushNamed('appearance'),
           ),
         ],
-      ),
-    );
+      );
   }
 }
 
@@ -147,18 +142,20 @@ class _RegionPreferenceCard extends ConsumerWidget {
     WidgetRef ref,
     String effectiveRegionCode,
   ) {
+    final theme = Theme.of(context);
     return showModalBottomSheet<void>(
       context: context,
-      backgroundColor: const Color(0xFF17171B),
+      backgroundColor: theme.scaffoldBackgroundColor,
       showDragHandle: true,
       builder: (context) {
+        final theme = Theme.of(context);
         return SafeArea(
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
             children: [
               Text(
                 'Select Region',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                style: theme.textTheme.titleLarge?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
                   fontSize: 20,
@@ -167,7 +164,7 @@ class _RegionPreferenceCard extends ConsumerWidget {
               const SizedBox(height: 8),
               Text(
                 'Only TMDb endpoints that support region-aware queries will use this selection.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                style: theme.textTheme.bodyMedium?.copyWith(
                   color: Colors.white.withValues(alpha: 0.72),
                 ),
               ),
@@ -175,8 +172,11 @@ class _RegionPreferenceCard extends ConsumerWidget {
               ListTile(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
+                  side: theme.cardTheme.shape is RoundedRectangleBorder
+                      ? (theme.cardTheme.shape as RoundedRectangleBorder).side
+                      : BorderSide.none,
                 ),
-                tileColor: AppColors.cinemaSurface,
+                tileColor: theme.cardTheme.color,
                 title: const Text(
                   'Use Default (US)',
                   style: TextStyle(color: Colors.white),
@@ -204,8 +204,11 @@ class _RegionPreferenceCard extends ConsumerWidget {
                   child: ListTile(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
+                      side: theme.cardTheme.shape is RoundedRectangleBorder
+                          ? (theme.cardTheme.shape as RoundedRectangleBorder).side
+                          : BorderSide.none,
                     ),
-                    tileColor: const Color(0xFF1E1E22),
+                    tileColor: theme.cardTheme.color,
                     title: Text(
                       option.label,
                       style: const TextStyle(color: Colors.white),
@@ -262,8 +265,13 @@ class _AccountActionCard extends StatelessWidget {
         child: Ink(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: const Color(0xFF1E1E22),
+            color: theme.cardTheme.color,
             borderRadius: BorderRadius.circular(20),
+            border: theme.cardTheme.shape is RoundedRectangleBorder
+                ? Border.fromBorderSide(
+                    (theme.cardTheme.shape as RoundedRectangleBorder).side,
+                  )
+                : null,
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,

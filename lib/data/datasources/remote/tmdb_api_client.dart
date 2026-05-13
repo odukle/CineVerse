@@ -9,6 +9,7 @@ import 'package:cineverse/data/models/tmdb_tv_details_dto.dart';
 import 'package:cineverse/data/models/tmdb_movie_watch_providers_dto.dart';
 import 'package:cineverse/data/models/tmdb_movies_response_dto.dart';
 import 'package:cineverse/data/models/tmdb_person_details_dto.dart';
+import 'package:cineverse/data/models/tmdb_review_dto.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_images.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
@@ -458,6 +459,38 @@ class TmdbApiClient {
     } on DioException catch (error, stackTrace) {
       _logFailure('fetchPersonImages($personId)', error, stackTrace);
       return MediaImages.empty;
+    }
+  }
+
+  Future<List<TmdbReviewDto>> fetchMediaReviews(
+    int mediaId, {
+    required bool isTv,
+    int page = 1,
+  }) async {
+    _assertMovieApiConfigured();
+
+    final String path = isTv
+        ? '${AppConstants.tmdbTvPath}/$mediaId/reviews'
+        : '${AppConstants.tmdbMoviePath}/$mediaId/reviews';
+
+    try {
+      final Response<Map<String, dynamic>> response = await client
+          .get<Map<String, dynamic>>(
+            path,
+            queryParameters: _pagedQueryParameters(page: page),
+          );
+      final Map<String, dynamic>? payload = response.data;
+      if (payload == null) return const [];
+
+      return TmdbReviewsResponseDto.fromJson(payload).reviews.map((dto) {
+        return dto.copyWith(
+          authorAvatarPath:
+              _normalizeImagePath(dto.authorAvatarPath, size: 'w185'),
+        );
+      }).toList();
+    } on DioException catch (error, stackTrace) {
+      _logFailure('fetchMediaReviews($mediaId)', error, stackTrace);
+      return const [];
     }
   }
 

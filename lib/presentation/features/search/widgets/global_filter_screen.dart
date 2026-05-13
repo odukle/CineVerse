@@ -4,6 +4,7 @@ import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:cineverse/presentation/features/search/providers/search_provider.dart';
+import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -43,10 +44,11 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.cinemaBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.cinemaBackground,
+    return BackgroundGradient(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
         title: const Text(
           'Filters',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
@@ -145,6 +147,7 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 

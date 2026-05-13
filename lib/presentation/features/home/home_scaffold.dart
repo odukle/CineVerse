@@ -10,6 +10,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cineverse/app/router/app_router.dart' show AppRoute;
+import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:go_router/go_router.dart';
 
 class HomeScaffold extends ConsumerWidget {
@@ -67,12 +68,13 @@ class HomeScaffold extends ConsumerWidget {
           await SystemNavigator.pop();
         }
       },
-      child: Scaffold(
-        backgroundColor: AppColors.cinemaBackground,
-      appBar: AppBar(
-        toolbarHeight: 60,
-        backgroundColor: AppColors.cinemaGradientTop,
-        elevation: 0,
+      child: BackgroundGradient(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          toolbarHeight: 60,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
         automaticallyImplyLeading: false,
         centerTitle: true,
         leadingWidth: appBarSideWidth,
@@ -142,7 +144,8 @@ class HomeScaffold extends ConsumerWidget {
         onTabSelected: (index) => navigationShell.goBranch(index),
       ),
     ),
-    );
+  ),
+);
   }
 
   void _showSortSheet(BuildContext context, WidgetRef ref, bool isTv) {
@@ -277,14 +280,13 @@ class HomeScaffold extends ConsumerWidget {
                       },
                     );
                   }),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      );
   }
 }
-

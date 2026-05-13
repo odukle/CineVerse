@@ -19,6 +19,8 @@ import 'package:cineverse/domain/repositories/watchlist_repository.dart';
 import 'package:cineverse/domain/repositories/watched_repository.dart';
 import 'package:cineverse/domain/repositories/notes_repository.dart';
 import 'package:cineverse/domain/repositories/search_history_repository.dart';
+import 'package:cineverse/domain/repositories/quotes_repository.dart';
+import 'package:cineverse/data/repositories/quotes_repository_impl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final tmdbApiClientProvider = Provider<TmdbApiClient>((ref) {
@@ -76,3 +78,8 @@ final searchHistoryRepositoryProvider = Provider<SearchHistoryRepository>((ref) 
 final libraryRepositoryProvider = Provider<LibraryRepository>((ref) {
   return LibraryRepositoryImpl(ref.watch(appDatabaseProvider));
 });
+
+final quotesRepositoryProvider = Provider<QuotesRepository>((ref) {
+  return QuotesRepositoryImpl(ref.watch(dioProvider));
+});
+

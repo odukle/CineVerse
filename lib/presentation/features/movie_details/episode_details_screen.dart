@@ -11,6 +11,7 @@ import 'package:cineverse/presentation/widgets/full_screen_image_viewer.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
@@ -38,8 +39,9 @@ class EpisodeDetailsScreen extends ConsumerWidget {
       )),
     );
 
-    return Scaffold(
-      backgroundColor: AppColors.cinemaBackground,
+    return BackgroundGradient(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       body: episodeAsync.when(
         data: (episode) =>
             _EpisodeDetailsView(showTitle: showTitle, episode: episode),
@@ -54,6 +56,7 @@ class EpisodeDetailsScreen extends ConsumerWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

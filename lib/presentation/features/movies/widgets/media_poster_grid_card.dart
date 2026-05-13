@@ -100,11 +100,14 @@ class MediaPosterGridCard extends ConsumerWidget {
               queryParameters: <String, String>{'heroTag': heroTag},
             );
           } else {
+            final bool effectiveIsTv =
+                movie.mediaType == GlobalMediaType.tv ||
+                (movie.mediaType == null && isTvTitle);
             context.pushNamed(
               AppRoute.movieDetails.name,
               pathParameters: <String, String>{'movieId': movie.id.toString()},
               queryParameters: <String, String>{
-                'isTv': '$isTvTitle',
+                'isTv': effectiveIsTv.toString(),
                 'heroTag': heroTag,
               },
             );

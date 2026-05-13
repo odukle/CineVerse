@@ -5,6 +5,7 @@ import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/presentation/features/movies/providers/filter_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
+import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -58,10 +59,11 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
-      backgroundColor: AppColors.cinemaBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.cinemaBackground,
+    return BackgroundGradient(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
         title: const Text('Filters', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.white),
@@ -140,6 +142,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
           ),
         ),
       ),
+    ),
     );
   }
 

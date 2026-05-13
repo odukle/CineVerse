@@ -4,7 +4,6 @@ import 'dart:math' as math;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/constants/app_constants.dart';
-import 'package:cineverse/data/providers/data_providers.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
@@ -18,11 +17,13 @@ import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/watchlist_item.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
+import 'package:cineverse/presentation/features/movie_details/providers/movie_reviews_provider.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/notes_provider.dart';
 import 'package:cineverse/domain/entities/watched_item.dart';
 import 'package:cineverse/domain/entities/movie_note.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart'
     show mediaImagesProvider;
+import 'package:cineverse/data/providers/data_providers.dart' show mediaRepositoryProvider;
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:cineverse/presentation/widgets/full_screen_image_viewer.dart';
 import 'package:cineverse/app/router/app_router.dart' show AppRoute;
@@ -36,6 +37,9 @@ import 'package:cineverse/presentation/features/watchlist/providers/library_prov
 import 'package:cineverse/domain/entities/library_item.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:cineverse/presentation/widgets/media_actions_dialogs.dart';
+import 'package:cineverse/presentation/widgets/background_gradient.dart';
+import 'package:cineverse/presentation/features/movie_details/widgets/quotes_carousel.dart';
+import 'package:cineverse/presentation/features/movie_details/widgets/full_cast_crew_chip.dart';
 
 class MovieDetailsScreen extends ConsumerWidget {
   const MovieDetailsScreen({
@@ -56,8 +60,9 @@ class MovieDetailsScreen extends ConsumerWidget {
       movieDetailsProvider(GetMovieDetailsParams(movieId: movieId, isTv: isTv)),
     );
 
-    return Scaffold(
-      backgroundColor: AppColors.cinemaBackground,
+    return BackgroundGradient(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       body: movieDetails.when(
         skipLoadingOnReload: !movieDetails.hasError,
         loading: () => SingleChildScrollView(
@@ -147,6 +152,7 @@ class MovieDetailsScreen extends ConsumerWidget {
         data: (MovieDetails details) =>
             _MovieDetailsView(details: details, isTv: isTv, heroTag: heroTag),
       ),
+    ),
     );
   }
 }
@@ -250,15 +256,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
     final watchedItemAsync = ref.watch(watchedItemProvider((id: widget.details.id, type: mediaType)));
     final userRating = watchedItemAsync.value?.rating;
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: AppColors.cinemaGradient,
-        ),
-      ),
-      child: CustomScrollView(
+    return CustomScrollView(
         slivers: [
           // App Bar
           SliverAppBar(
@@ -727,7 +725,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          _FullCastCrewChip(
+                          FullCastCrewChip(
                             title: widget.details.title,
                             cast: widget.details.cast,
                             crew: widget.details.crew,
@@ -784,7 +782,14 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
             ),
           ),
 
-          // Recommendations
+          // Reviews
+          SliverToBoxAdapter(
+            child: _ReviewsSnippet(
+              mediaId: widget.details.id,
+              isTv: widget.isTv,
+            ),
+          ),
+
           if (widget.details.recommendations.isNotEmpty)
             SliverToBoxAdapter(
               child: _RecommendationsCarousel(
@@ -793,6 +798,14 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                 isTv: widget.isTv,
               ),
             ),
+
+          // Quotes Section
+          SliverToBoxAdapter(
+            child: QuotesCarousel(
+              title: widget.details.title,
+              isTv: widget.isTv,
+            ),
+          ),
 
           // Additional Info
           SliverToBoxAdapter(
@@ -842,8 +855,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
             ),
           ),
         ],
-      ),
-    );
+      );
   }
 
   void _showTrailer(BuildContext context, String videoKey) {
@@ -987,42 +999,6 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
       'ar': 'Arabic',
     };
     return languages[code] ?? code.toUpperCase();
-  }
-}
-
-class _FullCastCrewChip extends StatelessWidget {
-  const _FullCastCrewChip({
-    required this.title,
-    required this.cast,
-    required this.crew,
-  });
-
-  final String title;
-  final List<MovieCredit> cast;
-  final List<MovieCredit> crew;
-
-  @override
-  Widget build(BuildContext context) {
-    return ActionChip(
-      onPressed: () {
-        context.pushNamed(
-          AppRoute.fullCastCrew.name,
-          extra: {'title': title, 'cast': cast, 'crew': crew},
-        );
-      },
-      backgroundColor: AppColors.cinemaAccent.withValues(alpha: 0.1),
-      side: BorderSide(color: AppColors.cinemaAccent, width: 1),
-      label: Text(
-        'Full Cast & Crew',
-        style: TextStyle(
-          color: AppColors.cinemaAccent,
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      padding: EdgeInsets.zero,
-      visualDensity: VisualDensity.compact,
-    );
   }
 }
 
@@ -2476,4 +2452,157 @@ class _CircleActionShimmer extends StatelessWidget {
   }
 }
 
+class _ReviewsSnippet extends ConsumerWidget {
+  const _ReviewsSnippet({required this.mediaId, required this.isTv});
 
+  final int mediaId;
+  final bool isTv;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final reviewsAsync = ref.watch(
+      mediaReviewsProvider((id: mediaId, isTv: isTv)),
+    );
+
+    return reviewsAsync.when(
+      data: (reviews) {
+        if (reviews.isEmpty) return const SizedBox.shrink();
+
+        final firstReview = reviews.first;
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'User Reviews',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      context.pushNamed(
+                        AppRoute.allReviews.name,
+                        queryParameters: {
+                          'id': mediaId.toString(),
+                          'isTv': isTv.toString(),
+                        },
+                      );
+                    },
+                    child: Text(
+                      'See All (${reviews.length})',
+                      style: TextStyle(color: AppColors.cinemaAccent),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.08),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        if (firstReview.authorAvatarPath != null)
+                          CircleAvatar(
+                            radius: 14,
+                            backgroundImage: CachedNetworkImageProvider(
+                              firstReview.authorAvatarPath!,
+                            ),
+                          )
+                        else
+                          const CircleAvatar(
+                            radius: 14,
+                            child: Icon(Icons.person, size: 16),
+                          ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                firstReview.author,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Text(
+                                DateFormat.yMMMd().format(
+                                  firstReview.createdAt,
+                                ),
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (firstReview.authorRating != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.cinemaAccent,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.star,
+                                  size: 10,
+                                  color: Colors.black,
+                                ),
+                                const SizedBox(width: 2),
+                                Text(
+                                  firstReview.authorRating!.toStringAsFixed(1),
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      firstReview.content,
+                      maxLines: 4,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      loading: () => const SizedBox.shrink(),
+      error: (_, _) => const SizedBox.shrink(),
+    );
+  }
+}

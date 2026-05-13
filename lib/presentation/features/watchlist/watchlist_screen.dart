@@ -16,6 +16,7 @@ import 'package:cineverse/presentation/features/watchlist/providers/watched_prov
 import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:cineverse/presentation/widgets/animated_dialog.dart';
+import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -33,10 +34,11 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 5,
-      child: Scaffold(
-        backgroundColor: AppColors.cinemaBackground,
+    return BackgroundGradient(
+      child: DefaultTabController(
+        length: 5,
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -70,6 +72,7 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 }

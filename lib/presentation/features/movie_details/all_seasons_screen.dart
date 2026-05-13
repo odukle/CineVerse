@@ -4,6 +4,7 @@ import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:flutter/material.dart';
+import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
@@ -21,8 +22,9 @@ class AllSeasonsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.cinemaBackground,
+    return BackgroundGradient(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -60,6 +62,7 @@ class AllSeasonsScreen extends StatelessWidget {
           );
         },
       ),
+    ),
     );
   }
 }

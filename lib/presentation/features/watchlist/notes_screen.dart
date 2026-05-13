@@ -11,6 +11,7 @@ import 'package:cineverse/presentation/features/movie_details/providers/movie_de
 import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart'
     show GetMovieDetailsParams;
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
+import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,10 +24,11 @@ class NotesScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final notesAsync = ref.watch(allNotesProvider);
 
-    return Scaffold(
-      backgroundColor: AppColors.cinemaBackground,
-      appBar: AppBar(
-        backgroundColor: AppColors.cinemaBackground,
+    return BackgroundGradient(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
         elevation: 0,
         title: const Text(
           'All Notes',
@@ -86,6 +88,7 @@ class NotesScreen extends ConsumerWidget {
           ),
         ),
       ),
+    ),
     );
   }
 }

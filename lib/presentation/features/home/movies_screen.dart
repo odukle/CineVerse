@@ -14,15 +14,7 @@ class MoviesScreen extends ConsumerWidget {
     final genresAsync = ref.watch(movieGenresProvider);
     final isFiltered = ref.watch(isMovieFilteredProvider);
 
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: AppColors.cinemaGradient,
-        ),
-      ),
-      child: isFiltered
+    return isFiltered
           ? Column(
               children: [
                 const FilterChipsList(isTv: false),
@@ -69,7 +61,6 @@ class MoviesScreen extends ConsumerWidget {
                       CircularProgressIndicator(color: AppColors.cinemaAccent)),
               error: (error, _) =>
                   Center(child: Text('Error loading genres: $error')),
-            ),
     );
   }
 }

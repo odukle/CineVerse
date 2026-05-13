@@ -18,6 +18,8 @@ import 'package:cineverse/presentation/features/watchlist/notes_screen.dart';
 import 'package:cineverse/presentation/features/watchlist/note_details_screen.dart';
 import 'package:cineverse/presentation/features/home/appearance_screen.dart';
 
+import 'package:cineverse/presentation/features/movie_details/all_reviews_screen.dart';
+
 import 'package:cineverse/presentation/features/movie_details/full_cast_crew_screen.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/presentation/features/movie_details/all_seasons_screen.dart';
@@ -226,6 +228,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: AppRoute.allReviews.path,
+        name: AppRoute.allReviews.name,
+        builder: (context, state) {
+          final id = int.parse(state.uri.queryParameters['id']!);
+          final isTv = state.uri.queryParameters['isTv'] == 'true';
+          return AllReviewsScreen(mediaId: id, isTv: isTv);
+        },
+      ),
+      GoRoute(
         path: AppRoute.appearance.path,
         name: AppRoute.appearance.name,
         builder: (context, state) => const AppearanceScreen(),
@@ -255,7 +266,8 @@ enum AppRoute {
   ),
   allSeasons('/tv/:tvId/seasons', 'all-seasons'),
   exploreSection('/explore-section', 'explore-section'),
-  appearance('/appearance', 'appearance');
+  appearance('/appearance', 'appearance'),
+  allReviews('/reviews', 'all-reviews');
 
   const AppRoute(this.path, this.name);
 

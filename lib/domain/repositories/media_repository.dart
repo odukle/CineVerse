@@ -1,5 +1,6 @@
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_images.dart';
+import 'package:cineverse/domain/entities/media_review.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/movie_genre.dart';
@@ -40,6 +41,12 @@ abstract interface class MediaRepository {
     int movieId, {
     int page = 1,
     bool isTv = false,
+  });
+
+  Future<List<MediaReview>> fetchMediaReviews(
+    int mediaId, {
+    int page = 1,
+    required bool isTv,
   });
 
   Future<MediaImages> fetchMediaImages(int mediaId, {required bool isTv});

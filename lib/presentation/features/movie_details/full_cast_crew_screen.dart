@@ -4,6 +4,7 @@ import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:flutter/material.dart';
+import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:go_router/go_router.dart';
 
 class FullCastCrewScreen extends StatefulWidget {
@@ -49,12 +50,13 @@ class _FullCastCrewScreenState extends State<FullCastCrewScreen> {
     final filteredCast = _filterCredits(widget.cast);
     final filteredCrew = _filterCredits(widget.crew);
 
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        backgroundColor: AppColors.cinemaBackground,
-        appBar: AppBar(
-          backgroundColor: AppColors.cinemaBackground,
+    return BackgroundGradient(
+      child: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
@@ -132,6 +134,7 @@ class _FullCastCrewScreenState extends State<FullCastCrewScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 }

@@ -24,9 +24,11 @@ const ALLOWED_STATIC_PATHS = new Set([
 const TMDB_MOVIE_DETAILS_PATTERN = /^\/movie\/\d+$/;
 const TMDB_MOVIE_WATCH_PROVIDERS_PATTERN = /^\/movie\/\d+\/watch\/providers$/;
 const TMDB_MOVIE_RECOMMENDATIONS_PATTERN = /^\/movie\/\d+\/recommendations$/;
+const TMDB_MOVIE_REVIEWS_PATTERN = /^\/movie\/\d+\/reviews$/;
 const TMDB_TV_DETAILS_PATTERN = /^\/tv\/\d+$/;
 const TMDB_TV_WATCH_PROVIDERS_PATTERN = /^\/tv\/\d+\/watch\/providers$/;
 const TMDB_TV_RECOMMENDATIONS_PATTERN = /^\/tv\/\d+\/recommendations$/;
+const TMDB_TV_REVIEWS_PATTERN = /^\/tv\/\d+\/reviews$/;
 const TMDB_MOVIE_IMAGES_PATTERN = /^\/movie\/\d+\/images$/;
 const TMDB_TV_IMAGES_PATTERN = /^\/tv\/\d+\/images$/;
 const TMDB_TV_SEASON_PATTERN = /^\/tv\/\d+\/season\/\d+$/;
@@ -129,9 +131,11 @@ function cacheTtlSeconds(pathname) {
   return TMDB_MOVIE_DETAILS_PATTERN.test(pathname) ||
     TMDB_MOVIE_WATCH_PROVIDERS_PATTERN.test(pathname) ||
     TMDB_MOVIE_RECOMMENDATIONS_PATTERN.test(pathname) ||
+    TMDB_MOVIE_REVIEWS_PATTERN.test(pathname) ||
     TMDB_TV_DETAILS_PATTERN.test(pathname) ||
     TMDB_TV_WATCH_PROVIDERS_PATTERN.test(pathname) ||
     TMDB_TV_RECOMMENDATIONS_PATTERN.test(pathname) ||
+    TMDB_TV_REVIEWS_PATTERN.test(pathname) ||
     TMDB_TV_SEASON_PATTERN.test(pathname) ||
     TMDB_TV_EPISODE_PATTERN.test(pathname) ||
     TMDB_TV_EPISODE_CREDITS_PATTERN.test(pathname) ||
@@ -151,9 +155,11 @@ function isAllowedPath(pathname) {
     TMDB_MOVIE_DETAILS_PATTERN.test(pathname) ||
     TMDB_MOVIE_WATCH_PROVIDERS_PATTERN.test(pathname) ||
     TMDB_MOVIE_RECOMMENDATIONS_PATTERN.test(pathname) ||
+    TMDB_MOVIE_REVIEWS_PATTERN.test(pathname) ||
     TMDB_TV_DETAILS_PATTERN.test(pathname) ||
     TMDB_TV_WATCH_PROVIDERS_PATTERN.test(pathname) ||
     TMDB_TV_RECOMMENDATIONS_PATTERN.test(pathname) ||
+    TMDB_TV_REVIEWS_PATTERN.test(pathname) ||
     TMDB_TV_SEASON_PATTERN.test(pathname) ||
     TMDB_TV_EPISODE_PATTERN.test(pathname) ||
     TMDB_TV_EPISODE_CREDITS_PATTERN.test(pathname) ||

@@ -6,6 +6,7 @@ import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/movie_genre.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_images.dart';
+import 'package:cineverse/domain/entities/media_review.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/domain/entities/person_details.dart';
@@ -111,20 +112,26 @@ class MediaRepositoryImpl implements MediaRepository {
     );
 
     return movieDtos
-        .map((movieDto) => movieDto.toDomain())
+        .map((movieDto) => movieDto.toDomain().copyWith(
+              mediaType: isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
+            ))
         .toList(growable: false);
   }
 
   @override
   Future<List<MediaTitle>> searchMovies(String query, {int page = 1}) async {
     final results = await remoteDataSource.searchMovies(query, page: page);
-    return results.map((m) => m.toDomain()).toList();
+    return results
+        .map((m) => m.toDomain().copyWith(mediaType: GlobalMediaType.movie))
+        .toList();
   }
 
   @override
   Future<List<MediaTitle>> searchTvShows(String query, {int page = 1}) async {
     final results = await remoteDataSource.searchTvShows(query, page: page);
-    return results.map((m) => m.toDomain()).toList();
+    return results
+        .map((m) => m.toDomain().copyWith(mediaType: GlobalMediaType.tv))
+        .toList();
   }
 
   @override
@@ -139,7 +146,9 @@ class MediaRepositoryImpl implements MediaRepository {
   @override
   Future<List<MediaTitle>> searchPersons(String query, {int page = 1}) async {
     final results = await remoteDataSource.searchPersons(query, page: page);
-    return results.map((m) => m.toDomain()).toList();
+    return results
+        .map((m) => m.toDomain().copyWith(mediaType: GlobalMediaType.person))
+        .toList();
   }
 
   @override
@@ -192,6 +201,23 @@ class MediaRepositoryImpl implements MediaRepository {
       debugPrint('[MovieDetails] OMDb ratings unavailable for $imdbId: $error');
       return baseDetails;
     }
+  }
+
+  @override
+  Future<List<MediaReview>> fetchMediaReviews(
+    int mediaId, {
+    int page = 1,
+    required bool isTv,
+  }) async {
+    final reviewDtos = await remoteDataSource.fetchMediaReviews(
+      mediaId,
+      page: page,
+      isTv: isTv,
+    );
+
+    return reviewDtos
+        .map((dto) => dto.toDomain())
+        .toList(growable: false);
   }
 
   @override

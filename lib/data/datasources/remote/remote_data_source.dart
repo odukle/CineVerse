@@ -4,6 +4,7 @@ import 'package:cineverse/data/models/tmdb_movie_dto.dart';
 import 'package:cineverse/data/models/tmdb_movie_genre_dto.dart';
 import 'package:cineverse/data/models/tmdb_movies_response_dto.dart';
 import 'package:cineverse/data/models/tmdb_person_details_dto.dart';
+import 'package:cineverse/data/models/tmdb_review_dto.dart';
 import 'package:cineverse/data/models/tmdb_tv_details_dto.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_images.dart';
@@ -48,6 +49,12 @@ abstract interface class RemoteDataSource {
     int movieId, {
     int page = 1,
     bool isTv = false,
+  });
+
+  Future<List<TmdbReviewDto>> fetchMediaReviews(
+    int mediaId, {
+    int page = 1,
+    required bool isTv,
   });
 
   Future<MediaImages> fetchMediaImages(int mediaId, {required bool isTv});
@@ -192,6 +199,15 @@ class TmdbRemoteDataSource implements RemoteDataSource {
     bool isTv = false,
   }) {
     return apiClient.fetchMovieRecommendations(movieId, page: page, isTv: isTv);
+  }
+
+  @override
+  Future<List<TmdbReviewDto>> fetchMediaReviews(
+    int mediaId, {
+    int page = 1,
+    required bool isTv,
+  }) {
+    return apiClient.fetchMediaReviews(mediaId, page: page, isTv: isTv);
   }
 
   @override
