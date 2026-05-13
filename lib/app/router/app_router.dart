@@ -25,6 +25,7 @@ import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/presentation/features/movie_details/all_seasons_screen.dart';
 import 'package:cineverse/presentation/features/movie_details/season_details_screen.dart';
 import 'package:cineverse/presentation/features/movie_details/episode_details_screen.dart';
+import 'package:cineverse/presentation/features/quotes/explore_wikiquotes_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -241,6 +242,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoute.appearance.name,
         builder: (context, state) => const AppearanceScreen(),
       ),
+      GoRoute(
+        path: AppRoute.exploreQuotes.path,
+        name: AppRoute.exploreQuotes.name,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>? ?? {};
+          return ExploreWikiquotesScreen(
+            title: extra['title'] as String? ?? '',
+            isTv: extra['isTv'] as bool? ?? false,
+            isSeason: extra['isSeason'] as bool? ?? false,
+            pageName: extra['pageName'] as String?,
+          );
+        },
+      ),
     ],
   );
 });
@@ -267,7 +281,8 @@ enum AppRoute {
   allSeasons('/tv/:tvId/seasons', 'all-seasons'),
   exploreSection('/explore-section', 'explore-section'),
   appearance('/appearance', 'appearance'),
-  allReviews('/reviews', 'all-reviews');
+  allReviews('/reviews', 'all-reviews'),
+  exploreQuotes('/explore_quotes', 'explore_quotes');
 
   const AppRoute(this.path, this.name);
 

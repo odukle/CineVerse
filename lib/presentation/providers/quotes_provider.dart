@@ -9,3 +9,12 @@ final mediaQuotesProvider = FutureProvider.family<List<MediaQuote>, ({String tit
 final personQuotesProvider = FutureProvider.family<List<MediaQuote>, String>((ref, name) {
   return ref.watch(quotesRepositoryProvider).fetchPersonQuotes(name);
 });
+
+final fullWikiquoteProvider = FutureProvider.family<WikiquoteArticle?, ({String title, bool isTv, bool isSeason, String? pageName})>((ref, args) {
+  return ref.watch(quotesRepositoryProvider).fetchFullWikiquoteArticle(
+    args.title, 
+    isTv: args.isTv, 
+    isSeason: args.isSeason, 
+    exactPageTitle: args.pageName
+  );
+});

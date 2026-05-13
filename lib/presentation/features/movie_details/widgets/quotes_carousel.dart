@@ -3,6 +3,7 @@ import 'package:cineverse/presentation/providers/quotes_provider.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class QuotesCarousel extends ConsumerWidget {
   const QuotesCarousel({super.key, required this.title, required this.isTv});
@@ -24,12 +25,32 @@ class QuotesCarousel extends ConsumerWidget {
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 28, 16, 14),
-              child: Text(
-                'Quotes',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Quotes',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      context.push('/explore_quotes', extra: {
+                        'title': title,
+                        'isTv': isTv,
+                      });
+                    },
+                    child: Text(
+                      'Explore',
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: AppColors.cinemaAccent,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             SizedBox(
