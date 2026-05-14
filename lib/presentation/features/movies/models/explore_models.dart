@@ -1,3 +1,4 @@
+import 'package:cineverse/domain/entities/movie_mood.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 
 class ExploreShelfData {
@@ -19,6 +20,7 @@ class ExploreFilterOption {
     required this.label,
     this.section,
     this.genreId,
+    this.mood,
     this.isLibraryRecommendations = false,
     this.recSource = RecSource.all,
   });
@@ -26,6 +28,7 @@ class ExploreFilterOption {
   final String label;
   final MovieSection? section;
   final int? genreId;
+  final MovieMood? mood;
   final bool isLibraryRecommendations;
   final RecSource recSource;
 
@@ -33,6 +36,7 @@ class ExploreFilterOption {
     if (isLibraryRecommendations) {
       return other.isLibraryRecommendations && recSource == other.recSource;
     }
+    if (mood != null) return mood == other.mood;
     if (section != null) return section == other.section;
     if (genreId != null) return genreId == other.genreId;
     return false;
@@ -42,6 +46,7 @@ class ExploreFilterOption {
     'label': label,
     'section': section?.name,
     'genreId': genreId,
+    'mood': mood?.name,
     'isLibraryRecommendations': isLibraryRecommendations,
     'recSource': recSource.name,
   };
@@ -50,6 +55,7 @@ class ExploreFilterOption {
     label: json['label'] as String,
     section: json['section'] != null ? MovieSection.values.firstWhere((e) => e.name == json['section']) : null,
     genreId: json['genreId'] as int?,
+    mood: json['mood'] != null ? MovieMood.values.firstWhere((e) => e.name == json['mood']) : null,
     isLibraryRecommendations: (json['isLibraryRecommendations'] as bool?) ?? false,
     recSource: json['recSource'] != null 
         ? RecSource.values.firstWhere((e) => e.name == json['recSource']) 

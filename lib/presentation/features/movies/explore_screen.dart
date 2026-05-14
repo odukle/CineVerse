@@ -7,6 +7,7 @@ import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/config/app_config.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
+import 'package:cineverse/domain/entities/movie_mood.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
 import 'package:cineverse/app/router/app_router.dart' show AppRoute;
@@ -45,6 +46,19 @@ class ExploreScreen extends ConsumerStatefulWidget {
         ),
       ],
       variant: _ShelfVariant.featured,
+    ),
+    ExploreShelfData(
+      title: 'Discover by Mood',
+      filters: <ExploreFilterOption>[
+        ExploreFilterOption(label: 'Mind-bending', mood: MovieMood.mindBending),
+        ExploreFilterOption(label: 'Feel-good', mood: MovieMood.feelGood),
+        ExploreFilterOption(label: 'Dark', mood: MovieMood.dark),
+        ExploreFilterOption(label: 'Fast-paced', mood: MovieMood.fastPaced),
+        ExploreFilterOption(label: 'Heartwarming', mood: MovieMood.heartwarming),
+        ExploreFilterOption(label: 'Edge-of-your-seat', mood: MovieMood.edgeOfYourSeat),
+        ExploreFilterOption(label: 'Cinematic', mood: MovieMood.cinematic),
+        ExploreFilterOption(label: 'Indie', mood: MovieMood.indie),
+      ],
     ),
     ExploreShelfData(
       title: "What's Popular",
@@ -88,6 +102,19 @@ class ExploreScreen extends ConsumerStatefulWidget {
         ),
       ],
       variant: _ShelfVariant.featured,
+    ),
+    ExploreShelfData(
+      title: 'Discover by Mood',
+      filters: <ExploreFilterOption>[
+        ExploreFilterOption(label: 'Mind-bending', mood: MovieMood.mindBending),
+        ExploreFilterOption(label: 'Feel-good', mood: MovieMood.feelGood),
+        ExploreFilterOption(label: 'Dark', mood: MovieMood.dark),
+        ExploreFilterOption(label: 'Fast-paced', mood: MovieMood.fastPaced),
+        ExploreFilterOption(label: 'Heartwarming', mood: MovieMood.heartwarming),
+        ExploreFilterOption(label: 'Edge-of-your-seat', mood: MovieMood.edgeOfYourSeat),
+        ExploreFilterOption(label: 'Cinematic', mood: MovieMood.cinematic),
+        ExploreFilterOption(label: 'Indie', mood: MovieMood.indie),
+      ],
     ),
     ExploreShelfData(
       title: "What's Popular",
@@ -1199,11 +1226,16 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
     final mediaType = ref.watch(exploreMediaTypeProvider);
     final bool isTv = mediaType == ExploreMediaType.tv;
 
-    final AsyncValue<List<MediaTitle>> movies = _selectedFilter.genreId != null
-        ? ref.watch(
-            genreSectionProvider((id: _selectedFilter.genreId!, isTv: isTv)),
-          )
-        : ref.watch(movieSectionProvider(_selectedFilter.section!));
+    final AsyncValue<List<MediaTitle>> movies;
+    if (_selectedFilter.mood != null) {
+      movies = ref.watch(moodSectionProvider((mood: _selectedFilter.mood!, isTv: isTv)));
+    } else if (_selectedFilter.genreId != null) {
+      movies = ref.watch(
+        genreSectionProvider((id: _selectedFilter.genreId!, isTv: isTv)),
+      );
+    } else {
+      movies = ref.watch(movieSectionProvider(_selectedFilter.section!));
+    }
 
     const double horizontalPadding = 16;
     const double itemSpacing = 12;
@@ -1261,7 +1293,10 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                     TextButton.icon(
                       onPressed: () {
                         final int? genreId = _selectedFilter.genreId;
-                        if (genreId != null) {
+                        final MovieMood? mood = _selectedFilter.mood;
+                        if (mood != null) {
+                          ref.invalidate(moodSectionProvider((mood: mood, isTv: isTv)));
+                        } else if (genreId != null) {
                           ref.invalidate(genreSectionProvider((id: genreId, isTv: isTv)));
                         } else {
                           ref.invalidate(movieSectionProvider(_selectedFilter.section!));
@@ -1453,3 +1488,5 @@ class _TomatoIcon extends StatelessWidget {
     );
   }
 }
+
+

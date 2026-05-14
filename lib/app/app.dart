@@ -4,6 +4,7 @@ import 'package:cineverse/app/theme/app_theme.dart';
 import 'package:cineverse/app/theme/theme_palette.dart';
 import 'package:cineverse/app/theme/theme_provider.dart';
 import 'package:cineverse/core/constants/app_constants.dart';
+import 'package:cineverse/presentation/providers/sync_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,6 +13,7 @@ class CineVerseApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(syncInitializationProvider);
     final router = ref.watch(appRouterProvider);
     final themeType = ref.watch(appThemeTypeProvider);
     

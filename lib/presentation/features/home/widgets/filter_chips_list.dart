@@ -114,6 +114,33 @@ class FilterChipsList extends ConsumerWidget {
             );
           }),
 
+          // People
+          ...filter.personIds.map((id) {
+            final index = filter.personIds.toList().indexOf(id);
+            final name = filter.personNames.elementAt(index);
+            return _buildChip(
+              context,
+              ref,
+              name,
+              () {
+                final newIds = Set<int>.from(filter.personIds)..remove(id);
+                final newNames = Set<String>.from(filter.personNames)..remove(name);
+                _updateFilter(ref, filter.copyWith(personIds: newIds, personNames: newNames));
+              },
+            );
+          }),
+
+          // Mood
+          if (filter.mood != null)
+            _buildChip(
+              context,
+              ref,
+              filter.mood!.label,
+              () {
+                _updateFilter(ref, filter.copyWith(clearMood: true));
+              },
+            ),
+
           // Runtime
           if (filter.runtime.start > 0 || filter.runtime.end < 390)
             _buildChip(

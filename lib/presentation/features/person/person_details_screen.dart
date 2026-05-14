@@ -1,14 +1,16 @@
+import 'dart:math' as math;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
-import 'package:cineverse/domain/entities/person_details.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:cineverse/presentation/widgets/full_screen_image_viewer.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
+import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:cineverse/presentation/providers/quotes_provider.dart';
 import 'package:cineverse/presentation/features/person/providers/person_details_provider.dart';
+import 'package:sliver_tools/sliver_tools.dart';
 
 class PersonDetailsScreen extends ConsumerStatefulWidget {
   const PersonDetailsScreen({
@@ -25,8 +27,6 @@ class PersonDetailsScreen extends ConsumerStatefulWidget {
 }
 
 class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
-  String? _selectedDepartment;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -39,190 +39,244 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
           data: (details) {
             final departments = details.creditsByDepartment.keys.toList()
               ..sort();
-            final currentDept = _selectedDepartment ??
-                (departments.contains(details.knownForDepartment)
-                    ? details.knownForDepartment!
-                    : (departments.isNotEmpty ? departments.first : ''));
+            final knownDept = details.knownForDepartment;
+            final initialIndex = departments.contains(knownDept)
+                ? departments.indexOf(knownDept!)
+                : 0;
 
-            return CustomScrollView(
-              slivers: [
-                SliverAppBar(
-                  pinned: true,
-                  backgroundColor: AppColors.cinemaGradientTop,
-                  elevation: 0,
-                  leading: IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-                  ),
-                  title: Text(
-                    details.name,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-
-                // Profile Header
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Hero(
-                          tag: widget.heroTag ?? 'person-${details.id}',
-                          child: Container(
-                            width: 120,
-                            height: 180,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 5),
-                                ),
-                              ],
+            return DefaultTabController(
+              length: departments.length,
+              initialIndex: initialIndex,
+              child: NestedScrollView(
+                headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  return [
+                    SliverOverlapAbsorber(
+                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                      sliver: MultiSliver(
+                        children: [
+                          SliverAppBar(
+                            pinned: true,
+                            backgroundColor: AppColors.cinemaGradientTop,
+                            elevation: 0,
+                            leading: IconButton(
+                              onPressed: () => Navigator.pop(context),
+                              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: details.profilePath != null
-                                  ? CachedNetworkImage(
-                                      imageUrl: details.profilePath!,
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) =>
-                                          const ShimmerEffect(
-                                        width: 120,
-                                        height: 180,
-                                        borderRadius: 16,
+                            title: Text(
+                              details.name,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+
+                          // Profile Header
+                          SliverToBoxAdapter(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Hero(
+                                    tag: widget.heroTag ?? 'person-${details.id}',
+                                    child: Container(
+                                      width: 120,
+                                      height: 180,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(alpha: 0.3),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 5),
+                                          ),
+                                        ],
                                       ),
-                                    )
-                                  : Container(
-                                      color: Colors.white10,
-                                      child: const Icon(Icons.person,
-                                          size: 64, color: Colors.white24),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(16),
+                                        child: details.profilePath != null
+                                            ? CachedNetworkImage(
+                                                imageUrl: details.profilePath!,
+                                                fit: BoxFit.cover,
+                                                placeholder: (context, url) =>
+                                                    const ShimmerEffect(
+                                                  width: 120,
+                                                  height: 180,
+                                                  borderRadius: 16,
+                                                ),
+                                              )
+                                            : Container(
+                                                color: Colors.white10,
+                                                child: const Icon(Icons.person,
+                                                    size: 64, color: Colors.white24),
+                                              ),
+                                      ),
                                     ),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        if (details.birthday != null)
+                                          _InfoItem(
+                                            label: 'Born',
+                                            value: details.birthday!,
+                                          ),
+                                        if (details.placeOfBirth != null)
+                                          _InfoItem(
+                                            label: 'Birthplace',
+                                            value: details.placeOfBirth!,
+                                          ),
+                                        if (details.deathday != null)
+                                          _InfoItem(
+                                            label: 'Died',
+                                            value: details.deathday!,
+                                          ),
+                                        if (details.knownForDepartment != null)
+                                          _InfoItem(
+                                            label: 'Known For',
+                                            value: details.knownForDepartment!,
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 20),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              if (details.birthday != null)
-                                _InfoItem(
-                                  label: 'Born',
-                                  value: details.birthday!,
-                                ),
-                              if (details.placeOfBirth != null)
-                                _InfoItem(
-                                  label: 'Birthplace',
-                                  value: details.placeOfBirth!,
-                                ),
-                              if (details.deathday != null)
-                                _InfoItem(
-                                  label: 'Died',
-                                  value: details.deathday!,
-                                ),
-                              if (details.knownForDepartment != null)
-                                _InfoItem(
-                                  label: 'Known For',
-                                  value: details.knownForDepartment!,
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
 
-                // Biography
-                if (details.biography != null && details.biography!.isNotEmpty)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Biography',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                          // Biography
+                          if (details.biography != null && details.biography!.isNotEmpty)
+                            SliverToBoxAdapter(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Biography',
+                                      style: theme.textTheme.titleLarge?.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      details.biography!,
+                                      style: theme.textTheme.bodyMedium?.copyWith(
+                                        color: Colors.white.withValues(alpha: 0.8),
+                                        height: 1.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
+
+                          // Images Section
+                          SliverToBoxAdapter(
+                            child: _PersonImagesCarousel(personId: details.id),
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            details.biography!,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              height: 1.5,
+
+                          // Quotes Section
+                          SliverToBoxAdapter(
+                            child: _PersonQuotes(name: details.name),
+                          ),
+
+                          if (departments.isNotEmpty) ...[
+                            const SliverToBoxAdapter(
+                              child: SizedBox(height: 24),
                             ),
-                          ),
+                            SliverPersistentHeader(
+                              pinned: true,
+                              delegate: _SliverAppBarDelegate(
+                                minHeight: 110,
+                                maxHeight: 110,
+                                child: Container(
+                                  color: AppColors.cinemaGradientTop,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),                                        child: Text(
+                                          'Credits',
+                                          style: theme.textTheme.titleLarge?.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      TabBar(
+                                        isScrollable: true,
+                                        tabAlignment: TabAlignment.start,
+                                        indicatorColor: AppColors.cinemaAccent,
+                                        labelColor: AppColors.cinemaAccent,
+                                        unselectedLabelColor: Colors.white54,
+                                        indicatorSize: TabBarIndicatorSize.label,
+                                        dividerColor: Colors.transparent,
+                                        tabs: departments.map((d) => Tab(text: d)).toList(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
                       ),
                     ),
-                  ),
-
-                // Images Section
-                SliverToBoxAdapter(
-                  child: _PersonImagesCarousel(personId: details.id),
-                ),
-
-                // Quotes Section
-                SliverToBoxAdapter(
-                  child: _PersonQuotes(name: details.name),
-                ),
-
-                if (departments.isNotEmpty) ...[
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            'Credits',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                  ];
+                },
+                body: Builder(
+                  builder: (context) {
+                    return TabBarView(
+                      children: departments.map((dept) {
+                        final credits = details.creditsByDepartment[dept]!;
+                        return CustomScrollView(
+                          key: PageStorageKey<String>(dept),
+                          slivers: [
+                            SliverOverlapInjector(
+                              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
                             ),
-                          ),
-                          _DepartmentPicker(
-                            departments: departments,
-                            selected: currentDept,
-                            onChanged: (dept) =>
-                                setState(() => _selectedDepartment = dept),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    sliver: SliverGrid(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 3,
-                        childAspectRatio: 0.6,
-                        crossAxisSpacing: 12,
-                        mainAxisSpacing: 16,
-                      ),
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          final credit = details.creditsByDepartment[currentDept]![index];
-                          return _CreditCard(credit: credit);
-                        },
-                        childCount: details.creditsByDepartment[currentDept]!.length,
-                      ),
-                    ),
-                  ),
-                ],
-                const SliverToBoxAdapter(child: SizedBox(height: 40)),
-              ],
+                            SliverPadding(
+                              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                              sliver: SliverGrid(
+                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  crossAxisSpacing: 10,
+                                  mainAxisSpacing: 0,
+                                  mainAxisExtent: 220,
+                                ),
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final credit = credits[index];
+                                    final double availableCardWidth =
+                                        (MediaQuery.sizeOf(context).width -
+                                                (16 * 2) -
+                                                (10 * 2)) /
+                                            3;
+                                    final double cardWidth = availableCardWidth > 108
+                                        ? 108
+                                        : availableCardWidth;
+
+                                    return MediaPosterGridCard(
+                                      movie: credit.media,
+                                      sectionTitle: 'credits-$dept',
+                                      width: cardWidth,
+                                    );
+                                  },
+                                  childCount: credits.length,
+                                ),
+                              ),
+                            ),                            const SliverToBoxAdapter(child: SizedBox(height: 40)),
+                          ],
+                        );
+                      }).toList(),
+                    );
+                  }
+                ),
+              ),
             );
           },
           loading: () => const _PersonDetailsShimmer(),
@@ -230,6 +284,35 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
         ),
       ),
     );
+  }
+}
+
+class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
+  _SliverAppBarDelegate({
+    required this.minHeight,
+    required this.maxHeight,
+    required this.child,
+  });
+  final double minHeight;
+  final double maxHeight;
+  final Widget child;
+
+  @override
+  double get minExtent => minHeight;
+  @override
+  double get maxExtent => math.max(maxHeight, minHeight);
+
+  @override
+  Widget build(
+      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return SizedBox.expand(child: child);
+  }
+
+  @override
+  bool shouldRebuild(_SliverAppBarDelegate oldDelegate) {
+    return maxHeight != oldDelegate.maxHeight ||
+        minHeight != oldDelegate.minHeight ||
+        child != oldDelegate.child;
   }
 }
 
@@ -264,42 +347,6 @@ class _InfoItem extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _DepartmentPicker extends StatelessWidget {
-  const _DepartmentPicker({
-    required this.departments,
-    required this.selected,
-    required this.onChanged,
-  });
-
-  final List<String> departments;
-  final String selected;
-  final ValueChanged<String> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.white10,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: DropdownButton<String>(
-        value: selected,
-        items: departments
-            .map((d) => DropdownMenuItem(
-                  value: d,
-                  child: Text(d, style: const TextStyle(color: Colors.white, fontSize: 13)),
-                ))
-            .toList(),
-        onChanged: (v) => v != null ? onChanged(v) : null,
-        underline: const SizedBox.shrink(),
-        dropdownColor: const Color(0xFF1E1E22),
-        icon: const Icon(Icons.keyboard_arrow_down_rounded, color: Colors.white54),
       ),
     );
   }
@@ -478,60 +525,6 @@ class _PersonQuotes extends ConsumerWidget {
         ],
       ),
       error: (_, _) => const SizedBox.shrink(),
-    );
-  }
-}
-
-class _CreditCard extends StatelessWidget {
-  const _CreditCard({required this.credit});
-
-  final PersonCredit credit;
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // Navigate to media details
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: credit.media.posterPath != null
-                  ? CachedNetworkImage(
-                      imageUrl: credit.media.posterPath!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                    )
-                  : Container(color: Colors.white10),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            credit.media.title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          if (credit.role != null)
-            Text(
-              credit.role!,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                color: Colors.white54,
-                fontSize: 10,
-                height: 1.2,
-              ),
-            ),
-        ],
-      ),
     );
   }
 }

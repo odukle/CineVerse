@@ -1,3 +1,4 @@
+import 'package:cineverse/domain/entities/movie_mood.dart';
 import 'package:flutter/material.dart';
 
 enum SortField {
@@ -36,6 +37,7 @@ class MediaFilter {
     this.runtime = const RangeValues(0, 390),
     this.personIds = const {},
     this.personNames = const {},
+    this.mood,
   });
 
   final SortField sortField;
@@ -51,6 +53,7 @@ class MediaFilter {
   final RangeValues runtime; // 0 to 390
   final Set<int> personIds;
   final Set<String> personNames;
+  final MovieMood? mood;
 
   bool get isDefault =>
       sortField == SortField.popularity &&
@@ -65,7 +68,8 @@ class MediaFilter {
       genres.isEmpty &&
       runtime == const RangeValues(0, 390) &&
       personIds.isEmpty &&
-      personNames.isEmpty;
+      personNames.isEmpty &&
+      mood == null;
 
   String get sortByValue => '${sortField.value}.${sortOrder.value}';
 
@@ -83,6 +87,8 @@ class MediaFilter {
     RangeValues? runtime,
     Set<int>? personIds,
     Set<String>? personNames,
+    MovieMood? mood,
+    bool clearMood = false,
   }) {
     return MediaFilter(
       sortField: sortField ?? this.sortField,
@@ -98,6 +104,7 @@ class MediaFilter {
       runtime: runtime ?? this.runtime,
       personIds: personIds ?? this.personIds,
       personNames: personNames ?? this.personNames,
+      mood: clearMood ? null : (mood ?? this.mood),
     );
   }
 
@@ -118,7 +125,8 @@ class MediaFilter {
           genres == other.genres &&
           runtime == other.runtime &&
           personIds == other.personIds &&
-          personNames == other.personNames;
+          personNames == other.personNames &&
+          mood == other.mood;
 
   @override
   int get hashCode =>
@@ -134,5 +142,6 @@ class MediaFilter {
       genres.hashCode ^
       runtime.hashCode ^
       personIds.hashCode ^
-      personNames.hashCode;
+      personNames.hashCode ^
+      mood.hashCode;
 }

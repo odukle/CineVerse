@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/presentation/features/search/providers/search_provider.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
+import 'package:cineverse/domain/entities/movie_mood.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/presentation/features/movies/providers/filter_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
@@ -106,6 +107,10 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
 
             _buildSectionHeader('Genres'),
             _buildGenreChips(),
+            const Divider(color: Colors.white24, height: 32),
+
+            _buildSectionHeader('Mood'),
+            _buildMoodChips(),
             const Divider(color: Colors.white24, height: 32),
 
             _buildSectionHeader('People'),
@@ -530,6 +535,42 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
           },
         ),
       ],
+    );
+  }
+
+  Widget _buildMoodChips() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: MovieMood.values.map((mood) {
+        final isSelected = _currentFilter.mood == mood;
+        return FilterChip(
+          label: Text(mood.label),
+          selected: isSelected,
+          onSelected: (selected) {
+            setState(() {
+              if (selected) {
+                _currentFilter = _currentFilter.copyWith(mood: mood);
+              } else {
+                _currentFilter = _currentFilter.copyWith(clearMood: true);
+              }
+            });
+          },
+          backgroundColor: Colors.white.withValues(alpha: 0.05),
+          selectedColor: AppColors.cinemaAccent.withValues(alpha: 0.4),
+          labelStyle: TextStyle(
+            color: isSelected ? Colors.white : Colors.white70,
+            fontSize: 13,
+          ),
+          checkmarkColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(
+              color: isSelected ? AppColors.cinemaAccent : Colors.white10,
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 

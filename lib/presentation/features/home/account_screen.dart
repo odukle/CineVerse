@@ -1,5 +1,7 @@
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/config/region_preferences.dart';
+import 'package:cineverse/presentation/providers/auth_provider.dart';
+import 'package:cineverse/domain/entities/user_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -10,6 +12,8 @@ class AccountScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
+    final userAsync = ref.watch(authStateProvider);
+    final UserEntity? user = userAsync.value;
 
     return ListView(
         padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
@@ -43,11 +47,19 @@ class AccountScreen extends ConsumerWidget {
                     color: AppColors.cinemaSelected,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Icon(
-                    Icons.person_outline_rounded,
-                    color: Colors.white,
-                    size: 34,
-                  ),
+                  child: user?.photoUrl != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.network(
+                            user!.photoUrl!,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.person_outline_rounded,
+                          color: Colors.white,
+                          size: 34,
+                        ),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -55,7 +67,7 @@ class AccountScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Guest Viewer',
+                        user?.displayName ?? user?.email ?? 'Guest Viewer',
                         style: theme.textTheme.titleLarge?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
@@ -64,12 +76,88 @@ class AccountScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Sign in to sync your watchlist, ratings, and preferences across devices.',
+                        user == null
+                            ? 'Sign in to sync your watchlist, ratings, and preferences.'
+                            : 'Signed in and syncing to the cloud.',
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: Colors.white.withValues(alpha: 0.72),
                           height: 1.4,
                         ),
                       ),
+                      if (user == null) ...[
+                        const SizedBox(height: 10),
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            try {
+                              await ref.read(authRepositoryProvider).signInWithGoogle();
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text(e.toString())),
+                                );
+                              }
+                            }
+                          },
+                          icon: const Icon(Icons.login_rounded, size: 18),
+                          label: const Text('Sign in with Google'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.cinemaSelected,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ] else ...[
+                        const SizedBox(height: 10),
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            final bool? confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                backgroundColor: AppColors.detailsCard,
+                                title: const Text(
+                                  'Sign Out',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                content: const Text(
+                                  'Are you sure you want to sign out? Your local data will remain, but cloud syncing will stop.',
+                                  style: TextStyle(color: Colors.white70),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, false),
+                                    child: const Text(
+                                      'Cancel',
+                                      style: TextStyle(color: Colors.white70),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(context, true),
+                                    child: const Text(
+                                      'Sign Out',
+                                      style: TextStyle(color: Colors.redAccent),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (confirm == true) {
+                              ref.read(authRepositoryProvider).signOut();
+                            }
+                          },
+                          icon: const Icon(Icons.logout_rounded, size: 18),
+                          label: const Text('Sign Out'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white24,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

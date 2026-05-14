@@ -13,6 +13,8 @@ import 'package:cineverse/app/router/app_router.dart' show AppRoute;
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:cineverse/presentation/widgets/sync_indicator.dart';
+
 class HomeScaffold extends ConsumerWidget {
   const HomeScaffold({required this.navigationShell, super.key});
 
@@ -25,6 +27,7 @@ class HomeScaffold extends ConsumerWidget {
         currentTab == HomeTab.movies || currentTab == HomeTab.tvShows;
 
     final bool isExplore = currentTab == HomeTab.explore;
+    final bool isLibrary = currentTab == HomeTab.watchlist;
     const double appBarSideWidth = 150;
 
     return PopScope(
@@ -92,6 +95,8 @@ class HomeScaffold extends ConsumerWidget {
               ),
             if (isExplore)
               const ExploreMediaTypeToggle(),
+            if (isLibrary)
+              const SyncIndicator(),
           ],
         ),
         title: SvgPicture.asset(

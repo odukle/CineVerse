@@ -3,6 +3,7 @@ import 'package:cineverse/data/providers/data_providers.dart';
 import 'package:cineverse/domain/entities/media_images.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_genre.dart';
+import 'package:cineverse/domain/entities/movie_mood.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/usecases/get_movie_section_use_case.dart';
@@ -438,6 +439,112 @@ final discoverPoolProvider = FutureProvider<List<MediaTitle>>((ref) async {
 
   return discoverPool;
 });
+
+typedef _MoodCacheKey = ({String regionCode, MovieMood mood, bool isTv, SortField sortField, SortOrder sortOrder});
+
+final Map<_MoodCacheKey, List<MediaTitle>> _moodSectionCache = {};
+final Map<_MoodCacheKey, int> _moodLoadedPagesCache = {};
+final Map<_MoodCacheKey, bool> _moodFetchingCache = {};
+final Map<_MoodCacheKey, int> _moodTargetPages = {};
+final Map<_MoodCacheKey, bool> _moodExhaustedCache = {};
+
+int _getMoodTargetPage(_MoodCacheKey cacheKey) =>
+    _moodTargetPages[cacheKey] ?? 2;
+
+void loadNextMoodPages(WidgetRef ref, MovieMood mood, {bool isTv = false}) {
+  final sortFilter = ref.read(genreSortProvider);
+  final _MoodCacheKey cacheKey = (
+    regionCode: ref.read(preferredRegionCodeProvider),
+    mood: mood,
+    isTv: isTv,
+    sortField: sortFilter.sortField,
+    sortOrder: sortFilter.sortOrder,
+  );
+  if (_moodFetchingCache[cacheKey] == true || _moodExhaustedCache[cacheKey] == true) {
+    return;
+  }
+  _moodTargetPages[cacheKey] = _getMoodTargetPage(cacheKey) + 2;
+  ref.invalidate(moodSectionProvider((mood: mood, isTv: isTv)));
+}
+
+final moodSectionExhaustedProvider = Provider.family<bool, ({MovieMood mood, bool isTv})>((ref, params) {
+  final regionCode = ref.watch(preferredRegionCodeProvider);
+  final sortFilter = ref.watch(genreSortProvider);
+  return _moodExhaustedCache[(
+    regionCode: regionCode, 
+    mood: params.mood, 
+    isTv: params.isTv,
+    sortField: sortFilter.sortField,
+    sortOrder: sortFilter.sortOrder,
+  )] ?? false;
+});
+
+final moodSectionProvider =
+    FutureProvider.family<List<MediaTitle>, ({MovieMood mood, bool isTv})>((ref, params) async {
+      final String regionCode = ref.watch(preferredRegionCodeProvider);
+      final sortFilter = ref.watch(genreSortProvider);
+
+      final _MoodCacheKey cacheKey = (
+        regionCode: regionCode,
+        mood: params.mood,
+        isTv: params.isTv,
+        sortField: sortFilter.sortField,
+        sortOrder: sortFilter.sortOrder,
+      );
+      final int targetPage = _getMoodTargetPage(cacheKey);
+
+      final repository = ref.watch(mediaRepositoryProvider);
+      final discoverUseCase = DiscoverMediaUseCase(repository);
+
+      final List<MediaTitle> results = List<MediaTitle>.from(
+        _moodSectionCache[cacheKey] ?? const <MediaTitle>[],
+      );
+
+      int startPage = (_moodLoadedPagesCache[cacheKey] ?? 0) + 1;
+
+      if (startPage <= targetPage) {
+        _moodFetchingCache[cacheKey] = true;
+        for (int i = startPage; i <= targetPage; i++) {
+          try {
+            final List<MediaTitle> pageResults = await discoverUseCase(DiscoverMediaParams(
+              isTv: params.isTv,
+              filter: MediaFilter(
+                sortField: sortFilter.sortField,
+                sortOrder: sortFilter.sortOrder,
+                mood: params.mood,
+              ),
+              page: i,
+            ));
+            results.addAll(pageResults);
+            _moodLoadedPagesCache[cacheKey] = i;
+            if (pageResults.isEmpty || pageResults.length < 20) {
+              _moodExhaustedCache[cacheKey] = true;
+              break;
+            }
+          } catch (error, stackTrace) {
+            debugPrint('[moodSectionProvider:${params.mood.name}:$i] $error');
+            debugPrintStack(stackTrace: stackTrace);
+            if (i == 1 && results.isEmpty) {
+              _moodFetchingCache[cacheKey] = false;
+              rethrow;
+            }
+            break;
+          }
+        }
+        _moodFetchingCache[cacheKey] = false;
+      }
+
+      final List<MediaTitle> uniqueResults = <MediaTitle>[];
+      final Set<int> seenMovieIds = <int>{};
+      for (final MediaTitle movie in results) {
+        if (seenMovieIds.add(movie.id)) {
+          uniqueResults.add(movie);
+        }
+      }
+
+      _moodSectionCache[cacheKey] = uniqueResults;
+      return uniqueResults;
+    });
 
 final moviesProvider = Provider<AsyncValue<List<MediaTitle>>>((ref) {
   final mediaType = ref.watch(exploreMediaTypeProvider);

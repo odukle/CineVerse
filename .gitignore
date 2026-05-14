@@ -11,6 +11,15 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+analysis.txt
+build_log.txt
+wsl_test.txt
+test_wikiquote.json
+*.png
+*.jpg
+*.jpeg
+*.gif
+!assets/**
 
 # IntelliJ related
 *.iml
@@ -27,7 +36,9 @@ migrate_working_dir/
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
+.packages
 .pub-cache/
 .pub/
 /build/
@@ -75,6 +86,9 @@ android/local.properties
 # iOS specific
 ios/.symlinks/
 ios/Pods/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+ios/Flutter/Flutter.podspec
 
 # OS-specific files
 Thumbs.db
@@ -83,7 +97,7 @@ desktop.ini
 *.temp
 *~
 
-# Python-related (for gen_sound.py)
+# Python-related (for scripts)
 __pycache__/
 *.pyo
 *.pyd
@@ -92,6 +106,7 @@ venv/
 .venv/
 
 # Cloudflare Worker (infra/tmdb-proxy-worker/)
+.wrangler/
 infra/tmdb-proxy-worker/.wrangler/
 infra/**/node_modules/
 
@@ -103,3 +118,4 @@ infra/**/node_modules/
 # Sensitive configuration
 config/api_keys.json
 .gemini/
+

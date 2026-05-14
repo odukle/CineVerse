@@ -1756,13 +1756,14 @@ class _TrailerPlayer extends StatefulWidget {
   State<_TrailerPlayer> createState() => _TrailerPlayerState();
 }
 
-class _TrailerPlayerState extends State<_TrailerPlayer> {
+class _TrailerPlayerState extends State<_TrailerPlayer> with WidgetsBindingObserver {
   late YoutubePlayerController _controller;
   bool _isPlayerReady = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     debugPrint('[TrailerPlayer] Initializing with key: ${widget.videoKey}');
     _controller = YoutubePlayerController(
       initialVideoId: widget.videoKey,
@@ -1774,6 +1775,13 @@ class _TrailerPlayerState extends State<_TrailerPlayer> {
         forceHD: false,
       ),
     )..addListener(_onPlayerStateChange);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      _controller.pause();
+    }
   }
 
   void _onPlayerStateChange() {
@@ -1789,6 +1797,7 @@ class _TrailerPlayerState extends State<_TrailerPlayer> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller.removeListener(_onPlayerStateChange);
     _controller.dispose();
     super.dispose();

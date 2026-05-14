@@ -54,21 +54,27 @@ class _ExploreSectionScreenState extends ConsumerState<ExploreSectionScreen> {
       return;
     }
 
-    final movies = _selectedFilter.genreId != null
-        ? ref.read(genreSectionProvider((id: _selectedFilter.genreId!, isTv: widget.isTv)))
-        : ref.read(movieSectionProvider(_selectedFilter.section!));
+    final movies = _selectedFilter.mood != null
+        ? ref.read(moodSectionProvider((mood: _selectedFilter.mood!, isTv: widget.isTv)))
+        : (_selectedFilter.genreId != null
+            ? ref.read(genreSectionProvider((id: _selectedFilter.genreId!, isTv: widget.isTv)))
+            : ref.read(movieSectionProvider(_selectedFilter.section!)));
 
     if (movies.isLoading) return;
     
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 400) {
-      final isExhausted = _selectedFilter.genreId != null
-          ? ref.read(genreSectionExhaustedProvider((id: _selectedFilter.genreId!, isTv: widget.isTv)))
-          : ref.read(movieSectionExhaustedProvider(_selectedFilter.section!));
+      final isExhausted = _selectedFilter.mood != null
+          ? ref.read(moodSectionExhaustedProvider((mood: _selectedFilter.mood!, isTv: widget.isTv)))
+          : (_selectedFilter.genreId != null
+              ? ref.read(genreSectionExhaustedProvider((id: _selectedFilter.genreId!, isTv: widget.isTv)))
+              : ref.read(movieSectionExhaustedProvider(_selectedFilter.section!)));
           
       if (isExhausted) return;
 
-      if (_selectedFilter.genreId != null) {
+      if (_selectedFilter.mood != null) {
+        loadNextMoodPages(ref, _selectedFilter.mood!, isTv: widget.isTv);
+      } else if (_selectedFilter.genreId != null) {
         loadNextGenrePages(ref, _selectedFilter.genreId!, isTv: widget.isTv);
       } else if (_selectedFilter.section != null) {
         loadNextPages(ref, _selectedFilter.section!);
@@ -94,17 +100,21 @@ class _ExploreSectionScreenState extends ConsumerState<ExploreSectionScreen> {
     
     final AsyncValue<List<MediaTitle>> movies = _selectedFilter.isLibraryRecommendations
         ? ref.watch(libraryRecommendationsProvider(_selectedFilter.recSource))
-        : (_selectedFilter.genreId != null
-            ? ref.watch(
-                genreSectionProvider((id: _selectedFilter.genreId!, isTv: widget.isTv)),
-              )
-            : ref.watch(movieSectionProvider(_selectedFilter.section!)));
+        : (_selectedFilter.mood != null
+            ? ref.watch(moodSectionProvider((mood: _selectedFilter.mood!, isTv: widget.isTv)))
+            : (_selectedFilter.genreId != null
+                ? ref.watch(
+                    genreSectionProvider((id: _selectedFilter.genreId!, isTv: widget.isTv)),
+                  )
+                : ref.watch(movieSectionProvider(_selectedFilter.section!))));
 
     final bool isExhausted = _selectedFilter.isLibraryRecommendations
         ? ref.watch(libraryRecommendationsExhaustedProvider(_selectedFilter.recSource))
-        : (_selectedFilter.genreId != null
-            ? ref.watch(genreSectionExhaustedProvider((id: _selectedFilter.genreId!, isTv: widget.isTv)))
-            : ref.watch(movieSectionExhaustedProvider(_selectedFilter.section!)));
+        : (_selectedFilter.mood != null
+            ? ref.watch(moodSectionExhaustedProvider((mood: _selectedFilter.mood!, isTv: widget.isTv)))
+            : (_selectedFilter.genreId != null
+                ? ref.watch(genreSectionExhaustedProvider((id: _selectedFilter.genreId!, isTv: widget.isTv)))
+                : ref.watch(movieSectionExhaustedProvider(_selectedFilter.section!))));
 
     return BackgroundGradient(
       child: Scaffold(

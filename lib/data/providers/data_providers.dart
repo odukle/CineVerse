@@ -60,7 +60,9 @@ final appDatabaseProvider = Provider<AppDatabase>((ref) {
 });
 
 final watchlistRepositoryProvider = Provider<WatchlistRepository>((ref) {
-  return WatchlistRepositoryImpl(ref.watch(appDatabaseProvider));
+  return WatchlistRepositoryImpl(
+    ref.watch(appDatabaseProvider),
+  );
 });
 
 final watchedRepositoryProvider = Provider<WatchedRepository>((ref) {

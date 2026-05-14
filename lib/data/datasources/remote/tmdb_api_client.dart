@@ -228,8 +228,25 @@ class TmdbApiClient {
       queryParams['with_text_query'] = query;
     }
 
-    if (filter.genres.isNotEmpty) {
-      queryParams['with_genres'] = filter.genres.join(',');
+    final List<int> moodGenres = [];
+    final List<int> moodKeywords = [];
+
+    if (filter.mood != null) {
+      moodGenres.addAll(filter.mood!.genreIds);
+      moodKeywords.addAll(filter.mood!.keywordIds);
+    }
+
+    if (filter.genres.isNotEmpty || moodGenres.isNotEmpty) {
+      // Use OR (|) for mood genres and AND (,) for explicit user genres
+      // However, usually we want ANY of the genres to match for discovery
+      // Let's use OR for everything in discover mode to be more helpful
+      final allGenres = {...filter.genres, ...moodGenres};
+      queryParams['with_genres'] = allGenres.join('|');
+    }
+
+    if (moodKeywords.isNotEmpty) {
+      // Use OR (|) for keywords to be inclusive
+      queryParams['with_keywords'] = moodKeywords.join('|');
     }
 
     if (filter.availabilities.isNotEmpty) {
