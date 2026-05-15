@@ -11,13 +11,13 @@ class ExploreMediaTypeToggle extends ConsumerWidget {
     final mediaType = ref.watch(exploreMediaTypeProvider);
 
     return Container(
-      height: 32,
-      padding: const EdgeInsets.all(2),
+      height: 36,
+      padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: AppColors.cinemaSurface,
-        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(colors: AppColors.cinemaPanelGradient),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: AppColors.cinemaAccent.withValues(alpha: 0.1),
+          color: AppColors.cinemaBorder.withValues(alpha: 0.24),
         ),
       ),
       child: Row(
@@ -61,18 +61,36 @@ class _ToggleOption extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: selected ? AppColors.cinemaAccent : Colors.transparent,
-          borderRadius: BorderRadius.circular(14),
+          gradient: selected
+              ? LinearGradient(
+                  colors: <Color>[
+                    AppColors.cinemaGlow,
+                    AppColors.cinemaWarmGlow,
+                  ],
+                )
+              : null,
+          color: selected ? null : Colors.transparent,
+          borderRadius: BorderRadius.circular(15),
+          boxShadow: selected
+              ? <BoxShadow>[
+                  BoxShadow(
+                    color: AppColors.cinemaGlow.withValues(alpha: 0.2),
+                    blurRadius: 16,
+                    spreadRadius: -8,
+                    offset: const Offset(0, 10),
+                  ),
+                ]
+              : null,
         ),
         child: Text(
           label,
           style: TextStyle(
             color: selected
-                ? Colors.black
-                : Colors.white.withValues(alpha: 0.7),
+                ? Colors.white
+                : Colors.white.withValues(alpha: 0.72),
             fontSize: 12,
             fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
           ),

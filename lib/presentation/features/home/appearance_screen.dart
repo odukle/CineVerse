@@ -15,70 +15,111 @@ class AppearanceScreen extends ConsumerWidget {
     return BackgroundGradient(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text(
-          'Appearance',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: const Text(
+            'Appearance',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          const Text(
-            'Choose your vibe',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 16,
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
             ),
+            onPressed: () => Navigator.of(context).pop(),
           ),
-          const SizedBox(height: 24),
-          _ThemeOption(
-            type: AppThemeType.lumi,
-            name: 'Lumi Cinema',
-            description: 'The classic midnight purple experience.',
-            isSelected: currentTheme == AppThemeType.lumi,
-            palette: ThemePalette.lumi,
-            onSelect: () => ref.read(appThemeTypeProvider.notifier).setTheme(AppThemeType.lumi),
-          ),
-          const SizedBox(height: 16),
-          _ThemeOption(
-            type: AppThemeType.midnight,
-            name: 'Midnight Black',
-            description: 'Pitch black tones for OLED screens.',
-            isSelected: currentTheme == AppThemeType.midnight,
-            palette: ThemePalette.midnight,
-            onSelect: () => ref.read(appThemeTypeProvider.notifier).setTheme(AppThemeType.midnight),
-          ),
-          const SizedBox(height: 16),
-          _ThemeOption(
-            type: AppThemeType.oceanic,
-            name: 'Oceanic Deep',
-            description: 'Calming teal and cyan hues.',
-            isSelected: currentTheme == AppThemeType.oceanic,
-            palette: ThemePalette.oceanic,
-            onSelect: () => ref.read(appThemeTypeProvider.notifier).setTheme(AppThemeType.oceanic),
-          ),
-          const SizedBox(height: 16),
-          _ThemeOption(
-            type: AppThemeType.forest,
-            name: 'Royal Forest',
-            description: 'Sophisticated emerald and gold accents.',
-            isSelected: currentTheme == AppThemeType.forest,
-            palette: ThemePalette.forest,
-            onSelect: () => ref.read(appThemeTypeProvider.notifier).setTheme(AppThemeType.forest),
-          ),
-        ],
+        ),
+        body: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            Container(
+              padding: const EdgeInsets.all(22),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: <Color>[
+                    Color(0xFF112142),
+                    Color(0xFF231043),
+                    Color(0xFF3A1657),
+                  ],
+                ),
+                border: Border.all(
+                  color: AppColors.cinemaBorder.withValues(alpha: 0.28),
+                ),
+              ),
+              child: const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Choose your vibe',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Swap the app between cinematic personalities without changing any behavior.',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 15,
+                      height: 1.45,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            _ThemeOption(
+              type: AppThemeType.lumi,
+              name: 'Lumi Cinema',
+              description: 'The bold neon-cinema signature.',
+              isSelected: currentTheme == AppThemeType.lumi,
+              palette: ThemePalette.lumi,
+              onSelect: () => ref
+                  .read(appThemeTypeProvider.notifier)
+                  .setTheme(AppThemeType.lumi),
+            ),
+            const SizedBox(height: 16),
+            _ThemeOption(
+              type: AppThemeType.midnight,
+              name: 'Midnight Black',
+              description: 'Noir blues and a sharper dark-room mood.',
+              isSelected: currentTheme == AppThemeType.midnight,
+              palette: ThemePalette.midnight,
+              onSelect: () => ref
+                  .read(appThemeTypeProvider.notifier)
+                  .setTheme(AppThemeType.midnight),
+            ),
+            const SizedBox(height: 16),
+            _ThemeOption(
+              type: AppThemeType.oceanic,
+              name: 'Oceanic Deep',
+              description: 'Cool currents with polished cyan highlights.',
+              isSelected: currentTheme == AppThemeType.oceanic,
+              palette: ThemePalette.oceanic,
+              onSelect: () => ref
+                  .read(appThemeTypeProvider.notifier)
+                  .setTheme(AppThemeType.oceanic),
+            ),
+            const SizedBox(height: 16),
+            _ThemeOption(
+              type: AppThemeType.forest,
+              name: 'Royal Forest',
+              description: 'Emerald luxury with warm gilded accents.',
+              isSelected: currentTheme == AppThemeType.forest,
+              palette: ThemePalette.forest,
+              onSelect: () => ref
+                  .read(appThemeTypeProvider.notifier)
+                  .setTheme(AppThemeType.forest),
+            ),
+          ],
+        ),
       ),
-    ),
     );
   }
 }
@@ -108,21 +149,36 @@ class _ThemeOption extends StatelessWidget {
         duration: const Duration(milliseconds: 300),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected 
-              ? palette.accent.withValues(alpha: 0.15) 
-              : AppColors.cinemaSurface.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: isSelected ? palette.accent : Colors.white10,
-            width: 2,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isSelected
+                ? <Color>[
+                    palette.gradientTop.withValues(alpha: 0.92),
+                    palette.background.withValues(alpha: 0.96),
+                    palette.gradientBottom.withValues(alpha: 0.92),
+                  ]
+                : <Color>[
+                    AppColors.cinemaPanelTop.withValues(alpha: 0.86),
+                    AppColors.cinemaPanelMid.withValues(alpha: 0.86),
+                    AppColors.cinemaPanelBottom.withValues(alpha: 0.9),
+                  ],
           ),
-          boxShadow: isSelected ? [
-            BoxShadow(
-              color: palette.accent.withValues(alpha: 0.2),
-              blurRadius: 15,
-              offset: const Offset(0, 5),
-            )
-          ] : [],
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
+            color: isSelected ? palette.accent : AppColors.cinemaBorder,
+            width: isSelected ? 1.8 : 1.0,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: palette.accent.withValues(alpha: 0.22),
+                    blurRadius: 24,
+                    spreadRadius: -10,
+                    offset: const Offset(0, 16),
+                  ),
+                ]
+              : [],
         ),
         child: Row(
           children: [
@@ -150,7 +206,7 @@ class _ThemeOption extends StatelessWidget {
                       BoxShadow(
                         color: palette.accent.withValues(alpha: 0.5),
                         blurRadius: 8,
-                      )
+                      ),
                     ],
                   ),
                 ),

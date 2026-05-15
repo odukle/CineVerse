@@ -39,40 +39,57 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
         length: 5,
         child: Scaffold(
           backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          toolbarHeight: 0,
-          bottom: TabBar(
-            isScrollable: true,
-            tabAlignment: TabAlignment.start,
-            indicatorColor: AppColors.cinemaAccent,
-            labelColor: AppColors.cinemaAccent,
-            unselectedLabelColor: Colors.white54,
-            indicatorSize: TabBarIndicatorSize.label,
-            tabs: const [
-              Tab(text: 'Watchlist'),
-              Tab(text: 'Favourites'),
-              Tab(text: 'Lists'),
-              Tab(text: 'Notes'),
-              Tab(text: 'Watched'),
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            toolbarHeight: 0,
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(84),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(26),
+                    gradient: LinearGradient(
+                      colors: AppColors.cinemaPanelGradient,
+                    ),
+                    border: Border.all(
+                      color: AppColors.cinemaBorder.withValues(alpha: 0.28),
+                    ),
+                  ),
+                  child: const TabBar(
+                    isScrollable: true,
+                    tabAlignment: TabAlignment.start,
+                    dividerColor: Colors.transparent,
+                    indicatorPadding: EdgeInsets.symmetric(vertical: 2),
+                    labelPadding: EdgeInsets.symmetric(horizontal: 14),
+                    tabs: [
+                      Tab(text: 'Watchlist'),
+                      Tab(text: 'Favourites'),
+                      Tab(text: 'Lists'),
+                      Tab(text: 'Notes'),
+                      Tab(text: 'Watched'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              const _WatchlistTab(),
+              const _FavouritesTab(),
+              _ListsTab(
+                selectedListId: _selectedListId,
+                onListSelected: (id) => setState(() => _selectedListId = id),
+              ),
+              const _NotesTab(),
+              const _WatchedTab(),
             ],
           ),
         ),
-        body: TabBarView(
-          children: [
-            const _WatchlistTab(),
-            const _FavouritesTab(),
-            _ListsTab(
-              selectedListId: _selectedListId,
-              onListSelected: (id) => setState(() => _selectedListId = id),
-            ),
-            const _NotesTab(),
-            const _WatchedTab(),
-          ],
-        ),
       ),
-    ),
     );
   }
 }
@@ -229,8 +246,8 @@ class _ListsTab extends ConsumerWidget {
                     backgroundColor: Colors.white.withValues(alpha: 0.05),
                     side: BorderSide(
                       color: isSelected
-                          ? AppColors.cinemaAccent
-                          : Colors.transparent,
+                          ? AppColors.cinemaGlow
+                          : AppColors.cinemaBorder.withValues(alpha: 0.18),
                     ),
                   );
                 },
@@ -338,8 +355,9 @@ class _ListsTab extends ConsumerWidget {
           Text(
             label,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.4),
+              color: Colors.white.withValues(alpha: 0.52),
               fontSize: 16,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],
@@ -420,13 +438,18 @@ class _ListsTab extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white54),
+            ),
           ),
           ElevatedButton(
             onPressed: () async {
               final newName = controller.text.trim();
               if (newName.isNotEmpty && newName != list.name) {
-                await ref.read(namedListsProvider.notifier).renameList(list.id, newName);
+                await ref
+                    .read(namedListsProvider.notifier)
+                    .renameList(list.id, newName);
                 if (context.mounted) {
                   Navigator.pop(context);
                   ToastUtils.showToast(context, 'List renamed to "$newName"');
@@ -435,7 +458,9 @@ class _ListsTab extends ConsumerWidget {
                 Navigator.pop(context);
               }
             },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.cinemaAccent),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.cinemaAccent,
+            ),
             child: const Text('Rename', style: TextStyle(color: Colors.black)),
           ),
         ],
@@ -469,7 +494,7 @@ class _ListsTab extends ConsumerWidget {
               await ref.read(namedListsProvider.notifier).deleteList(list.id);
               if (context.mounted) {
                 Navigator.pop(context);
-              ToastUtils.showToast(context, 'List "${list.name}" deleted');
+                ToastUtils.showToast(context, 'List "${list.name}" deleted');
               }
             },
             child: const Text(
@@ -571,9 +596,15 @@ class _NoteListTile extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.detailsCard.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+                gradient: LinearGradient(
+                  colors: AppColors.cinemaPanelGradient
+                      .map((color) => color.withValues(alpha: 0.72))
+                      .toList(growable: false),
+                ),
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: AppColors.cinemaBorder.withValues(alpha: 0.24),
+                ),
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -590,9 +621,7 @@ class _NoteListTile extends ConsumerWidget {
                                 imageUrl: details.posterPath!,
                                 fit: BoxFit.cover,
                               )
-                            : ColoredBox(
-                                color: AppColors.detailsPosterSurface,
-                              ),
+                            : ColoredBox(color: AppColors.detailsPosterSurface),
                       ),
                     ),
                   ),
@@ -672,7 +701,7 @@ class _NoteListTile extends ConsumerWidget {
 
     if (!context.mounted) return;
     ToastUtils.showToast(
-      context, 
+      context,
       'Note deleted',
       duration: const Duration(seconds: 5),
       action: SnackBarAction(
@@ -779,8 +808,9 @@ class _MediaGrid extends StatelessWidget {
             Text(
               emptyLabel,
               style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.4),
+                color: Colors.white.withValues(alpha: 0.52),
                 fontSize: 16,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],

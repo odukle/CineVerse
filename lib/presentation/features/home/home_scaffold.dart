@@ -28,17 +28,27 @@ class HomeScaffold extends ConsumerWidget {
     final bool isExplore = currentTab == HomeTab.explore;
     final bool isLibrary = currentTab == HomeTab.watchlist;
     final Widget? leadingContent = isMoviesOrTv
-        ? IconButton(
-            onPressed: () =>
-                _showSortSheet(context, ref, currentTab == HomeTab.tvShows),
-            icon: const Icon(Icons.sort_rounded, size: 24, color: Colors.white),
+        ? _ChromeActionButton(
             tooltip: 'Sort titles',
+            icon: Icons.sort_rounded,
+            onTap: () =>
+                _showSortSheet(context, ref, currentTab == HomeTab.tvShows),
           )
         : isExplore
-        ? const FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
-            child: ExploreMediaTypeToggle(),
+        ? Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              color: Colors.white.withValues(alpha: 0.05),
+              border: Border.all(
+                color: AppColors.cinemaBorder.withValues(alpha: 0.24),
+              ),
+            ),
+            child: const FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: ExploreMediaTypeToggle(),
+            ),
           )
         : isLibrary
         ? const SyncIndicator()
@@ -90,7 +100,7 @@ class HomeScaffold extends ConsumerWidget {
         child: Scaffold(
           backgroundColor: Colors.transparent,
           appBar: AppBar(
-            toolbarHeight: 60,
+            toolbarHeight: 68,
             backgroundColor: Colors.transparent,
             elevation: 0,
             automaticallyImplyLeading: false,
@@ -105,11 +115,21 @@ class HomeScaffold extends ConsumerWidget {
                       child: leadingContent,
                     ),
                   ),
-            title: SvgPicture.asset(
-              'assets/logos/logo.svg',
-              height: 26,
-              fit: BoxFit.contain,
-              semanticsLabel: AppConstants.appName,
+            title: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                color: Colors.white.withValues(alpha: 0.04),
+                border: Border.all(
+                  color: AppColors.cinemaBorder.withValues(alpha: 0.22),
+                ),
+              ),
+              child: SvgPicture.asset(
+                'assets/logos/logo.svg',
+                height: 24,
+                fit: BoxFit.contain,
+                semanticsLabel: AppConstants.appName,
+              ),
             ),
             actions: [
               SizedBox(
@@ -117,19 +137,18 @@ class HomeScaffold extends ConsumerWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    IconButton(
-                      onPressed: () {
+                    _ChromeActionButton(
+                      tooltip: 'Search',
+                      icon: Icons.search_rounded,
+                      onTap: () {
                         context.pushNamed(AppRoute.search.name);
                       },
-                      icon: const Icon(
-                        Icons.search_rounded,
-                        size: 24,
-                        color: Colors.white,
-                      ),
                     ),
                     if (isMoviesOrTv)
-                      IconButton(
-                        onPressed: () {
+                      _ChromeActionButton(
+                        tooltip: 'Filters',
+                        icon: Icons.tune_rounded,
+                        onTap: () {
                           context.pushNamed(
                             AppRoute.filter.name,
                             queryParameters: {
@@ -138,11 +157,6 @@ class HomeScaffold extends ConsumerWidget {
                             },
                           );
                         },
-                        icon: const Icon(
-                          Icons.tune_rounded,
-                          size: 24,
-                          color: Colors.white,
-                        ),
                       ),
                     const SizedBox(width: 8),
                   ],
@@ -163,10 +177,7 @@ class HomeScaffold extends ConsumerWidget {
   void _showSortSheet(BuildContext context, WidgetRef ref, bool isTv) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.cinemaSurface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (context) {
         return Consumer(
           builder: (context, ref, _) {
@@ -182,50 +193,86 @@ class HomeScaffold extends ConsumerWidget {
             ];
 
             return Container(
-              padding: const EdgeInsets.symmetric(vertical: 20),
+              padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: AppColors.cinemaPanelGradient,
+                ),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(30),
+                ),
+                border: Border.all(
+                  color: AppColors.cinemaBorder.withValues(alpha: 0.3),
+                ),
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Container(
+                    width: 48,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   const Text(
                     'Sort By',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  SwitchListTile(
-                    title: const Text(
-                      'Descending Order',
-                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Change ranking without changing what titles are available.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.64),
                     ),
-                    value: isDescending,
-                    activeThumbColor: AppColors.cinemaAccent,
-                    onChanged: (value) {
-                      final newOrder = value
-                          ? SortOrder.descending
-                          : SortOrder.ascending;
-                      ref
-                          .read(genreSortProvider.notifier)
-                          .updateSort(currentSort.sortField, newOrder);
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(22),
+                      color: Colors.white.withValues(alpha: 0.04),
+                      border: Border.all(
+                        color: AppColors.cinemaBorder.withValues(alpha: 0.2),
+                      ),
+                    ),
+                    child: SwitchListTile(
+                      title: const Text(
+                        'Descending Order',
+                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                      ),
+                      value: isDescending,
+                      activeThumbColor: AppColors.cinemaAccent,
+                      onChanged: (value) {
+                        final newOrder = value
+                            ? SortOrder.descending
+                            : SortOrder.ascending;
+                        ref
+                            .read(genreSortProvider.notifier)
+                            .updateSort(currentSort.sortField, newOrder);
 
-                      // Refresh data
-                      final genreId = isTv
-                          ? ref.read(selectedTvGenreIdProvider)
-                          : ref.read(selectedMovieGenreIdProvider);
-                      if (genreId != null) {
-                        resetGenreSection(ref, genreId, isTv: isTv);
-                      } else {
-                        final section = isTv
-                            ? MovieSection.tvPopular
-                            : MovieSection.popular;
-                        resetMovieSection(ref, section);
-                      }
-                    },
+                        final genreId = isTv
+                            ? ref.read(selectedTvGenreIdProvider)
+                            : ref.read(selectedMovieGenreIdProvider);
+                        if (genreId != null) {
+                          resetGenreSection(ref, genreId, isTv: isTv);
+                        } else {
+                          final section = isTv
+                              ? MovieSection.tvPopular
+                              : MovieSection.popular;
+                          resetMovieSection(ref, section);
+                        }
+                      },
+                    ),
                   ),
-                  const Divider(color: Colors.white10),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 10),
                   ...options.map((field) {
                     final isSelected = currentSort.sortField == field;
                     IconData fieldIcon;
@@ -248,6 +295,12 @@ class HomeScaffold extends ConsumerWidget {
                     }
 
                     return ListTile(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      tileColor: isSelected
+                          ? Colors.white.withValues(alpha: 0.08)
+                          : Colors.transparent,
                       leading: Icon(
                         fieldIcon,
                         color: isSelected
@@ -299,7 +352,7 @@ class HomeScaffold extends ConsumerWidget {
                       },
                     );
                   }),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 6),
                 ],
               ),
             );
@@ -307,5 +360,46 @@ class HomeScaffold extends ConsumerWidget {
         );
       },
     );
+  }
+}
+
+class _ChromeActionButton extends StatelessWidget {
+  const _ChromeActionButton({
+    required this.icon,
+    required this.onTap,
+    this.tooltip,
+  });
+
+  final IconData icon;
+  final VoidCallback onTap;
+  final String? tooltip;
+
+  @override
+  Widget build(BuildContext context) {
+    final Widget button = Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(18),
+        child: Ink(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            color: Colors.white.withValues(alpha: 0.05),
+            border: Border.all(
+              color: AppColors.cinemaBorder.withValues(alpha: 0.24),
+            ),
+          ),
+          child: Icon(icon, size: 22, color: Colors.white),
+        ),
+      ),
+    );
+
+    if (tooltip == null) {
+      return button;
+    }
+
+    return Tooltip(message: tooltip!, child: button);
   }
 }

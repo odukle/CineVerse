@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 enum AppThemeType {
-  lumi,     // Original Dark Purple/Cinema
-  midnight, // Pitch Black/Deep Blue
-  oceanic,  // Deep Teal/Cyan
-  forest,   // Dark Emerald/Gold
+  lumi, // Neon midnight cinema
+  midnight, // Deep blue noir
+  oceanic, // Teal current
+  forest, // Emerald luxe
 }
 
 class ThemePalette {
@@ -31,51 +31,51 @@ class ThemePalette {
   });
 
   static const lumi = ThemePalette(
-    background: Color(0xFF171336),
-    gradientTop: Color(0xFF221D4B),
-    gradientBottom: Color(0xFF120F2A),
-    surface: Color(0xFF2D2A34),
-    bottomBar: Color(0xFF2F2A33),
-    accent: Color(0xFF39D0B8),
-    selected: Color(0xFF19B7ED),
-    card: Color(0xFF2B2555),
-    outline: Color(0xFF8769FF),
+    background: Color(0xFF09111F),
+    gradientTop: Color(0xFF152A4F),
+    gradientBottom: Color(0xFF220B35),
+    surface: Color(0xFF12243F),
+    bottomBar: Color(0xFF0B1527),
+    accent: Color(0xFF42E8FF),
+    selected: Color(0xFFFF5CA8),
+    card: Color(0xFF101C34),
+    outline: Color(0xFF8668FF),
   );
 
   static const midnight = ThemePalette(
-    background: Color(0xFF070B12),
-    gradientTop: Color(0xFF101722),
-    gradientBottom: Color(0xFF030508),
-    surface: Color(0xFF182230),
-    bottomBar: Color(0xFF0C121D),
-    accent: Color(0xFF3B82F6),
-    selected: Color(0xFF60A5FA),
-    card: Color(0xFF111827),
-    outline: Color(0xFF1E293B),
+    background: Color(0xFF050912),
+    gradientTop: Color(0xFF0C1B35),
+    gradientBottom: Color(0xFF1A0A20),
+    surface: Color(0xFF111D33),
+    bottomBar: Color(0xFF07101D),
+    accent: Color(0xFF5BB8FF),
+    selected: Color(0xFF8B7CFF),
+    card: Color(0xFF0D172B),
+    outline: Color(0xFF39527F),
   );
 
   static const oceanic = ThemePalette(
-    background: Color(0xFF021B1A),
-    gradientTop: Color(0xFF042F2E),
-    gradientBottom: Color(0xFF01100F),
-    surface: Color(0xFF0F3635),
-    bottomBar: Color(0xFF061B1A),
-    accent: Color(0xFF2DD4BF),
-    selected: Color(0xFF5EEAD4),
-    card: Color(0xFF062C2B),
-    outline: Color(0xFF14B8A6),
+    background: Color(0xFF041516),
+    gradientTop: Color(0xFF08333A),
+    gradientBottom: Color(0xFF03111B),
+    surface: Color(0xFF0D2830),
+    bottomBar: Color(0xFF081920),
+    accent: Color(0xFF47E7D0),
+    selected: Color(0xFF60A5FA),
+    card: Color(0xFF0A2128),
+    outline: Color(0xFF0EC6B4),
   );
 
   static const forest = ThemePalette(
-    background: Color(0xFF06140E),
-    gradientTop: Color(0xFF0D251A),
-    gradientBottom: Color(0xFF030806),
-    surface: Color(0xFF163226),
-    bottomBar: Color(0xFF0A1F16),
-    accent: Color(0xFFD4AF37), // Gold
-    selected: Color(0xFFE5C158),
-    card: Color(0xFF0E241B),
-    outline: Color(0xFF2F5F4B),
+    background: Color(0xFF08140F),
+    gradientTop: Color(0xFF123123),
+    gradientBottom: Color(0xFF120A18),
+    surface: Color(0xFF153125),
+    bottomBar: Color(0xFF0B1F18),
+    accent: Color(0xFFE4C15C),
+    selected: Color(0xFF55E6B5),
+    card: Color(0xFF10261D),
+    outline: Color(0xFF3E7E62),
   );
 
   static ThemePalette fromType(AppThemeType type) {

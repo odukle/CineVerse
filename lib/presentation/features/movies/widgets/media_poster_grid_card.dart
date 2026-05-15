@@ -37,11 +37,13 @@ class MediaPosterGridCard extends ConsumerWidget {
     final bool isPerson = movie.mediaType == GlobalMediaType.person;
     final String heroTag = 'media-poster-${movie.id}-$sectionTitle';
 
-    final mediaType = movie.mediaType ?? (isTvTitle ? GlobalMediaType.tv : GlobalMediaType.movie);
+    final mediaType =
+        movie.mediaType ??
+        (isTvTitle ? GlobalMediaType.tv : GlobalMediaType.movie);
     final bool isWatched = isPerson
         ? false
         : ref.watch(isWatchedProvider((id: movie.id, type: mediaType))).value ??
-            false;
+              false;
 
     final Widget scoreBadge = isPerson
         ? const SizedBox.shrink()
@@ -84,14 +86,15 @@ class MediaPosterGridCard extends ConsumerWidget {
     }
 
     // Fallback if the specific attribute is not available or we are not in a specific sort
-    subtitleText ??= movie.subtitle ??
+    subtitleText ??=
+        movie.subtitle ??
         movie.releaseDate ??
         (sectionTitle == 'search' ? '' : sectionTitle);
 
     return SizedBox(
       width: width,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
         onTap: () {
           if (isPerson) {
             context.pushNamed(
@@ -113,7 +116,9 @@ class MediaPosterGridCard extends ConsumerWidget {
             );
           }
         },
-        onLongPress: isPerson ? null : () => _showMediaActionsMenu(context, ref),
+        onLongPress: isPerson
+            ? null
+            : () => _showMediaActionsMenu(context, ref),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -122,42 +127,87 @@ class MediaPosterGridCard extends ConsumerWidget {
               children: [
                 Hero(
                   tag: heroTag,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: SizedBox(
-                      height: posterHeight,
-                      width: width,
-                      child: movie.posterPath == null
-                          ? ColoredBox(
-                              color: AppColors.cinemaPlaceholder,
-                              child: Center(
-                                child: Icon(
-                                  isPerson
-                                      ? Icons.person_outline_rounded
-                                      : Icons.movie_outlined,
-                                ),
-                              ),
-                            )
-                          : CachedNetworkImage(
-                              imageUrl: movie.posterPath!,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => ColoredBox(
-                                color: AppColors.cinemaPlaceholder,
-                                child: const Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => ColoredBox(
+                  child: Container(
+                    padding: const EdgeInsets.all(1.2),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: <Color>[
+                          AppColors.cinemaGlow.withValues(alpha: 0.5),
+                          Colors.white.withValues(alpha: 0.12),
+                          AppColors.cinemaWarmGlow.withValues(alpha: 0.46),
+                        ],
+                      ),
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(
+                          color: AppColors.cinemaGlow.withValues(alpha: 0.16),
+                          blurRadius: 20,
+                          spreadRadius: -10,
+                          offset: const Offset(0, 12),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: SizedBox(
+                        height: posterHeight,
+                        width: width,
+                        child: Stack(
+                          fit: StackFit.expand,
+                          children: [
+                            if (movie.posterPath == null)
+                              ColoredBox(
                                 color: AppColors.cinemaPlaceholder,
                                 child: Center(
                                   child: Icon(
                                     isPerson
-                                        ? Icons.person_off_rounded
-                                        : Icons.broken_image_outlined,
+                                        ? Icons.person_outline_rounded
+                                        : Icons.movie_outlined,
+                                  ),
+                                ),
+                              )
+                            else
+                              CachedNetworkImage(
+                                imageUrl: movie.posterPath!,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => ColoredBox(
+                                  color: AppColors.cinemaPlaceholder,
+                                  child: const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) =>
+                                    ColoredBox(
+                                      color: AppColors.cinemaPlaceholder,
+                                      child: Center(
+                                        child: Icon(
+                                          isPerson
+                                              ? Icons.person_off_rounded
+                                              : Icons.broken_image_outlined,
+                                        ),
+                                      ),
+                                    ),
+                              ),
+                            Positioned.fill(
+                              child: DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: <Color>[
+                                      Colors.transparent,
+                                      Colors.transparent,
+                                      Colors.black.withValues(alpha: 0.16),
+                                    ],
                                   ),
                                 ),
                               ),
                             ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -195,7 +245,7 @@ class MediaPosterGridCard extends ConsumerWidget {
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: Colors.white,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
               ),
             ),
             const SizedBox(height: 2),
@@ -204,7 +254,8 @@ class MediaPosterGridCard extends ConsumerWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: theme.textTheme.labelSmall?.copyWith(
-                color: Colors.white.withValues(alpha: 0.62),
+                color: Colors.white.withValues(alpha: 0.68),
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -240,7 +291,8 @@ class MediaPosterGridCard extends ConsumerWidget {
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => MediaActionsBottomSheet(movie: movie, isTv: isTvTitle),
+      builder: (context) =>
+          MediaActionsBottomSheet(movie: movie, isTv: isTvTitle),
     );
   }
 }

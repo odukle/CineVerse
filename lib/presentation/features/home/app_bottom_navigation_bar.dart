@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 enum HomeTab { explore, movies, tvShows, watchlist, account }
 
 extension _HomeTabRoute on HomeTab {
-
   IconData get icon {
     switch (this) {
       case HomeTab.explore:
@@ -71,17 +70,45 @@ class AppBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.cinemaGradientBottom,
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 14),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          children: _tabOrder
-              .map(
-                (tab) => _BottomNavItem(tab: tab, selected: tab == currentTab),
-              )
-              .toList(growable: false),
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(28),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: <Color>[
+                AppColors.cinemaPanelTop.withValues(alpha: 0.96),
+                AppColors.cinemaPanelMid.withValues(alpha: 0.94),
+                AppColors.cinemaPanelBottom.withValues(alpha: 0.94),
+              ],
+            ),
+            border: Border.all(
+              color: AppColors.cinemaBorder.withValues(alpha: 0.38),
+            ),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: AppColors.cinemaGlow.withValues(alpha: 0.15),
+                blurRadius: 24,
+                spreadRadius: -12,
+                offset: const Offset(0, 16),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+            child: Row(
+              children: _tabOrder
+                  .map(
+                    (tab) =>
+                        _BottomNavItem(tab: tab, selected: tab == currentTab),
+                  )
+                  .toList(growable: false),
+            ),
+          ),
         ),
       ),
     );
@@ -100,36 +127,57 @@ class _BottomNavItem extends StatelessWidget {
       child: InkWell(
         onTap: selected
             ? null
-            : () => (context
-                    .findAncestorWidgetOfExactType<AppBottomNavigationBar>()!)
-                .onTabSelected(AppBottomNavigationBar._tabOrder.indexOf(tab)),
+            : () =>
+                  (context
+                          .findAncestorWidgetOfExactType<
+                            AppBottomNavigationBar
+                          >()!)
+                      .onTabSelected(
+                        AppBottomNavigationBar._tabOrder.indexOf(tab),
+                      ),
         borderRadius: BorderRadius.circular(18),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
+          padding: const EdgeInsets.symmetric(vertical: 1),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutBack,
+                curve: Curves.easeOutCubic,
                 padding: EdgeInsets.symmetric(
-                  horizontal: selected ? 20 : 12,
-                  vertical: 6,
+                  horizontal: selected ? 16 : 12,
+                  vertical: selected ? 7 : 5,
                 ),
                 decoration: BoxDecoration(
-                  color: selected
-                      ? AppColors.cinemaSelected.withValues(alpha: 0.15)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
+                  gradient: selected
+                      ? LinearGradient(
+                          colors: <Color>[
+                            AppColors.cinemaGlow.withValues(alpha: 0.92),
+                            AppColors.cinemaWarmGlow.withValues(alpha: 0.92),
+                          ],
+                        )
+                      : null,
+                  color: selected ? null : Colors.transparent,
+                  borderRadius: BorderRadius.circular(18),
+                  boxShadow: selected
+                      ? <BoxShadow>[
+                          BoxShadow(
+                            color: AppColors.cinemaGlow.withValues(alpha: 0.24),
+                            blurRadius: 16,
+                            spreadRadius: -6,
+                            offset: const Offset(0, 8),
+                          ),
+                        ]
+                      : null,
                 ),
                 child: AnimatedScale(
                   duration: const Duration(milliseconds: 300),
-                  scale: selected ? 1.15 : 1.0,
-                  curve: Curves.easeOutBack,
+                  scale: selected ? 1.1 : 1.0,
+                  curve: Curves.easeOutCubic,
                   child: Icon(
                     selected ? tab.selectedIcon : tab.icon,
-                    color: selected ? AppColors.cinemaAccent : Colors.white70,
-                    size: 22,
+                    color: selected ? Colors.white : Colors.white70,
+                    size: 20,
                   ),
                 ),
               ),
@@ -137,9 +185,9 @@ class _BottomNavItem extends StatelessWidget {
               AnimatedDefaultTextStyle(
                 duration: const Duration(milliseconds: 200),
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 9,
                   fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
-                  color: selected ? AppColors.cinemaAccent : Colors.white70,
+                  color: selected ? Colors.white : Colors.white70,
                 ),
                 child: Text(tab.label),
               ),
