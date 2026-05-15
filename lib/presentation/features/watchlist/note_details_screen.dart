@@ -15,6 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:cineverse/presentation/widgets/animated_dialog.dart';
+import 'package:cineverse/presentation/widgets/media_actions_dialogs.dart';
 
 class NoteDetailsScreen extends ConsumerWidget {
   const NoteDetailsScreen({super.key, required this.noteId});
@@ -202,22 +204,35 @@ class NoteDetailsScreen extends ConsumerWidget {
                   style: const TextStyle(color: Colors.white54, fontSize: 13),
                 ),
                 const SizedBox(height: 16),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.detailsCard.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.05),
+                InkWell(
+                  onTap: () {
+                    showAnimatedDialog(
+                      context: context,
+                      builder: (context) => AddNoteDialog(
+                        mediaId: note.movieId,
+                        mediaType: note.mediaType,
+                        initialNote: note,
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppColors.detailsCard.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.05),
+                      ),
                     ),
-                  ),
-                  child: Text(
-                    note.text,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      height: 1.6,
+                    child: Text(
+                      note.text,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        height: 1.6,
+                      ),
                     ),
                   ),
                 ),

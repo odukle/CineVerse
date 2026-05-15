@@ -126,8 +126,6 @@ class TmdbApiClient {
     );
   }
 
-
-
   Future<TmdbMoviesResponseDto> searchMovies(String query, {int page = 1}) {
     return _getMovies(
       operation: 'searchMovies($query)',
@@ -213,9 +211,9 @@ class TmdbApiClient {
       'include_adult': false,
       'sort_by': isTv
           ? filter.sortByValue.replaceAll(
-            'primary_release_date',
-            'first_air_date',
-          )
+              'primary_release_date',
+              'first_air_date',
+            )
           : filter.sortByValue,
       'vote_average.gte': filter.userScore.start,
       'vote_average.lte': filter.userScore.end,
@@ -228,25 +226,48 @@ class TmdbApiClient {
       queryParams['with_text_query'] = query;
     }
 
-    final List<int> moodGenres = [];
-    final List<int> moodKeywords = [];
+    if (filter.originalLanguageCode != null &&
+        filter.originalLanguageCode!.isNotEmpty) {
+      queryParams['with_original_language'] = filter.originalLanguageCode;
+    }
 
     if (filter.mood != null) {
-      moodGenres.addAll(filter.mood!.genreIds);
-      moodKeywords.addAll(filter.mood!.keywordIds);
+      final mood = filter.mood!;
+
+      final allResults = <TmdbMovieDto>[];
+      final seenIds = <int>{};
+
+      // Strict Keyword-based Discovery (No fallback to recommendations)
+      // This ensures 100% mood purity and prevents blockbuster leakage
+      if (mood.keywordIds.isNotEmpty) {
+        final response = await _getMovies(
+          operation: 'moodKeywordDiscover',
+          path: isTv
+              ? AppConstants.tmdbDiscoverTvPath
+              : AppConstants.tmdbDiscoverMoviePath,
+          queryParameters: <String, dynamic>{
+            ...queryParams,
+            'with_keywords': mood.keywordIds.join(
+              '|',
+            ), // OR relationship for keywords
+          },
+        );
+
+        for (final movie in response.movies) {
+          if (seenIds.add(movie.id)) {
+            allResults.add(movie);
+          }
+        }
+      }
+
+      // Ensure consistent sorting
+      allResults.sort((a, b) => b.popularity.compareTo(a.popularity));
+
+      return TmdbMoviesResponseDto(movies: allResults);
     }
 
-    if (filter.genres.isNotEmpty || moodGenres.isNotEmpty) {
-      // Use OR (|) for mood genres and AND (,) for explicit user genres
-      // However, usually we want ANY of the genres to match for discovery
-      // Let's use OR for everything in discover mode to be more helpful
-      final allGenres = {...filter.genres, ...moodGenres};
-      queryParams['with_genres'] = allGenres.join('|');
-    }
-
-    if (moodKeywords.isNotEmpty) {
-      // Use OR (|) for keywords to be inclusive
-      queryParams['with_keywords'] = moodKeywords.join('|');
+    if (filter.genres.isNotEmpty) {
+      queryParams['with_genres'] = filter.genres.join('|');
     }
 
     if (filter.availabilities.isNotEmpty) {
@@ -392,60 +413,83 @@ class TmdbApiClient {
           );
 
       final Map<String, dynamic>? payload = response.data;
-      final List<dynamic> postersPayload =
-          (payload?['posters'] as List<dynamic>?) ?? <dynamic>[];
-      final List<dynamic> backdropsPayload =
-          (payload?['backdrops'] as List<dynamic>?) ?? <dynamic>[];
-      final List<dynamic> logosPayload =
-          (payload?['logos'] as List<dynamic>?) ?? <dynamic>[];
-
-      final List<String> posters = postersPayload
-          .whereType<Map<String, dynamic>>()
-          .take(10)
-          .map(
-            (item) =>
-                _normalizeImagePath(item['file_path'] as String?, size: 'w780'),
-          )
-          .whereType<String>()
-          .toList(growable: false);
-
-      final List<String> backdrops = backdropsPayload
-          .whereType<Map<String, dynamic>>()
-          .take(10)
-          .map(
-            (item) => _normalizeImagePath(
-              item['file_path'] as String?,
-              size: 'w1280',
-            ),
-          )
-          .whereType<String>()
-          .toList(growable: false);
-
-      final List<String> logos = logosPayload
-          .whereType<Map<String, dynamic>>()
-          .sortedBy((item) {
-            final String? path = item['file_path'] as String?;
-            final bool isSvg = path?.toLowerCase().endsWith('.svg') ?? false;
-            final bool isEn = item['iso_639_1'] == 'en';
-
-            // Priority: SVG English > SVG Other > PNG English > PNG Other
-            if (isSvg && isEn) return 0;
-            if (isSvg) return 1;
-            if (isEn) return 2;
-            return 3;
-          })
-          .take(5)
-          .map((item) {
-            final String? path = item['file_path'] as String?;
-            final bool isSvg = path?.toLowerCase().endsWith('.svg') ?? false;
-            return _normalizeImagePath(path, size: isSvg ? 'original' : 'w500');
-          })
-          .whereType<String>()
-          .toList(growable: false);
-
-      return MediaImages(posters: posters, backdrops: backdrops, logos: logos);
+      return _parseMediaImages(payload);
     } on DioException catch (error, stackTrace) {
       _logFailure('fetchMediaImages($mediaId)', error, stackTrace);
+      return MediaImages.empty;
+    }
+  }
+
+  MediaImages _parseMediaImages(Map<String, dynamic>? payload) {
+    final List<dynamic> postersPayload =
+        (payload?['posters'] as List<dynamic>?) ?? <dynamic>[];
+    final List<dynamic> backdropsPayload =
+        (payload?['backdrops'] as List<dynamic>?) ?? <dynamic>[];
+    final List<dynamic> logosPayload =
+        (payload?['logos'] as List<dynamic>?) ?? <dynamic>[];
+
+    final List<String> posters = postersPayload
+        .whereType<Map<String, dynamic>>()
+        .take(10)
+        .map(
+          (item) =>
+              _normalizeImagePath(item['file_path'] as String?, size: 'w780'),
+        )
+        .whereType<String>()
+        .toList(growable: false);
+
+    final List<String> backdrops = backdropsPayload
+        .whereType<Map<String, dynamic>>()
+        .take(10)
+        .map(
+          (item) =>
+              _normalizeImagePath(item['file_path'] as String?, size: 'w1280'),
+        )
+        .whereType<String>()
+        .toList(growable: false);
+
+    final List<String> logos = logosPayload
+        .whereType<Map<String, dynamic>>()
+        .sortedBy((item) {
+          final String? path = item['file_path'] as String?;
+          final bool isSvg = path?.toLowerCase().endsWith('.svg') ?? false;
+          final bool isEn = item['iso_639_1'] == 'en';
+
+          // Priority: SVG English > SVG Other > PNG English > PNG Other
+          if (isSvg && isEn) return 0;
+          if (isSvg) return 1;
+          if (isEn) return 2;
+          return 3;
+        })
+        .take(5)
+        .map((item) {
+          final String? path = item['file_path'] as String?;
+          final bool isSvg = path?.toLowerCase().endsWith('.svg') ?? false;
+          return _normalizeImagePath(path, size: isSvg ? 'original' : 'w500');
+        })
+        .whereType<String>()
+        .toList(growable: false);
+
+    return MediaImages(posters: posters, backdrops: backdrops, logos: logos);
+  }
+
+  Future<MediaImages> fetchTvSeasonImages(int tvId, int seasonNumber) async {
+    _assertMovieApiConfigured();
+
+    try {
+      final response = await client.get<Map<String, dynamic>>(
+        '/tv/$tvId/season/$seasonNumber/images',
+        queryParameters: _authQueryParameters(),
+      );
+
+      final Map<String, dynamic>? payload = response.data;
+      return _parseMediaImages(payload);
+    } on DioException catch (error, stackTrace) {
+      _logFailure(
+        'fetchTvSeasonImages($tvId, $seasonNumber)',
+        error,
+        stackTrace,
+      );
       return MediaImages.empty;
     }
   }
@@ -454,9 +498,11 @@ class TmdbApiClient {
     _assertMovieApiConfigured();
 
     try {
-      final Response<Map<String, dynamic>> response = await client.get<
-        Map<String, dynamic>
-      >('/person/$personId/images', queryParameters: _authQueryParameters());
+      final Response<Map<String, dynamic>> response = await client
+          .get<Map<String, dynamic>>(
+            '/person/$personId/images',
+            queryParameters: _authQueryParameters(),
+          );
 
       final Map<String, dynamic>? payload = response.data;
       final List<dynamic> profilesPayload =
@@ -501,8 +547,10 @@ class TmdbApiClient {
 
       return TmdbReviewsResponseDto.fromJson(payload).reviews.map((dto) {
         return dto.copyWith(
-          authorAvatarPath:
-              _normalizeImagePath(dto.authorAvatarPath, size: 'w185'),
+          authorAvatarPath: _normalizeImagePath(
+            dto.authorAvatarPath,
+            size: 'w185',
+          ),
         );
       }).toList();
     } on DioException catch (error, stackTrace) {
@@ -641,21 +689,24 @@ class TmdbApiClient {
     MediaFilter? filter,
   }) {
     final Map<String, dynamic> pagedParams = _pagedQueryParameters(page: page);
-    
+
     // Apply sort if filter is provided
     if (filter != null) {
       final bool isTv = section.name.startsWith('tv');
       pagedParams['sort_by'] = isTv
           ? filter.sortByValue.replaceAll(
-            'primary_release_date',
-            'first_air_date',
-          )
+              'primary_release_date',
+              'first_air_date',
+            )
           : filter.sortByValue;
-          
+
       // Special handling for discover endpoints
-      if (section == MovieSection.discover || section == MovieSection.tvDiscover) {
+      if (section == MovieSection.discover ||
+          section == MovieSection.tvDiscover) {
         return (
-          path: isTv ? AppConstants.tmdbDiscoverTvPath : AppConstants.tmdbDiscoverMoviePath,
+          path: isTv
+              ? AppConstants.tmdbDiscoverTvPath
+              : AppConstants.tmdbDiscoverMoviePath,
           queryParameters: <String, dynamic>{
             ...pagedParams,
             'include_adult': false,
@@ -890,8 +941,10 @@ class TmdbApiClient {
           queryParameters: _detailQueryParameters(),
         );
 
-        final List<dynamic> cast = response.data?['cast'] as List<dynamic>? ?? [];
-        final List<dynamic> crew = response.data?['crew'] as List<dynamic>? ?? [];
+        final List<dynamic> cast =
+            response.data?['cast'] as List<dynamic>? ?? [];
+        final List<dynamic> crew =
+            response.data?['crew'] as List<dynamic>? ?? [];
 
         for (final item in [...cast, ...crew]) {
           if (item is Map<String, dynamic>) {
@@ -906,54 +959,53 @@ class TmdbApiClient {
     }
 
     // Filter by genres, dates, etc.
-    final filtered =
-        allCredits.where((movie) {
-          // Title filter (query) - for search screen workaround
-          if (query != null && query.isNotEmpty) {
-            if (!movie.title.toLowerCase().contains(query.toLowerCase())) {
-              return false;
-            }
-          }
+    final filtered = allCredits.where((movie) {
+      // Title filter (query) - for search screen workaround
+      if (query != null && query.isNotEmpty) {
+        if (!movie.title.toLowerCase().contains(query.toLowerCase())) {
+          return false;
+        }
+      }
 
-          // Genre filter
-          if (filter.genres.isNotEmpty) {
-            if (!movie.genreIds.any((id) => filter.genres.contains(id))) {
-              return false;
-            }
-          }
+      // Genre filter
+      if (filter.genres.isNotEmpty) {
+        if (!movie.genreIds.any((id) => filter.genres.contains(id))) {
+          return false;
+        }
+      }
 
-          // Date filter
-          if (filter.releaseDateFrom != null || filter.releaseDateTo != null) {
-            if (movie.releaseDate == null || movie.releaseDate!.isEmpty) {
-              return false;
-            }
-            final date = DateTime.tryParse(movie.releaseDate!);
-            if (date == null) return false;
-            if (filter.releaseDateFrom != null &&
-                date.isBefore(filter.releaseDateFrom!)) {
-              return false;
-            }
-            if (filter.releaseDateTo != null &&
-                date.isAfter(filter.releaseDateTo!)) {
-              return false;
-            }
-          }
+      // Date filter
+      if (filter.releaseDateFrom != null || filter.releaseDateTo != null) {
+        if (movie.releaseDate == null || movie.releaseDate!.isEmpty) {
+          return false;
+        }
+        final date = DateTime.tryParse(movie.releaseDate!);
+        if (date == null) return false;
+        if (filter.releaseDateFrom != null &&
+            date.isBefore(filter.releaseDateFrom!)) {
+          return false;
+        }
+        if (filter.releaseDateTo != null &&
+            date.isAfter(filter.releaseDateTo!)) {
+          return false;
+        }
+      }
 
-          // Score filter
-          if (movie.voteAverage != null) {
-            if (movie.voteAverage! < filter.userScore.start ||
-                movie.voteAverage! > filter.userScore.end) {
-              return false;
-            }
-          }
+      // Score filter
+      if (movie.voteAverage != null) {
+        if (movie.voteAverage! < filter.userScore.start ||
+            movie.voteAverage! > filter.userScore.end) {
+          return false;
+        }
+      }
 
-          // Votes filter
-          if (movie.voteCount < filter.minUserVotes && !filter.includeNotRated) {
-            return false;
-          }
+      // Votes filter
+      if (movie.voteCount < filter.minUserVotes && !filter.includeNotRated) {
+        return false;
+      }
 
-          return true;
-        }).toList();
+      return true;
+    }).toList();
 
     // Remove duplicates
     final seenIds = <int>{};
@@ -989,14 +1041,17 @@ class TmdbApiClient {
     return TmdbMoviesResponseDto(movies: unique);
   }
 
-  Future<TmdbTvSeasonDto> fetchTvSeasonDetails(int tvId, int seasonNumber) async {
+  Future<TmdbTvSeasonDto> fetchTvSeasonDetails(
+    int tvId,
+    int seasonNumber,
+  ) async {
     _assertMovieApiConfigured();
 
-    final Response<Map<String, dynamic>> response = await client.get<
-        Map<String, dynamic>>(
-      '/tv/$tvId/season/$seasonNumber',
-      queryParameters: _authQueryParameters(),
-    );
+    final Response<Map<String, dynamic>> response = await client
+        .get<Map<String, dynamic>>(
+          '/tv/$tvId/season/$seasonNumber',
+          queryParameters: _authQueryParameters(),
+        );
 
     return TmdbTvSeasonDto.fromJson(response.data!);
   }
@@ -1008,14 +1063,14 @@ class TmdbApiClient {
   ) async {
     _assertMovieApiConfigured();
 
-    final Response<Map<String, dynamic>> response = await client.get<
-        Map<String, dynamic>>(
-      '/tv/$tvId/season/$seasonNumber/episode/$episodeNumber',
-      queryParameters: <String, dynamic>{
-        ..._authQueryParameters(),
-        'append_to_response': 'credits,images',
-      },
-    );
+    final Response<Map<String, dynamic>> response = await client
+        .get<Map<String, dynamic>>(
+          '/tv/$tvId/season/$seasonNumber/episode/$episodeNumber',
+          queryParameters: <String, dynamic>{
+            ..._authQueryParameters(),
+            'append_to_response': 'credits,images',
+          },
+        );
 
     return TmdbTvEpisodeDto.fromJson(response.data!);
   }

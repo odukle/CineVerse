@@ -61,4 +61,5 @@ abstract interface class MediaRepository {
     int seasonNumber,
     int episodeNumber,
   );
+  Future<MediaImages> fetchTvSeasonImages(int tvId, int seasonNumber);
 }

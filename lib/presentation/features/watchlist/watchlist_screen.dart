@@ -274,7 +274,7 @@ class _ListsTab extends ConsumerWidget {
                     );
                   }
 
-                  const double crossAxisSpacing = 10;
+                  const double crossAxisSpacing = 12;
                   const int crossAxisCount = 3;
                   final double cardWidth =
                       (MediaQuery.sizeOf(context).width -
@@ -291,8 +291,8 @@ class _ListsTab extends ConsumerWidget {
                               const SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: crossAxisCount,
                                 crossAxisSpacing: crossAxisSpacing,
-                                mainAxisSpacing: 0,
-                                mainAxisExtent: 220,
+                                mainAxisSpacing: 16,
+                                childAspectRatio: 0.55,
                               ),
                           delegate: SliverChildBuilderDelegate((
                             context,
@@ -788,7 +788,7 @@ class _MediaGrid extends StatelessWidget {
       );
     }
 
-    const double crossAxisSpacing = 10;
+    const double crossAxisSpacing = 12;
     const int crossAxisCount = 3;
     final double cardWidth =
         (MediaQuery.sizeOf(context).width - (16 * 2) - (crossAxisSpacing * 2)) /
@@ -799,8 +799,8 @@ class _MediaGrid extends StatelessWidget {
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: crossAxisSpacing,
-        mainAxisSpacing: 0,
-        mainAxisExtent: 220,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.55,
       ),
       itemCount: items.length,
       itemBuilder: (context, index) {
@@ -824,8 +824,9 @@ class _LoadingGrid extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        crossAxisSpacing: 10,
-        mainAxisExtent: 220,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.55,
       ),
       itemCount: 9,
       itemBuilder: (context, index) => Column(

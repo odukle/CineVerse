@@ -7,6 +7,7 @@ import 'package:cineverse/presentation/providers/quotes_provider.dart';
 import 'package:cineverse/domain/repositories/quotes_repository.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:cineverse/core/utils/toast_utils.dart';
+import 'package:cineverse/domain/entities/movie_details.dart';
 
 class ExploreWikiquotesScreen extends ConsumerWidget {
   const ExploreWikiquotesScreen({
@@ -15,12 +16,16 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
     this.isTv = false,
     this.isSeason = false,
     this.pageName,
+    this.details,
+    this.seasonNumber,
   });
 
   final String title;
   final bool isTv;
   final bool isSeason;
   final String? pageName;
+  final MovieDetails? details;
+  final int? seasonNumber;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -223,6 +228,28 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                   )
                 else
                   const Spacer(),
+                if (details != null && content.text.length < 300)
+                  IconButton(
+                    onPressed: () {
+                      context.push(
+                        '/quote_share_editor',
+                        extra: {
+                          'details': details,
+                          'isTv': isTv,
+                          'initialQuote': MediaQuote(
+                            text: content.text,
+                            character: content.character,
+                          ),
+                          'seasonNumber': seasonNumber,
+                        },
+                      );
+                    },
+                    icon: Icon(Icons.share_rounded, color: AppColors.cinemaAccent.withValues(alpha: 0.8), size: 18),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    tooltip: 'Share quote',
+                  ),
+                const SizedBox(width: 8),
                 IconButton(
                   onPressed: () {
                     final textToCopy = content.character != null 
@@ -275,18 +302,48 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
             }),
             Align(
               alignment: Alignment.bottomRight,
-              child: IconButton(
-                onPressed: () {
-                  final dialogueText = content.lines
-                      .map((l) => l.character.isNotEmpty ? '${l.character}: ${l.text}' : l.text)
-                      .join('\n');
-                  Clipboard.setData(ClipboardData(text: dialogueText));
-                  ToastUtils.showToast(context, 'Dialogue copied to clipboard');
-                },
-                icon: const Icon(Icons.copy_rounded, color: Colors.white54, size: 18),
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                tooltip: 'Copy dialogue',
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (details != null && content.lines.map((l) => l.text).join('\n').length < 300)
+                    IconButton(
+                      onPressed: () {
+                        final dialogueText = content.lines
+                            .map((l) => l.character.isNotEmpty ? '${l.character}: ${l.text}' : l.text)
+                            .join('\n');
+                        context.push(
+                          '/quote_share_editor',
+                          extra: {
+                            'details': details,
+                            'isTv': isTv,
+                            'initialQuote': MediaQuote(
+                              text: dialogueText,
+                              character: null,
+                            ),
+                            'seasonNumber': seasonNumber,
+                          },
+                        );
+                      },
+                      icon: Icon(Icons.share_rounded, color: AppColors.cinemaAccent.withValues(alpha: 0.8), size: 18),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      tooltip: 'Share dialogue',
+                    ),
+                  const SizedBox(width: 8),
+                  IconButton(
+                    onPressed: () {
+                      final dialogueText = content.lines
+                          .map((l) => l.character.isNotEmpty ? '${l.character}: ${l.text}' : l.text)
+                          .join('\n');
+                      Clipboard.setData(ClipboardData(text: dialogueText));
+                      ToastUtils.showToast(context, 'Dialogue copied to clipboard');
+                    },
+                    icon: const Icon(Icons.copy_rounded, color: Colors.white54, size: 18),
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    tooltip: 'Copy dialogue',
+                  ),
+                ],
               ),
             ),
           ],
@@ -308,6 +365,8 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                   'isTv': isTv,
                   'isSeason': true,
                   'pageName': content.pageName,
+                  'details': details,
+                  'seasonNumber': _parseSeasonNumber(content.title),
                 },
               );
             },
@@ -334,5 +393,14 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
     }
 
     return const SizedBox.shrink();
+  }
+
+  int? _parseSeasonNumber(String title) {
+    final regExp = RegExp(r'Season\s+(\d+)', caseSensitive: false);
+    final match = regExp.firstMatch(title);
+    if (match != null) {
+      return int.tryParse(match.group(1) ?? '');
+    }
+    return null;
   }
 }

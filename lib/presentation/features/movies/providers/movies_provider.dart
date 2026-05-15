@@ -10,7 +10,7 @@ import 'package:cineverse/domain/usecases/get_movie_section_use_case.dart';
 import 'package:cineverse/domain/usecases/discover_media_use_case.dart';
 import 'package:cineverse/presentation/features/movies/providers/filter_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/explore_provider.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MediaFilterOption {
@@ -19,23 +19,33 @@ class MediaFilterOption {
   final MovieSection section;
 }
 
-final movieFilterOptions = Provider<List<MediaFilterOption>>((ref) => const [
-  MediaFilterOption(label: 'Popular', section: MovieSection.popular),
-  MediaFilterOption(label: 'Top Rated', section: MovieSection.topRated),
-  MediaFilterOption(label: 'In Theaters', section: MovieSection.nowPlaying),
-  MediaFilterOption(label: 'Coming Soon', section: MovieSection.upcoming),
-  MediaFilterOption(label: 'Filtered', section: MovieSection.discover),
-]);
+final movieFilterOptions = Provider<List<MediaFilterOption>>(
+  (ref) => const [
+    MediaFilterOption(label: 'Popular', section: MovieSection.popular),
+    MediaFilterOption(label: 'Top Rated', section: MovieSection.topRated),
+    MediaFilterOption(label: 'In Theaters', section: MovieSection.nowPlaying),
+    MediaFilterOption(label: 'Coming Soon', section: MovieSection.upcoming),
+    MediaFilterOption(label: 'Filtered', section: MovieSection.discover),
+  ],
+);
 
-final tvFilterOptions = Provider<List<MediaFilterOption>>((ref) => const [
-  MediaFilterOption(label: 'Popular', section: MovieSection.tvPopular),
-  MediaFilterOption(label: 'Top Rated', section: MovieSection.tvTopRated),
-  MediaFilterOption(label: 'On The Air', section: MovieSection.tvOnTheAir),
-  MediaFilterOption(label: 'Airing Today', section: MovieSection.tvAiringToday),
-  MediaFilterOption(label: 'Filtered', section: MovieSection.tvDiscover),
-]);
+final tvFilterOptions = Provider<List<MediaFilterOption>>(
+  (ref) => const [
+    MediaFilterOption(label: 'Popular', section: MovieSection.tvPopular),
+    MediaFilterOption(label: 'Top Rated', section: MovieSection.tvTopRated),
+    MediaFilterOption(label: 'On The Air', section: MovieSection.tvOnTheAir),
+    MediaFilterOption(
+      label: 'Airing Today',
+      section: MovieSection.tvAiringToday,
+    ),
+    MediaFilterOption(label: 'Filtered', section: MovieSection.tvDiscover),
+  ],
+);
 
-final selectedMovieFilterProvider = NotifierProvider<SelectedMovieFilter, MediaFilterOption>(SelectedMovieFilter.new);
+final selectedMovieFilterProvider =
+    NotifierProvider<SelectedMovieFilter, MediaFilterOption>(
+      SelectedMovieFilter.new,
+    );
 
 class SelectedMovieFilter extends Notifier<MediaFilterOption> {
   @override
@@ -43,7 +53,8 @@ class SelectedMovieFilter extends Notifier<MediaFilterOption> {
   void setFilter(MediaFilterOption option) => state = option;
 }
 
-final selectedTvFilterProvider = NotifierProvider<SelectedTvFilter, MediaFilterOption>(SelectedTvFilter.new);
+final selectedTvFilterProvider =
+    NotifierProvider<SelectedTvFilter, MediaFilterOption>(SelectedTvFilter.new);
 
 class SelectedTvFilter extends Notifier<MediaFilterOption> {
   @override
@@ -66,8 +77,9 @@ class SelectedTvGenreId extends Notifier<int?> {
   void setGenre(int? id) => state = id;
 }
 
-final selectedTvGenreIdProvider =
-    NotifierProvider<SelectedTvGenreId, int?>(SelectedTvGenreId.new);
+final selectedTvGenreIdProvider = NotifierProvider<SelectedTvGenreId, int?>(
+  SelectedTvGenreId.new,
+);
 
 class GenreSortNotifier extends Notifier<MediaFilter> {
   @override
@@ -78,15 +90,27 @@ class GenreSortNotifier extends Notifier<MediaFilter> {
   }
 }
 
-final genreSortProvider =
-    NotifierProvider<GenreSortNotifier, MediaFilter>(GenreSortNotifier.new);
+final genreSortProvider = NotifierProvider<GenreSortNotifier, MediaFilter>(
+  GenreSortNotifier.new,
+);
 
 final getMovieSectionUseCaseProvider = Provider<GetMovieSectionUseCase>((ref) {
   return GetMovieSectionUseCase(ref.watch(mediaRepositoryProvider));
 });
 
-typedef _SectionCacheKey = ({String regionCode, MovieSection section, SortField sortField, SortOrder sortOrder});
-typedef _GenreCacheKey = ({String regionCode, int genreId, bool isTv, SortField sortField, SortOrder sortOrder});
+typedef _SectionCacheKey = ({
+  String regionCode,
+  MovieSection section,
+  SortField sortField,
+  SortOrder sortOrder,
+});
+typedef _GenreCacheKey = ({
+  String regionCode,
+  int genreId,
+  bool isTv,
+  SortField sortField,
+  SortOrder sortOrder,
+});
 
 final Map<_SectionCacheKey, List<MediaTitle>> _movieSectionCache = {};
 final Map<_SectionCacheKey, int> _loadedPagesCache = {};
@@ -136,15 +160,19 @@ void loadNextPages(WidgetRef ref, MovieSection section) {
   ref.invalidate(movieSectionProvider(section));
 }
 
-final movieSectionExhaustedProvider = Provider.family<bool, MovieSection>((ref, section) {
+final movieSectionExhaustedProvider = Provider.family<bool, MovieSection>((
+  ref,
+  section,
+) {
   final regionCode = ref.watch(preferredRegionCodeProvider);
   final sortFilter = ref.watch(genreSortProvider);
   return _exhaustedCache[(
-    regionCode: regionCode, 
-    section: section,
-    sortField: sortFilter.sortField,
-    sortOrder: sortFilter.sortOrder,
-  )] ?? false;
+        regionCode: regionCode,
+        section: section,
+        sortField: sortFilter.sortField,
+        sortOrder: sortFilter.sortOrder,
+      )] ??
+      false;
 });
 
 void loadNextGenrePages(WidgetRef ref, int genreId, {bool isTv = false}) {
@@ -156,7 +184,8 @@ void loadNextGenrePages(WidgetRef ref, int genreId, {bool isTv = false}) {
     sortField: sortFilter.sortField,
     sortOrder: sortFilter.sortOrder,
   );
-  if (_genreFetchingCache[cacheKey] == true || _genreExhaustedCache[cacheKey] == true) {
+  if (_genreFetchingCache[cacheKey] == true ||
+      _genreExhaustedCache[cacheKey] == true) {
     return;
   }
   _genreTargetPages[cacheKey] = _getGenreTargetPage(cacheKey) + 2;
@@ -179,17 +208,19 @@ void resetGenreSection(WidgetRef ref, int genreId, {bool isTv = false}) {
   ref.invalidate(genreSectionProvider((id: genreId, isTv: isTv)));
 }
 
-final genreSectionExhaustedProvider = Provider.family<bool, ({int id, bool isTv})>((ref, params) {
-  final regionCode = ref.watch(preferredRegionCodeProvider);
-  final sortFilter = ref.watch(genreSortProvider);
-  return _genreExhaustedCache[(
-    regionCode: regionCode, 
-    genreId: params.id, 
-    isTv: params.isTv,
-    sortField: sortFilter.sortField,
-    sortOrder: sortFilter.sortOrder,
-  )] ?? false;
-});
+final genreSectionExhaustedProvider =
+    Provider.family<bool, ({int id, bool isTv})>((ref, params) {
+      final regionCode = ref.watch(preferredRegionCodeProvider);
+      final sortFilter = ref.watch(genreSortProvider);
+      return _genreExhaustedCache[(
+            regionCode: regionCode,
+            genreId: params.id,
+            isTv: params.isTv,
+            sortField: sortFilter.sortField,
+            sortOrder: sortFilter.sortOrder,
+          )] ??
+          false;
+    });
 
 void resetMovieSection(WidgetRef ref, MovieSection section) {
   final sortFilter = ref.read(genreSortProvider);
@@ -206,145 +237,150 @@ void resetMovieSection(WidgetRef ref, MovieSection section) {
   ref.invalidate(movieSectionProvider(section));
 }
 
-final movieSectionProvider =
-    FutureProvider.family<List<MediaTitle>, MovieSection>((ref, section) async {
-      final String regionCode = ref.watch(preferredRegionCodeProvider);
-      final sortFilter = ref.watch(genreSortProvider);
-      
-      // Watch filters if we are in discover mode to trigger re-runs
-      if (section == MovieSection.discover) {
-        ref.watch(movieFilterProvider);
-      } else if (section == MovieSection.tvDiscover) {
-        ref.watch(tvFilterProvider);
-      }
+final movieSectionProvider = FutureProvider.family<List<MediaTitle>, MovieSection>((
+  ref,
+  section,
+) async {
+  final String regionCode = ref.watch(preferredRegionCodeProvider);
+  final sortFilter = ref.watch(genreSortProvider);
 
-      final _SectionCacheKey cacheKey = (
-        regionCode: regionCode,
-        section: section,
-        sortField: sortFilter.sortField,
-        sortOrder: sortFilter.sortOrder,
-      );
-      
+  // Watch filters if we are in discover mode to trigger re-runs
+  if (section == MovieSection.discover) {
+    ref.watch(movieFilterProvider);
+  } else if (section == MovieSection.tvDiscover) {
+    ref.watch(tvFilterProvider);
+  }
 
-      final int targetPage = _getTargetPage(cacheKey);
+  final _SectionCacheKey cacheKey = (
+    regionCode: regionCode,
+    section: section,
+    sortField: sortFilter.sortField,
+    sortOrder: sortFilter.sortOrder,
+  );
 
-      final GetMovieSectionUseCase useCase = ref.watch(
-        getMovieSectionUseCaseProvider,
-      );
-      final repository = ref.watch(mediaRepositoryProvider);
-      final discoverUseCase = DiscoverMediaUseCase(repository);
+  final int targetPage = _getTargetPage(cacheKey);
 
-      final List<MediaTitle> results = List<MediaTitle>.from(
-        _movieSectionCache[cacheKey] ?? const <MediaTitle>[],
-      );
+  final GetMovieSectionUseCase useCase = ref.watch(
+    getMovieSectionUseCaseProvider,
+  );
+  final repository = ref.watch(mediaRepositoryProvider);
+  final discoverUseCase = DiscoverMediaUseCase(repository);
 
-      int startPage = (_loadedPagesCache[cacheKey] ?? 0) + 1;
+  final List<MediaTitle> results = List<MediaTitle>.from(
+    _movieSectionCache[cacheKey] ?? const <MediaTitle>[],
+  );
 
-      if (startPage <= targetPage) {
-        _fetchingCache[cacheKey] = true;
-        for (int i = startPage; i <= targetPage; i++) {
-          try {
-            final List<MediaTitle> pageResults;
-            if (section == MovieSection.discover) {
-              final filter = ref.watch(movieFilterProvider);
-              // Merge global sort into discover filter
-              final effectiveFilter = filter.copyWith(
-                sortField: sortFilter.sortField,
-                sortOrder: sortFilter.sortOrder,
-              );
-              pageResults = await discoverUseCase(DiscoverMediaParams(
-                isTv: false,
-                filter: effectiveFilter,
-                page: i,
-              ));
-            } else if (section == MovieSection.tvDiscover) {
-              final filter = ref.watch(tvFilterProvider);
-              // Merge global sort into discover filter
-              final effectiveFilter = filter.copyWith(
-                sortField: sortFilter.sortField,
-                sortOrder: sortFilter.sortOrder,
-              );
-              pageResults = await discoverUseCase(DiscoverMediaParams(
-                isTv: true,
-                filter: effectiveFilter,
-                page: i,
-              ));
-            } else if (!sortFilter.isDefault || 
-                       section == MovieSection.nowPlaying || 
-                       section == MovieSection.upcoming ||
-                       section == MovieSection.tvOnTheAir ||
-                       section == MovieSection.tvAiringToday) {
-              // For non-default sort OR specific date-sensitive sections, use discover with strict filters
-              final bool isTv = section.name.startsWith('tv');
-              
-              DateTime? fromDate;
-              DateTime? toDate;
-              Set<int> releaseTypes = {};
-              int minVotes = 0;
-              final now = DateTime.now();
-              final today = DateTime(now.year, now.month, now.day);
+  int startPage = (_loadedPagesCache[cacheKey] ?? 0) + 1;
 
-              if (section == MovieSection.nowPlaying || section == MovieSection.tvOnTheAir) {
-                fromDate = today.subtract(const Duration(days: 30));
-                toDate = today;
-                releaseTypes = {2, 3};
-              } else if (section == MovieSection.upcoming || section == MovieSection.tvAiringToday) {
-                // Strictly from tomorrow onwards to avoid "already released" movies
-                fromDate = today.add(const Duration(days: 1));
-                toDate = today.add(const Duration(days: 90));
-                releaseTypes = {2, 3};
-              } else if (section == MovieSection.topRated || section == MovieSection.tvTopRated) {
-                minVotes = isTv ? 150 : 300; // TMDB threshold for top rated
-              }
+  if (startPage <= targetPage) {
+    _fetchingCache[cacheKey] = true;
+    for (int i = startPage; i <= targetPage; i++) {
+      try {
+        final List<MediaTitle> pageResults;
+        if (section == MovieSection.discover) {
+          final filter = ref.watch(movieFilterProvider);
+          // Merge global sort into discover filter
+          final effectiveFilter = filter.copyWith(
+            sortField: sortFilter.sortField,
+            sortOrder: sortFilter.sortOrder,
+          );
+          pageResults = await discoverUseCase(
+            DiscoverMediaParams(isTv: false, filter: effectiveFilter, page: i),
+          );
+        } else if (section == MovieSection.tvDiscover) {
+          final filter = ref.watch(tvFilterProvider);
+          // Merge global sort into discover filter
+          final effectiveFilter = filter.copyWith(
+            sortField: sortFilter.sortField,
+            sortOrder: sortFilter.sortOrder,
+          );
+          pageResults = await discoverUseCase(
+            DiscoverMediaParams(isTv: true, filter: effectiveFilter, page: i),
+          );
+        } else if (!sortFilter.isDefault ||
+            section == MovieSection.nowPlaying ||
+            section == MovieSection.upcoming ||
+            section == MovieSection.tvOnTheAir ||
+            section == MovieSection.tvAiringToday) {
+          // For non-default sort OR specific date-sensitive sections, use discover with strict filters
+          final bool isTv = section.name.startsWith('tv');
 
-              pageResults = await discoverUseCase(DiscoverMediaParams(
-                isTv: isTv,
-                filter: MediaFilter(
-                  sortField: sortFilter.sortField,
-                  sortOrder: sortFilter.sortOrder,
-                  releaseDateFrom: fromDate,
-                  releaseDateTo: toDate,
-                  releaseTypes: releaseTypes,
-                  minUserVotes: minVotes,
-                ),
-                page: i,
-              ));
-            } else {
-              pageResults = await useCase(section, page: i);
-            }
-            results.addAll(pageResults);
-            _loadedPagesCache[cacheKey] = i;
-            if (pageResults.isEmpty || pageResults.length < 20) {
-              _exhaustedCache[cacheKey] = true;
-              break;
-            }
-          } catch (error, stackTrace) {
-            debugPrint('[movieSectionProvider:${section.name}:$i] $error');
-            debugPrintStack(stackTrace: stackTrace);
-            if (i == 1 && results.isEmpty) {
-              _fetchingCache[cacheKey] = false;
-              rethrow;
-            }
-            break;
+          DateTime? fromDate;
+          DateTime? toDate;
+          Set<int> releaseTypes = {};
+          int minVotes = 0;
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+
+          if (section == MovieSection.nowPlaying ||
+              section == MovieSection.tvOnTheAir) {
+            fromDate = today.subtract(const Duration(days: 30));
+            toDate = today;
+            releaseTypes = {2, 3};
+          } else if (section == MovieSection.upcoming ||
+              section == MovieSection.tvAiringToday) {
+            // Strictly from tomorrow onwards to avoid "already released" movies
+            fromDate = today.add(const Duration(days: 1));
+            toDate = today.add(const Duration(days: 90));
+            releaseTypes = {2, 3};
+          } else if (section == MovieSection.topRated ||
+              section == MovieSection.tvTopRated) {
+            minVotes = isTv ? 150 : 300; // TMDB threshold for top rated
           }
-        }
-        _fetchingCache[cacheKey] = false;
-      }
 
-      final List<MediaTitle> uniqueResults = <MediaTitle>[];
-      final Set<int> seenMovieIds = <int>{};
-      for (final MediaTitle movie in results) {
-        if (seenMovieIds.add(movie.id)) {
-          uniqueResults.add(movie);
+          pageResults = await discoverUseCase(
+            DiscoverMediaParams(
+              isTv: isTv,
+              filter: MediaFilter(
+                sortField: sortFilter.sortField,
+                sortOrder: sortFilter.sortOrder,
+                releaseDateFrom: fromDate,
+                releaseDateTo: toDate,
+                releaseTypes: releaseTypes,
+                minUserVotes: minVotes,
+              ),
+              page: i,
+            ),
+          );
+        } else {
+          pageResults = await useCase(section, page: i);
         }
+        results.addAll(pageResults);
+        _loadedPagesCache[cacheKey] = i;
+        if (pageResults.isEmpty || pageResults.length < 20) {
+          _exhaustedCache[cacheKey] = true;
+          break;
+        }
+      } catch (error, stackTrace) {
+        debugPrint('[movieSectionProvider:${section.name}:$i] $error');
+        debugPrintStack(stackTrace: stackTrace);
+        if (i == 1 && results.isEmpty) {
+          _fetchingCache[cacheKey] = false;
+          rethrow;
+        }
+        break;
       }
+    }
+    _fetchingCache[cacheKey] = false;
+  }
 
-      _movieSectionCache[cacheKey] = uniqueResults;
-      return uniqueResults;
-    });
+  final List<MediaTitle> uniqueResults = <MediaTitle>[];
+  final Set<int> seenMovieIds = <int>{};
+  for (final MediaTitle movie in results) {
+    if (seenMovieIds.add(movie.id)) {
+      uniqueResults.add(movie);
+    }
+  }
+
+  _movieSectionCache[cacheKey] = uniqueResults;
+  return uniqueResults;
+});
 
 final genreSectionProvider =
-    FutureProvider.family<List<MediaTitle>, ({int id, bool isTv})>((ref, params) async {
+    FutureProvider.family<List<MediaTitle>, ({int id, bool isTv})>((
+      ref,
+      params,
+    ) async {
       final String regionCode = ref.watch(preferredRegionCodeProvider);
       final sortFilter = ref.watch(genreSortProvider);
 
@@ -370,15 +406,17 @@ final genreSectionProvider =
         _genreFetchingCache[cacheKey] = true;
         for (int i = startPage; i <= targetPage; i++) {
           try {
-            final List<MediaTitle> pageResults = await discoverUseCase(DiscoverMediaParams(
-              isTv: params.isTv,
-              filter: MediaFilter(
-                sortField: sortFilter.sortField,
-                sortOrder: sortFilter.sortOrder,
-                genres: {params.id},
+            final List<MediaTitle> pageResults = await discoverUseCase(
+              DiscoverMediaParams(
+                isTv: params.isTv,
+                filter: MediaFilter(
+                  sortField: sortFilter.sortField,
+                  sortOrder: sortFilter.sortOrder,
+                  genres: {params.id},
+                ),
+                page: i,
               ),
-              page: i,
-            ));
+            );
             results.addAll(pageResults);
             _genreLoadedPagesCache[cacheKey] = i;
             if (pageResults.isEmpty || pageResults.length < 20) {
@@ -412,10 +450,9 @@ final genreSectionProvider =
 
 final discoverPoolProvider = FutureProvider<List<MediaTitle>>((ref) async {
   final mediaType = ref.watch(exploreMediaTypeProvider);
-  final section =
-      mediaType == ExploreMediaType.movie
-          ? MovieSection.discover
-          : MovieSection.tvDiscover;
+  final section = mediaType == ExploreMediaType.movie
+      ? MovieSection.discover
+      : MovieSection.tvDiscover;
 
   final AsyncValue<List<MediaTitle>> discoverState = ref.watch(
     movieSectionProvider(section),
@@ -440,7 +477,13 @@ final discoverPoolProvider = FutureProvider<List<MediaTitle>>((ref) async {
   return discoverPool;
 });
 
-typedef _MoodCacheKey = ({String regionCode, MovieMood mood, bool isTv, SortField sortField, SortOrder sortOrder});
+typedef _MoodCacheKey = ({
+  String regionCode,
+  MovieMood mood,
+  bool isTv,
+  SortField sortField,
+  SortOrder sortOrder,
+});
 
 final Map<_MoodCacheKey, List<MediaTitle>> _moodSectionCache = {};
 final Map<_MoodCacheKey, int> _moodLoadedPagesCache = {};
@@ -460,27 +503,33 @@ void loadNextMoodPages(WidgetRef ref, MovieMood mood, {bool isTv = false}) {
     sortField: sortFilter.sortField,
     sortOrder: sortFilter.sortOrder,
   );
-  if (_moodFetchingCache[cacheKey] == true || _moodExhaustedCache[cacheKey] == true) {
+  if (_moodFetchingCache[cacheKey] == true ||
+      _moodExhaustedCache[cacheKey] == true) {
     return;
   }
   _moodTargetPages[cacheKey] = _getMoodTargetPage(cacheKey) + 2;
   ref.invalidate(moodSectionProvider((mood: mood, isTv: isTv)));
 }
 
-final moodSectionExhaustedProvider = Provider.family<bool, ({MovieMood mood, bool isTv})>((ref, params) {
-  final regionCode = ref.watch(preferredRegionCodeProvider);
-  final sortFilter = ref.watch(genreSortProvider);
-  return _moodExhaustedCache[(
-    regionCode: regionCode, 
-    mood: params.mood, 
-    isTv: params.isTv,
-    sortField: sortFilter.sortField,
-    sortOrder: sortFilter.sortOrder,
-  )] ?? false;
-});
+final moodSectionExhaustedProvider =
+    Provider.family<bool, ({MovieMood mood, bool isTv})>((ref, params) {
+      final regionCode = ref.watch(preferredRegionCodeProvider);
+      final sortFilter = ref.watch(genreSortProvider);
+      return _moodExhaustedCache[(
+            regionCode: regionCode,
+            mood: params.mood,
+            isTv: params.isTv,
+            sortField: sortFilter.sortField,
+            sortOrder: sortFilter.sortOrder,
+          )] ??
+          false;
+    });
 
 final moodSectionProvider =
-    FutureProvider.family<List<MediaTitle>, ({MovieMood mood, bool isTv})>((ref, params) async {
+    FutureProvider.family<List<MediaTitle>, ({MovieMood mood, bool isTv})>((
+      ref,
+      params,
+    ) async {
       final String regionCode = ref.watch(preferredRegionCodeProvider);
       final sortFilter = ref.watch(genreSortProvider);
 
@@ -506,15 +555,21 @@ final moodSectionProvider =
         _moodFetchingCache[cacheKey] = true;
         for (int i = startPage; i <= targetPage; i++) {
           try {
-            final List<MediaTitle> pageResults = await discoverUseCase(DiscoverMediaParams(
-              isTv: params.isTv,
-              filter: MediaFilter(
-                sortField: sortFilter.sortField,
-                sortOrder: sortFilter.sortOrder,
-                mood: params.mood,
+            final List<MediaTitle> pageResults = await discoverUseCase(
+              DiscoverMediaParams(
+                isTv: params.isTv,
+                filter: MediaFilter(
+                  sortField: sortFilter.sortField,
+                  sortOrder: sortFilter.sortOrder,
+                  mood: params.mood,
+                  userScore: const RangeValues(5.5, 10.0),
+                  minUserVotes: 10,
+                  includeNotRated: false,
+                ),
+
+                page: i,
               ),
-              page: i,
-            ));
+            );
             results.addAll(pageResults);
             _moodLoadedPagesCache[cacheKey] = i;
             if (pageResults.isEmpty || pageResults.length < 20) {
@@ -548,18 +603,29 @@ final moodSectionProvider =
 
 final moviesProvider = Provider<AsyncValue<List<MediaTitle>>>((ref) {
   final mediaType = ref.watch(exploreMediaTypeProvider);
-  final section = mediaType == ExploreMediaType.movie ? MovieSection.discover : MovieSection.tvDiscover;
+  final section = mediaType == ExploreMediaType.movie
+      ? MovieSection.discover
+      : MovieSection.tvDiscover;
   return ref.watch(movieSectionProvider(section));
 });
 
 final mediaImagesProvider =
     FutureProvider.family<MediaImages, ({int id, bool isTv})>((
-  ref,
-  params,
-) async {
-  final repository = ref.watch(mediaRepositoryProvider);
-  return repository.fetchMediaImages(params.id, isTv: params.isTv);
-});
+      ref,
+      params,
+    ) async {
+      final repository = ref.watch(mediaRepositoryProvider);
+      return repository.fetchMediaImages(params.id, isTv: params.isTv);
+    });
+
+final tvSeasonImagesProvider =
+    FutureProvider.family<MediaImages, ({int tvId, int seasonNumber})>((
+      ref,
+      params,
+    ) async {
+      final repository = ref.watch(mediaRepositoryProvider);
+      return repository.fetchTvSeasonImages(params.tvId, params.seasonNumber);
+    });
 
 final personImagesProvider = FutureProvider.family<MediaImages, int>((
   ref,
@@ -569,7 +635,10 @@ final personImagesProvider = FutureProvider.family<MediaImages, int>((
   return repository.fetchPersonImages(personId);
 });
 
-final mediaRevenueProvider = FutureProvider.family<int?, int>((ref, movieId) async {
+final mediaRevenueProvider = FutureProvider.family<int?, int>((
+  ref,
+  movieId,
+) async {
   final repository = ref.watch(mediaRepositoryProvider);
   final details = await repository.fetchMovieDetails(movieId);
   return details.revenue;

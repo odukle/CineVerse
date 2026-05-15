@@ -69,6 +69,7 @@ abstract interface class RemoteDataSource {
     int seasonNumber,
     int episodeNumber,
   );
+  Future<MediaImages> fetchTvSeasonImages(int tvId, int seasonNumber);
 }
 
 class TmdbRemoteDataSource implements RemoteDataSource {
@@ -244,5 +245,10 @@ class TmdbRemoteDataSource implements RemoteDataSource {
     int episodeNumber,
   ) {
     return apiClient.fetchTvEpisodeDetails(tvId, seasonNumber, episodeNumber);
+  }
+
+  @override
+  Future<MediaImages> fetchTvSeasonImages(int tvId, int seasonNumber) {
+    return apiClient.fetchTvSeasonImages(tvId, seasonNumber);
   }
 }

@@ -13,6 +13,7 @@ import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
+import 'package:cineverse/domain/entities/movie_note.dart';
 import 'dart:ui';
 
 class AddToListDialog extends StatefulWidget {
@@ -409,17 +410,29 @@ class _WatchedDialogState extends State<WatchedDialog> {
 }
 
 class AddNoteDialog extends StatefulWidget {
-  const AddNoteDialog({super.key, required this.mediaId, required this.mediaType});
+  const AddNoteDialog({
+    super.key,
+    required this.mediaId,
+    required this.mediaType,
+    this.initialNote,
+  });
   final int mediaId;
   final GlobalMediaType mediaType;
+  final MovieNote? initialNote;
 
   @override
   State<AddNoteDialog> createState() => _AddNoteDialogState();
 }
 
 class _AddNoteDialogState extends State<AddNoteDialog> {
-  final _controller = TextEditingController();
+  late final TextEditingController _controller;
   bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initialNote?.text);
+  }
 
   @override
   void dispose() {
@@ -429,10 +442,15 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final isEditing = widget.initialNote != null;
+
     return Consumer(
       builder: (context, ref, _) => AlertDialog(
         backgroundColor: AppColors.detailsCard,
-        title: const Text('Add Note', style: TextStyle(color: Colors.white)),
+        title: Text(
+          isEditing ? 'Edit Note' : 'Add Note',
+          style: const TextStyle(color: Colors.white),
+        ),
         content: TextField(
           controller: _controller,
           maxLines: 3,
@@ -441,8 +459,12 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
           decoration: InputDecoration(
             hintText: 'Enter your note here...',
             hintStyle: const TextStyle(color: Colors.white38),
-            enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white12)),
-            focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: AppColors.cinemaAccent)),
+            enabledBorder: const UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white12),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: AppColors.cinemaAccent),
+            ),
           ),
         ),
         actions: [
@@ -451,29 +473,63 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
             child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
           ),
           ElevatedButton(
-            onPressed: _isSubmitting ? null : () async {
-              final text = _controller.text.trim();
-              if (text.isEmpty) return;
-              
-              setState(() => _isSubmitting = true);
-              try {
-                await ref.read(movieNotesActionsProvider).addNote(widget.mediaId, widget.mediaType, text);
-                if (context.mounted) {
-                  ToastUtils.showToast(context, 'Note added');
-                  Navigator.pop(context);
-                }
-              } catch (e) {
-                if (context.mounted) {
-                  ToastUtils.showToast(context, 'Failed to add note');
-                }
-              } finally {
-                if (mounted) setState(() => _isSubmitting = false);
-              }
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.cinemaAccent),
-            child: _isSubmitting 
-              ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.black))
-              : const Text('Save', style: TextStyle(color: Colors.black)),
+            onPressed: _isSubmitting
+                ? null
+                : () async {
+                    final text = _controller.text.trim();
+                    if (text.isEmpty) return;
+
+                    setState(() => _isSubmitting = true);
+                    try {
+                      if (isEditing) {
+                        await ref.read(movieNotesActionsProvider).updateNote(
+                              widget.mediaId,
+                              widget.mediaType,
+                              widget.initialNote!.id,
+                              text,
+                            );
+                        if (context.mounted) {
+                          ToastUtils.showToast(context, 'Note updated');
+                          Navigator.pop(context);
+                        }
+                      } else {
+                        await ref.read(movieNotesActionsProvider).addNote(
+                              widget.mediaId,
+                              widget.mediaType,
+                              text,
+                            );
+                        if (context.mounted) {
+                          ToastUtils.showToast(context, 'Note added');
+                          Navigator.pop(context);
+                        }
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ToastUtils.showToast(
+                          context,
+                          isEditing ? 'Failed to update note' : 'Failed to add note',
+                        );
+                      }
+                    } finally {
+                      if (mounted) setState(() => _isSubmitting = false);
+                    }
+                  },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.cinemaAccent,
+            ),
+            child: _isSubmitting
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.black,
+                    ),
+                  )
+                : Text(
+                    isEditing ? 'Update' : 'Save',
+                    style: const TextStyle(color: Colors.black),
+                  ),
           ),
         ],
       ),

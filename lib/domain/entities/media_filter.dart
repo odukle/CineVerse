@@ -26,6 +26,7 @@ class MediaFilter {
   const MediaFilter({
     this.sortField = SortField.popularity,
     this.sortOrder = SortOrder.descending,
+    this.originalLanguageCode,
     this.availabilities = const {},
     this.userScore = const RangeValues(0, 10),
     this.includeNotRated = true,
@@ -42,6 +43,7 @@ class MediaFilter {
 
   final SortField sortField;
   final SortOrder sortOrder;
+  final String? originalLanguageCode;
   final Set<String> availabilities; // flatrate, free, ads, rent, buy
   final RangeValues userScore; // 0.0 to 10.0
   final bool includeNotRated;
@@ -58,6 +60,7 @@ class MediaFilter {
   bool get isDefault =>
       sortField == SortField.popularity &&
       sortOrder == SortOrder.descending &&
+      originalLanguageCode == null &&
       availabilities.isEmpty &&
       userScore == const RangeValues(0, 10) &&
       includeNotRated == true &&
@@ -76,6 +79,7 @@ class MediaFilter {
   MediaFilter copyWith({
     SortField? sortField,
     SortOrder? sortOrder,
+    String? originalLanguageCode,
     Set<String>? availabilities,
     RangeValues? userScore,
     bool? includeNotRated,
@@ -93,6 +97,7 @@ class MediaFilter {
     return MediaFilter(
       sortField: sortField ?? this.sortField,
       sortOrder: sortOrder ?? this.sortOrder,
+      originalLanguageCode: originalLanguageCode ?? this.originalLanguageCode,
       availabilities: availabilities ?? this.availabilities,
       userScore: userScore ?? this.userScore,
       includeNotRated: includeNotRated ?? this.includeNotRated,
@@ -115,6 +120,7 @@ class MediaFilter {
           runtimeType == other.runtimeType &&
           sortField == other.sortField &&
           sortOrder == other.sortOrder &&
+          originalLanguageCode == other.originalLanguageCode &&
           availabilities == other.availabilities &&
           userScore == other.userScore &&
           includeNotRated == other.includeNotRated &&
@@ -132,6 +138,7 @@ class MediaFilter {
   int get hashCode =>
       sortField.hashCode ^
       sortOrder.hashCode ^
+      originalLanguageCode.hashCode ^
       availabilities.hashCode ^
       userScore.hashCode ^
       includeNotRated.hashCode ^

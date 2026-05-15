@@ -1,4 +1,5 @@
 import 'package:cineverse/core/config/app_config.dart';
+import 'package:cineverse/domain/entities/movie_genre.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/presentation/features/home/tv_shows_screen.dart';
@@ -8,61 +9,59 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets(
-    'tv shows screen loads live sections and filter pill updates list',
-    (WidgetTester tester) async {
-      List<MediaTitle> buildTitles(String prefix, int startId) {
-        return List<MediaTitle>.generate(
-          4,
-          (index) => MediaTitle(
-            id: startId + index,
-            title: '$prefix ${index + 1}',
-            posterPath: null,
-            releaseDate: '2024-02-${(index % 28) + 1}'.padLeft(10, '0'),
-          ),
-        );
-      }
-
-      final Map<MovieSection, List<MediaTitle>> sections =
-          <MovieSection, List<MediaTitle>>{
-            MovieSection.tvPopular: buildTitles('Popular Show', 1),
-            MovieSection.tvTopRated: buildTitles('Top Rated Show', 101),
-            MovieSection.tvOnTheAir: buildTitles('On The Air Show', 201),
-            MovieSection.tvAiringToday: buildTitles('Airing Today Show', 301),
-          };
-
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            appConfigProvider.overrideWith(
-              (ref) => const AppConfig(tmdbApiKey: 'test-key', omdbApiKey: ''),
-            ),
-            for (final MapEntry<MovieSection, List<MediaTitle>> entry
-                in sections.entries)
-              movieSectionProvider(
-                entry.key,
-              ).overrideWith((ref) async => entry.value),
-          ],
-          child: const MaterialApp(home: TvShowsScreen()),
+  testWidgets('tv shows screen switches between popular and genre tabs', (
+    WidgetTester tester,
+  ) async {
+    List<MediaTitle> buildTitles(String prefix, int startId) {
+      return List<MediaTitle>.generate(
+        4,
+        (index) => MediaTitle(
+          id: startId + index,
+          title: '$prefix ${index + 1}',
+          posterPath: null,
+          releaseDate: '2024-02-${(index % 28) + 1}'.padLeft(10, '0'),
         ),
       );
+    }
 
-      await tester.pumpAndSettle();
+    const genres = <MovieGenre>[
+      MovieGenre(id: 18, name: 'Drama'),
+      MovieGenre(id: 9648, name: 'Mystery'),
+    ];
 
-      expect(find.text('TV Shows'), findsAtLeastNWidgets(1));
-      expect(find.text('Popular Show 1'), findsOneWidget);
-      expect(find.text('Top Rated'), findsNothing);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appConfigProvider.overrideWith(
+            (ref) => const AppConfig(tmdbApiKey: 'test-key', omdbApiKey: ''),
+          ),
+          tvGenresProvider.overrideWith((ref) async => genres),
+          movieSectionProvider(
+            MovieSection.tvPopular,
+          ).overrideWith((ref) async => buildTitles('Popular Show', 1)),
+          genreSectionProvider((
+            id: 18,
+            isTv: true,
+          )).overrideWith((ref) async => buildTitles('Drama Show', 101)),
+          genreSectionProvider((
+            id: 9648,
+            isTv: true,
+          )).overrideWith((ref) async => buildTitles('Mystery Show', 201)),
+        ],
+        child: const MaterialApp(home: Scaffold(body: TvShowsScreen())),
+      ),
+    );
 
-      await tester.tap(find.text('Popular'));
-      await tester.pumpAndSettle();
+    await tester.pumpAndSettle();
 
-      expect(find.text('Top Rated'), findsOneWidget);
+    expect(find.text('Popular Show 1'), findsOneWidget);
+    expect(find.text('DRAMA'), findsOneWidget);
+    expect(find.text('Drama Show 1'), findsNothing);
 
-      await tester.tap(find.text('Top Rated'));
-      await tester.pumpAndSettle();
+    await tester.tap(find.text('DRAMA'));
+    await tester.pumpAndSettle();
 
-      expect(find.text('Top Rated Show 1'), findsOneWidget);
-      expect(find.text('Popular Show 1'), findsNothing);
-    },
-  );
+    expect(find.text('Drama Show 1'), findsOneWidget);
+    expect(find.text('Popular Show 1'), findsNothing);
+  });
 }

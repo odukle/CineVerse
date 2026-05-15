@@ -25,10 +25,25 @@ class HomeScaffold extends ConsumerWidget {
     final HomeTab currentTab = HomeTab.values[navigationShell.currentIndex];
     final bool isMoviesOrTv =
         currentTab == HomeTab.movies || currentTab == HomeTab.tvShows;
-
     final bool isExplore = currentTab == HomeTab.explore;
     final bool isLibrary = currentTab == HomeTab.watchlist;
-    const double appBarSideWidth = 150;
+    final Widget? leadingContent = isMoviesOrTv
+        ? IconButton(
+            onPressed: () =>
+                _showSortSheet(context, ref, currentTab == HomeTab.tvShows),
+            icon: const Icon(Icons.sort_rounded, size: 24, color: Colors.white),
+            tooltip: 'Sort titles',
+          )
+        : isExplore
+        ? const FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: ExploreMediaTypeToggle(),
+          )
+        : isLibrary
+        ? const SyncIndicator()
+        : null;
+    final double leadingWidth = isExplore ? 170 : 150;
 
     return PopScope(
       canPop: false,
@@ -44,7 +59,7 @@ class HomeScaffold extends ConsumerWidget {
               style: TextStyle(color: Colors.white),
             ),
             content: const Text(
-              'Are you sure you want to exit CineVerse?',
+              'Are you sure you want to exit Lumi?',
               style: TextStyle(color: Colors.white70),
             ),
             actions: [
@@ -74,83 +89,75 @@ class HomeScaffold extends ConsumerWidget {
       child: BackgroundGradient(
         child: Scaffold(
           backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          toolbarHeight: 60,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        leadingWidth: appBarSideWidth,
-        leading: Row(
-          children: [
-            if (isMoviesOrTv)
-              IconButton(
-                onPressed: () => _showSortSheet(context, ref, currentTab == HomeTab.tvShows),
-                icon: const Icon(
-                  Icons.sort_rounded,
-                  size: 24,
-                  color: Colors.white,
-                ),
-                tooltip: 'Sort titles',
-              ),
-            if (isExplore)
-              const ExploreMediaTypeToggle(),
-            if (isLibrary)
-              const SyncIndicator(),
-          ],
-        ),
-        title: SvgPicture.asset(
-          'assets/logos/logo.svg',
-          height: 26,
-          fit: BoxFit.contain,
-          semanticsLabel: AppConstants.appName,
-        ),
-        actions: [
-          SizedBox(
-            width: appBarSideWidth,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    context.pushNamed(AppRoute.search.name);
-                  },
-                  icon: const Icon(
-                    Icons.search_rounded,
-                    size: 24,
-                    color: Colors.white,
-                  ),
-                ),
-                if (isMoviesOrTv)
-                  IconButton(
-                    onPressed: () {
-                      context.pushNamed(
-                        AppRoute.filter.name,
-                        queryParameters: {
-                          'isTv': (currentTab == HomeTab.tvShows).toString(),
-                        },
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.tune_rounded,
-                      size: 24,
-                      color: Colors.white,
+          appBar: AppBar(
+            toolbarHeight: 60,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            centerTitle: true,
+            leadingWidth: leadingWidth,
+            leading: leadingContent == null
+                ? null
+                : Padding(
+                    padding: const EdgeInsets.only(left: 12),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: leadingContent,
                     ),
                   ),
-                const SizedBox(width: 8),
-              ],
+            title: SvgPicture.asset(
+              'assets/logos/logo.svg',
+              height: 26,
+              fit: BoxFit.contain,
+              semanticsLabel: AppConstants.appName,
             ),
+            actions: [
+              SizedBox(
+                width: 150,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        context.pushNamed(AppRoute.search.name);
+                      },
+                      icon: const Icon(
+                        Icons.search_rounded,
+                        size: 24,
+                        color: Colors.white,
+                      ),
+                    ),
+                    if (isMoviesOrTv)
+                      IconButton(
+                        onPressed: () {
+                          context.pushNamed(
+                            AppRoute.filter.name,
+                            queryParameters: {
+                              'isTv': (currentTab == HomeTab.tvShows)
+                                  .toString(),
+                            },
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.tune_rounded,
+                          size: 24,
+                          color: Colors.white,
+                        ),
+                      ),
+                    const SizedBox(width: 8),
+                  ],
+                ),
+              ),
+            ],
           ),
-        ],
+          body: SafeArea(top: false, child: navigationShell),
+          bottomNavigationBar: AppBottomNavigationBar(
+            currentTab: currentTab,
+            onTabSelected: (index) => navigationShell.goBranch(index),
+          ),
+        ),
       ),
-      body: SafeArea(top: false, child: navigationShell),
-      bottomNavigationBar: AppBottomNavigationBar(
-        currentTab: currentTab,
-        onTabSelected: (index) => navigationShell.goBranch(index),
-      ),
-    ),
-  ),
-);
+    );
   }
 
   void _showSortSheet(BuildContext context, WidgetRef ref, bool isTv) {
@@ -164,7 +171,8 @@ class HomeScaffold extends ConsumerWidget {
         return Consumer(
           builder: (context, ref, _) {
             final currentSort = ref.watch(genreSortProvider);
-            final bool isDescending = currentSort.sortOrder == SortOrder.descending;
+            final bool isDescending =
+                currentSort.sortOrder == SortOrder.descending;
             final List<SortField> options = [
               SortField.popularity,
               SortField.voteAverage,
@@ -195,17 +203,23 @@ class HomeScaffold extends ConsumerWidget {
                     value: isDescending,
                     activeThumbColor: AppColors.cinemaAccent,
                     onChanged: (value) {
-                      final newOrder = value ? SortOrder.descending : SortOrder.ascending;
-                      ref.read(genreSortProvider.notifier).updateSort(currentSort.sortField, newOrder);
-                      
+                      final newOrder = value
+                          ? SortOrder.descending
+                          : SortOrder.ascending;
+                      ref
+                          .read(genreSortProvider.notifier)
+                          .updateSort(currentSort.sortField, newOrder);
+
                       // Refresh data
-                      final genreId = isTv 
+                      final genreId = isTv
                           ? ref.read(selectedTvGenreIdProvider)
                           : ref.read(selectedMovieGenreIdProvider);
                       if (genreId != null) {
                         resetGenreSection(ref, genreId, isTv: isTv);
                       } else {
-                        final section = isTv ? MovieSection.tvPopular : MovieSection.popular;
+                        final section = isTv
+                            ? MovieSection.tvPopular
+                            : MovieSection.popular;
                         resetMovieSection(ref, section);
                       }
                     },
@@ -236,29 +250,31 @@ class HomeScaffold extends ConsumerWidget {
                     return ListTile(
                       leading: Icon(
                         fieldIcon,
-                        color:
-                            isSelected ? AppColors.cinemaAccent : Colors.white70,
+                        color: isSelected
+                            ? AppColors.cinemaAccent
+                            : Colors.white70,
                         size: 20,
                       ),
                       title: Text(
                         field.label,
                         style: TextStyle(
-                          color:
-                              isSelected ? AppColors.cinemaAccent : Colors.white,
-                          fontWeight:
-                              isSelected ? FontWeight.bold : FontWeight.normal,
+                          color: isSelected
+                              ? AppColors.cinemaAccent
+                              : Colors.white,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                         ),
                       ),
-                      trailing:
-                          isSelected
-                              ? Icon(
-                                currentSort.sortOrder == SortOrder.descending
-                                    ? Icons.arrow_downward_rounded
-                                    : Icons.arrow_upward_rounded,
-                                color: AppColors.cinemaAccent,
-                                size: 18,
-                              )
-                              : null,
+                      trailing: isSelected
+                          ? Icon(
+                              currentSort.sortOrder == SortOrder.descending
+                                  ? Icons.arrow_downward_rounded
+                                  : Icons.arrow_upward_rounded,
+                              color: AppColors.cinemaAccent,
+                              size: 18,
+                            )
+                          : null,
                       onTap: () {
                         // Use current switch state for the new field
                         ref
@@ -266,18 +282,16 @@ class HomeScaffold extends ConsumerWidget {
                             .updateSort(field, currentSort.sortOrder);
 
                         // Reset current genre/section to trigger re-fetch with new sort
-                        final genreId =
-                            isTv
-                                ? ref.read(selectedTvGenreIdProvider)
-                                : ref.read(selectedMovieGenreIdProvider);
+                        final genreId = isTv
+                            ? ref.read(selectedTvGenreIdProvider)
+                            : ref.read(selectedMovieGenreIdProvider);
 
                         if (genreId != null) {
                           resetGenreSection(ref, genreId, isTv: isTv);
                         } else {
-                          final section =
-                              isTv
-                                  ? MovieSection.tvPopular
-                                  : MovieSection.popular;
+                          final section = isTv
+                              ? MovieSection.tvPopular
+                              : MovieSection.popular;
                           resetMovieSection(ref, section);
                         }
 
@@ -285,13 +299,13 @@ class HomeScaffold extends ConsumerWidget {
                       },
                     );
                   }),
-                    const SizedBox(height: 16),
-                  ],
-                ),
-              );
-            },
-          );
-        },
-      );
+                  const SizedBox(height: 16),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 }

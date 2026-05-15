@@ -244,6 +244,11 @@ class MediaRepositoryImpl implements MediaRepository {
   }
 
   @override
+  Future<MediaImages> fetchTvSeasonImages(int tvId, int seasonNumber) {
+    return remoteDataSource.fetchTvSeasonImages(tvId, seasonNumber);
+  }
+
+  @override
   Future<PersonDetails> fetchPersonDetails(int personId) async {
     final personDetailsDto = await remoteDataSource.fetchPersonDetails(
       personId,

@@ -1,4 +1,5 @@
 import 'package:cineverse/core/config/app_config.dart';
+import 'package:cineverse/domain/entities/movie_genre.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/presentation/features/home/movies_screen.dart';
@@ -8,7 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('movies filter pill expands and updates the list', (
+  testWidgets('movies screen switches between popular and genre tabs', (
     WidgetTester tester,
   ) async {
     List<MediaTitle> buildTitles(String prefix, int startId) {
@@ -23,13 +24,10 @@ void main() {
       );
     }
 
-    final Map<MovieSection, List<MediaTitle>> sections =
-        <MovieSection, List<MediaTitle>>{
-          MovieSection.popular: buildTitles('Popular Movie', 1),
-          MovieSection.topRated: buildTitles('Top Rated Movie', 101),
-          MovieSection.nowPlaying: buildTitles('In Theaters Movie', 201),
-          MovieSection.upcoming: buildTitles('Coming Soon Movie', 301),
-        };
+    const genres = <MovieGenre>[
+      MovieGenre(id: 28, name: 'Action'),
+      MovieGenre(id: 35, name: 'Comedy'),
+    ];
 
     await tester.pumpWidget(
       ProviderScope(
@@ -37,30 +35,33 @@ void main() {
           appConfigProvider.overrideWith(
             (ref) => const AppConfig(tmdbApiKey: 'test-key', omdbApiKey: ''),
           ),
-          for (final MapEntry<MovieSection, List<MediaTitle>> entry
-              in sections.entries)
-            movieSectionProvider(
-              entry.key,
-            ).overrideWith((ref) async => entry.value),
+          movieGenresProvider.overrideWith((ref) async => genres),
+          movieSectionProvider(
+            MovieSection.popular,
+          ).overrideWith((ref) async => buildTitles('Popular Movie', 1)),
+          genreSectionProvider((
+            id: 28,
+            isTv: false,
+          )).overrideWith((ref) async => buildTitles('Action Movie', 101)),
+          genreSectionProvider((
+            id: 35,
+            isTv: false,
+          )).overrideWith((ref) async => buildTitles('Comedy Movie', 201)),
         ],
-        child: const MaterialApp(home: MoviesScreen()),
+        child: const MaterialApp(home: Scaffold(body: MoviesScreen())),
       ),
     );
 
     await tester.pumpAndSettle();
 
     expect(find.text('Popular Movie 1'), findsOneWidget);
-    expect(find.text('Top Rated'), findsNothing);
+    expect(find.text('ACTION'), findsOneWidget);
+    expect(find.text('Action Movie 1'), findsNothing);
 
-    await tester.tap(find.text('Popular'));
+    await tester.tap(find.text('ACTION'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Top Rated'), findsOneWidget);
-
-    await tester.tap(find.text('Top Rated'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Top Rated Movie 1'), findsOneWidget);
+    expect(find.text('Action Movie 1'), findsOneWidget);
     expect(find.text('Popular Movie 1'), findsNothing);
   });
 }

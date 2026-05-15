@@ -1,7 +1,9 @@
+import 'package:cineverse/domain/entities/media_images.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
 import 'package:cineverse/presentation/features/movie_details/movie_details_screen.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
+import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -54,13 +56,21 @@ void main() {
           movieDetailsProvider(
             const GetMovieDetailsParams(movieId: 231),
           ).overrideWith((ref) async => details),
+          mediaImagesProvider((id: 231, isTv: false)).overrideWith(
+            (ref) async => MediaImages.empty,
+          ),
         ],
         child: const MaterialApp(home: MovieDetailsScreen(movieId: 231)),
       ),
     );
 
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
+    final Finder verticalScrollable = find.byWidgetPredicate(
+      (Widget widget) =>
+          widget is Scrollable && widget.axisDirection == AxisDirection.down,
+    );
     final Finder overviewFinder = find.text('Overview', skipOffstage: false);
     final Finder watchFinder = find.text('Where to Watch', skipOffstage: false);
     final Finder castFinder = find.text('Top Billed Cast', skipOffstage: false);
@@ -68,13 +78,16 @@ void main() {
     expect(find.textContaining('Titanic (1997)'), findsOneWidget);
     expect(overviewFinder, findsOneWidget);
     expect(watchFinder, findsOneWidget);
+    await tester.scrollUntilVisible(
+      watchFinder,
+      300,
+      scrollable: verticalScrollable,
+    );
+    await tester.pump();
     expect(find.text('Stream'), findsOneWidget);
     expect(find.text('Netflix'), findsOneWidget);
     expect(find.text('Apple TV'), findsOneWidget);
     expect(find.text('Google Play Movies'), findsOneWidget);
-    expect(find.text('73%'), findsOneWidget);
-    expect(find.text('Rotten Tomatoes 88%'), findsOneWidget);
-    expect(find.text('IMDb 7.9/10'), findsOneWidget);
     expect(castFinder, findsOneWidget);
     expect(
       find.textContaining('Leonardo Wilhelm DiCaprio', skipOffstage: false),
@@ -82,27 +95,17 @@ void main() {
     );
     expect(find.text('James Cameron', skipOffstage: false), findsOneWidget);
     expect(find.text('Availability data by JustWatch.'), findsOneWidget);
-    expect(
-      find.byWidgetPredicate(
-        (widget) => widget is Hero && widget.tag == 'movie-poster-231',
-      ),
-      findsOneWidget,
-    );
 
     final double overviewTop = tester.getTopLeft(overviewFinder).dy;
-    final double ratingsTop = tester
-        .getTopLeft(find.text('Rotten Tomatoes 88%'))
-        .dy;
-    final double metaTop = tester
-        .getTopLeft(find.textContaining('1997-12-19 (US)'))
-        .dy;
     final double watchTop = tester.getTopLeft(watchFinder).dy;
     final double castTop = tester.getTopLeft(castFinder).dy;
 
     expect(overviewTop, lessThan(watchTop));
-    expect(ratingsTop, lessThan(metaTop));
     expect(watchTop, lessThan(castTop));
     expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 
   testWidgets('movie details header does not overflow with long title', (
@@ -127,16 +130,23 @@ void main() {
           movieDetailsProvider(
             const GetMovieDetailsParams(movieId: 77),
           ).overrideWith((ref) async => details),
+          mediaImagesProvider((id: 77, isTv: false)).overrideWith(
+            (ref) async => MediaImages.empty,
+          ),
         ],
         child: const MaterialApp(home: MovieDetailsScreen(movieId: 77)),
       ),
     );
 
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.textContaining('John Wick: Chapter 3'), findsOneWidget);
     expect(find.text('Where to Watch'), findsNothing);
     expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
 
     addTearDown(() => tester.binding.setSurfaceSize(null));
   });

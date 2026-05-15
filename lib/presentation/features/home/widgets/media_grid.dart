@@ -78,17 +78,14 @@ class MediaGrid extends ConsumerWidget {
         }
 
         const double horizontalPadding = 16;
-        const double crossAxisSpacing = 10;
-        const double mainAxisSpacing = 0;
+        const double crossAxisSpacing = 12;
+        const double mainAxisSpacing = 16;
         const int crossAxisCount = 3;
-        final double availableCardWidth =
+        final double cardWidth =
             (MediaQuery.sizeOf(context).width -
                     (horizontalPadding * 2) -
                     (crossAxisSpacing * 2)) /
                 crossAxisCount;
-        final double cardWidth = availableCardWidth > 108
-            ? 108
-            : availableCardWidth;
 
         final bool isFetchingMore = mediaAsync.isLoading && data.isNotEmpty;
 
@@ -116,7 +113,7 @@ class MediaGrid extends ConsumerWidget {
                     crossAxisCount: crossAxisCount,
                     crossAxisSpacing: crossAxisSpacing,
                     mainAxisSpacing: mainAxisSpacing,
-                    mainAxisExtent: 220,
+                    childAspectRatio: 0.55,
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
@@ -167,9 +164,9 @@ class _ShimmerGrid extends StatelessWidget {
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 0,
-        mainAxisExtent: 220,
+        crossAxisSpacing: 12,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.55,
       ),
       itemCount: 12,
       itemBuilder: (context, index) => Column(

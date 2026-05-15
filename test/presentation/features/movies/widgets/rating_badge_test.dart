@@ -1,6 +1,7 @@
 import 'package:cineverse/presentation/features/movies/widgets/rating_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 void main() {
   testWidgets('loading badge shows three animated dots', (
@@ -44,7 +45,7 @@ void main() {
       ),
     );
 
-    expect(find.text('🍅'), findsOneWidget);
+    expect(find.byType(SvgPicture), findsOneWidget);
     expect(find.text('87%'), findsOneWidget);
     expect(find.text('TMDB'), findsNothing);
   });
@@ -58,8 +59,8 @@ void main() {
       ),
     );
 
-    expect(find.text('🍅'), findsNothing);
-    expect(find.text('TMDB'), findsOneWidget);
+    expect(find.byType(SvgPicture), findsNothing);
+    expect(find.text('TMDB'), findsNothing);
     expect(find.text('60%'), findsOneWidget);
   });
 }

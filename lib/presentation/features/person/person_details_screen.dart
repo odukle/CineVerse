@@ -244,21 +244,18 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                               sliver: SliverGrid(
                                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: 3,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 0,
-                                  mainAxisExtent: 220,
+                                  crossAxisSpacing: 12,
+                                  mainAxisSpacing: 16,
+                                  childAspectRatio: 0.55,
                                 ),
                                 delegate: SliverChildBuilderDelegate(
                                   (context, index) {
                                     final credit = credits[index];
-                                    final double availableCardWidth =
+                                    final double cardWidth =
                                         (MediaQuery.sizeOf(context).width -
                                                 (16 * 2) -
-                                                (10 * 2)) /
+                                                (12 * 2)) /
                                             3;
-                                    final double cardWidth = availableCardWidth > 108
-                                        ? 108
-                                        : availableCardWidth;
 
                                     return MediaPosterGridCard(
                                       movie: credit.media,

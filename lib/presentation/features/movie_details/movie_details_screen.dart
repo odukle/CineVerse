@@ -40,6 +40,7 @@ import 'package:cineverse/presentation/widgets/media_actions_dialogs.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:cineverse/presentation/features/movie_details/widgets/quotes_carousel.dart';
 import 'package:cineverse/presentation/features/movie_details/widgets/full_cast_crew_chip.dart';
+import 'package:cineverse/presentation/features/movie_details/widgets/movie_details_share_bottom_sheet.dart';
 
 class MovieDetailsScreen extends ConsumerWidget {
   const MovieDetailsScreen({
@@ -84,13 +85,15 @@ class MovieDetailsScreen extends ConsumerWidget {
                     const SizedBox(height: 24),
                     ShimmerEffect.textLine(width: 100, height: 20),
                     const SizedBox(height: 12),
-                    Row(
-                      children: List.generate(
-                        3,
-                        (index) => Padding(
-                          padding: const EdgeInsets.only(right: 12),
-                          child: ShimmerEffect.poster(width: 100, height: 150),
-                        ),
+                    SizedBox(
+                      height: 150,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: 3,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 12),
+                        itemBuilder: (context, index) =>
+                            ShimmerEffect.poster(width: 100, height: 150),
                       ),
                     ),
                   ],
@@ -255,6 +258,9 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
     final mediaType = widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie;
     final watchedItemAsync = ref.watch(watchedItemProvider((id: widget.details.id, type: mediaType)));
     final userRating = watchedItemAsync.value?.rating;
+    
+    final notesAsync = ref.watch(mediaNotesProvider((id: widget.details.id, type: mediaType)));
+    final latestNote = notesAsync.value?.lastOrNull?.text;
 
     return CustomScrollView(
         slivers: [
@@ -273,14 +279,20 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
               child: SvgPicture.asset(
                 'assets/logos/logo.svg',
                 fit: BoxFit.contain,
-                alignment: Alignment.centerLeft,
+                alignment: Alignment.center,
                 semanticsLabel: AppConstants.appName,
               ),
             ),
-            centerTitle: false,
+            centerTitle: true,
             actions: [
               IconButton(
-                onPressed: () {},
+                onPressed: () => MovieDetailsShareBottomSheet.show(
+                  context,
+                  details: widget.details,
+                  isTv: widget.isTv,
+                  userRating: userRating,
+                  userNote: latestNote,
+                ),
                 icon: const Icon(
                   Icons.share_outlined,
                   color: Colors.white,
@@ -382,16 +394,16 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                                               borderRadius: 12,
                                             ),
                                         errorWidget: (context, url, error) =>
-                                          ColoredBox(
-                                            color: AppColors
-                                                .detailsPosterSurface,
-                                            child: const Center(
-                                              child: Icon(
-                                                Icons.broken_image_outlined,
-                                                size: 36,
+                                            ColoredBox(
+                                              color: AppColors
+                                                  .detailsPosterSurface,
+                                              child: const Center(
+                                                child: Icon(
+                                                  Icons.broken_image_outlined,
+                                                  size: 36,
+                                                ),
                                               ),
                                             ),
-                                          ),
                                       ),
                               ),
                             ),
@@ -404,23 +416,22 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                             height: 150, // Match poster height
                             alignment: Alignment.bottomLeft,
                             padding: const EdgeInsets.only(bottom: 8),
-                            child: Row(
+                            child: Wrap(
+                              spacing: 12,
+                              runSpacing: 12,
                               children: [
                                 _LibraryListButton(
                                   details: widget.details,
                                   isTv: widget.isTv,
                                 ),
-                                const SizedBox(width: 12),
                                 _LibraryFavouriteButton(
                                   details: widget.details,
                                   isTv: widget.isTv,
                                 ),
-                                const SizedBox(width: 12),
                                 _LibraryWatchlistButton(
                                   details: widget.details,
                                   isTv: widget.isTv,
                                 ),
-                                const SizedBox(width: 10),
                                 _WatchedButton(
                                   details: widget.details,
                                   isTv: widget.isTv,
@@ -802,7 +813,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
           // Quotes Section
           SliverToBoxAdapter(
             child: QuotesCarousel(
-              title: widget.details.title,
+              details: widget.details,
               isTv: widget.isTv,
             ),
           ),
@@ -1917,25 +1928,37 @@ class _NotesSection extends ConsumerWidget {
           ),
           const SizedBox(height: 16),
           _NoteInput(mediaId: mediaId, mediaType: mediaType),
-          const SizedBox(height: 20),
+          const SizedBox(height: 8),
           notesAsync.when(
             skipLoadingOnReload: !notesAsync.hasError,
             data: (notes) {
               if (notes.isEmpty) {
                 return const Center(
-                  child: Text(
-                    'No notes yet. Add your thoughts!',
-                    style: TextStyle(color: Colors.white54),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 20),
+                    child: Text(
+                      'No notes yet. Add your thoughts!',
+                      style: TextStyle(color: Colors.white54),
+                    ),
                   ),
                 );
               }
-              return ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: notes.length,
-                separatorBuilder: (context, index) =>
-                    const SizedBox(height: 12),
-                itemBuilder: (context, index) => _NoteItem(note: notes[index]),
+              return SizedBox(
+                height: 100,
+                child: ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: notes.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 12),
+                  itemBuilder: (context, index) => SizedBox(
+                    width: 280,
+                    child: _NoteItem(
+                      note: notes[index],
+                      mediaId: mediaId,
+                      mediaType: mediaType,
+                    ),
+                  ),
+                ),
               );
             },
             loading: () => Column(
@@ -1981,49 +2004,72 @@ class _NotesSection extends ConsumerWidget {
 }
 
 class _NoteItem extends ConsumerWidget {
-  const _NoteItem({required this.note});
+  const _NoteItem({
+    required this.note,
+    required this.mediaId,
+    required this.mediaType,
+  });
 
   final MovieNote note;
+  final int mediaId;
+  final GlobalMediaType mediaType;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dateFormat = DateFormat('MMM d, yyyy • HH:mm');
 
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.detailsCard.withValues(alpha: 0.3),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                dateFormat.format(note.createdAt),
-                style: const TextStyle(color: Colors.white54, fontSize: 11),
-              ),
-              IconButton(
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-                onPressed: () => _confirmDelete(context, ref),
-                icon: const Icon(
-                  Icons.delete_outline_rounded,
-                  color: Colors.redAccent,
-                  size: 18,
+    return InkWell(
+      onTap: () {
+        showAnimatedDialog(
+          context: context,
+          builder: (context) => AddNoteDialog(
+            mediaId: mediaId,
+            mediaType: mediaType,
+            initialNote: note,
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.detailsCard.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  dateFormat.format(note.createdAt),
+                  style: const TextStyle(color: Colors.white54, fontSize: 11),
                 ),
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () => _confirmDelete(context, ref),
+                  icon: const Icon(
+                    Icons.delete_outline_rounded,
+                    color: Colors.redAccent,
+                    size: 18,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Expanded(
+              child: Text(
+                note.text,
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            note.text,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -2108,57 +2154,89 @@ class _NoteInputState extends ConsumerState<_NoteInput> {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: TextField(
-            controller: _controller,
-            maxLines: null,
-            style: const TextStyle(color: Colors.white, fontSize: 14),
-            decoration: InputDecoration(
-              hintText: 'Add a note...',
-              hintStyle: const TextStyle(color: Colors.white38),
-              filled: true,
-              fillColor: AppColors.detailsCard.withValues(alpha: 0.5),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.1),
-                ),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.1),
-                ),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.cinemaAccent),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-            ),
+    final Widget noteField = TextField(
+      controller: _controller,
+      maxLines: null,
+      style: const TextStyle(color: Colors.white, fontSize: 14),
+      decoration: InputDecoration(
+        hintText: 'Add a note...',
+        hintStyle: const TextStyle(color: Colors.white38),
+        filled: true,
+        fillColor: AppColors.detailsCard.withValues(alpha: 0.5),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: Colors.white.withValues(alpha: 0.1),
           ),
         ),
-        const SizedBox(width: 8),
-        IconButton(
-          onPressed: _isSubmitting ? null : _submit,
-          icon: _isSubmitting
-              ? SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: AppColors.cinemaAccent,
-                  ),
-                )
-              : Icon(Icons.send_rounded, color: AppColors.cinemaAccent),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: Colors.white.withValues(alpha: 0.1),
+          ),
         ),
-      ],
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: AppColors.cinemaAccent),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+      ),
+    );
+
+    final Widget submitButton = SizedBox(
+      width: 40,
+      height: 40,
+      child: IconButton(
+        onPressed: _isSubmitting ? null : _submit,
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints.tightFor(
+          width: 40,
+          height: 40,
+        ),
+        icon: _isSubmitting
+            ? SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.cinemaAccent,
+                ),
+              )
+            : Icon(Icons.send_rounded, color: AppColors.cinemaAccent),
+      ),
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < 420) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              noteField,
+              const SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: submitButton,
+              ),
+            ],
+          );
+        }
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: noteField),
+            const SizedBox(width: 8),
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: submitButton,
+            ),
+          ],
+        );
+      },
     );
   }
 }

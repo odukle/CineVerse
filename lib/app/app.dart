@@ -8,8 +8,8 @@ import 'package:cineverse/presentation/providers/sync_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CineVerseApp extends ConsumerWidget {
-  const CineVerseApp({super.key});
+class LumiApp extends ConsumerWidget {
+  const LumiApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

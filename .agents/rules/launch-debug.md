@@ -4,7 +4,7 @@ trigger: model_decision
 
 # Launch Debug Session
 
-When the user requests to launch a debug session or start the app in debug mode, you MUST use the following command and then STOP. Do not perform any additional actions or research unless specifically asked.
+When the user requests to "debug/start debug/launch app/relaunch app", you MUST use the following command and then STOP. Do not perform any additional actions or research unless specifically asked.
 
 ```powershell
 flutter run --debug `

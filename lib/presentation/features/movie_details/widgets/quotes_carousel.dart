@@ -4,16 +4,17 @@ import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cineverse/domain/entities/movie_details.dart';
 
 class QuotesCarousel extends ConsumerWidget {
-  const QuotesCarousel({super.key, required this.title, required this.isTv});
+  const QuotesCarousel({super.key, required this.details, required this.isTv});
 
-  final String title;
+  final MovieDetails details;
   final bool isTv;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final quotesAsync = ref.watch(mediaQuotesProvider((title: title, isTv: isTv)));
+    final quotesAsync = ref.watch(mediaQuotesProvider((title: details.title, isTv: isTv)));
     final theme = Theme.of(context);
 
     return quotesAsync.when(
@@ -38,8 +39,9 @@ class QuotesCarousel extends ConsumerWidget {
                   TextButton(
                     onPressed: () {
                       context.push('/explore_quotes', extra: {
-                        'title': title,
+                        'title': details.title,
                         'isTv': isTv,
+                        'details': details,
                       });
                     },
                     child: Text(

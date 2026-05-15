@@ -25,7 +25,7 @@ void main() async {
         builder: (context, ref, _) {
           // Initialize sync listener
           ref.watch(syncInitializationProvider);
-          return const CineVerseApp();
+          return const LumiApp();
         },
       ),
     ),

@@ -10,40 +10,34 @@ class ExploreMediaTypeToggle extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final mediaType = ref.watch(exploreMediaTypeProvider);
 
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 12),
-        child: Container(
-          height: 32,
-          padding: const EdgeInsets.all(2),
-          decoration: BoxDecoration(
-            color: AppColors.cinemaSurface,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: AppColors.cinemaAccent.withValues(alpha: 0.1),
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _ToggleOption(
-                label: 'Movies',
-                selected: mediaType == ExploreMediaType.movie,
-                onTap: () => ref
-                    .read(exploreMediaTypeProvider.notifier)
-                    .setType(ExploreMediaType.movie),
-              ),
-              _ToggleOption(
-                label: 'TV',
-                selected: mediaType == ExploreMediaType.tv,
-                onTap: () => ref
-                    .read(exploreMediaTypeProvider.notifier)
-                    .setType(ExploreMediaType.tv),
-              ),
-            ],
-          ),
+    return Container(
+      height: 32,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: AppColors.cinemaSurface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.cinemaAccent.withValues(alpha: 0.1),
         ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _ToggleOption(
+            label: 'Movies',
+            selected: mediaType == ExploreMediaType.movie,
+            onTap: () => ref
+                .read(exploreMediaTypeProvider.notifier)
+                .setType(ExploreMediaType.movie),
+          ),
+          _ToggleOption(
+            label: 'TV',
+            selected: mediaType == ExploreMediaType.tv,
+            onTap: () => ref
+                .read(exploreMediaTypeProvider.notifier)
+                .setType(ExploreMediaType.tv),
+          ),
+        ],
       ),
     );
   }
@@ -67,7 +61,7 @@ class _ToggleOption extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         alignment: Alignment.center,
         decoration: BoxDecoration(
           color: selected ? AppColors.cinemaAccent : Colors.transparent,

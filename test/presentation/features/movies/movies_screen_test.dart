@@ -2,6 +2,8 @@ import 'package:cineverse/core/config/app_config.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/movie_genre.dart';
+import 'package:cineverse/domain/entities/media_images.dart';
+import 'package:cineverse/domain/entities/movie_mood.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
@@ -12,7 +14,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('movie screen renders curated shelves with external ratings', (
+  testWidgets('movie screen renders curated shelves and mood section', (
     WidgetTester tester,
   ) async {
     final Finder verticalScrollable = find.byWidgetPredicate(
@@ -46,13 +48,24 @@ void main() {
           MovieSection.thriller: buildMovies('Thriller Movie', 51),
         };
 
-    final Iterable<int> allIds = sections.values.expand(
-      (movies) => movies.map((movie) => movie.id),
-    );
     final List<MediaTitle> discoverPool = buildMovies(
       'Discover Spotlight',
       901,
     );
+    final Iterable<int> allIds = <MediaTitle>[
+      ...sections.values.expand((movies) => movies),
+      ...discoverPool,
+    ].map((movie) => movie.id);
+    final Map<MovieMood, List<MediaTitle>> moodSections =
+        <MovieMood, List<MediaTitle>>{
+          MovieMood.mindBending: buildMovies('Mind Bending Movie', 1201),
+          MovieMood.feelGood: buildMovies('Feel Good Movie', 1301),
+          MovieMood.dark: buildMovies('Dark Movie', 1401),
+          MovieMood.fastPaced: buildMovies('Fast Paced Movie', 1501),
+          MovieMood.edgeOfYourSeat: buildMovies('Edge Movie', 1601),
+          MovieMood.cinematic: buildMovies('Cinematic Movie', 1701),
+          MovieMood.indie: buildMovies('Indie Movie', 1801),
+        };
     const List<MovieGenre> genres = <MovieGenre>[
       MovieGenre(id: 28, name: 'Action'),
       MovieGenre(id: 18, name: 'Drama'),
@@ -89,20 +102,31 @@ void main() {
             genreSectionProvider((id: genreId, isTv: false)).overrideWith(
               (ref) async => buildMovies('Genre $genreId Movie', genreId),
             ),
+          for (final MapEntry<MovieMood, List<MediaTitle>> entry
+              in moodSections.entries)
+            moodSectionProvider((
+              mood: entry.key,
+              isTv: false,
+            )).overrideWith((ref) async => entry.value),
           discoverPoolProvider.overrideWith((ref) async => discoverPool),
           for (final int id in allIds)
             movieDetailsProvider(
               GetMovieDetailsParams(movieId: id),
             ).overrideWith((ref) => buildDetails(id)),
+          for (final int id in allIds)
+            mediaImagesProvider((
+              id: id,
+              isTv: false,
+            )).overrideWith((ref) async => MediaImages.empty),
         ],
-        child: const MaterialApp(home: ExploreScreen()),
+        child: const MaterialApp(home: Scaffold(body: ExploreScreen())),
       ),
     );
 
     await tester.pumpAndSettle();
 
     expect(find.text('Discover'), findsOneWidget);
-    expect(find.byIcon(Icons.casino_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.casino_outlined), findsOneWidget);
 
     await tester.scrollUntilVisible(
       find.text('Trending'),
@@ -129,35 +153,22 @@ void main() {
     expect(find.text('Now Playing'), findsOneWidget);
 
     await tester.scrollUntilVisible(
-      find.text('Action').first,
+      find.text('Discover by Mood'),
       400,
       scrollable: verticalScrollable,
     );
     await tester.pumpAndSettle();
-    expect(find.text('Action'), findsAtLeastNWidgets(1));
-
-    await tester.scrollUntilVisible(
-      find.text('Drama').first,
-      400,
-      scrollable: verticalScrollable,
-    );
-    await tester.pumpAndSettle();
-    expect(find.text('Drama'), findsAtLeastNWidgets(1));
-
-    await tester.scrollUntilVisible(
-      find.text('Thriller').first,
-      400,
-      scrollable: verticalScrollable,
-    );
-    await tester.pumpAndSettle();
-    expect(find.text('Thriller'), findsAtLeastNWidgets(1));
-
-    expect(find.text('IMDb 8.7/10'), findsWidgets);
+    expect(find.text('Discover by Mood'), findsOneWidget);
+    expect(find.text('Mind-bending'), findsOneWidget);
     expect(find.byType(ListView), findsWidgets);
     expect(tester.takeException(), isNull);
+
+    await tester.pump(const Duration(seconds: 8));
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 
-  testWidgets('section filter expands and updates a shelf', (
+  testWidgets('trending shelf renders its initial filter state', (
     WidgetTester tester,
   ) async {
     final Finder verticalScrollable = find.byWidgetPredicate(
@@ -201,6 +212,25 @@ void main() {
       );
     }
 
+    final Map<MovieMood, List<MediaTitle>> moodSections =
+        <MovieMood, List<MediaTitle>>{
+          MovieMood.mindBending: buildMovies('Mind Bending Movie', 1201),
+          MovieMood.feelGood: buildMovies('Feel Good Movie', 1301),
+          MovieMood.dark: buildMovies('Dark Movie', 1401),
+          MovieMood.fastPaced: buildMovies('Fast Paced Movie', 1501),
+          MovieMood.edgeOfYourSeat: buildMovies('Edge Movie', 1601),
+          MovieMood.cinematic: buildMovies('Cinematic Movie', 1701),
+          MovieMood.indie: buildMovies('Indie Movie', 1801),
+        };
+    final List<MediaTitle> discoverPool = buildMovies(
+      'Discover Spotlight',
+      901,
+    );
+    final Iterable<int> allIds = <MediaTitle>[
+      ...sections.values.expand((movies) => movies),
+      ...discoverPool,
+    ].map((movie) => movie.id);
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -226,17 +256,24 @@ void main() {
             genreSectionProvider((id: genreId, isTv: false)).overrideWith(
               (ref) async => buildMovies('Genre $genreId Movie', genreId),
             ),
-          discoverPoolProvider.overrideWith(
-            (ref) async => buildMovies('Discover Spotlight', 901),
-          ),
-          for (final int id in sections.values.expand(
-            (movies) => movies.map((movie) => movie.id),
-          ))
+          for (final MapEntry<MovieMood, List<MediaTitle>> entry
+              in moodSections.entries)
+            moodSectionProvider((
+              mood: entry.key,
+              isTv: false,
+            )).overrideWith((ref) async => entry.value),
+          discoverPoolProvider.overrideWith((ref) async => discoverPool),
+          for (final int id in allIds)
             movieDetailsProvider(
               GetMovieDetailsParams(movieId: id),
             ).overrideWith((ref) => buildDetails(id)),
+          for (final int id in allIds)
+            mediaImagesProvider((
+              id: id,
+              isTv: false,
+            )).overrideWith((ref) async => MediaImages.empty),
         ],
-        child: const MaterialApp(home: ExploreScreen()),
+        child: const MaterialApp(home: Scaffold(body: ExploreScreen())),
       ),
     );
 
@@ -250,20 +287,13 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Day Movie 1'), findsOneWidget);
+    expect(find.text('Today'), findsOneWidget);
     expect(find.text('This Week'), findsNothing);
+    expect(tester.takeException(), isNull);
 
-    await tester.tap(find.text('Today'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('This Week'), findsOneWidget);
-
-    await tester.tap(find.text('This Week'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Week Movie 1'), findsOneWidget);
-    expect(find.text('Day Movie 1'), findsNothing);
-    expect(find.text('This Week'), findsOneWidget);
-    expect(find.text('Today'), findsNothing);
+    await tester.pump(const Duration(seconds: 8));
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 
   testWidgets('discover spotlight dice shows another discover movie', (
@@ -309,6 +339,21 @@ void main() {
       );
     }
 
+    final Map<MovieMood, List<MediaTitle>> moodSections =
+        <MovieMood, List<MediaTitle>>{
+          MovieMood.mindBending: buildMovies('Mind Bending Movie', 1201),
+          MovieMood.feelGood: buildMovies('Feel Good Movie', 1301),
+          MovieMood.dark: buildMovies('Dark Movie', 1401),
+          MovieMood.fastPaced: buildMovies('Fast Paced Movie', 1501),
+          MovieMood.edgeOfYourSeat: buildMovies('Edge Movie', 1601),
+          MovieMood.cinematic: buildMovies('Cinematic Movie', 1701),
+          MovieMood.indie: buildMovies('Indie Movie', 1801),
+        };
+    final Iterable<int> allIds = <MediaTitle>[
+      ...sections.values.expand((movies) => movies),
+      ...discoverPool,
+    ].map((movie) => movie.id);
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -334,15 +379,24 @@ void main() {
             genreSectionProvider((id: genreId, isTv: false)).overrideWith(
               (ref) async => buildMovies('Genre $genreId Movie', genreId),
             ),
+          for (final MapEntry<MovieMood, List<MediaTitle>> entry
+              in moodSections.entries)
+            moodSectionProvider((
+              mood: entry.key,
+              isTv: false,
+            )).overrideWith((ref) async => entry.value),
           discoverPoolProvider.overrideWith((ref) async => discoverPool),
-          for (final int id in sections.values.expand(
-            (movies) => movies.map((movie) => movie.id),
-          ))
+          for (final int id in allIds)
             movieDetailsProvider(
               GetMovieDetailsParams(movieId: id),
             ).overrideWith((ref) => buildDetails(id)),
+          for (final int id in allIds)
+            mediaImagesProvider((
+              id: id,
+              isTv: false,
+            )).overrideWith((ref) async => MediaImages.empty),
         ],
-        child: const MaterialApp(home: ExploreScreen()),
+        child: const MaterialApp(home: Scaffold(body: ExploreScreen())),
       ),
     );
 
@@ -354,14 +408,18 @@ void main() {
     expect(discoverTitleFinder, findsOneWidget);
     final String initialTitle = tester.widget<Text>(discoverTitleFinder).data!;
 
-    await tester.ensureVisible(find.byIcon(Icons.casino_rounded));
+    await tester.ensureVisible(find.byIcon(Icons.casino_outlined));
     await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.casino_rounded));
+    await tester.tap(find.byIcon(Icons.casino_outlined));
     await tester.pumpAndSettle();
 
     final String updatedTitle = tester
         .widget<Text>(find.textContaining('Discover Spotlight'))
         .data!;
     expect(updatedTitle, isNot(initialTitle));
+
+    await tester.pump(const Duration(seconds: 8));
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 }

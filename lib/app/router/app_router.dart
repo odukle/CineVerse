@@ -10,6 +10,7 @@ import 'package:cineverse/presentation/features/search/search_screen.dart';
 import 'package:cineverse/presentation/features/search/widgets/global_filter_screen.dart';
 import 'package:cineverse/presentation/features/movies/explore_section_screen.dart';
 import 'package:cineverse/presentation/features/movies/models/explore_models.dart';
+import 'package:cineverse/presentation/features/movies/what_should_i_watch_tonight_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -26,6 +27,8 @@ import 'package:cineverse/presentation/features/movie_details/all_seasons_screen
 import 'package:cineverse/presentation/features/movie_details/season_details_screen.dart';
 import 'package:cineverse/presentation/features/movie_details/episode_details_screen.dart';
 import 'package:cineverse/presentation/features/quotes/explore_wikiquotes_screen.dart';
+import 'package:cineverse/presentation/features/movie_details/quote_share_editor_screen.dart';
+import 'package:cineverse/domain/repositories/quotes_repository.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -192,8 +195,9 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final tvId = int.parse(state.pathParameters['tvId']!);
           final seasonNumber = int.parse(state.pathParameters['seasonNumber']!);
-          final episodeNumber =
-              int.parse(state.pathParameters['episodeNumber']!);
+          final episodeNumber = int.parse(
+            state.pathParameters['episodeNumber']!,
+          );
           final showTitle = state.uri.queryParameters['showTitle'] ?? 'Episode';
           return EpisodeDetailsScreen(
             tvId: tvId,
@@ -229,6 +233,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
       ),
       GoRoute(
+        path: AppRoute.whatShouldIWatchTonight.path,
+        name: AppRoute.whatShouldIWatchTonight.name,
+        builder: (context, state) {
+          final bool isTv = state.uri.queryParameters['isTv'] == 'true';
+          return WhatShouldIWatchTonightScreen(isTv: isTv);
+        },
+      ),
+      GoRoute(
         path: AppRoute.allReviews.path,
         name: AppRoute.allReviews.name,
         builder: (context, state) {
@@ -252,6 +264,21 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             isTv: extra['isTv'] as bool? ?? false,
             isSeason: extra['isSeason'] as bool? ?? false,
             pageName: extra['pageName'] as String?,
+            details: extra['details'] as MovieDetails?,
+            seasonNumber: extra['seasonNumber'] as int?,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoute.quoteShareEditor.path,
+        name: AppRoute.quoteShareEditor.name,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return QuoteShareEditorScreen(
+            details: extra['details'] as MovieDetails,
+            isTv: extra['isTv'] as bool? ?? false,
+            initialQuote: extra['initialQuote'] as MediaQuote?,
+            seasonNumber: extra['seasonNumber'] as int?,
           );
         },
       ),
@@ -280,9 +307,14 @@ enum AppRoute {
   ),
   allSeasons('/tv/:tvId/seasons', 'all-seasons'),
   exploreSection('/explore-section', 'explore-section'),
+  whatShouldIWatchTonight(
+    '/what-should-i-watch-tonight',
+    'what-should-i-watch-tonight',
+  ),
   appearance('/appearance', 'appearance'),
   allReviews('/reviews', 'all-reviews'),
-  exploreQuotes('/explore_quotes', 'explore_quotes');
+  exploreQuotes('/explore_quotes', 'explore_quotes'),
+  quoteShareEditor('/quote_share_editor', 'quote_share_editor');
 
   const AppRoute(this.path, this.name);
 

@@ -48,19 +48,6 @@ class ExploreScreen extends ConsumerStatefulWidget {
       variant: _ShelfVariant.featured,
     ),
     ExploreShelfData(
-      title: 'Discover by Mood',
-      filters: <ExploreFilterOption>[
-        ExploreFilterOption(label: 'Mind-bending', mood: MovieMood.mindBending),
-        ExploreFilterOption(label: 'Feel-good', mood: MovieMood.feelGood),
-        ExploreFilterOption(label: 'Dark', mood: MovieMood.dark),
-        ExploreFilterOption(label: 'Fast-paced', mood: MovieMood.fastPaced),
-        ExploreFilterOption(label: 'Heartwarming', mood: MovieMood.heartwarming),
-        ExploreFilterOption(label: 'Edge-of-your-seat', mood: MovieMood.edgeOfYourSeat),
-        ExploreFilterOption(label: 'Cinematic', mood: MovieMood.cinematic),
-        ExploreFilterOption(label: 'Indie', mood: MovieMood.indie),
-      ],
-    ),
-    ExploreShelfData(
       title: "What's Popular",
       filters: <ExploreFilterOption>[
         ExploreFilterOption(label: 'Popular', section: MovieSection.popular),
@@ -95,26 +82,16 @@ class ExploreScreen extends ConsumerStatefulWidget {
     ExploreShelfData(
       title: 'TV Trending',
       filters: <ExploreFilterOption>[
-        ExploreFilterOption(label: 'Today', section: MovieSection.tvTrendingDay),
+        ExploreFilterOption(
+          label: 'Today',
+          section: MovieSection.tvTrendingDay,
+        ),
         ExploreFilterOption(
           label: 'This Week',
           section: MovieSection.tvTrendingWeek,
         ),
       ],
       variant: _ShelfVariant.featured,
-    ),
-    ExploreShelfData(
-      title: 'Discover by Mood',
-      filters: <ExploreFilterOption>[
-        ExploreFilterOption(label: 'Mind-bending', mood: MovieMood.mindBending),
-        ExploreFilterOption(label: 'Feel-good', mood: MovieMood.feelGood),
-        ExploreFilterOption(label: 'Dark', mood: MovieMood.dark),
-        ExploreFilterOption(label: 'Fast-paced', mood: MovieMood.fastPaced),
-        ExploreFilterOption(label: 'Heartwarming', mood: MovieMood.heartwarming),
-        ExploreFilterOption(label: 'Edge-of-your-seat', mood: MovieMood.edgeOfYourSeat),
-        ExploreFilterOption(label: 'Cinematic', mood: MovieMood.cinematic),
-        ExploreFilterOption(label: 'Indie', mood: MovieMood.indie),
-      ],
     ),
     ExploreShelfData(
       title: "What's Popular",
@@ -152,6 +129,22 @@ class ExploreScreen extends ConsumerStatefulWidget {
       ],
     ),
   ];
+
+  static const ExploreShelfData _moodSection = ExploreShelfData(
+    title: 'Discover by Mood',
+    filters: <ExploreFilterOption>[
+      ExploreFilterOption(label: 'Mind-bending', mood: MovieMood.mindBending),
+      ExploreFilterOption(label: 'Feel-good', mood: MovieMood.feelGood),
+      ExploreFilterOption(label: 'Dark', mood: MovieMood.dark),
+      ExploreFilterOption(label: 'Fast-paced', mood: MovieMood.fastPaced),
+      ExploreFilterOption(
+        label: 'Edge-of-your-seat',
+        mood: MovieMood.edgeOfYourSeat,
+      ),
+      ExploreFilterOption(label: 'Cinematic', mood: MovieMood.cinematic),
+      ExploreFilterOption(label: 'Indie', mood: MovieMood.indie),
+    ],
+  );
 
   @override
   ConsumerState<ExploreScreen> createState() => _ExploreScreenState();
@@ -211,59 +204,64 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
     return BackgroundGradient(
       child: AnimatedSwitcher(
-      duration: const Duration(milliseconds: 550),
-      switchInCurve: Curves.easeInQuad,
-      switchOutCurve: Curves.easeOutQuad,
-      layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
-        return Stack(
-          alignment: Alignment.topCenter,
-          children: <Widget>[
-            ...previousChildren,
-            currentChild ?? const SizedBox.shrink(),
+        duration: const Duration(milliseconds: 550),
+        switchInCurve: Curves.easeInQuad,
+        switchOutCurve: Curves.easeOutQuad,
+        layoutBuilder: (Widget? currentChild, List<Widget> previousChildren) {
+          return Stack(
+            alignment: Alignment.topCenter,
+            children: <Widget>[
+              ...previousChildren,
+              currentChild ?? const SizedBox.shrink(),
+            ],
+          );
+        },
+        transitionBuilder: (Widget child, Animation<double> animation) {
+          final isEntering = child.key == ValueKey(mediaType);
+          return FadeTransition(
+            opacity: animation,
+            child: SlideTransition(
+              position: Tween<Offset>(
+                begin: isEntering
+                    ? const Offset(0.04, 0)
+                    : const Offset(-0.04, 0),
+                end: Offset.zero,
+              ).animate(animation),
+              child: child,
+            ),
+          );
+        },
+        child: CustomScrollView(
+          key: ValueKey(mediaType), // Force refresh when switching type
+          controller: _scrollController,
+          physics: const AlwaysScrollableScrollPhysics(),
+          cacheExtent:
+              1500, // Pre-build shelves in the background to eliminate stutter
+          slivers: [
+            const SliverToBoxAdapter(child: SizedBox(height: 12)),
+            SliverToBoxAdapter(child: _DiscoverSpotlightSection()),
+
+            // Optimized combined shelf list (Base sections only)
+            SliverList(
+              delegate: SliverChildBuilderDelegate((
+                BuildContext context,
+                int index,
+              ) {
+                return _MovieShelfSection(section: baseSections[index]);
+              }, childCount: baseSections.length),
+            ),
+
+            const SliverToBoxAdapter(child: _LibraryRecommendationsSection()),
+
+            const SliverToBoxAdapter(
+              child: _MovieShelfSection(section: ExploreScreen._moodSection),
+            ),
+
+            const SliverToBoxAdapter(child: _TonightWatchLauncherSection()),
+            const SliverToBoxAdapter(child: SizedBox(height: 52)),
           ],
-        );
-      },
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        final isEntering = child.key == ValueKey(mediaType);
-        return FadeTransition(
-          opacity: animation,
-          child: SlideTransition(
-            position: Tween<Offset>(
-              begin: isEntering
-                  ? const Offset(0.04, 0)
-                  : const Offset(-0.04, 0),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          ),
-        );
-      },
-      child: CustomScrollView(
-        key: ValueKey(mediaType), // Force refresh when switching type
-        controller: _scrollController,
-        physics: const AlwaysScrollableScrollPhysics(),
-        cacheExtent:
-            1500, // Pre-build shelves in the background to eliminate stutter
-        slivers: [
-          const SliverToBoxAdapter(child: SizedBox(height: 12)),
-          SliverToBoxAdapter(child: _DiscoverSpotlightSection()),
-
-          // Optimized combined shelf list (Base sections only)
-          SliverList(
-            delegate: SliverChildBuilderDelegate((
-              BuildContext context,
-              int index,
-            ) {
-              return _MovieShelfSection(section: baseSections[index]);
-            }, childCount: baseSections.length),
-          ),
-
-          const SliverToBoxAdapter(child: _LibraryRecommendationsSection()),
-
-          const SliverToBoxAdapter(child: SizedBox(height: 24)),
-        ],
+        ),
       ),
-    ),
     );
   }
 }
@@ -337,7 +335,9 @@ class _LibraryRecommendationsSection extends ConsumerWidget {
       );
     }
 
-    final recommendations = ref.watch(libraryRecommendationsProvider(RecSource.all));
+    final recommendations = ref.watch(
+      libraryRecommendationsProvider(RecSource.all),
+    );
 
     void navigateToSection() {
       context.pushNamed(
@@ -407,10 +407,7 @@ class _LibraryRecommendationsSection extends ConsumerWidget {
                   ],
                 ),
               ),
-              _SectionFilterPill(
-                label: 'See All',
-                onTap: navigateToSection,
-              ),
+              _SectionFilterPill(label: 'See All', onTap: navigateToSection),
             ],
           ),
         ),
@@ -459,6 +456,199 @@ class _LibraryRecommendationsSection extends ConsumerWidget {
 
 class _ShelfVariant {
   static const String featured = 'featured';
+}
+
+class _TonightWatchLauncherSection extends ConsumerWidget {
+  const _TonightWatchLauncherSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ThemeData theme = Theme.of(context);
+    final bool isTv =
+        ref.watch(exploreMediaTypeProvider) == ExploreMediaType.tv;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 22, 16, 0),
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(begin: 0, end: 1),
+        duration: const Duration(milliseconds: 900),
+        curve: Curves.easeOutCubic,
+        builder: (context, value, child) {
+          final double t = value;
+          final Color leadingGlow = Color.lerp(
+            const Color(0xFF2ED7FF),
+            const Color(0xFFFF4DA6),
+            t,
+          )!;
+          final Color trailingGlow = Color.lerp(
+            const Color(0xFFFFB84D),
+            const Color(0xFF7A5CFF),
+            t,
+          )!;
+
+          return DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(32),
+              boxShadow: [
+                BoxShadow(
+                  color: leadingGlow.withValues(alpha: 0.32),
+                  blurRadius: 34,
+                  spreadRadius: -14,
+                  offset: const Offset(0, 20),
+                ),
+                BoxShadow(
+                  color: trailingGlow.withValues(alpha: 0.26),
+                  blurRadius: 44,
+                  spreadRadius: -22,
+                  offset: const Offset(0, -4),
+                ),
+              ],
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(1.4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(32),
+                gradient: LinearGradient(
+                  colors: <Color>[
+                    leadingGlow,
+                    const Color(0xFFFFA94D),
+                    trailingGlow,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(31),
+                  onTap: () {
+                    context.pushNamed(
+                      AppRoute.whatShouldIWatchTonight.name,
+                      queryParameters: <String, String>{
+                        'isTv': isTv.toString(),
+                      },
+                    );
+                  },
+                  child: Ink(
+                    padding: const EdgeInsets.all(22),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(31),
+                      gradient: const LinearGradient(
+                        colors: <Color>[
+                          Color(0xFF0B1730),
+                          Color(0xFF231043),
+                          Color(0xFF3A1657),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                    ),
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          right: -8,
+                          top: -10,
+                          child: Container(
+                            width: 96,
+                            height: 96,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.white.withValues(alpha: 0.06),
+                            ),
+                          ),
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                'Tonight Picker',
+                                style: theme.textTheme.labelLarge?.copyWith(
+                                  color: const Color(0xFF93EAFF),
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'What should I watch tonight?',
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                height: 1,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              isTv
+                                  ? 'Tell us your vibe, episode length, and language. We will return one show that fits tonight.'
+                                  : 'Tell us your vibe, runtime, and language. We will return one movie that fits tonight.',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.78),
+                                height: 1.45,
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 14,
+                                    vertical: 10,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.1),
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.auto_awesome_rounded,
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Launch Picker',
+                                        style: theme.textTheme.labelLarge
+                                            ?.copyWith(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w800,
+                                            ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Spacer(),
+                                Icon(
+                                  Icons.arrow_forward_rounded,
+                                  color: Colors.white.withValues(alpha: 0.92),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
 }
 
 class _DiscoverSpotlightSection extends ConsumerStatefulWidget {
@@ -814,7 +1004,9 @@ class _DiscoverSpotlightSectionState
                                       ),
                                       child: currentSlideshowUrl == null
                                           ? ColoredBox(
-                                              key: const ValueKey('placeholder'),
+                                              key: const ValueKey(
+                                                'placeholder',
+                                              ),
                                               color:
                                                   AppColors.cinemaPlaceholder,
                                               child: const Center(
@@ -1209,7 +1401,7 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
   void _navigateToSection() {
     final mediaType = ref.read(exploreMediaTypeProvider);
     final bool isTv = mediaType == ExploreMediaType.tv;
-    
+
     context.pushNamed(
       AppRoute.exploreSection.name,
       queryParameters: {'isTv': isTv.toString()},
@@ -1228,7 +1420,9 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
 
     final AsyncValue<List<MediaTitle>> movies;
     if (_selectedFilter.mood != null) {
-      movies = ref.watch(moodSectionProvider((mood: _selectedFilter.mood!, isTv: isTv)));
+      movies = ref.watch(
+        moodSectionProvider((mood: _selectedFilter.mood!, isTv: isTv)),
+      );
     } else if (_selectedFilter.genreId != null) {
       movies = ref.watch(
         genreSectionProvider((id: _selectedFilter.genreId!, isTv: isTv)),
@@ -1295,11 +1489,17 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                         final int? genreId = _selectedFilter.genreId;
                         final MovieMood? mood = _selectedFilter.mood;
                         if (mood != null) {
-                          ref.invalidate(moodSectionProvider((mood: mood, isTv: isTv)));
+                          ref.invalidate(
+                            moodSectionProvider((mood: mood, isTv: isTv)),
+                          );
                         } else if (genreId != null) {
-                          ref.invalidate(genreSectionProvider((id: genreId, isTv: isTv)));
+                          ref.invalidate(
+                            genreSectionProvider((id: genreId, isTv: isTv)),
+                          );
                         } else {
-                          ref.invalidate(movieSectionProvider(_selectedFilter.section!));
+                          ref.invalidate(
+                            movieSectionProvider(_selectedFilter.section!),
+                          );
                         }
                       },
                       icon: const Icon(Icons.refresh_rounded, size: 18),
@@ -1388,10 +1588,7 @@ class _ShelfShimmer extends StatelessWidget {
 }
 
 class _SectionFilterPill extends StatelessWidget {
-  const _SectionFilterPill({
-    required this.label,
-    required this.onTap,
-  });
+  const _SectionFilterPill({required this.label, required this.onTap});
 
   final String label;
   final VoidCallback onTap;
@@ -1488,5 +1685,3 @@ class _TomatoIcon extends StatelessWidget {
     );
   }
 }
-
-

@@ -5,5 +5,6 @@ abstract class NotesRepository {
   Future<List<MovieNote>> getNotesForMedia(int mediaId, GlobalMediaType mediaType);
   Future<List<MovieNote>> getAllNotes();
   Future<void> addNote(int mediaId, GlobalMediaType mediaType, String text);
+  Future<void> updateNote(int id, String text);
   Future<void> deleteNote(int id);
 }

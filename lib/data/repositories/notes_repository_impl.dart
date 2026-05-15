@@ -61,6 +61,13 @@ class NotesRepositoryImpl implements NotesRepository {
   }
 
   @override
+  Future<void> updateNote(int id, String text) async {
+    await (_database.update(_database.movieNotesTable)
+          ..where((t) => t.id.equals(id)))
+        .write(MovieNotesTableCompanion(noteText: Value(text)));
+  }
+
+  @override
   Future<void> deleteNote(int id) async {
     await (_database.delete(_database.movieNotesTable)
           ..where((t) => t.id.equals(id)))

@@ -5,6 +5,7 @@ import 'package:cineverse/domain/usecases/notes/add_media_note_use_case.dart';
 import 'package:cineverse/domain/usecases/notes/delete_movie_note_use_case.dart';
 import 'package:cineverse/domain/usecases/notes/get_all_notes_use_case.dart';
 import 'package:cineverse/domain/usecases/notes/get_media_notes_use_case.dart';
+import 'package:cineverse/domain/usecases/notes/update_movie_note_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final getMediaNotesUseCaseProvider = Provider<GetMediaNotesUseCase>((ref) {
@@ -23,6 +24,10 @@ final deleteMovieNoteUseCaseProvider = Provider<DeleteMovieNoteUseCase>((ref) {
   return DeleteMovieNoteUseCase(ref.watch(notesRepositoryProvider));
 });
 
+final updateMovieNoteUseCaseProvider = Provider<UpdateMovieNoteUseCase>((ref) {
+  return UpdateMovieNoteUseCase(ref.watch(notesRepositoryProvider));
+});
+
 typedef MediaNoteParams = ({int id, GlobalMediaType type});
 
 final mediaNotesProvider = FutureProvider.family<List<MovieNote>, MediaNoteParams>((ref, params) async {
@@ -39,6 +44,12 @@ class MovieNotesActions {
 
   Future<void> addNote(int mediaId, GlobalMediaType type, String text) async {
     await _ref.read(addMediaNoteUseCaseProvider).call(mediaId, type, text);
+    _ref.invalidate(mediaNotesProvider((id: mediaId, type: type)));
+    _ref.invalidate(allNotesProvider);
+  }
+
+  Future<void> updateNote(int mediaId, GlobalMediaType type, int noteId, String text) async {
+    await _ref.read(updateMovieNoteUseCaseProvider).call(noteId, text);
     _ref.invalidate(mediaNotesProvider((id: mediaId, type: type)));
     _ref.invalidate(allNotesProvider);
   }

@@ -304,15 +304,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
       );
     }
 
-    const double crossAxisSpacing = 10;
-    const double mainAxisSpacing = 0;
+    const double crossAxisSpacing = 12;
+    const double mainAxisSpacing = 16;
     const int crossAxisCount = 3;
-    final double availableCardWidth =
+    final double cardWidth =
         (MediaQuery.sizeOf(context).width - (16 * 2) - (crossAxisSpacing * 2)) /
         crossAxisCount;
-    final double cardWidth = availableCardWidth > 108
-        ? 108
-        : availableCardWidth;
 
     return CustomScrollView(
       key: PageStorageKey(type?.name ?? 'discover'),
@@ -326,7 +323,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               crossAxisCount: crossAxisCount,
               crossAxisSpacing: crossAxisSpacing,
               mainAxisSpacing: mainAxisSpacing,
-              mainAxisExtent: 220,
+              childAspectRatio: 0.55,
             ),
             delegate: SliverChildBuilderDelegate((context, index) {
               final media = results[index];
