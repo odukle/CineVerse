@@ -16,5 +16,5 @@ flutter run --debug `
 
 [[actions]]
 name = "debug"
-icon = "tool"
+icon = "test"
 command = "flutter run --debug --dart-define=MOVIE_PROXY_BASE_URL=\"https://cineverse-tmdb-proxy.sodukle.workers.dev/\" --dart-define=OMDB_API_KEY=\"a7152ae\""
