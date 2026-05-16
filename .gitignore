@@ -116,6 +116,10 @@ infra/**/node_modules/
 *.perf
 
 # Sensitive configuration
-config/api_keys.json
+config/
 .gemini/
+
+# Kaggle/Firebase recommendation index artifacts
+.tmp/
+assets/data/tonight_kaggle_index.json
 

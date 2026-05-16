@@ -968,266 +968,341 @@ class _DiscoverSpotlightSectionState
                   child: Container(
                     key: ValueKey<int>(movie.id),
                     width: posterWidth,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.12),
-                        width: 1,
-                      ),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        InkWell(
-                          onTap: () => context.pushNamed(
-                            AppRoute.movieDetails.name,
-                            pathParameters: <String, String>{
-                              'movieId': movie.id.toString(),
-                            },
-                            queryParameters: <String, String>{
-                              'heroTag': 'movie-poster-${movie.id}-spotlight',
-                              'isTv': isTv.toString(),
-                            },
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(
+                              0xFF2ED7FF,
+                            ).withValues(alpha: 0.24),
+                            blurRadius: 26,
+                            spreadRadius: -12,
+                            offset: const Offset(0, 18),
                           ),
-                          child: Hero(
-                            tag: 'movie-poster-${movie.id}-spotlight',
-                            child: SizedBox(
-                              width: posterWidth,
-                              height: posterHeight,
-                              child: Stack(
-                                children: [
-                                  Positioned.fill(
-                                    child: AnimatedSwitcher(
-                                      duration: const Duration(
-                                        milliseconds: 1000,
-                                      ),
-                                      child: currentSlideshowUrl == null
-                                          ? ColoredBox(
-                                              key: const ValueKey(
-                                                'placeholder',
-                                              ),
-                                              color:
-                                                  AppColors.cinemaPlaceholder,
-                                              child: const Center(
-                                                child: Icon(
-                                                  Icons.movie_outlined,
-                                                  size: 52,
-                                                  color: Colors.white,
-                                                ),
-                                              ),
-                                            )
-                                          : CachedNetworkImage(
-                                              key: ValueKey<String>(
-                                                currentSlideshowUrl,
-                                              ),
-                                              imageUrl: currentSlideshowUrl,
-                                              fit: BoxFit.cover,
-                                              width: posterWidth,
-                                              height: posterHeight,
-                                              placeholder: (context, url) =>
-                                                  const Center(
-                                                    child:
-                                                        CircularProgressIndicator(),
-                                                  ),
-                                              errorWidget:
-                                                  (
-                                                    context,
-                                                    url,
-                                                    error,
-                                                  ) => const Center(
-                                                    child: Icon(
-                                                      Icons
-                                                          .broken_image_outlined,
-                                                      size: 52,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                            ),
-                                    ),
-                                  ),
-                                  // Gradient overlay (bottom 20%)
-                                  Positioned(
-                                    bottom: 0,
-                                    left: 0,
-                                    right: 0,
-                                    height: posterHeight * 0.2,
-                                    child: const DecoratedBox(
-                                      decoration: BoxDecoration(
-                                        gradient: LinearGradient(
-                                          begin: Alignment.bottomCenter,
-                                          end: Alignment.topCenter,
-                                          colors: [
-                                            Colors.black,
-                                            Colors.transparent,
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  // Tagline
-                                  if (movieDetails.value?.tagline != null &&
-                                      movieDetails.value!.tagline!.isNotEmpty)
-                                    Positioned(
-                                      bottom: 10,
-                                      left: 20,
-                                      right: 20,
-                                      child: Text(
-                                        movieDetails.value!.tagline!,
-                                        textAlign: TextAlign.center,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: theme.textTheme.labelSmall
-                                            ?.copyWith(
-                                              color: Colors.white.withValues(
-                                                alpha: 0.9,
-                                              ),
-                                              fontStyle: FontStyle.italic,
-                                              fontWeight: FontWeight.w600,
-                                              letterSpacing: 0.2,
-                                              shadows: [
-                                                const Shadow(
-                                                  color: Colors.black,
-                                                  blurRadius: 8,
-                                                ),
-                                              ],
-                                            ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
+                          BoxShadow(
+                            color: const Color(
+                              0xFFFF4DA6,
+                            ).withValues(alpha: 0.2),
+                            blurRadius: 34,
+                            spreadRadius: -18,
+                            offset: const Offset(0, -4),
+                          ),
+                        ],
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(1.2),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(14),
+                          gradient: const LinearGradient(
+                            colors: <Color>[
+                              Color(0xFF2ED7FF),
+                              Color(0xFFFFA94D),
+                              Color(0xFFFF4DA6),
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.end,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            gradient: const LinearGradient(
+                              colors: <Color>[
+                                Color(0xFF0B1730),
+                                Color(0xFF231043),
+                                Color(0xFF3A1657),
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (_logoUrl != null)
-                                      _logoUrl!.toLowerCase().endsWith('.svg')
-                                          ? SvgPicture.network(
-                                              _logoUrl!,
-                                              height: 32,
-                                              fit: BoxFit.contain,
-                                              alignment: Alignment.centerLeft,
-                                              placeholderBuilder: (context) =>
-                                                  const SizedBox(height: 32),
-                                            )
-                                          : CachedNetworkImage(
-                                              imageUrl: _logoUrl!,
-                                              height: 32,
-                                              fit: BoxFit.contain,
-                                              alignment: Alignment.centerLeft,
-                                            )
-                                    else
-                                      Text(
-                                        movie.title,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: theme.textTheme.titleMedium
-                                            ?.copyWith(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.w900,
-                                            ),
-                                      ),
-                                    const SizedBox(height: 8),
-                                    Row(
+                              InkWell(
+                                onTap: () => context.pushNamed(
+                                  AppRoute.movieDetails.name,
+                                  pathParameters: <String, String>{
+                                    'movieId': movie.id.toString(),
+                                  },
+                                  queryParameters: <String, String>{
+                                    'heroTag':
+                                        'movie-poster-${movie.id}-spotlight',
+                                    'isTv': isTv.toString(),
+                                  },
+                                ),
+                                child: Hero(
+                                  tag: 'movie-poster-${movie.id}-spotlight',
+                                  child: SizedBox(
+                                    width: posterWidth,
+                                    height: posterHeight,
+                                    child: Stack(
                                       children: [
-                                        if (!isRatingLoading &&
-                                            rottenTomatoesRating != null) ...[
-                                          const _TomatoIcon(),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            scoreLabel,
-                                            style: theme.textTheme.labelSmall
-                                                ?.copyWith(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w800,
-                                                ),
+                                        Positioned.fill(
+                                          child: AnimatedSwitcher(
+                                            duration: const Duration(
+                                              milliseconds: 1000,
+                                            ),
+                                            child: currentSlideshowUrl == null
+                                                ? ColoredBox(
+                                                    key: const ValueKey(
+                                                      'placeholder',
+                                                    ),
+                                                    color: AppColors
+                                                        .cinemaPlaceholder,
+                                                    child: const Center(
+                                                      child: Icon(
+                                                        Icons.movie_outlined,
+                                                        size: 52,
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  )
+                                                : CachedNetworkImage(
+                                                    key: ValueKey<String>(
+                                                      currentSlideshowUrl,
+                                                    ),
+                                                    imageUrl:
+                                                        currentSlideshowUrl,
+                                                    fit: BoxFit.cover,
+                                                    width: posterWidth,
+                                                    height: posterHeight,
+                                                    placeholder:
+                                                        (
+                                                          context,
+                                                          url,
+                                                        ) => const Center(
+                                                          child:
+                                                              CircularProgressIndicator(),
+                                                        ),
+                                                    errorWidget:
+                                                        (
+                                                          context,
+                                                          url,
+                                                          error,
+                                                        ) => const Center(
+                                                          child: Icon(
+                                                            Icons
+                                                                .broken_image_outlined,
+                                                            size: 52,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                  ),
                                           ),
-                                          const SizedBox(width: 10),
-                                          Container(
-                                            width: 1,
-                                            height: 10,
-                                            color: Colors.white.withValues(
-                                              alpha: 0.2,
+                                        ),
+                                        // Gradient overlay (bottom 20%)
+                                        Positioned(
+                                          bottom: 0,
+                                          left: 0,
+                                          right: 0,
+                                          height: posterHeight * 0.2,
+                                          child: const DecoratedBox(
+                                            decoration: BoxDecoration(
+                                              gradient: LinearGradient(
+                                                begin: Alignment.bottomCenter,
+                                                end: Alignment.topCenter,
+                                                colors: [
+                                                  Colors.black,
+                                                  Colors.transparent,
+                                                ],
+                                              ),
                                             ),
                                           ),
-                                          const SizedBox(width: 10),
-                                        ] else ...[
-                                          scoreBadge,
-                                          const SizedBox(width: 10),
-                                        ],
-                                        if (imdbRating != null) ...[
-                                          const _ImdbIcon(),
-                                          const SizedBox(width: 6),
-                                          Text(
-                                            imdbRating.value,
-                                            style: theme.textTheme.labelSmall
-                                                ?.copyWith(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w800,
-                                                ),
-                                          ),
-                                        ] else
-                                          Text(
-                                            'IMDb NA',
-                                            style: theme.textTheme.labelSmall
-                                                ?.copyWith(
-                                                  color: Colors.white
-                                                      .withValues(alpha: 0.6),
-                                                  fontWeight: FontWeight.w800,
-                                                ),
+                                        ),
+                                        // Tagline
+                                        if (movieDetails.value?.tagline !=
+                                                null &&
+                                            movieDetails
+                                                .value!
+                                                .tagline!
+                                                .isNotEmpty)
+                                          Positioned(
+                                            bottom: 10,
+                                            left: 20,
+                                            right: 20,
+                                            child: Text(
+                                              movieDetails.value!.tagline!,
+                                              textAlign: TextAlign.center,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: theme.textTheme.labelSmall
+                                                  ?.copyWith(
+                                                    color: Colors.white
+                                                        .withValues(alpha: 0.9),
+                                                    fontStyle: FontStyle.italic,
+                                                    fontWeight: FontWeight.w600,
+                                                    letterSpacing: 0.2,
+                                                    shadows: [
+                                                      const Shadow(
+                                                        color: Colors.black,
+                                                        blurRadius: 8,
+                                                      ),
+                                                    ],
+                                                  ),
+                                            ),
                                           ),
                                       ],
                                     ),
-                                  ],
+                                  ),
                                 ),
                               ),
-                              const SizedBox(width: 12),
-                              Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  onTap: () => _rollNextMovie(movies),
-                                  borderRadius: BorderRadius.circular(12),
-                                  child: Ink(
-                                    width: 44,
-                                    height: 44,
-                                    decoration: BoxDecoration(
-                                      color: AppColors.cinemaSelected
-                                          .withValues(alpha: 0.1),
-                                      borderRadius: BorderRadius.circular(8),
-                                      border: Border.all(
-                                        color: AppColors.cinemaSelected
-                                            .withValues(alpha: 0.2),
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          if (_logoUrl != null)
+                                            _logoUrl!.toLowerCase().endsWith(
+                                                  '.svg',
+                                                )
+                                                ? SvgPicture.network(
+                                                    _logoUrl!,
+                                                    height: 32,
+                                                    fit: BoxFit.contain,
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                    placeholderBuilder:
+                                                        (context) =>
+                                                            const SizedBox(
+                                                              height: 32,
+                                                            ),
+                                                  )
+                                                : CachedNetworkImage(
+                                                    imageUrl: _logoUrl!,
+                                                    height: 32,
+                                                    fit: BoxFit.contain,
+                                                    alignment:
+                                                        Alignment.centerLeft,
+                                                  )
+                                          else
+                                            Text(
+                                              movie.title,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: theme.textTheme.titleMedium
+                                                  ?.copyWith(
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w900,
+                                                  ),
+                                            ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              if (!isRatingLoading &&
+                                                  rottenTomatoesRating !=
+                                                      null) ...[
+                                                const _TomatoIcon(),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  scoreLabel,
+                                                  style: theme
+                                                      .textTheme
+                                                      .labelSmall
+                                                      ?.copyWith(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                      ),
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Container(
+                                                  width: 1,
+                                                  height: 10,
+                                                  color: Colors.white
+                                                      .withValues(alpha: 0.2),
+                                                ),
+                                                const SizedBox(width: 10),
+                                              ] else ...[
+                                                scoreBadge,
+                                                const SizedBox(width: 10),
+                                              ],
+                                              if (imdbRating != null) ...[
+                                                const _ImdbIcon(),
+                                                const SizedBox(width: 6),
+                                                Text(
+                                                  imdbRating.value,
+                                                  style: theme
+                                                      .textTheme
+                                                      .labelSmall
+                                                      ?.copyWith(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                      ),
+                                                ),
+                                              ] else
+                                                Text(
+                                                  'IMDb NA',
+                                                  style: theme
+                                                      .textTheme
+                                                      .labelSmall
+                                                      ?.copyWith(
+                                                        color: Colors.white
+                                                            .withValues(
+                                                              alpha: 0.6,
+                                                            ),
+                                                        fontWeight:
+                                                            FontWeight.w800,
+                                                      ),
+                                                ),
+                                            ],
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    child: Center(
-                                      child: ScaleTransition(
-                                        scale: _scaleAnimation,
-                                        child: RotationTransition(
-                                          turns: _diceAnimation,
-                                          child: Icon(
-                                            Icons.casino_outlined,
-                                            color: AppColors.cinemaSelected,
-                                            size: 24,
+                                    const SizedBox(width: 12),
+                                    Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        onTap: () => _rollNextMovie(movies),
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Ink(
+                                          width: 44,
+                                          height: 44,
+                                          decoration: BoxDecoration(
+                                            color: AppColors.cinemaSelected
+                                                .withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            border: Border.all(
+                                              color: AppColors.cinemaSelected
+                                                  .withValues(alpha: 0.2),
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: ScaleTransition(
+                                              scale: _scaleAnimation,
+                                              child: RotationTransition(
+                                                turns: _diceAnimation,
+                                                child: Icon(
+                                                  Icons.casino_outlined,
+                                                  color:
+                                                      AppColors.cinemaSelected,
+                                                  size: 24,
+                                                ),
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ),

@@ -35,20 +35,10 @@ class HomeScaffold extends ConsumerWidget {
                 _showSortSheet(context, ref, currentTab == HomeTab.tvShows),
           )
         : isExplore
-        ? Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
-              color: Colors.white.withValues(alpha: 0.05),
-              border: Border.all(
-                color: AppColors.cinemaBorder.withValues(alpha: 0.24),
-              ),
-            ),
-            child: const FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerLeft,
-              child: ExploreMediaTypeToggle(),
-            ),
+        ? const FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: ExploreMediaTypeToggle(),
           )
         : isLibrary
         ? const SyncIndicator()
@@ -115,21 +105,11 @@ class HomeScaffold extends ConsumerWidget {
                       child: leadingContent,
                     ),
                   ),
-            title: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.white.withValues(alpha: 0.04),
-                border: Border.all(
-                  color: AppColors.cinemaBorder.withValues(alpha: 0.22),
-                ),
-              ),
-              child: SvgPicture.asset(
-                'assets/logos/logo.svg',
-                height: 24,
-                fit: BoxFit.contain,
-                semanticsLabel: AppConstants.appName,
-              ),
+            title: SvgPicture.asset(
+              'assets/logos/logo.svg',
+              height: 24,
+              fit: BoxFit.contain,
+              semanticsLabel: AppConstants.appName,
             ),
             actions: [
               SizedBox(
@@ -144,6 +124,7 @@ class HomeScaffold extends ConsumerWidget {
                         context.pushNamed(AppRoute.search.name);
                       },
                     ),
+                    if (isMoviesOrTv) const SizedBox(width: 10),
                     if (isMoviesOrTv)
                       _ChromeActionButton(
                         tooltip: 'Filters',

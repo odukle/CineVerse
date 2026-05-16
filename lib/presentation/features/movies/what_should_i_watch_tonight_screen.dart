@@ -185,13 +185,16 @@ class _WhatShouldIWatchTonightScreenState
   }
 
   void _generateRecommendation() {
+    final TonightWatchRequest nextRequest = TonightWatchRequest(
+      isTv: widget.isTv,
+      timeOption: _selectedTime,
+      mood: _selectedMood,
+      language: _selectedLanguage,
+    );
+    ref.invalidate(tonightWatchRecommendationProvider(nextRequest));
+
     setState(() {
-      _submittedRequest = TonightWatchRequest(
-        isTv: widget.isTv,
-        timeOption: _selectedTime,
-        mood: _selectedMood,
-        language: _selectedLanguage,
-      );
+      _submittedRequest = nextRequest;
     });
   }
 }
@@ -692,10 +695,17 @@ class _LoadingRecommendationCard extends StatefulWidget {
 
 class _LoadingRecommendationCardState extends State<_LoadingRecommendationCard>
     with SingleTickerProviderStateMixin {
+  static const List<String> _loadingMessages = <String>[
+    'Scanning tonight-worthy picks',
+    'Matching your mood and time window',
+    'Filtering by original language',
+    'Ranking the strongest fit for now',
+  ];
+
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1800),
-  )..repeat(reverse: true);
+    duration: const Duration(milliseconds: 8400),
+  )..repeat();
 
   @override
   void dispose() {
@@ -709,7 +719,13 @@ class _LoadingRecommendationCardState extends State<_LoadingRecommendationCard>
       key: const ValueKey<String>('loading-state'),
       animation: _controller,
       builder: (context, child) {
-        final double glow = 0.35 + (_controller.value * 0.4);
+        final double wave = (math.sin(_controller.value * math.pi * 2) + 1) / 2;
+        final double glow = 0.28 + (wave * 0.36);
+        final int messageIndex =
+            (_controller.value * _loadingMessages.length).floor() %
+            _loadingMessages.length;
+        final int dotCount = ((_controller.value * 9).floor() % 3) + 1;
+        final String dots = '.' * dotCount;
         return Container(
           width: double.infinity,
           padding: const EdgeInsets.all(20),
@@ -770,6 +786,31 @@ class _LoadingRecommendationCardState extends State<_LoadingRecommendationCard>
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(999),
                   color: Colors.white.withValues(alpha: 0.08),
+                ),
+              ),
+              const SizedBox(height: 16),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 340),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                child: Text(
+                  '${_loadingMessages[messageIndex]}$dots',
+                  key: ValueKey<String>(
+                    '${_loadingMessages[messageIndex]}-$dotCount',
+                  ),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.86),
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.15,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'No scrolling needed. We are locking one best match for you.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.white.withValues(alpha: 0.64),
+                  height: 1.35,
                 ),
               ),
             ],

@@ -4,18 +4,25 @@ import 'package:cineverse/data/providers/data_providers.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
+import 'package:cineverse/domain/repositories/media_repository.dart';
 import 'package:cineverse/domain/usecases/discover_media_use_case.dart';
 import 'package:cineverse/presentation/features/movies/models/tonight_watch_models.dart';
+import 'package:cineverse/presentation/features/movies/providers/tonight_kaggle_engine_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final tonightWatchRecommendationProvider = FutureProvider.autoDispose
     .family<TonightWatchResult, TonightWatchRequest>((ref, request) async {
-      final repository = ref.watch(mediaRepositoryProvider);
+      final MediaRepository repository = ref.watch(mediaRepositoryProvider);
+      final TonightKaggleEngine kaggleEngine = await ref.watch(
+        tonightKaggleEngineProvider.future,
+      );
       final discoverUseCase = DiscoverMediaUseCase(repository);
 
       final List<MediaTitle> candidates = await _loadCandidates(
         discoverUseCase: discoverUseCase,
+        repository: repository,
+        kaggleEngine: kaggleEngine,
         request: request,
       );
 
@@ -58,7 +65,7 @@ final tonightWatchRecommendationProvider = FutureProvider.autoDispose
       }
 
       scoredPicks.sort((a, b) => b.score.compareTo(a.score));
-      final _ScoredTonightPick bestPick = scoredPicks.first;
+      final _ScoredTonightPick bestPick = _chooseBestPick(scoredPicks);
 
       return TonightWatchResult(
         title: bestPick.title,
@@ -71,30 +78,108 @@ final tonightWatchRecommendationProvider = FutureProvider.autoDispose
       );
     });
 
+_ScoredTonightPick _chooseBestPick(List<_ScoredTonightPick> scoredPicks) {
+  if (scoredPicks.length == 1) {
+    return scoredPicks.first;
+  }
+
+  final double topScore = scoredPicks.first.score;
+  final List<_ScoredTonightPick> topBand = scoredPicks
+      .where((pick) => (topScore - pick.score) <= 3.0)
+      .take(3)
+      .toList(growable: false);
+
+  if (topBand.length <= 1) {
+    return scoredPicks.first;
+  }
+
+  final math.Random random = math.Random();
+  return topBand[random.nextInt(topBand.length)];
+}
+
 Future<List<MediaTitle>> _loadCandidates({
   required DiscoverMediaUseCase discoverUseCase,
+  required MediaRepository repository,
+  required TonightKaggleEngine kaggleEngine,
   required TonightWatchRequest request,
 }) async {
-  final List<MediaFilter> filterPlan = <MediaFilter>[
-    _buildFilter(
-      request: request,
-      minVotes: request.isTv ? 45 : 120,
-      extraRuntimePadding: 0,
-    ),
-    _buildFilter(
-      request: request,
-      minVotes: request.isTv ? 25 : 70,
-      extraRuntimePadding: 12,
-    ),
-    _buildFilter(request: request, minVotes: 10, extraRuntimePadding: 24),
-  ];
+  final List<MediaTitle> kaggleFirst = await kaggleEngine.findCandidates(
+    request: request,
+  );
+  if (kaggleFirst.isNotEmpty) {
+    return kaggleFirst;
+  }
 
-  for (final MediaFilter filter in filterPlan) {
+  final List<MediaTitle> seedFirst = await _seedFallbackCandidates(
+    repository: repository,
+    request: request,
+  );
+  if (seedFirst.isNotEmpty) {
+    return seedFirst;
+  }
+
+  final List<({MediaFilter filter, int minDesired})> filterPlan =
+      <({MediaFilter filter, int minDesired})>[
+        (
+          filter: _buildFilter(
+            request: request,
+            minVotes: request.isTv ? 45 : 120,
+            extraRuntimePadding: 0,
+          ),
+          minDesired: 3,
+        ),
+        (
+          filter: _buildFilter(
+            request: request,
+            minVotes: request.isTv ? 25 : 70,
+            extraRuntimePadding: 12,
+          ),
+          minDesired: 3,
+        ),
+        (
+          filter: _buildFilter(
+            request: request,
+            minVotes: 10,
+            extraRuntimePadding: 24,
+          ),
+          minDesired: 2,
+        ),
+        (
+          filter: _buildFilter(
+            request: request,
+            minVotes: request.isTv ? 20 : 50,
+            extraRuntimePadding: 24,
+          ),
+          minDesired: 3,
+        ),
+        (
+          filter: _buildFilter(
+            request: request,
+            minVotes: 10,
+            extraRuntimePadding: 32,
+          ),
+          minDesired: 2,
+        ),
+        (
+          filter: _buildFilter(
+            request: request,
+            minVotes: 8,
+            extraRuntimePadding: 38,
+          ),
+          minDesired: 1,
+        ),
+      ];
+
+  for (final ({MediaFilter filter, int minDesired}) step in filterPlan) {
     final List<MediaTitle> collected = <MediaTitle>[];
 
     for (int page = 1; page <= 2; page++) {
       final List<MediaTitle> pageResults = await discoverUseCase(
-        DiscoverMediaParams(isTv: request.isTv, filter: filter, page: page),
+        DiscoverMediaParams(
+          isTv: request.isTv,
+          filter: step.filter,
+          page: page,
+        ),
       );
       collected.addAll(pageResults);
 
@@ -104,7 +189,7 @@ Future<List<MediaTitle>> _loadCandidates({
     }
 
     final List<MediaTitle> unique = _uniqueTitles(collected);
-    if (unique.isNotEmpty) {
+    if (unique.length >= step.minDesired) {
       unique.sort((a, b) => _roughScore(b).compareTo(_roughScore(a)));
       return unique;
     }
@@ -123,6 +208,7 @@ MediaFilter _buildFilter({
     request.timeOption.minMinutes - extraRuntimePadding,
   );
   final int maxRuntime = request.timeOption.maxMinutes + extraRuntimePadding;
+  const RangeValues scoreRange = RangeValues(6.0, 10.0);
 
   return MediaFilter(
     sortField: SortField.popularity,
@@ -130,10 +216,78 @@ MediaFilter _buildFilter({
     originalLanguageCode: request.language.code,
     runtime: RangeValues(minRuntime.toDouble(), maxRuntime.toDouble()),
     mood: request.mood,
-    userScore: const RangeValues(6.0, 10.0),
+    userScore: scoreRange,
     minUserVotes: minVotes,
     includeNotRated: false,
   );
+}
+
+Future<List<MediaTitle>> _seedFallbackCandidates({
+  required MediaRepository repository,
+  required TonightWatchRequest request,
+}) async {
+  final List<int> seedIds = request.isTv
+      ? request.mood.tvSeeds
+      : request.mood.movieSeeds;
+  if (seedIds.isEmpty) {
+    return const <MediaTitle>[];
+  }
+
+  final List<MediaTitle> fallback = <MediaTitle>[];
+  final int minRuntime = math.max(0, request.timeOption.minMinutes - 38);
+  final int maxRuntime = request.timeOption.maxMinutes + 38;
+
+  for (final int id in seedIds) {
+    try {
+      final MovieDetails details = await repository.fetchMovieDetails(
+        id,
+        isTv: request.isTv,
+      );
+
+      final String? originalLanguage = details.originalLanguage?.toLowerCase();
+      if (originalLanguage != request.language.code) {
+        continue;
+      }
+
+      final int runtimeMinutes =
+          details.runtimeMinutes ??
+          ((request.timeOption.minMinutes + request.timeOption.maxMinutes) ~/
+              2);
+      if (runtimeMinutes < minRuntime || runtimeMinutes > maxRuntime) {
+        continue;
+      }
+
+      final double score = details.catalogScore ?? 0;
+      if (score > 0 && score < 5.8) {
+        continue;
+      }
+      final int votes = details.voteCount ?? 0;
+      if (votes > 0 && votes < 8) {
+        continue;
+      }
+
+      fallback.add(
+        MediaTitle(
+          id: details.id,
+          title: details.title,
+          posterPath: details.posterPath,
+          releaseDate: details.releaseDate,
+          voteAverage: details.catalogScore,
+          voteCount: details.voteCount ?? 0,
+          popularity: 0,
+        ),
+      );
+    } catch (_) {
+      // Skip problematic seeds.
+    }
+  }
+
+  if (fallback.isEmpty) {
+    return const <MediaTitle>[];
+  }
+
+  fallback.sort((a, b) => _roughScore(b).compareTo(_roughScore(a)));
+  return fallback;
 }
 
 List<MediaTitle> _uniqueTitles(List<MediaTitle> titles) {

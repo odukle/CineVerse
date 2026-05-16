@@ -13,17 +13,14 @@ import 'package:cineverse/presentation/features/person/providers/person_details_
 import 'package:sliver_tools/sliver_tools.dart';
 
 class PersonDetailsScreen extends ConsumerStatefulWidget {
-  const PersonDetailsScreen({
-    super.key,
-    required this.personId,
-    this.heroTag,
-  });
+  const PersonDetailsScreen({super.key, required this.personId, this.heroTag});
 
   final int personId;
   final String? heroTag;
 
   @override
-  ConsumerState<PersonDetailsScreen> createState() => _PersonDetailsScreenState();
+  ConsumerState<PersonDetailsScreen> createState() =>
+      _PersonDetailsScreenState();
 }
 
 class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
@@ -51,7 +48,9 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                 headerSliverBuilder: (context, innerBoxIsScrolled) {
                   return [
                     SliverOverlapAbsorber(
-                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                        context,
+                      ),
                       sliver: MultiSliver(
                         children: [
                           SliverAppBar(
@@ -60,7 +59,10 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                             elevation: 0,
                             leading: IconButton(
                               onPressed: () => Navigator.pop(context),
-                              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                              icon: const Icon(
+                                Icons.arrow_back_rounded,
+                                color: Colors.white,
+                              ),
                             ),
                             title: Text(
                               details.name,
@@ -79,7 +81,9 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Hero(
-                                    tag: widget.heroTag ?? 'person-${details.id}',
+                                    tag:
+                                        widget.heroTag ??
+                                        'person-${details.id}',
                                     child: Container(
                                       width: 120,
                                       height: 180,
@@ -87,7 +91,9 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                         borderRadius: BorderRadius.circular(16),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.black.withValues(alpha: 0.3),
+                                            color: Colors.black.withValues(
+                                              alpha: 0.3,
+                                            ),
                                             blurRadius: 10,
                                             offset: const Offset(0, 5),
                                           ),
@@ -101,15 +107,18 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                                 fit: BoxFit.cover,
                                                 placeholder: (context, url) =>
                                                     const ShimmerEffect(
-                                                  width: 120,
-                                                  height: 180,
-                                                  borderRadius: 16,
-                                                ),
+                                                      width: 120,
+                                                      height: 180,
+                                                      borderRadius: 16,
+                                                    ),
                                               )
                                             : Container(
                                                 color: Colors.white10,
-                                                child: const Icon(Icons.person,
-                                                    size: 64, color: Colors.white24),
+                                                child: const Icon(
+                                                  Icons.person,
+                                                  size: 64,
+                                                  color: Colors.white24,
+                                                ),
                                               ),
                                       ),
                                     ),
@@ -117,7 +126,8 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                   const SizedBox(width: 20),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         if (details.birthday != null)
                                           _InfoItem(
@@ -148,27 +158,37 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                           ),
 
                           // Biography
-                          if (details.biography != null && details.biography!.isNotEmpty)
+                          if (details.biography != null &&
+                              details.biography!.isNotEmpty)
                             SliverToBoxAdapter(
                               child: Padding(
-                                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  8,
+                                  16,
+                                  24,
+                                ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       'Biography',
-                                      style: theme.textTheme.titleLarge?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                      style: theme.textTheme.titleLarge
+                                          ?.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
                                       details.biography!,
-                                      style: theme.textTheme.bodyMedium?.copyWith(
-                                        color: Colors.white.withValues(alpha: 0.8),
-                                        height: 1.5,
-                                      ),
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.8,
+                                            ),
+                                            height: 1.5,
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -192,30 +212,84 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                             SliverPersistentHeader(
                               pinned: true,
                               delegate: _SliverAppBarDelegate(
-                                minHeight: 110,
-                                maxHeight: 110,
+                                minHeight: 126,
+                                maxHeight: 126,
                                 child: Container(
                                   color: AppColors.cinemaGradientTop,
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,                                    children: [
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
                                       Padding(
-                                        padding: const EdgeInsets.fromLTRB(16, 20, 16, 8),                                        child: Text(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          16,
+                                          12,
+                                          16,
+                                          8,
+                                        ),
+                                        child: Text(
                                           'Credits',
-                                          style: theme.textTheme.titleLarge?.copyWith(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          style: theme.textTheme.titleLarge
+                                              ?.copyWith(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                         ),
                                       ),
-                                      TabBar(
-                                        isScrollable: true,
-                                        tabAlignment: TabAlignment.start,
-                                        indicatorColor: AppColors.cinemaAccent,
-                                        labelColor: AppColors.cinemaAccent,
-                                        unselectedLabelColor: Colors.white54,
-                                        indicatorSize: TabBarIndicatorSize.label,
-                                        dividerColor: Colors.transparent,
-                                        tabs: departments.map((d) => Tab(text: d)).toList(),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                          16,
+                                          0,
+                                          16,
+                                          8,
+                                        ),
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              26,
+                                            ),
+                                            gradient: LinearGradient(
+                                              colors:
+                                                  AppColors.cinemaPanelGradient,
+                                            ),
+                                            border: Border.all(
+                                              color: AppColors.cinemaBorder
+                                                  .withValues(alpha: 0.28),
+                                            ),
+                                            boxShadow: <BoxShadow>[
+                                              BoxShadow(
+                                                color: AppColors.cinemaGlow
+                                                    .withValues(alpha: 0.12),
+                                                blurRadius: 22,
+                                                spreadRadius: -12,
+                                                offset: const Offset(0, 14),
+                                              ),
+                                            ],
+                                          ),
+                                          child: TabBar(
+                                            isScrollable: true,
+                                            tabAlignment: TabAlignment.start,
+                                            dividerColor: Colors.transparent,
+                                            indicatorPadding:
+                                                const EdgeInsets.symmetric(
+                                                  vertical: 2,
+                                                ),
+                                            labelPadding:
+                                                const EdgeInsets.symmetric(
+                                                  horizontal: 16,
+                                                ),
+                                            tabs: departments
+                                                .map(
+                                                  (d) => Tab(
+                                                    text: departments.length > 5
+                                                        ? d
+                                                        : d.toUpperCase(),
+                                                  ),
+                                                )
+                                                .toList(),
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -237,41 +311,48 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                           key: PageStorageKey<String>(dept),
                           slivers: [
                             SliverOverlapInjector(
-                              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                              handle:
+                                  NestedScrollView.sliverOverlapAbsorberHandleFor(
+                                    context,
+                                  ),
                             ),
                             SliverPadding(
                               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                               sliver: SliverGrid(
-                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: 12,
-                                  mainAxisSpacing: 16,
-                                  childAspectRatio: 0.55,
-                                ),
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    final credit = credits[index];
-                                    final double cardWidth =
-                                        (MediaQuery.sizeOf(context).width -
-                                                (16 * 2) -
-                                                (12 * 2)) /
-                                            3;
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      crossAxisSpacing: 12,
+                                      mainAxisSpacing: 16,
+                                      childAspectRatio: 0.55,
+                                    ),
+                                delegate: SliverChildBuilderDelegate((
+                                  context,
+                                  index,
+                                ) {
+                                  final credit = credits[index];
+                                  final double cardWidth =
+                                      (MediaQuery.sizeOf(context).width -
+                                          (16 * 2) -
+                                          (12 * 2)) /
+                                      3;
 
-                                    return MediaPosterGridCard(
-                                      movie: credit.media,
-                                      sectionTitle: 'credits-$dept',
-                                      width: cardWidth,
-                                    );
-                                  },
-                                  childCount: credits.length,
-                                ),
+                                  return MediaPosterGridCard(
+                                    movie: credit.media,
+                                    sectionTitle: 'credits-$dept',
+                                    width: cardWidth,
+                                  );
+                                }, childCount: credits.length),
                               ),
-                            ),                            const SliverToBoxAdapter(child: SizedBox(height: 40)),
+                            ),
+                            const SliverToBoxAdapter(
+                              child: SizedBox(height: 40),
+                            ),
                           ],
                         );
                       }).toList(),
                     );
-                  }
+                  },
                 ),
               ),
             );
@@ -301,7 +382,10 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return SizedBox.expand(child: child);
   }
 
@@ -360,7 +444,9 @@ class _PersonImagesCarousel extends ConsumerWidget {
 
     return imagesAsync.when(
       data: (images) {
-        final List<String> profiles = images.profiles.isNotEmpty ? images.profiles : images.posters;
+        final List<String> profiles = images.profiles.isNotEmpty
+            ? images.profiles
+            : images.posters;
         if (profiles.isEmpty) return const SizedBox.shrink();
 
         return Column(
@@ -464,7 +550,8 @@ class _PersonQuotes extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(20),
                       border: theme.cardTheme.shape is RoundedRectangleBorder
                           ? Border.fromBorderSide(
-                              (theme.cardTheme.shape as RoundedRectangleBorder).side,
+                              (theme.cardTheme.shape as RoundedRectangleBorder)
+                                  .side,
                             )
                           : null,
                     ),
@@ -512,11 +599,8 @@ class _PersonQuotes extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16),
               itemCount: 3,
               separatorBuilder: (context, index) => const SizedBox(width: 14),
-              itemBuilder: (context, index) => ShimmerEffect(
-                width: 280,
-                height: 180,
-                borderRadius: 20,
-              ),
+              itemBuilder: (context, index) =>
+                  ShimmerEffect(width: 280, height: 180, borderRadius: 20),
             ),
           ),
         ],

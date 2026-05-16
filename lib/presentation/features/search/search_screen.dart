@@ -36,16 +36,20 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     _controller = TextEditingController();
     _focusNode = FocusNode();
     _tabController = TabController(length: 3, vsync: this);
-    
+
     _moviesScrollController = ScrollController()
-      ..addListener(() => _onScroll(_moviesScrollController, GlobalMediaType.movie));
+      ..addListener(
+        () => _onScroll(_moviesScrollController, GlobalMediaType.movie),
+      );
     _tvScrollController = ScrollController()
       ..addListener(() => _onScroll(_tvScrollController, GlobalMediaType.tv));
     _personsScrollController = ScrollController()
-      ..addListener(() => _onScroll(_personsScrollController, GlobalMediaType.person));
+      ..addListener(
+        () => _onScroll(_personsScrollController, GlobalMediaType.person),
+      );
     _discoverScrollController = ScrollController()
       ..addListener(() => _onScroll(_discoverScrollController, null));
-      
+
     _focusNode.requestFocus();
 
     // Clear search results on launch
@@ -120,12 +124,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         ],
         bottom: PreferredSize(
           preferredSize: Size.fromHeight(
-            (searchState.hasSearched && !isDiscoverMode) ? 104 : 56,
+            (searchState.hasSearched && !isDiscoverMode) ? 120 : 64,
           ),
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
                 child: TextField(
                   controller: _controller,
                   focusNode: _focusNode,
@@ -169,17 +173,41 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                 ),
               ),
               if (searchState.hasSearched && !isDiscoverMode)
-                TabBar(
-                  controller: _tabController,
-                  indicatorColor: AppColors.cinemaAccent,
-                  labelColor: AppColors.cinemaAccent,
-                  unselectedLabelColor: Colors.white54,
-                  dividerColor: Colors.white10,
-                  tabs: const [
-                    Tab(text: 'Movies'),
-                    Tab(text: 'TV Shows'),
-                    Tab(text: 'Persons'),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(26),
+                      gradient: LinearGradient(
+                        colors: AppColors.cinemaPanelGradient,
+                      ),
+                      border: Border.all(
+                        color: AppColors.cinemaBorder.withValues(alpha: 0.28),
+                      ),
+                      boxShadow: <BoxShadow>[
+                        BoxShadow(
+                          color: AppColors.cinemaGlow.withValues(alpha: 0.12),
+                          blurRadius: 22,
+                          spreadRadius: -12,
+                          offset: const Offset(0, 14),
+                        ),
+                      ],
+                    ),
+                    child: TabBar(
+                      controller: _tabController,
+                      isScrollable: true,
+                      tabAlignment: TabAlignment.start,
+                      dividerColor: Colors.transparent,
+                      indicatorPadding: const EdgeInsets.symmetric(vertical: 2),
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 16),
+                      tabs: const [
+                        Tab(text: 'MOVIES'),
+                        Tab(text: 'TV SHOWS'),
+                        Tab(text: 'PERSONS'),
+                      ],
+                    ),
+                  ),
                 ),
             ],
           ),
