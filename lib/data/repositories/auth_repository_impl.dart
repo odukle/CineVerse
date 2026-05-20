@@ -22,20 +22,14 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<UserEntity?> signInWithGoogle() async {
     try {
-      await _googleSignIn.initialize(
-        serverClientId: '1061595926768-jiaebeqc5nv7b418b5j3pp2q5pm66kjk.apps.googleusercontent.com',
-      );
+      await _googleSignIn.initialize();
       final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
       final GoogleSignInAuthentication googleAuth = googleUser.authentication;
-
-      final GoogleSignInClientAuthorization authz =
-          await googleUser.authorizationClient.authorizeScopes([
-        'email',
-        'https://www.googleapis.com/auth/userinfo.profile',
-      ]);
+      if (googleAuth.idToken == null) {
+        throw Exception('Google Sign-In did not return an ID token.');
+      }
 
       final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: authz.accessToken,
         idToken: googleAuth.idToken,
       );
 

@@ -1,400 +1,1101 @@
+import 'dart:convert';
 import 'dart:math' as math;
-
+import 'package:cineverse/core/config/app_config.dart';
 import 'package:cineverse/data/providers/data_providers.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
+import 'package:cineverse/domain/entities/movie_genre.dart';
 import 'package:cineverse/domain/repositories/media_repository.dart';
 import 'package:cineverse/domain/usecases/discover_media_use_case.dart';
 import 'package:cineverse/presentation/features/movies/models/tonight_watch_models.dart';
-import 'package:cineverse/presentation/features/movies/providers/tonight_kaggle_engine_provider.dart';
+import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final tonightWatchRecommendationProvider = FutureProvider.autoDispose
-    .family<TonightWatchResult, TonightWatchRequest>((ref, request) async {
-      final MediaRepository repository = ref.watch(mediaRepositoryProvider);
-      final TonightKaggleEngine kaggleEngine = await ref.watch(
-        tonightKaggleEngineProvider.future,
-      );
-      final discoverUseCase = DiscoverMediaUseCase(repository);
+final ValueNotifier<TonightRecommendationProgressState>
+todayRecommendationProgressNotifier =
+    ValueNotifier<TonightRecommendationProgressState>(
+      const TonightRecommendationProgressState.initial(),
+    );
+final ValueNotifier<List<String>> todayRecommendationPlanNotifier =
+    ValueNotifier<List<String>>(<String>[]);
 
-      final List<MediaTitle> candidates = await _loadCandidates(
+final tonightPromptRecommendationsProvider = FutureProvider.autoDispose
+    .family<TonightPromptResult, TonightPromptRequest>((ref, request) async {
+      final String prompt = request.prompt.trim();
+      if (prompt.length < 4) {
+        throw StateError(
+          'Please describe what you want in a little more detail.',
+        );
+      }
+
+      final MediaRepository repository = ref.watch(mediaRepositoryProvider);
+      final DiscoverMediaUseCase discoverUseCase = DiscoverMediaUseCase(
+        repository,
+      );
+      final AppConfig appConfig = ref.watch(appConfigProvider);
+      _progressReset();
+      _progressAdd('Getting your request ready');
+
+      if (appConfig.hasTonightRecommendationsApiUrl) {
+        _progressAdd('Connecting to recommendation service');
+        return _recommendWithFirebaseRecommendationService(
+          request: request,
+          repository: repository,
+          appConfig: appConfig,
+        );
+      }
+
+      if (!appConfig.hasOpenRouterApiKey) {
+        throw StateError(
+          'OPENROUTER_API_KEY is missing. Add it in your dart-define config.',
+        );
+      }
+
+      _progressAdd('Analyzing your prompt');
+      final _PromptPlan plan = await _planPromptWithOpenRouter(
+        prompt: prompt,
+        isTv: request.isTv,
+        apiKey: appConfig.openRouterApiKey,
+      );
+      todayRecommendationPlanNotifier.value = <String>[
+        if (plan.includeGenres.isNotEmpty)
+          'Include genres: ${plan.includeGenres.take(3).join(', ')}',
+        if (plan.excludeGenres.isNotEmpty)
+          'Exclude genres: ${plan.excludeGenres.take(3).join(', ')}',
+        if ((plan.originalLanguage ?? '').isNotEmpty)
+          'Language: ${plan.originalLanguage}',
+        if (plan.keywords.isNotEmpty)
+          'Keywords: ${plan.keywords.take(4).join(', ')}',
+        if (plan.similarTitles.isNotEmpty)
+          'Similar to: ${plan.similarTitles.take(2).join(', ')}',
+      ];
+      _progressAdd('AI query plan is ready');
+      _progressAdd('Finding good matches');
+
+      final List<MovieGenre> genres = request.isTv
+          ? await repository.fetchTvGenres()
+          : await repository.fetchMovieGenres();
+      final _GenreResolution genreResolution = _resolveGenres(
+        genres: genres,
+        includeNames: plan.includeGenres,
+        excludeNames: plan.excludeGenres,
+      );
+
+      final List<MediaTitle> rawCandidates = await _collectCandidates(
+        request: request,
+        plan: plan,
         discoverUseCase: discoverUseCase,
         repository: repository,
-        kaggleEngine: kaggleEngine,
-        request: request,
+        availableGenreIds: genreResolution.includedGenreIds,
       );
 
-      if (candidates.isEmpty) {
-        final String typeLabel = request.isTv ? 'shows' : 'movies';
+      if (rawCandidates.isEmpty) {
+        final String mediaType = request.isTv ? 'shows' : 'movies';
         throw StateError(
-          'No $typeLabel matched that exact mix of time, mood, and language yet.',
+          'Could not find enough TMDB $mediaType for that request.',
         );
       }
 
-      final List<MediaTitle> shortlist = candidates.take(6).toList();
-      final List<_ScoredTonightPick> scoredPicks = <_ScoredTonightPick>[];
+      final List<_ScoredTonightItem> scored = await _rankCandidates(
+        request: request,
+        plan: plan,
+        repository: repository,
+        rawCandidates: rawCandidates,
+        excludedGenres: genreResolution.excludedGenreNames,
+      );
 
-      for (final MediaTitle candidate in shortlist) {
-        try {
-          final MovieDetails details = await repository.fetchMovieDetails(
-            candidate.id,
-            isTv: request.isTv,
-          );
-          scoredPicks.add(
-            _ScoredTonightPick(
-              title: candidate,
-              details: details,
-              score: _scoreCandidate(
-                title: candidate,
-                details: details,
-                request: request,
-              ),
+      if (scored.isEmpty) {
+        throw StateError(
+          'We found candidates, but none survived the final quality filters.',
+        );
+      }
+
+      final List<TonightRecommendationItem> recommendations = scored
+          .take(12)
+          .map(
+            (_ScoredTonightItem item) => TonightRecommendationItem(
+              title: item.title,
+              details: item.details,
+              matchReason: item.matchReason,
+              score: item.score,
             ),
-          );
-        } catch (_) {
-          // Skip detail failures so one bad title does not block the flow.
-        }
-      }
+          )
+          .toList(growable: false);
 
-      if (scoredPicks.isEmpty) {
-        throw StateError(
-          'We found matches, but could not load the final pick right now.',
-        );
-      }
-
-      scoredPicks.sort((a, b) => b.score.compareTo(a.score));
-      final _ScoredTonightPick bestPick = _chooseBestPick(scoredPicks);
-
-      return TonightWatchResult(
-        title: bestPick.title,
-        details: bestPick.details,
-        explanation: _buildExplanation(
-          request: request,
-          title: bestPick.title,
-          details: bestPick.details,
-        ),
+      return TonightPromptResult(
+        interpretedIntent: plan.intentSummary.isNotEmpty
+            ? plan.intentSummary
+            : _fallbackIntentSummary(plan: plan, prompt: prompt),
+        recommendations: recommendations,
+        queryPlanChips: <String>[
+          if (plan.includeGenres.isNotEmpty)
+            'Include genres: ${plan.includeGenres.take(3).join(', ')}',
+          if (plan.excludeGenres.isNotEmpty)
+            'Exclude genres: ${plan.excludeGenres.take(3).join(', ')}',
+          if ((plan.originalLanguage ?? '').isNotEmpty)
+            'Language: ${plan.originalLanguage}',
+          if (plan.keywords.isNotEmpty)
+            'Keywords: ${plan.keywords.take(4).join(', ')}',
+          if (plan.similarTitles.isNotEmpty)
+            'Similar to: ${plan.similarTitles.take(2).join(', ')}',
+        ],
       );
     });
 
-_ScoredTonightPick _chooseBestPick(List<_ScoredTonightPick> scoredPicks) {
-  if (scoredPicks.length == 1) {
-    return scoredPicks.first;
+Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
+  required TonightPromptRequest request,
+  required MediaRepository repository,
+  required AppConfig appConfig,
+}) async {
+  final String? idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
+  final Dio recommendationDio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 70),
+      sendTimeout: const Duration(seconds: 15),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        if (idToken != null && idToken.isNotEmpty)
+          'Authorization': 'Bearer $idToken',
+      },
+    ),
+  );
+
+  try {
+    Response<Map<String, dynamic>>? response;
+    const int maxAttempts = 4;
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      _progressAdd('Generating AI query (attempt $attempt/$maxAttempts)');
+      try {
+        response = await recommendationDio.post<Map<String, dynamic>>(
+          appConfig.tonightRecommendationsApiUrl.trim(),
+          data: <String, dynamic>{
+            'prompt': request.prompt,
+            'isTv': request.isTv,
+            'topK': 12,
+          },
+        );
+        break;
+      } on DioException catch (error) {
+        final int? status = error.response?.statusCode;
+        final bool timeoutLike =
+            error.type == DioExceptionType.connectionTimeout ||
+            error.type == DioExceptionType.sendTimeout ||
+            error.type == DioExceptionType.receiveTimeout ||
+            error.type == DioExceptionType.connectionError;
+        final bool retryable =
+            timeoutLike || status == 429 || (status != null && status >= 500);
+        if (!retryable || attempt >= maxAttempts) {
+          rethrow;
+        }
+        final int backoffSeconds = attempt * 2;
+        _progressAdd(
+          'Temporary network issue, retrying in ${backoffSeconds}s',
+          isRetry: true,
+        );
+        await Future<void>.delayed(Duration(seconds: backoffSeconds));
+      }
+    }
+    if (response == null) {
+      throw StateError('Recommendation request failed before response.');
+    }
+    _progressAdd('AI query plan received');
+    final Map<String, dynamic>? payload = response.data;
+    todayRecommendationPlanNotifier.value =
+        _recommendationServiceQueryPlanChips(payload);
+    final List<dynamic> rawResults =
+        payload?['results'] as List<dynamic>? ?? <dynamic>[];
+    if (rawResults.isEmpty) {
+      throw StateError(
+        'The recommendation service returned no matches. Try a broader request.',
+      );
+    }
+    _progressAdd('Gathering movie details');
+
+    final List<dynamic> shortlist = rawResults.take(12).toList(growable: false);
+    final List<TonightRecommendationItem> recommendations =
+        <TonightRecommendationItem>[];
+    for (int i = 0; i < shortlist.length; i++) {
+      _progressAdd('Checking match ${i + 1} of ${shortlist.length}');
+      final TonightRecommendationItem? item =
+          await _buildRecommendationServiceItem(
+            raw: shortlist[i],
+            repository: repository,
+            isTv: request.isTv,
+          );
+      if (item != null) {
+        recommendations.add(item);
+      }
+    }
+
+    if (recommendations.isEmpty) {
+      throw StateError(
+        'The recommendation service returned matches, but TMDB details failed for every result. '
+        'Check TMDB proxy/API access.',
+      );
+    }
+    _progressAdd('Finalizing recommendations');
+    return TonightPromptResult(
+      interpretedIntent: _recommendationServiceIntentSummary(
+        payload,
+        request.prompt,
+      ),
+      recommendations: recommendations,
+      queryPlanChips: _recommendationServiceQueryPlanChips(payload),
+    );
+  } on DioException catch (error) {
+    final dynamic responseData = error.response?.data;
+    String serverMessage = '';
+    if (responseData is Map<String, dynamic>) {
+      serverMessage = _readString(responseData['error']);
+    } else if (responseData is String) {
+      serverMessage = responseData.trim();
+    }
+    final int? statusCode = error.response?.statusCode;
+    throw StateError(
+      serverMessage.isNotEmpty
+          ? 'Recommendation service error'
+                '${statusCode != null ? ' ($statusCode)' : ''}: $serverMessage'
+          : 'Could not reach the recommendation service. Dio error: ${error.message}',
+    );
+  } on StateError {
+    rethrow;
+  } catch (_) {
+    throw StateError('The recommendation service failed unexpectedly.');
   }
-
-  final double topScore = scoredPicks.first.score;
-  final List<_ScoredTonightPick> topBand = scoredPicks
-      .where((pick) => (topScore - pick.score) <= 3.0)
-      .take(3)
-      .toList(growable: false);
-
-  if (topBand.length <= 1) {
-    return scoredPicks.first;
-  }
-
-  final math.Random random = math.Random();
-  return topBand[random.nextInt(topBand.length)];
 }
 
-Future<List<MediaTitle>> _loadCandidates({
+@immutable
+class TonightRecommendationProgressState {
+  const TonightRecommendationProgressState({required this.events});
+
+  const TonightRecommendationProgressState.initial()
+    : events = const <RecommendationProgressEvent>[];
+
+  final List<RecommendationProgressEvent> events;
+
+  String get currentMessage =>
+      events.isEmpty ? 'Starting recommendation flow...' : events.last.message;
+}
+
+@immutable
+class RecommendationProgressEvent {
+  const RecommendationProgressEvent({
+    required this.message,
+    required this.timestamp,
+    required this.isRetry,
+  });
+
+  final String message;
+  final DateTime timestamp;
+  final bool isRetry;
+}
+
+void _progressReset() {
+  todayRecommendationProgressNotifier.value =
+      const TonightRecommendationProgressState.initial();
+  todayRecommendationPlanNotifier.value = <String>[];
+}
+
+void _progressAdd(String message, {bool isRetry = false}) {
+  final List<RecommendationProgressEvent> next =
+      List<RecommendationProgressEvent>.from(
+        todayRecommendationProgressNotifier.value.events,
+      )..add(
+        RecommendationProgressEvent(
+          message: message,
+          timestamp: DateTime.now(),
+          isRetry: isRetry,
+        ),
+      );
+  if (next.length > 16) {
+    next.removeRange(0, next.length - 16);
+  }
+  todayRecommendationProgressNotifier.value =
+      TonightRecommendationProgressState(events: next);
+}
+
+Future<TonightRecommendationItem?> _buildRecommendationServiceItem({
+  required dynamic raw,
+  required MediaRepository repository,
+  required bool isTv,
+}) async {
+  if (raw is! Map<String, dynamic>) {
+    return null;
+  }
+  final int? id = _readInt(raw['id']);
+  if (id == null || id <= 0) {
+    return null;
+  }
+  try {
+    final MovieDetails details = await repository.fetchMovieDetails(
+      id,
+      isTv: isTv,
+    );
+    final MediaTitle title = MediaTitle(
+      id: details.id,
+      title: details.title,
+      posterPath: details.posterPath,
+      releaseDate: details.releaseDate,
+      voteAverage: details.catalogScore,
+      voteCount: details.voteCount ?? 0,
+    );
+    return TonightRecommendationItem(
+      title: title,
+      details: details,
+      matchReason: _readString(raw['reason']).isNotEmpty
+          ? _readString(raw['reason'])
+          : 'Matched by the Firebase recommendation index.',
+      score: _readDouble(raw['score']) ?? 0,
+    );
+  } catch (error) {
+    debugPrint('Failed to hydrate recommendation service result $id: $error');
+    return null;
+  }
+}
+
+String _recommendationServiceIntentSummary(
+  Map<String, dynamic>? payload,
+  String fallbackPrompt,
+) {
+  final Map<String, dynamic> criteria =
+      payload?['criteria'] as Map<String, dynamic>? ?? <String, dynamic>{};
+  final List<String> chips = <String>[];
+  final String language = _readString(criteria['language']);
+  if (language.isNotEmpty) {
+    chips.add('language $language');
+  }
+  final List<String> includeGenres = _readStringList(criteria['includeGenres']);
+  if (includeGenres.isNotEmpty) {
+    chips.add('genres ${includeGenres.join(', ')}');
+  }
+  final List<String> excludeGenres = _readStringList(criteria['excludeGenres']);
+  if (excludeGenres.isNotEmpty) {
+    chips.add('avoiding ${excludeGenres.join(', ')}');
+  }
+  final int? maxRuntime = _readInt(criteria['maxRuntimeMinutes']);
+  if (maxRuntime != null) {
+    chips.add('under $maxRuntime min');
+  }
+  if (chips.isEmpty) {
+    return 'Firebase vector search for "$fallbackPrompt"';
+  }
+  return 'Firebase vector search using ${chips.join(' • ')}.';
+}
+
+List<String> _recommendationServiceQueryPlanChips(
+  Map<String, dynamic>? payload,
+) {
+  final Map<String, dynamic> criteria =
+      payload?['criteria'] as Map<String, dynamic>? ?? <String, dynamic>{};
+  final Map<String, dynamic> diagnostics =
+      payload?['diagnostics'] as Map<String, dynamic>? ?? <String, dynamic>{};
+
+  final List<String> chips = <String>[];
+  final String language = _readString(criteria['language']);
+  final List<String> includeGenres = _readStringList(criteria['includeGenres']);
+  final List<String> excludeGenres = _readStringList(criteria['excludeGenres']);
+  final int? maxRuntime = _readInt(criteria['maxRuntimeMinutes']);
+  final int? minRuntime = _readInt(criteria['minRuntimeMinutes']);
+  final int? yearFrom = _readInt(criteria['yearFrom']);
+  final int? yearTo = _readInt(criteria['yearTo']);
+
+  if (includeGenres.isNotEmpty) {
+    chips.add('Include genres: ${includeGenres.take(4).join(', ')}');
+  }
+  if (excludeGenres.isNotEmpty) {
+    chips.add('Exclude genres: ${excludeGenres.take(4).join(', ')}');
+  }
+  if (language.isNotEmpty) {
+    chips.add('Language: $language');
+  }
+  if (maxRuntime != null || minRuntime != null) {
+    if (minRuntime != null && maxRuntime != null) {
+      chips.add('Runtime: $minRuntime-$maxRuntime min');
+    } else if (maxRuntime != null) {
+      chips.add('Runtime <= $maxRuntime min');
+    } else {
+      chips.add('Runtime >= $minRuntime min');
+    }
+  }
+  if (yearFrom != null || yearTo != null) {
+    if (yearFrom != null && yearTo != null) {
+      chips.add('Year: $yearFrom-$yearTo');
+    } else if (yearFrom != null) {
+      chips.add('Year >= $yearFrom');
+    } else {
+      chips.add('Year <= $yearTo');
+    }
+  }
+
+  final int? queryVariantsUsed = _readInt(diagnostics['queryVariantsUsed']);
+  final int? candidateCount = _readInt(diagnostics['candidateCount']);
+  final String stage = _readString(diagnostics['stage']);
+  final bool relaxed = diagnostics['relaxed'] == true;
+  if (queryVariantsUsed != null) {
+    chips.add('Query variants: $queryVariantsUsed');
+  }
+  if (candidateCount != null) {
+    chips.add('Candidates: $candidateCount');
+  }
+  if (stage.isNotEmpty) {
+    chips.add('Stage: $stage${relaxed ? ' (relaxed)' : ''}');
+  }
+
+  return chips;
+}
+
+Future<_PromptPlan> _planPromptWithOpenRouter({
+  required String prompt,
+  required bool isTv,
+  required String apiKey,
+}) async {
+  const List<String> plannerModels = <String>[
+    'openrouter/free',
+    'deepseek/deepseek-v4-flash:free',
+    'qwen/qwen3-32b:free',
+    'mistralai/mistral-small-3.2-24b-instruct:free',
+    'meta-llama/llama-3.3-70b-instruct:free',
+  ];
+  final Dio llmDio = Dio(
+    BaseOptions(
+      baseUrl: 'https://openrouter.ai/api/v1',
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 25),
+      sendTimeout: const Duration(seconds: 15),
+      headers: <String, String>{
+        'Authorization': 'Bearer $apiKey',
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+    ),
+  );
+
+  final String mediaType = isTv ? 'TV shows' : 'movies';
+
+  for (final String model in plannerModels) {
+    final Map<String, dynamic> payload = <String, dynamic>{
+      'model': model,
+      'temperature': 0.2,
+      'response_format': <String, dynamic>{'type': 'json_object'},
+      'messages': <Map<String, dynamic>>[
+        <String, dynamic>{
+          'role': 'system',
+          'content':
+              'You are a movie recommendation query planner. Output only strict JSON with no markdown. '
+              'Schema: {"intent_summary": string, "original_language": string|null, '
+              '"include_genres": string[], "exclude_genres": string[], '
+              '"min_runtime": int|null, "max_runtime": int|null, '
+              '"min_vote_average": number|null, "min_vote_count": int|null, '
+              '"year_from": int|null, "year_to": int|null, '
+              '"keywords": string[], "similar_titles": string[], "avoid_titles": string[]}. '
+              'Keep values practical for TMDB search and respect exclusions.',
+        },
+        <String, dynamic>{
+          'role': 'user',
+          'content':
+              'User wants $mediaType. Request: "$prompt". Return the JSON now.',
+        },
+      ],
+    };
+
+    try {
+      final Response<Map<String, dynamic>> response = await llmDio
+          .post<Map<String, dynamic>>('/chat/completions', data: payload);
+      final String content = _readOpenRouterContent(response.data);
+      final Map<String, dynamic> json = _decodePossiblyWrappedJson(content);
+      return _PromptPlan.fromJson(json);
+    } on DioException catch (error) {
+      debugPrint('Planner model failed ($model): ${error.message}');
+      continue;
+    } catch (error) {
+      debugPrint('Planner model failed ($model): $error');
+      continue;
+    }
+  }
+
+  return _PromptPlan.fallback(prompt);
+}
+
+String _readOpenRouterContent(Map<String, dynamic>? payload) {
+  final List<dynamic> choices =
+      payload?['choices'] as List<dynamic>? ?? <dynamic>[];
+  if (choices.isEmpty) {
+    return '{}';
+  }
+  final Map<String, dynamic>? firstChoice =
+      choices.first as Map<String, dynamic>?;
+  final Map<String, dynamic>? message =
+      firstChoice?['message'] as Map<String, dynamic>?;
+  final String content = (message?['content'] as String? ?? '').trim();
+  return content;
+}
+
+Map<String, dynamic> _decodePossiblyWrappedJson(String content) {
+  String normalized = content.trim();
+  if (normalized.startsWith('```')) {
+    normalized = normalized
+        .replaceAll('```json', '')
+        .replaceAll('```JSON', '')
+        .replaceAll('```', '')
+        .trim();
+  }
+  if (normalized.isEmpty) {
+    return <String, dynamic>{};
+  }
+  final Object decoded = jsonDecode(normalized);
+  if (decoded is Map<String, dynamic>) {
+    return decoded;
+  }
+  return <String, dynamic>{};
+}
+
+Future<List<MediaTitle>> _collectCandidates({
+  required TonightPromptRequest request,
+  required _PromptPlan plan,
   required DiscoverMediaUseCase discoverUseCase,
   required MediaRepository repository,
-  required TonightKaggleEngine kaggleEngine,
-  required TonightWatchRequest request,
+  required Set<int> availableGenreIds,
 }) async {
-  final List<MediaTitle> kaggleFirst = await kaggleEngine.findCandidates(
-    request: request,
-  );
-  if (kaggleFirst.isNotEmpty) {
-    return kaggleFirst;
-  }
+  final List<MediaTitle> candidates = <MediaTitle>[];
+  final Set<int> seenIds = <int>{};
+  final bool regionalLanguage =
+      (plan.originalLanguage ?? '').isNotEmpty && plan.originalLanguage != 'en';
 
-  final List<MediaTitle> seedFirst = await _seedFallbackCandidates(
-    repository: repository,
-    request: request,
-  );
-  if (seedFirst.isNotEmpty) {
-    return seedFirst;
-  }
+  final List<_DiscoveryStep> steps = <_DiscoveryStep>[
+    _DiscoveryStep(
+      pages: 2,
+      query: plan.keywords.isNotEmpty ? plan.keywords.first : null,
+      filter: _buildFilter(
+        plan: plan,
+        availableGenreIds: availableGenreIds,
+        originalLanguage: plan.originalLanguage,
+        minVotes: regionalLanguage ? 8 : 40,
+        runtimePadding: 10,
+        minScore: plan.minVoteAverage ?? (regionalLanguage ? 5.2 : 5.8),
+      ),
+      stopIfAtLeast: 10,
+    ),
+    _DiscoveryStep(
+      pages: 3,
+      query: plan.queryHint,
+      filter: _buildFilter(
+        plan: plan,
+        availableGenreIds: availableGenreIds,
+        originalLanguage: plan.originalLanguage,
+        minVotes: regionalLanguage ? 4 : 20,
+        runtimePadding: 26,
+        minScore: plan.minVoteAverage ?? 5.0,
+      ),
+      stopIfAtLeast: 20,
+    ),
+    _DiscoveryStep(
+      pages: 3,
+      query: plan.keywords.length > 1 ? plan.keywords[1] : null,
+      filter: _buildFilter(
+        plan: plan,
+        availableGenreIds: availableGenreIds,
+        originalLanguage: plan.originalLanguage,
+        minVotes: 0,
+        runtimePadding: 40,
+        minScore: 0,
+      ),
+      stopIfAtLeast: 30,
+    ),
+  ];
 
-  final List<({MediaFilter filter, int minDesired})> filterPlan =
-      <({MediaFilter filter, int minDesired})>[
-        (
-          filter: _buildFilter(
-            request: request,
-            minVotes: request.isTv ? 45 : 120,
-            extraRuntimePadding: 0,
-          ),
-          minDesired: 3,
-        ),
-        (
-          filter: _buildFilter(
-            request: request,
-            minVotes: request.isTv ? 25 : 70,
-            extraRuntimePadding: 12,
-          ),
-          minDesired: 3,
-        ),
-        (
-          filter: _buildFilter(
-            request: request,
-            minVotes: 10,
-            extraRuntimePadding: 24,
-          ),
-          minDesired: 2,
-        ),
-        (
-          filter: _buildFilter(
-            request: request,
-            minVotes: request.isTv ? 20 : 50,
-            extraRuntimePadding: 24,
-          ),
-          minDesired: 3,
-        ),
-        (
-          filter: _buildFilter(
-            request: request,
-            minVotes: 10,
-            extraRuntimePadding: 32,
-          ),
-          minDesired: 2,
-        ),
-        (
-          filter: _buildFilter(
-            request: request,
-            minVotes: 8,
-            extraRuntimePadding: 38,
-          ),
-          minDesired: 1,
-        ),
-      ];
-
-  for (final ({MediaFilter filter, int minDesired}) step in filterPlan) {
-    final List<MediaTitle> collected = <MediaTitle>[];
-
-    for (int page = 1; page <= 2; page++) {
+  for (final _DiscoveryStep step in steps) {
+    for (int page = 1; page <= step.pages; page++) {
       final List<MediaTitle> pageResults = await discoverUseCase(
         DiscoverMediaParams(
           isTv: request.isTv,
           filter: step.filter,
+          query: step.query,
           page: page,
         ),
       );
-      collected.addAll(pageResults);
-
-      if (pageResults.length < 20) {
+      _appendUnique(candidates, pageResults, seenIds);
+      if (pageResults.length < 20 || candidates.length >= 36) {
         break;
       }
     }
-
-    final List<MediaTitle> unique = _uniqueTitles(collected);
-    if (unique.length >= step.minDesired) {
-      unique.sort((a, b) => _roughScore(b).compareTo(_roughScore(a)));
-      return unique;
+    if (candidates.length >= step.stopIfAtLeast) {
+      break;
     }
   }
 
-  return const <MediaTitle>[];
+  if (candidates.length < 14) {
+    final Iterable<String> titleSeeds = plan.similarTitles.take(3);
+    for (final String seed in titleSeeds) {
+      final List<MediaTitle> searchResults = request.isTv
+          ? await repository.searchTvShows(seed, page: 1)
+          : await repository.searchMovies(seed, page: 1);
+      _appendUnique(candidates, searchResults.take(8), seenIds);
+
+      if (candidates.length < 24) {
+        for (final MediaTitle match in searchResults.take(2)) {
+          try {
+            final List<MovieRecommendation> recs = await repository
+                .fetchMovieRecommendations(match.id, isTv: request.isTv);
+            _appendUnique(
+              candidates,
+              recs.map((MovieRecommendation r) => r.toMediaTitle()),
+              seenIds,
+            );
+          } catch (_) {
+            // Best-effort enrichment.
+          }
+        }
+      }
+    }
+  }
+
+  if (candidates.length < 12) {
+    for (final int seedId in plan.numericSeeds.take(3)) {
+      try {
+        final List<MovieRecommendation> recs = await repository
+            .fetchMovieRecommendations(seedId, isTv: request.isTv);
+        _appendUnique(
+          candidates,
+          recs.map((MovieRecommendation r) => r.toMediaTitle()),
+          seenIds,
+        );
+      } catch (_) {
+        // Best-effort enrichment.
+      }
+    }
+  }
+
+  candidates.sort((a, b) => _roughScore(b).compareTo(_roughScore(a)));
+  return candidates;
 }
 
 MediaFilter _buildFilter({
-  required TonightWatchRequest request,
+  required _PromptPlan plan,
+  required Set<int> availableGenreIds,
+  required String? originalLanguage,
   required int minVotes,
-  required int extraRuntimePadding,
+  required int runtimePadding,
+  required double minScore,
 }) {
-  final int minRuntime = math.max(
-    0,
-    request.timeOption.minMinutes - extraRuntimePadding,
-  );
-  final int maxRuntime = request.timeOption.maxMinutes + extraRuntimePadding;
-  const RangeValues scoreRange = RangeValues(6.0, 10.0);
+  final int minRuntime = math.max(0, (plan.minRuntime ?? 0) - runtimePadding);
+  final int maxRuntime = (plan.maxRuntime ?? 220) + runtimePadding;
+
+  final Set<int> clampedGenres = availableGenreIds;
 
   return MediaFilter(
     sortField: SortField.popularity,
     sortOrder: SortOrder.descending,
-    originalLanguageCode: request.language.code,
+    originalLanguageCode: originalLanguage,
+    genres: clampedGenres,
     runtime: RangeValues(minRuntime.toDouble(), maxRuntime.toDouble()),
-    mood: request.mood,
-    userScore: scoreRange,
-    minUserVotes: minVotes,
-    includeNotRated: false,
+    userScore: RangeValues(minScore, 10),
+    releaseDateFrom: plan.yearFrom != null ? DateTime(plan.yearFrom!) : null,
+    releaseDateTo: plan.yearTo != null ? DateTime(plan.yearTo!) : null,
+    minUserVotes: minVotes > 0 ? math.max(minVotes, plan.minVoteCount ?? 0) : 0,
+    includeNotRated: minVotes == 0,
   );
 }
 
-Future<List<MediaTitle>> _seedFallbackCandidates({
+Future<List<_ScoredTonightItem>> _rankCandidates({
+  required TonightPromptRequest request,
+  required _PromptPlan plan,
   required MediaRepository repository,
-  required TonightWatchRequest request,
+  required List<MediaTitle> rawCandidates,
+  required Set<String> excludedGenres,
 }) async {
-  final List<int> seedIds = request.isTv
-      ? request.mood.tvSeeds
-      : request.mood.movieSeeds;
-  if (seedIds.isEmpty) {
-    return const <MediaTitle>[];
-  }
+  final List<_ScoredTonightItem> scored = <_ScoredTonightItem>[];
+  final Iterable<MediaTitle> shortlist = rawCandidates.take(24);
 
-  final List<MediaTitle> fallback = <MediaTitle>[];
-  final int minRuntime = math.max(0, request.timeOption.minMinutes - 38);
-  final int maxRuntime = request.timeOption.maxMinutes + 38;
-
-  for (final int id in seedIds) {
+  for (final MediaTitle candidate in shortlist) {
     try {
       final MovieDetails details = await repository.fetchMovieDetails(
-        id,
+        candidate.id,
         isTv: request.isTv,
       );
 
-      final String? originalLanguage = details.originalLanguage?.toLowerCase();
-      if (originalLanguage != request.language.code) {
+      final Set<String> titleGenres = details.genres
+          .map(_normalizeText)
+          .where((String g) => g.isNotEmpty)
+          .toSet();
+
+      if (excludedGenres.isNotEmpty &&
+          titleGenres.intersection(excludedGenres).isNotEmpty) {
         continue;
       }
 
-      final int runtimeMinutes =
-          details.runtimeMinutes ??
-          ((request.timeOption.minMinutes + request.timeOption.maxMinutes) ~/
-              2);
-      if (runtimeMinutes < minRuntime || runtimeMinutes > maxRuntime) {
-        continue;
-      }
+      final String? language = details.originalLanguage?.toLowerCase();
+      final bool languageMatch =
+          plan.originalLanguage == null ||
+          plan.originalLanguage!.isEmpty ||
+          language == plan.originalLanguage;
 
-      final double score = details.catalogScore ?? 0;
-      if (score > 0 && score < 5.8) {
-        continue;
-      }
-      final int votes = details.voteCount ?? 0;
-      if (votes > 0 && votes < 8) {
-        continue;
-      }
+      final int runtime = details.runtimeMinutes ?? 0;
+      final bool runtimeRoughMatch = _runtimeMatches(runtime, plan);
 
-      fallback.add(
-        MediaTitle(
-          id: details.id,
-          title: details.title,
-          posterPath: details.posterPath,
-          releaseDate: details.releaseDate,
-          voteAverage: details.catalogScore,
-          voteCount: details.voteCount ?? 0,
-          popularity: 0,
+      final double score = _computeScore(
+        title: candidate,
+        details: details,
+        plan: plan,
+        languageMatch: languageMatch,
+        runtimeMatch: runtimeRoughMatch,
+      );
+
+      scored.add(
+        _ScoredTonightItem(
+          title: candidate,
+          details: details,
+          score: score,
+          matchReason: _buildMatchReason(
+            details: details,
+            plan: plan,
+            languageMatch: languageMatch,
+            runtimeMatch: runtimeRoughMatch,
+          ),
         ),
       );
     } catch (_) {
-      // Skip problematic seeds.
+      // Skip broken details to keep flow resilient.
     }
   }
 
-  if (fallback.isEmpty) {
-    return const <MediaTitle>[];
-  }
-
-  fallback.sort((a, b) => _roughScore(b).compareTo(_roughScore(a)));
-  return fallback;
+  scored.sort((a, b) => b.score.compareTo(a.score));
+  return scored;
 }
 
-List<MediaTitle> _uniqueTitles(List<MediaTitle> titles) {
-  final Set<int> seenIds = <int>{};
-  final List<MediaTitle> unique = <MediaTitle>[];
-  for (final MediaTitle title in titles) {
+double _computeScore({
+  required MediaTitle title,
+  required MovieDetails details,
+  required _PromptPlan plan,
+  required bool languageMatch,
+  required bool runtimeMatch,
+}) {
+  final double rating = details.catalogScore ?? title.voteAverage ?? 0;
+  final double popularityBoost = math.min(title.popularity, 400) / 28;
+  final double voteBoost =
+      math.min((details.voteCount ?? title.voteCount).toDouble(), 7000) / 650;
+  final double languageBoost = languageMatch ? 12 : -3;
+  final double runtimeBoost = runtimeMatch ? 8 : -4;
+  final bool hasArtwork =
+      details.posterPath != null || details.backdropPath != null;
+  final double artworkBoost = hasArtwork ? 2 : 0;
+  return (rating * 11) +
+      popularityBoost +
+      voteBoost +
+      languageBoost +
+      runtimeBoost +
+      artworkBoost;
+}
+
+bool _runtimeMatches(int runtime, _PromptPlan plan) {
+  if (runtime <= 0) {
+    return true;
+  }
+  final int minRuntime = plan.minRuntime ?? 0;
+  final int maxRuntime = plan.maxRuntime ?? 260;
+  return runtime >= (minRuntime - 20) && runtime <= (maxRuntime + 20);
+}
+
+String _buildMatchReason({
+  required MovieDetails details,
+  required _PromptPlan plan,
+  required bool languageMatch,
+  required bool runtimeMatch,
+}) {
+  final List<String> parts = <String>[];
+  if (languageMatch &&
+      plan.originalLanguage != null &&
+      plan.originalLanguage!.isNotEmpty) {
+    parts.add('Original language matches');
+  }
+  if (runtimeMatch && details.runtimeMinutes != null) {
+    parts.add('Runtime fits (${details.runtimeMinutes} min)');
+  }
+  if (details.genres.isNotEmpty) {
+    parts.add('Genre fit: ${details.genres.take(2).join(' + ')}');
+  }
+  final double? score = details.catalogScore;
+  if (score != null && score > 0) {
+    parts.add('Strong rating (${score.toStringAsFixed(1)}/10)');
+  }
+  return parts.isEmpty
+      ? 'Good overall match for your request.'
+      : parts.join(' • ');
+}
+
+String _fallbackIntentSummary({
+  required _PromptPlan plan,
+  required String prompt,
+}) {
+  if (plan.queryHint.isNotEmpty) {
+    return plan.queryHint;
+  }
+  return prompt.trim();
+}
+
+void _appendUnique(
+  List<MediaTitle> target,
+  Iterable<MediaTitle> incoming,
+  Set<int> seenIds,
+) {
+  for (final MediaTitle title in incoming) {
     if (seenIds.add(title.id)) {
-      unique.add(title);
+      target.add(title);
     }
   }
-  return unique;
 }
 
 double _roughScore(MediaTitle title) {
   final double rating = title.voteAverage ?? 0;
-  final double popularityBoost = math.min(title.popularity, 250) / 25;
-  final double voteBoost = math.min(title.voteCount, 5000) / 500;
-  return (rating * 10) + popularityBoost + voteBoost;
+  final double popularityBoost = math.min(title.popularity, 300) / 25;
+  final double voteBoost = math.min(title.voteCount, 6000) / 700;
+  return (rating * 9) + popularityBoost + voteBoost;
 }
 
-double _scoreCandidate({
-  required MediaTitle title,
-  required MovieDetails details,
-  required TonightWatchRequest request,
-}) {
-  final double rating = details.catalogScore ?? title.voteAverage ?? 0;
-  final double popularityBoost = math.min(title.popularity, 300) / 20;
-  final double voteBoost =
-      math.min((details.voteCount ?? title.voteCount).toDouble(), 8000) / 700;
+class _DiscoveryStep {
+  const _DiscoveryStep({
+    required this.filter,
+    required this.pages,
+    required this.stopIfAtLeast,
+    this.query,
+  });
 
-  final int runtime =
-      details.runtimeMinutes ??
-      ((request.timeOption.minMinutes + request.timeOption.maxMinutes) ~/ 2);
-  final double targetMidpoint =
-      (request.timeOption.minMinutes + request.timeOption.maxMinutes) / 2;
-  final double runtimeDistance = (runtime - targetMidpoint).abs();
-  final double runtimeBoost = math.max(0, 18 - (runtimeDistance * 0.22));
-
-  final bool matchesLanguage =
-      details.originalLanguage?.toLowerCase() == request.language.code;
-  final double languageBoost = matchesLanguage ? 12 : 0;
-
-  final double artworkBoost =
-      (details.backdropPath != null || details.posterPath != null) ? 3 : 0;
-
-  return (rating * 11) +
-      popularityBoost +
-      voteBoost +
-      runtimeBoost +
-      languageBoost +
-      artworkBoost;
+  final MediaFilter filter;
+  final int pages;
+  final int stopIfAtLeast;
+  final String? query;
 }
 
-String _buildExplanation({
-  required TonightWatchRequest request,
-  required MediaTitle title,
-  required MovieDetails details,
-}) {
-  final List<String> parts = <String>[];
-  final String typeLabel = request.isTv ? 'show' : 'movie';
+class _GenreResolution {
+  const _GenreResolution({
+    required this.includedGenreIds,
+    required this.excludedGenreNames,
+  });
 
-  final int? runtime = details.runtimeMinutes;
-  if (runtime != null) {
-    parts.add(
-      'It fits your ${request.timeOption.label(request.isTv).toLowerCase()} window at about $runtime minutes.',
-    );
-  } else {
-    parts.add(
-      'It lines up with the ${request.timeOption.label(request.isTv).toLowerCase()} time window you picked.',
-    );
+  final Set<int> includedGenreIds;
+  final Set<String> excludedGenreNames;
+}
+
+_GenreResolution _resolveGenres({
+  required List<MovieGenre> genres,
+  required List<String> includeNames,
+  required List<String> excludeNames,
+}) {
+  final Map<String, int> index = <String, int>{};
+  for (final MovieGenre genre in genres) {
+    final String normalized = _normalizeText(genre.name);
+    if (normalized.isNotEmpty) {
+      index[normalized] = genre.id;
+    }
   }
 
-  parts.add(
-    'Its ${request.mood.label.toLowerCase()} energy makes it a strong late-night $typeLabel.',
+  final Set<int> includedIds = <int>{};
+  for (final String genreName in includeNames) {
+    final String needle = _normalizeText(genreName);
+    if (needle.isEmpty) {
+      continue;
+    }
+    for (final MapEntry<String, int> entry in index.entries) {
+      if (entry.key.contains(needle) || needle.contains(entry.key)) {
+        includedIds.add(entry.value);
+      }
+    }
+  }
+
+  final Set<String> excludedNormalized = excludeNames
+      .map(_normalizeText)
+      .where((String value) => value.isNotEmpty)
+      .toSet();
+
+  return _GenreResolution(
+    includedGenreIds: includedIds,
+    excludedGenreNames: excludedNormalized,
   );
-
-  if (details.originalLanguage?.toLowerCase() == request.language.code) {
-    parts.add(
-      'It is also a native ${request.language.label} pick, not a loose match.',
-    );
-  }
-
-  if (details.genres.isNotEmpty) {
-    final String genres = details.genres.take(2).join(' and ');
-    parts.add(
-      'The $genres blend keeps the vibe focused without feeling generic.',
-    );
-  }
-
-  final double? score = details.catalogScore ?? title.voteAverage;
-  if (score != null && score > 0) {
-    parts.add(
-      'It also brings a solid ${score.toStringAsFixed(1)}/10 audience score.',
-    );
-  }
-
-  return parts.join(' ');
 }
 
-class _ScoredTonightPick {
-  const _ScoredTonightPick({
+String _normalizeText(String value) {
+  return value
+      .toLowerCase()
+      .replaceAll(RegExp(r'[^a-z0-9\s]'), ' ')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .trim();
+}
+
+class _ScoredTonightItem {
+  const _ScoredTonightItem({
     required this.title,
     required this.details,
     required this.score,
+    required this.matchReason,
   });
 
   final MediaTitle title;
   final MovieDetails details;
   final double score;
+  final String matchReason;
+}
+
+class _PromptPlan {
+  const _PromptPlan({
+    required this.intentSummary,
+    required this.queryHint,
+    required this.originalLanguage,
+    required this.includeGenres,
+    required this.excludeGenres,
+    required this.keywords,
+    required this.similarTitles,
+    required this.numericSeeds,
+    required this.minRuntime,
+    required this.maxRuntime,
+    required this.minVoteAverage,
+    required this.minVoteCount,
+    required this.yearFrom,
+    required this.yearTo,
+  });
+
+  factory _PromptPlan.fromJson(Map<String, dynamic> json) {
+    final List<String> keywords = _readStringList(json['keywords']);
+    final List<String> similarTitles = _readStringList(json['similar_titles']);
+    return _PromptPlan(
+      intentSummary: _readString(json['intent_summary']),
+      queryHint: _readString(json['query_hint']).isNotEmpty
+          ? _readString(json['query_hint'])
+          : _readString(json['intent_summary']),
+      originalLanguage: _resolveLanguageCode(
+        _readString(json['original_language']),
+      ),
+      includeGenres: _readStringList(json['include_genres']),
+      excludeGenres: _readStringList(json['exclude_genres']),
+      keywords: keywords,
+      similarTitles: similarTitles,
+      numericSeeds: _readNumericSeeds(similarTitles),
+      minRuntime: _readInt(json['min_runtime']),
+      maxRuntime: _readInt(json['max_runtime']),
+      minVoteAverage: _readDouble(json['min_vote_average']),
+      minVoteCount: _readInt(json['min_vote_count']),
+      yearFrom: _readInt(json['year_from']),
+      yearTo: _readInt(json['year_to']),
+    );
+  }
+
+  factory _PromptPlan.fallback(String prompt) {
+    final List<String> tokens = prompt
+        .split(RegExp(r'[,.;]'))
+        .map((String part) => part.trim())
+        .where((String part) => part.length >= 4)
+        .take(3)
+        .toList(growable: false);
+    return _PromptPlan(
+      intentSummary: prompt,
+      queryHint: prompt,
+      originalLanguage: null,
+      includeGenres: const <String>[],
+      excludeGenres: const <String>[],
+      keywords: tokens,
+      similarTitles: const <String>[],
+      numericSeeds: const <int>[],
+      minRuntime: null,
+      maxRuntime: null,
+      minVoteAverage: null,
+      minVoteCount: null,
+      yearFrom: null,
+      yearTo: null,
+    );
+  }
+
+  final String intentSummary;
+  final String queryHint;
+  final String? originalLanguage;
+  final List<String> includeGenres;
+  final List<String> excludeGenres;
+  final List<String> keywords;
+  final List<String> similarTitles;
+  final List<int> numericSeeds;
+  final int? minRuntime;
+  final int? maxRuntime;
+  final double? minVoteAverage;
+  final int? minVoteCount;
+  final int? yearFrom;
+  final int? yearTo;
+}
+
+String _readString(Object? value) {
+  if (value is String) {
+    return value.trim();
+  }
+  return '';
+}
+
+List<String> _readStringList(Object? value) {
+  if (value is List<dynamic>) {
+    return value
+        .map((dynamic item) => item is String ? item.trim() : '')
+        .where((String item) => item.isNotEmpty)
+        .toList(growable: false);
+  }
+  return const <String>[];
+}
+
+int? _readInt(Object? value) {
+  if (value is int) {
+    return value;
+  }
+  if (value is double) {
+    return value.toInt();
+  }
+  if (value is String) {
+    return int.tryParse(value.trim());
+  }
+  return null;
+}
+
+double? _readDouble(Object? value) {
+  if (value is double) {
+    return value;
+  }
+  if (value is int) {
+    return value.toDouble();
+  }
+  if (value is String) {
+    return double.tryParse(value.trim());
+  }
+  return null;
+}
+
+List<int> _readNumericSeeds(List<String> similarTitles) {
+  final List<int> values = <int>[];
+  for (final String title in similarTitles) {
+    final int? maybeId = int.tryParse(title);
+    if (maybeId != null && maybeId > 0) {
+      values.add(maybeId);
+    }
+  }
+  return values;
+}
+
+String? _resolveLanguageCode(String candidate) {
+  final String normalized = candidate.trim().toLowerCase();
+  if (normalized.isEmpty) {
+    return null;
+  }
+  if (normalized.length == 2) {
+    return normalized;
+  }
+
+  const Map<String, String> aliases = <String, String>{
+    'english': 'en',
+    'hindi': 'hi',
+    'tamil': 'ta',
+    'telugu': 'te',
+    'korean': 'ko',
+    'japanese': 'ja',
+    'spanish': 'es',
+    'french': 'fr',
+    'german': 'de',
+  };
+  return aliases[normalized];
 }

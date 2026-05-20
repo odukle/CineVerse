@@ -60,6 +60,8 @@ dependencies:
   share_plus: 10.1.4
   screenshot: 3.0.0
   gal: ^2.3.2
+  speech_to_text: ^7.3.0
+  fl_chart: ^1.1.1
 
 dev_dependencies:
   flutter_test:

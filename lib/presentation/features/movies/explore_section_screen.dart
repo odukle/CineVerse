@@ -205,7 +205,9 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
         ? ref.read(moodSectionProvider((mood: widget.filter.mood!, isTv: widget.isTv)))
         : (widget.filter.genreId != null
             ? ref.read(genreSectionProvider((id: widget.filter.genreId!, isTv: widget.isTv)))
-            : ref.read(movieSectionProvider(widget.filter.section!)));
+            : (widget.filter.isHiddenGems
+                ? ref.read(hiddenGemsSectionProvider)
+                : ref.read(movieSectionProvider(widget.filter.section!))));
 
     if (movies.isLoading) return;
     
@@ -215,7 +217,9 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
           ? ref.read(moodSectionExhaustedProvider((mood: widget.filter.mood!, isTv: widget.isTv)))
           : (widget.filter.genreId != null
               ? ref.read(genreSectionExhaustedProvider((id: widget.filter.genreId!, isTv: widget.isTv)))
-              : ref.read(movieSectionExhaustedProvider(widget.filter.section!)));
+              : (widget.filter.isHiddenGems
+                  ? ref.read(hiddenGemsSectionExhaustedProvider)
+                  : ref.read(movieSectionExhaustedProvider(widget.filter.section!))));
           
       if (isExhausted) return;
 
@@ -223,6 +227,8 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
         loadNextMoodPages(ref, widget.filter.mood!, isTv: widget.isTv);
       } else if (widget.filter.genreId != null) {
         loadNextGenrePages(ref, widget.filter.genreId!, isTv: widget.isTv);
+      } else if (widget.filter.isHiddenGems) {
+        loadNextHiddenGemsPages(ref);
       } else if (widget.filter.section != null) {
         loadNextPages(ref, widget.filter.section!);
       }
@@ -240,7 +246,9 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
                 ? ref.watch(
                     genreSectionProvider((id: widget.filter.genreId!, isTv: widget.isTv)),
                   )
-                : ref.watch(movieSectionProvider(widget.filter.section!))));
+                : (widget.filter.isHiddenGems
+                    ? ref.watch(hiddenGemsSectionProvider)
+                    : ref.watch(movieSectionProvider(widget.filter.section!)))));
 
     final bool isExhausted = widget.filter.isLibraryRecommendations
         ? ref.watch(libraryRecommendationsExhaustedProvider(widget.filter.recSource))
@@ -248,7 +256,9 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
             ? ref.watch(moodSectionExhaustedProvider((mood: widget.filter.mood!, isTv: widget.isTv)))
             : (widget.filter.genreId != null
                 ? ref.watch(genreSectionExhaustedProvider((id: widget.filter.genreId!, isTv: widget.isTv)))
-                : ref.watch(movieSectionExhaustedProvider(widget.filter.section!))));
+                : (widget.filter.isHiddenGems
+                    ? ref.watch(hiddenGemsSectionExhaustedProvider)
+                    : ref.watch(movieSectionExhaustedProvider(widget.filter.section!)))));
 
     return movies.when(
       skipLoadingOnReload: true,
@@ -265,6 +275,8 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
                   ref.invalidate(genreSectionProvider((id: widget.filter.genreId!, isTv: widget.isTv)));
                 } else if (widget.filter.mood != null) {
                   ref.invalidate(moodSectionProvider((mood: widget.filter.mood!, isTv: widget.isTv)));
+                } else if (widget.filter.isHiddenGems) {
+                  ref.invalidate(hiddenGemsSectionProvider);
                 } else {
                   ref.invalidate(movieSectionProvider(widget.filter.section!));
                 }

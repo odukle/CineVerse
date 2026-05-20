@@ -57,84 +57,118 @@ class _FullCastCrewScreenState extends State<FullCastCrewScreen> {
           backgroundColor: Colors.transparent,
           appBar: AppBar(
             backgroundColor: Colors.transparent,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-            onPressed: () => context.pop(),
-          ),
-          title: _isSearching
-              ? TextField(
-                  controller: _searchController,
-                  autofocus: true,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
-                    hintText: 'Search name or role...',
-                    hintStyle: TextStyle(color: Colors.white54),
-                    border: InputBorder.none,
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      _searchQuery = value;
-                    });
-                  },
-                )
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Cast & Crew',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    Text(
-                      widget.title,
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-          actions: [
-            IconButton(
-              icon: Icon(
-                _isSearching ? Icons.close_rounded : Icons.search_rounded,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                setState(() {
-                  if (_isSearching) {
-                    _isSearching = false;
-                    _searchQuery = '';
-                    _searchController.clear();
-                  } else {
-                    _isSearching = true;
-                  }
-                });
-              },
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+              onPressed: () => context.pop(),
             ),
-          ],
-          bottom: TabBar(
-            indicatorColor: AppColors.cinemaAccent,
-            labelColor: AppColors.cinemaAccent,
-            unselectedLabelColor: Colors.white54,
-            tabs: const [
-              Tab(text: 'Cast'),
-              Tab(text: 'Crew'),
+            title: _isSearching
+                ? TextField(
+                    controller: _searchController,
+                    autofocus: true,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                      hintText: 'Search name or role...',
+                      hintStyle: TextStyle(color: Colors.white54),
+                      border: InputBorder.none,
+                    ),
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Cast & Crew',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      Text(
+                        widget.title,
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+            actions: [
+              IconButton(
+                icon: Icon(
+                  _isSearching ? Icons.close_rounded : Icons.search_rounded,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  setState(() {
+                    if (_isSearching) {
+                      _isSearching = false;
+                      _searchQuery = '';
+                      _searchController.clear();
+                    } else {
+                      _isSearching = true;
+                    }
+                  });
+                },
+              ),
+            ],
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(74),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(26),
+                    gradient: LinearGradient(
+                      colors: AppColors.cinemaPanelGradient,
+                    ),
+                    border: Border.all(
+                      color: AppColors.cinemaBorder.withValues(alpha: 0.28),
+                    ),
+                    boxShadow: <BoxShadow>[
+                      BoxShadow(
+                        color: AppColors.cinemaGlow.withValues(alpha: 0.12),
+                        blurRadius: 22,
+                        spreadRadius: -12,
+                        offset: const Offset(0, 14),
+                      ),
+                    ],
+                  ),
+                  child: const TabBar(
+                    dividerColor: Colors.transparent,
+                    indicatorPadding: EdgeInsets.symmetric(vertical: 2),
+                    labelPadding: EdgeInsets.symmetric(horizontal: 16),
+                    tabs: <Tab>[
+                      Tab(text: 'Cast'),
+                      Tab(text: 'Crew'),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          body: TabBarView(
+            children: [
+              _CreditGrid(
+                credits: filteredCast,
+                isCast: true,
+                query: _searchQuery,
+              ),
+              _CreditGrid(
+                credits: filteredCrew,
+                isCast: false,
+                query: _searchQuery,
+              ),
             ],
           ),
         ),
-        body: TabBarView(
-          children: [
-            _CreditGrid(credits: filteredCast, isCast: true, query: _searchQuery),
-            _CreditGrid(credits: filteredCrew, isCast: false, query: _searchQuery),
-          ],
-        ),
       ),
-    ),
     );
   }
 }

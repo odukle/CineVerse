@@ -1,15 +1,16 @@
-import 'dart:math' as math;
+import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
-import 'package:cineverse/domain/entities/movie_mood.dart';
 import 'package:cineverse/presentation/features/movies/models/tonight_watch_models.dart';
 import 'package:cineverse/presentation/features/movies/providers/tonight_watch_provider.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 class WhatShouldIWatchTonightScreen extends ConsumerStatefulWidget {
   const WhatShouldIWatchTonightScreen({super.key, required this.isTv});
@@ -23,38 +24,42 @@ class WhatShouldIWatchTonightScreen extends ConsumerStatefulWidget {
 
 class _WhatShouldIWatchTonightScreenState
     extends ConsumerState<WhatShouldIWatchTonightScreen> {
-  late TonightTimeOption _selectedTime;
-  late MovieMood _selectedMood;
-  late TonightLanguageOption _selectedLanguage;
-  TonightWatchRequest? _submittedRequest;
+  final TextEditingController _promptController = TextEditingController();
+  final FocusNode _promptFocusNode = FocusNode();
+  final SpeechToText _speech = SpeechToText();
+  TonightPromptRequest? _submittedRequest;
+  int _requestNonce = 0;
+  bool _isListening = false;
+  bool _speechAvailable = false;
+  String? _speechError;
 
   @override
-  void initState() {
-    super.initState();
-    _selectedTime = tonightMovieTimeOptions[1];
-    _selectedMood = MovieMood.cinematic;
-    _selectedLanguage = tonightLanguageOptions.first;
+  void dispose() {
+    _speech.stop();
+    _promptController.dispose();
+    _promptFocusNode.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final AsyncValue<TonightWatchResult>? recommendation =
+    final AsyncValue<TonightPromptResult>? recommendations =
         _submittedRequest == null
         ? null
-        : ref.watch(tonightWatchRecommendationProvider(_submittedRequest!));
+        : ref.watch(tonightPromptRecommendationsProvider(_submittedRequest!));
 
     return BackgroundGradient(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 30),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+              children: <Widget>[
                 Row(
-                  children: [
+                  children: <Widget>[
                     _ChromeButton(
                       icon: Icons.arrow_back_rounded,
                       onTap: () => context.pop(),
@@ -73,90 +78,19 @@ class _WhatShouldIWatchTonightScreenState
                   ],
                 ),
                 const SizedBox(height: 20),
-                _IntroPanel(isTv: widget.isTv),
-                const SizedBox(height: 20),
-                _InputSection(
-                  title: 'Time Available',
-                  subtitle: widget.isTv
-                      ? 'We will match the pacing to the episode length you want tonight.'
-                      : 'Pick a runtime lane so the recommendation fits your evening.',
-                  child: Column(
-                    children: tonightMovieTimeOptions
-                        .map((TonightTimeOption option) {
-                          final bool isSelected = option.id == _selectedTime.id;
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: _TimeOptionTile(
-                              option: option,
-                              isTv: widget.isTv,
-                              isSelected: isSelected,
-                              onTap: () =>
-                                  setState(() => _selectedTime = option),
-                            ),
-                          );
-                        })
-                        .toList(growable: false),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _InputSection(
-                  title: 'Mood',
-                  subtitle:
-                      'Set the emotional flavor first, then let the app find the strongest fit.',
-                  child: Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: MovieMood.values
-                        .map((MovieMood mood) {
-                          final bool isSelected = mood == _selectedMood;
-                          return _ChoiceChipCard(
-                            label: mood.label,
-                            subtitle: mood.description,
-                            isSelected: isSelected,
-                            accent: _moodColor(mood),
-                            onTap: () => setState(() => _selectedMood = mood),
-                          );
-                        })
-                        .toList(growable: false),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                _InputSection(
-                  title: 'Language',
-                  subtitle:
-                      'Choose the original language you want the pick to come from.',
-                  child: Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: tonightLanguageOptions
-                        .map((TonightLanguageOption language) {
-                          final bool isSelected =
-                              language.code == _selectedLanguage.code;
-                          return _LanguageChip(
-                            language: language,
-                            isSelected: isSelected,
-                            onTap: () =>
-                                setState(() => _selectedLanguage = language),
-                          );
-                        })
-                        .toList(growable: false),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                _GenerateButton(
+                _PromptPanel(
                   isTv: widget.isTv,
-                  onTap: _generateRecommendation,
+                  controller: _promptController,
+                  focusNode: _promptFocusNode,
+                  onSubmit: _runSearch,
+                  onExampleTap: _useExamplePrompt,
+                  isListening: _isListening,
+                  speechAvailable: _speechAvailable,
+                  speechError: _speechError,
+                  onMicTap: _toggleVoiceInput,
                 ),
-                const SizedBox(height: 24),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 320),
-                  switchInCurve: Curves.easeOutCubic,
-                  switchOutCurve: Curves.easeInCubic,
-                  child: _buildRecommendationState(
-                    context: context,
-                    recommendation: recommendation,
-                  ),
-                ),
+                const SizedBox(height: 20),
+                _buildResultState(recommendations),
               ],
             ),
           ),
@@ -165,505 +99,166 @@ class _WhatShouldIWatchTonightScreenState
     );
   }
 
-  Widget _buildRecommendationState({
-    required BuildContext context,
-    required AsyncValue<TonightWatchResult>? recommendation,
-  }) {
-    if (recommendation == null) {
-      return _EmptyRecommendationState(isTv: widget.isTv);
+  Widget _buildResultState(AsyncValue<TonightPromptResult>? recommendations) {
+    if (recommendations == null) {
+      return _EmptyState(isTv: widget.isTv);
     }
-
-    return recommendation.when(
-      loading: () => const _LoadingRecommendationCard(),
-      error: (Object error, StackTrace stackTrace) => _RecommendationErrorCard(
-        message: '$error',
-        onRetry: _generateRecommendation,
+    return recommendations.when(
+      loading: () => _LoadingState(request: _submittedRequest!),
+      error: (Object error, StackTrace _) => _ErrorState(
+        message: error.toString().replaceFirst('Bad state: ', ''),
+        onRetry: _runSearch,
       ),
-      data: (TonightWatchResult result) =>
-          _TonightResultCard(result: result, isTv: widget.isTv),
+      data: (TonightPromptResult result) =>
+          _ResultList(isTv: widget.isTv, result: result),
     );
   }
 
-  void _generateRecommendation() {
-    final TonightWatchRequest nextRequest = TonightWatchRequest(
+  void _runSearch() {
+    final String prompt = _promptController.text.trim();
+    if (prompt.length < 4) {
+      _promptFocusNode.requestFocus();
+      return;
+    }
+
+    final TonightPromptRequest request = TonightPromptRequest(
       isTv: widget.isTv,
-      timeOption: _selectedTime,
-      mood: _selectedMood,
-      language: _selectedLanguage,
+      prompt: prompt,
+      requestNonce: ++_requestNonce,
     );
-    ref.invalidate(tonightWatchRecommendationProvider(nextRequest));
+    ref.invalidate(tonightPromptRecommendationsProvider(request));
+    setState(() {
+      _submittedRequest = request;
+    });
+  }
+
+  void _useExamplePrompt(String prompt) {
+    _promptController.text = prompt;
+    _runSearch();
+  }
+
+  Future<void> _toggleVoiceInput() async {
+    if (_isListening) {
+      await _speech.stop();
+      if (!mounted) {
+        return;
+      }
+      setState(() {
+        _isListening = false;
+      });
+      return;
+    }
 
     setState(() {
-      _submittedRequest = nextRequest;
+      _speechError = null;
+    });
+
+    final bool available = await _speech.initialize(
+      onStatus: _onSpeechStatus,
+      onError: (error) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {
+          _speechError = error.errorMsg;
+          _isListening = false;
+        });
+      },
+    );
+
+    if (!mounted) {
+      return;
+    }
+    if (!available) {
+      setState(() {
+        _speechAvailable = false;
+        _speechError = 'Speech recognition is not available on this device.';
+      });
+      return;
+    }
+
+    setState(() {
+      _speechAvailable = true;
+      _isListening = true;
+    });
+
+    await _speech.listen(
+      onResult: _onSpeechResult,
+      listenOptions: SpeechListenOptions(
+        listenMode: ListenMode.confirmation,
+        partialResults: true,
+        cancelOnError: true,
+      ),
+      listenFor: const Duration(seconds: 30),
+      pauseFor: const Duration(seconds: 4),
+    );
+  }
+
+  void _onSpeechStatus(String status) {
+    if (!mounted) {
+      return;
+    }
+    final bool listening = status == 'listening';
+    if (!listening && _isListening) {
+      setState(() {
+        _isListening = false;
+      });
+    }
+  }
+
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _promptController.text = result.recognizedWords;
+      _promptController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _promptController.text.length),
+      );
     });
   }
 }
 
-class _IntroPanel extends StatelessWidget {
-  const _IntroPanel({required this.isTv});
-
-  final bool isTv;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: <Color>[
-            const Color(0xFF13203F),
-            AppColors.cinemaSurface.withValues(alpha: 0.92),
-            const Color(0xFF281347),
-          ],
-        ),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
-        boxShadow: const <BoxShadow>[
-          BoxShadow(
-            color: Color(0x6619E6FF),
-            blurRadius: 36,
-            spreadRadius: -6,
-            offset: Offset(0, 22),
-          ),
-          BoxShadow(
-            color: Color(0x4CFD4DFF),
-            blurRadius: 50,
-            spreadRadius: -16,
-            offset: Offset(-12, -8),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              isTv ? 'Tonight Mode: TV' : 'Tonight Mode: Movies',
-              style: theme.textTheme.labelLarge?.copyWith(
-                color: const Color(0xFF8FEAFF),
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'One answer. No doom scrolling.',
-            style: theme.textTheme.headlineSmall?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-              height: 1,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            isTv
-                ? 'Choose your vibe, episode length, and language. We will surface one TV pick worth starting right now.'
-                : 'Choose your vibe, runtime, and language. We will surface one movie that actually fits tonight.',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: Colors.white.withValues(alpha: 0.78),
-              height: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InputSection extends StatelessWidget {
-  const _InputSection({
-    required this.title,
-    required this.subtitle,
-    required this.child,
+class _PromptPanel extends StatelessWidget {
+  const _PromptPanel({
+    required this.isTv,
+    required this.controller,
+    required this.focusNode,
+    required this.onSubmit,
+    required this.onExampleTap,
+    required this.isListening,
+    required this.speechAvailable,
+    required this.speechError,
+    required this.onMicTap,
   });
 
-  final String title;
-  final String subtitle;
-  final Widget child;
+  final bool isTv;
+  final TextEditingController controller;
+  final FocusNode focusNode;
+  final VoidCallback onSubmit;
+  final ValueChanged<String> onExampleTap;
+  final bool isListening;
+  final bool speechAvailable;
+  final String? speechError;
+  final VoidCallback onMicTap;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-
     return Container(
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.045),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        color: Colors.white.withValues(alpha: 0.05),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+        children: <Widget>[
           Text(
-            title,
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: Colors.white.withValues(alpha: 0.64),
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 16),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-class _TimeOptionTile extends StatelessWidget {
-  const _TimeOptionTile({
-    required this.option,
-    required this.isTv,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final TonightTimeOption option;
-  final bool isTv;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final List<Color> gradient = isSelected
-        ? const <Color>[Color(0xFF26D0FF), Color(0xFF7950F2)]
-        : <Color>[
-            Colors.white.withValues(alpha: 0.05),
-            Colors.white.withValues(alpha: 0.03),
-          ];
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(22),
-        child: Ink(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
-            gradient: LinearGradient(
-              colors: gradient,
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            border: Border.all(
-              color: isSelected
-                  ? Colors.white.withValues(alpha: 0.45)
-                  : Colors.white.withValues(alpha: 0.08),
-            ),
-            boxShadow: isSelected
-                ? const <BoxShadow>[
-                    BoxShadow(
-                      color: Color(0x5526D0FF),
-                      blurRadius: 28,
-                      spreadRadius: -8,
-                      offset: Offset(0, 16),
-                    ),
-                  ]
-                : null,
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(
-                    alpha: isSelected ? 0.18 : 0.14,
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Icon(Icons.schedule_rounded, color: Colors.white),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      option.label(isTv),
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      option.description(isTv),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.76),
-                        height: 1.35,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                option.durationLabel,
-                style: theme.textTheme.labelLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ChoiceChipCard extends StatelessWidget {
-  const _ChoiceChipCard({
-    required this.label,
-    required this.subtitle,
-    required this.isSelected,
-    required this.accent,
-    required this.onTap,
-  });
-
-  final String label;
-  final String subtitle;
-  final bool isSelected;
-  final Color accent;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-
-    return ConstrainedBox(
-      constraints: const BoxConstraints(minWidth: 150, maxWidth: 220),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
-          child: Ink(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: isSelected
-                  ? accent.withValues(alpha: 0.24)
-                  : Colors.white.withValues(alpha: 0.03),
-              border: Border.all(
-                color: isSelected
-                    ? accent.withValues(alpha: 0.82)
-                    : Colors.white.withValues(alpha: 0.08),
-              ),
-              boxShadow: isSelected
-                  ? <BoxShadow>[
-                      BoxShadow(
-                        color: accent.withValues(alpha: 0.22),
-                        blurRadius: 24,
-                        spreadRadius: -10,
-                        offset: const Offset(0, 12),
-                      ),
-                    ]
-                  : null,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: theme.textTheme.titleSmall?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  subtitle,
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.68),
-                    height: 1.35,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _LanguageChip extends StatelessWidget {
-  const _LanguageChip({
-    required this.language,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  final TonightLanguageOption language;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-    final Color accent = Color(language.accentHex);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(999),
-        child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(999),
-            color: isSelected
-                ? accent.withValues(alpha: 0.22)
-                : Colors.white.withValues(alpha: 0.04),
-            border: Border.all(
-              color: isSelected
-                  ? accent.withValues(alpha: 0.9)
-                  : Colors.white.withValues(alpha: 0.1),
-            ),
-          ),
-          child: Text(
-            language.label,
-            style: theme.textTheme.labelLarge?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _GenerateButton extends StatelessWidget {
-  const _GenerateButton({required this.isTv, required this.onTap});
-
-  final bool isTv;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
-        child: Ink(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
-            gradient: const LinearGradient(
-              colors: <Color>[
-                Color(0xFFFF7A18),
-                Color(0xFFFF4D8D),
-                Color(0xFF7A5CFF),
-              ],
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-            ),
-            boxShadow: const <BoxShadow>[
-              BoxShadow(
-                color: Color(0x55FF4D8D),
-                blurRadius: 30,
-                spreadRadius: -8,
-                offset: Offset(0, 16),
-              ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const Icon(
-                  Icons.auto_awesome_rounded,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      isTv ? 'Find my tonight show' : 'Find my tonight movie',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Return one best match and tell me why it is worth pressing play.',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.82),
-                        height: 1.3,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(Icons.arrow_forward_rounded, color: Colors.white),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyRecommendationState extends StatelessWidget {
-  const _EmptyRecommendationState({required this.isTv});
-
-  final bool isTv;
-
-  @override
-  Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
-
-    return Container(
-      key: const ValueKey<String>('empty-state'),
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        color: Colors.white.withValues(alpha: 0.04),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Ready when you are',
+            isTv
+                ? 'Describe your ideal show night'
+                : 'Describe your ideal movie night',
             style: theme.textTheme.titleLarge?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w800,
@@ -671,12 +266,142 @@ class _EmptyRecommendationState extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            isTv
-                ? 'Dial in tonight’s episode vibe above and we will pick one show worth starting.'
-                : 'Dial in tonight’s movie vibe above and we will pick one title worth your time.',
+            'Use natural language. Mention what you want, what to avoid, and optional language/runtime hints.',
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: Colors.white.withValues(alpha: 0.66),
-              height: 1.5,
+              color: Colors.white.withValues(alpha: 0.74),
+              height: 1.45,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Expanded(
+                child: TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  maxLines: 4,
+                  minLines: 3,
+                  textInputAction: TextInputAction.search,
+                  style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText:
+                        'Example: Something like Interstellar, but not sci-fi, preferably Hindi.',
+                    hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.42),
+                    ),
+                    filled: true,
+                    fillColor: Colors.white.withValues(alpha: 0.06),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: BorderSide(
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(18),
+                      borderSide: const BorderSide(
+                        color: Color(0xFF78DDFF),
+                        width: 1.4,
+                      ),
+                    ),
+                  ),
+                  onSubmitted: (_) => onSubmit(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                height: 48,
+                width: 48,
+                child: IconButton.filled(
+                  onPressed: onMicTap,
+                  style: IconButton.styleFrom(
+                    backgroundColor: isListening
+                        ? const Color(0xFFEF5350)
+                        : const Color(0xFF3A425A),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  icon: Icon(
+                    isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isListening
+                ? 'Listening... tap mic again to stop.'
+                : speechError != null
+                ? 'Voice input error: $speechError'
+                : speechAvailable
+                ? 'Tap mic to dictate your request.'
+                : 'Tap mic to enable voice input.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: speechError != null
+                  ? const Color(0xFFFF8A80)
+                  : Colors.white.withValues(alpha: 0.72),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: tonightPromptExamples
+                .map(
+                  (String example) => InkWell(
+                    onTap: () => onExampleTap(example),
+                    borderRadius: BorderRadius.circular(999),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(999),
+                        color: Colors.white.withValues(alpha: 0.08),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      child: Text(
+                        example,
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.85),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+                .toList(growable: false),
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: onSubmit,
+              icon: const Icon(Icons.auto_awesome_rounded),
+              label: Text(
+                isTv ? 'Find Shows' : 'Find Movies',
+                style: const TextStyle(fontWeight: FontWeight.w800),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6E6BFF),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
             ),
           ),
         ],
@@ -685,426 +410,179 @@ class _EmptyRecommendationState extends StatelessWidget {
   }
 }
 
-class _LoadingRecommendationCard extends StatefulWidget {
-  const _LoadingRecommendationCard();
+class _ResultList extends StatelessWidget {
+  const _ResultList({required this.isTv, required this.result});
 
-  @override
-  State<_LoadingRecommendationCard> createState() =>
-      _LoadingRecommendationCardState();
-}
-
-class _LoadingRecommendationCardState extends State<_LoadingRecommendationCard>
-    with SingleTickerProviderStateMixin {
-  static const List<String> _loadingMessages = <String>[
-    'Scanning tonight-worthy picks',
-    'Matching your mood and time window',
-    'Filtering by original language',
-    'Ranking the strongest fit for now',
-  ];
-
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 8400),
-  )..repeat();
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      key: const ValueKey<String>('loading-state'),
-      animation: _controller,
-      builder: (context, child) {
-        final double wave = (math.sin(_controller.value * math.pi * 2) + 1) / 2;
-        final double glow = 0.28 + (wave * 0.36);
-        final int messageIndex =
-            (_controller.value * _loadingMessages.length).floor() %
-            _loadingMessages.length;
-        final int dotCount = ((_controller.value * 9).floor() % 3) + 1;
-        final String dots = '.' * dotCount;
-        return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
-            gradient: LinearGradient(
-              colors: <Color>[
-                const Color(0xFF102040),
-                const Color(0xFF2E1065).withValues(alpha: 0.92),
-              ],
-            ),
-            border: Border.all(
-              color: Colors.white.withValues(
-                alpha: 0.14 + (_controller.value * 0.12),
-              ),
-            ),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: const Color(0xFF35D7FF).withValues(alpha: glow),
-                blurRadius: 34,
-                spreadRadius: -12,
-                offset: const Offset(0, 18),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                height: 180,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(24),
-                  color: Colors.white.withValues(alpha: 0.08),
-                ),
-              ),
-              const SizedBox(height: 18),
-              Container(
-                height: 18,
-                width: 220,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(999),
-                  color: Colors.white.withValues(alpha: 0.10),
-                ),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                height: 14,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(999),
-                  color: Colors.white.withValues(alpha: 0.08),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Container(
-                height: 14,
-                width: 260,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(999),
-                  color: Colors.white.withValues(alpha: 0.08),
-                ),
-              ),
-              const SizedBox(height: 16),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 340),
-                switchInCurve: Curves.easeOutCubic,
-                switchOutCurve: Curves.easeInCubic,
-                child: Text(
-                  '${_loadingMessages[messageIndex]}$dots',
-                  key: ValueKey<String>(
-                    '${_loadingMessages[messageIndex]}-$dotCount',
-                  ),
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.86),
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.15,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'No scrolling needed. We are locking one best match for you.',
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.64),
-                  height: 1.35,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _RecommendationErrorCard extends StatelessWidget {
-  const _RecommendationErrorCard({
-    required this.message,
-    required this.onRetry,
-  });
-
-  final String message;
-  final VoidCallback onRetry;
+  final bool isTv;
+  final TonightPromptResult result;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-
-    return Container(
-      key: const ValueKey<String>('error-state'),
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        color: const Color(0x66A11D33),
-        border: Border.all(
-          color: const Color(0xFFFF7B91).withValues(alpha: 0.5),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'No clean pick yet',
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-            ),
+    final List<String> queryPlanChips = result.queryPlanChips ?? <String>[];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            color: Colors.white.withValues(alpha: 0.06),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
           ),
-          const SizedBox(height: 10),
-          Text(
-            message.replaceFirst('Bad state: ', ''),
+          child: Text(
+            result.interpretedIntent,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: Colors.white.withValues(alpha: 0.78),
-              height: 1.45,
+              color: Colors.white.withValues(alpha: 0.86),
+              height: 1.4,
             ),
           ),
-          const SizedBox(height: 16),
-          TextButton.icon(
-            onPressed: onRetry,
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white,
-              backgroundColor: Colors.white.withValues(alpha: 0.08),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        ),
+        if (queryPlanChips.isNotEmpty) ...<Widget>[
+          const SizedBox(height: 10),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              color: Colors.white.withValues(alpha: 0.04),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
             ),
-            icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Try again'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  'AI query plan',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.9),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: queryPlanChips
+                      .map((String chip) => _MiniBadge(label: chip))
+                      .toList(growable: false),
+                ),
+              ],
+            ),
           ),
         ],
-      ),
+        const SizedBox(height: 14),
+        ...result.recommendations.map(
+          (TonightRecommendationItem item) =>
+              _RecommendationCard(isTv: isTv, item: item),
+        ),
+      ],
     );
   }
 }
 
-class _TonightResultCard extends StatelessWidget {
-  const _TonightResultCard({required this.result, required this.isTv});
+class _RecommendationCard extends StatelessWidget {
+  const _RecommendationCard({required this.isTv, required this.item});
 
-  final TonightWatchResult result;
   final bool isTv;
+  final TonightRecommendationItem item;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     final String heroTag =
-        'tonight-watch-${isTv ? 'tv' : 'movie'}-${result.title.id}';
-    final String? heroImage =
-        result.details.posterPath ?? result.title.posterPath;
-
+        'tonight-llm-${isTv ? 'tv' : 'movie'}-${item.title.id}';
+    final String? poster = item.details.posterPath ?? item.title.posterPath;
     return Container(
-      key: ValueKey<int>(result.title.id),
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30),
-        gradient: const LinearGradient(
-          colors: <Color>[
-            Color(0xFF09192F),
-            Color(0xFF1F1144),
-            Color(0xFF31154E),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.14)),
-        boxShadow: const <BoxShadow>[
-          BoxShadow(
-            color: Color(0x4D19E6FF),
-            blurRadius: 38,
-            spreadRadius: -8,
-            offset: Offset(0, 24),
-          ),
-          BoxShadow(
-            color: Color(0x40FF7A18),
-            blurRadius: 54,
-            spreadRadius: -22,
-            offset: Offset(0, -8),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white.withValues(alpha: 0.05),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: SizedBox(
-              height: 220,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (result.details.backdropPath != null)
-                    CachedNetworkImage(
-                      imageUrl: result.details.backdropPath!,
-                      fit: BoxFit.cover,
-                    )
-                  else
-                    Container(color: const Color(0xFF101B33)),
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: <Color>[
-                          Colors.black.withValues(alpha: 0.08),
-                          Colors.black.withValues(alpha: 0.68),
-                        ],
+        children: <Widget>[
+          Hero(
+            tag: heroTag,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: SizedBox(
+                width: 72,
+                height: 104,
+                child: poster == null
+                    ? Container(
+                        color: AppColors.cinemaPlaceholder,
+                        child: const Icon(
+                          Icons.movie_creation_outlined,
+                          color: Colors.white,
+                        ),
+                      )
+                    : CachedNetworkImage(imageUrl: poster, fit: BoxFit.cover),
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  item.title.title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: <Widget>[
+                    _MiniBadge(
+                      label:
+                          '${(item.details.catalogScore ?? item.title.voteAverage ?? 0).toStringAsFixed(1)}/10',
+                    ),
+                    if (item.details.runtimeMinutes != null)
+                      _MiniBadge(label: '${item.details.runtimeMinutes} min'),
+                    if (item.details.originalLanguage != null)
+                      _MiniBadge(
+                        label: item.details.originalLanguage!.toUpperCase(),
                       ),
-                    ),
-                  ),
-                  Positioned(
-                    left: 16,
-                    right: 16,
-                    bottom: 16,
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Hero(
-                          tag: heroTag,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(18),
-                            child: SizedBox(
-                              width: 88,
-                              height: 124,
-                              child: heroImage == null
-                                  ? Container(
-                                      color: AppColors.cinemaPlaceholder,
-                                      child: const Icon(
-                                        Icons.movie_creation_outlined,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : CachedNetworkImage(
-                                      imageUrl: heroImage,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                isTv ? 'Tonight\'s Show' : 'Tonight\'s Movie',
-                                style: theme.textTheme.labelLarge?.copyWith(
-                                  color: const Color(0xFF90EAFF),
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                result.title.title,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.textTheme.headlineSmall?.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w900,
-                                  height: 1,
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: [
-                                  _ResultBadge(
-                                    label:
-                                        result.details.originalLanguage
-                                            ?.toUpperCase() ??
-                                        'LANG',
-                                  ),
-                                  if (result.details.runtimeMinutes != null)
-                                    _ResultBadge(
-                                      label:
-                                          '${result.details.runtimeMinutes} min',
-                                    ),
-                                  if ((result.details.catalogScore ??
-                                          result.title.voteAverage) !=
-                                      null)
-                                    _ResultBadge(
-                                      label:
-                                          '${(result.details.catalogScore ?? result.title.voteAverage)!.toStringAsFixed(1)}/10',
-                                    ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 18),
-          Text(
-            'Why you should watch this',
-            style: theme.textTheme.titleLarge?.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            result.explanation,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: Colors.white.withValues(alpha: 0.82),
-              height: 1.55,
-            ),
-          ),
-          if (result.details.overview != null &&
-              result.details.overview!.trim().isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
-                color: Colors.white.withValues(alpha: 0.05),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-              ),
-              child: Text(
-                result.details.overview!,
-                maxLines: 5,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.7),
-                  height: 1.5,
+                  ],
                 ),
-              ),
-            ),
-          ],
-          const SizedBox(height: 18),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () {
-                context.pushNamed(
-                  AppRoute.movieDetails.name,
-                  pathParameters: <String, String>{
-                    'movieId': result.title.id.toString(),
-                  },
-                  queryParameters: <String, String>{
-                    'isTv': isTv.toString(),
-                    'heroTag': heroTag,
-                  },
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(18),
+                const SizedBox(height: 8),
+                Text(
+                  item.matchReason,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.78),
+                    height: 1.35,
+                  ),
                 ),
-              ),
-              icon: const Icon(Icons.play_circle_fill_rounded),
-              label: const Text('Open details'),
+                const SizedBox(height: 10),
+                TextButton.icon(
+                  onPressed: () {
+                    context.pushNamed(
+                      AppRoute.movieDetails.name,
+                      pathParameters: <String, String>{
+                        'movieId': item.title.id.toString(),
+                      },
+                      queryParameters: <String, String>{
+                        'isTv': isTv.toString(),
+                        'heroTag': heroTag,
+                      },
+                    );
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, 0),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  icon: const Icon(Icons.open_in_new_rounded, size: 16),
+                  label: const Text('Open details'),
+                ),
+              ],
             ),
           ),
         ],
@@ -1113,25 +591,607 @@ class _TonightResultCard extends StatelessWidget {
   }
 }
 
-class _ResultBadge extends StatelessWidget {
-  const _ResultBadge({required this.label});
+class _MiniBadge extends StatelessWidget {
+  const _MiniBadge({required this.label});
 
   final String label;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        color: Colors.white.withValues(alpha: 0.12),
+        color: Colors.white.withValues(alpha: 0.1),
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+        style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: Colors.white,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
         ),
+      ),
+    );
+  }
+}
+
+class _EmptyState extends StatelessWidget {
+  const _EmptyState({required this.isTv});
+
+  final bool isTv;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: Colors.white.withValues(alpha: 0.04),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      child: Text(
+        isTv
+            ? 'Describe what show you are in the mood for, and we will return a ranked list.'
+            : 'Describe what movie you are in the mood for, and we will return a ranked list.',
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: Colors.white.withValues(alpha: 0.78),
+          height: 1.45,
+        ),
+      ),
+    );
+  }
+}
+
+class _LoadingState extends ConsumerWidget {
+  const _LoadingState({required this.request});
+
+  final TonightPromptRequest request;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ThemeData theme = Theme.of(context);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: Colors.white.withValues(alpha: 0.04),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          const _GeneratingQueryHeader(),
+          const SizedBox(height: 12),
+          ValueListenableBuilder<TonightRecommendationProgressState>(
+            valueListenable: todayRecommendationProgressNotifier,
+            builder: (context, liveState, _) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          _friendlyProgressMessage(liveState.currentMessage),
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.84),
+                            height: 1.35,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (liveState.events.isNotEmpty) ...<Widget>[
+                    const SizedBox(height: 12),
+                    Text(
+                      'What we are doing',
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.92),
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...liveState.events.reversed.take(5).map((event) {
+                      final String hh = event.timestamp.hour.toString().padLeft(
+                        2,
+                        '0',
+                      );
+                      final String mm = event.timestamp.minute.toString()
+                          .padLeft(2, '0');
+                      final String ss = event.timestamp.second.toString()
+                          .padLeft(2, '0');
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Text(
+                          '[$hh:$mm:$ss] ${event.isRetry ? 'Retry: ' : ''}${_friendlyProgressMessage(event.message)}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: event.isRetry
+                                ? const Color(0xFFFFD58A)
+                                : Colors.white.withValues(alpha: 0.78),
+                            fontFeatures: const <FontFeature>[
+                              FontFeature.tabularFigures(),
+                            ],
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                ],
+              );
+            },
+          ),
+          ValueListenableBuilder<List<String>>(
+            valueListenable: todayRecommendationPlanNotifier,
+            builder: (context, planChips, _) {
+              if (planChips.isEmpty) {
+                return const SizedBox.shrink();
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  const SizedBox(height: 14),
+                  Text(
+                    'AI query plan',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.92),
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: planChips
+                        .map((String chip) => _MiniBadge(label: chip))
+                        .toList(growable: false),
+                  ),
+                ],
+              );
+            },
+          ),
+          if (_buildPromptCriteriaPreview(request).toDisplayChips().isNotEmpty &&
+              todayRecommendationPlanNotifier.value.isEmpty) ...<Widget>[
+            const SizedBox(height: 14),
+            Text(
+              'Parsing your request',
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: Colors.white.withValues(alpha: 0.92),
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: _buildPromptCriteriaPreview(request)
+                  .toDisplayChips()
+                  .map((String chip) => _MiniBadge(label: chip))
+                  .toList(growable: false),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+String _friendlyProgressMessage(String message) {
+  if (message.contains('attempt')) return 'Trying to generate the best query';
+  if (message.contains('retry')) return 'Retrying after a temporary issue';
+  if (message.contains('TMDB details')) return 'Loading details for top matches';
+  return message;
+}
+
+class _GeneratingQueryHeader extends StatefulWidget {
+  const _GeneratingQueryHeader();
+
+  @override
+  State<_GeneratingQueryHeader> createState() => _GeneratingQueryHeaderState();
+}
+
+class _GeneratingQueryHeaderState extends State<_GeneratingQueryHeader> {
+  Timer? _timer;
+  int _dots = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(milliseconds: 420), (_) {
+      if (!mounted) return;
+      setState(() {
+        _dots = (_dots + 1) % 4;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final String dots = '.' * _dots;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        gradient: const LinearGradient(
+          colors: <Color>[Color(0x336E6BFF), Color(0x3328D7A1)],
+          begin: Alignment.centerLeft,
+          end: Alignment.centerRight,
+        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+      ),
+      child: Row(
+        children: <Widget>[
+          const Icon(Icons.auto_awesome_rounded, color: Color(0xFF9FE7FF), size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Generating query$dots',
+              style: theme.textTheme.titleSmall?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PromptCriteriaPreview {
+  const _PromptCriteriaPreview({
+    required this.intentPhrases,
+    required this.includeGenres,
+    required this.excludeGenres,
+    required this.language,
+    required this.maxRuntimeMinutes,
+    required this.minRuntimeMinutes,
+    required this.yearFrom,
+    required this.yearTo,
+    required this.keywords,
+    required this.similarTo,
+  });
+
+  final List<String> intentPhrases;
+  final List<String> includeGenres;
+  final List<String> excludeGenres;
+  final String? language;
+  final int? maxRuntimeMinutes;
+  final int? minRuntimeMinutes;
+  final int? yearFrom;
+  final int? yearTo;
+  final List<String> keywords;
+  final List<String> similarTo;
+
+  List<String> toDisplayChips() {
+    final List<String> chips = <String>[];
+    chips.addAll(intentPhrases.take(2).map((String p) => 'Intent: $p'));
+    chips.addAll(includeGenres.take(3).map((String g) => 'Genre: $g'));
+    chips.addAll(excludeGenres.take(2).map((String g) => 'Avoid: $g'));
+    if (language != null) {
+      chips.add('Language: $language');
+    }
+    if (maxRuntimeMinutes != null) {
+      chips.add('Runtime <= $maxRuntimeMinutes min');
+    } else if (minRuntimeMinutes != null) {
+      chips.add('Runtime >= $minRuntimeMinutes min');
+    }
+    if (yearFrom != null || yearTo != null) {
+      if (yearFrom != null && yearTo != null) {
+        chips.add('Year: $yearFrom-$yearTo');
+      } else if (yearFrom != null) {
+        chips.add('After $yearFrom');
+      } else {
+        chips.add('Before $yearTo');
+      }
+    }
+    chips.addAll(similarTo.take(2).map((String s) => 'Like: $s'));
+    chips.addAll(keywords.take(2).map((String k) => 'Signal: $k'));
+    return chips;
+  }
+}
+
+_PromptCriteriaPreview _buildPromptCriteriaPreview(
+  TonightPromptRequest request,
+) {
+  final String prompt = request.prompt.trim();
+  final String lower = prompt.toLowerCase();
+
+  const Map<String, List<String>> genreAliases = <String, List<String>>{
+    'Action': <String>['action'],
+    'Adventure': <String>['adventure'],
+    'Animation': <String>['animation', 'animated'],
+    'Comedy': <String>['comedy', 'funny'],
+    'Crime': <String>['crime', 'gangster'],
+    'Documentary': <String>['documentary', 'docu'],
+    'Drama': <String>['drama'],
+    'Family': <String>['family', 'kids'],
+    'Fantasy': <String>['fantasy'],
+    'History': <String>['history', 'historical'],
+    'Horror': <String>['horror', 'scary'],
+    'Music': <String>['music', 'musical'],
+    'Mystery': <String>['mystery'],
+    'Romance': <String>['romance', 'romantic'],
+    'Sci-Fi': <String>['sci-fi', 'sci fi', 'science fiction'],
+    'Thriller': <String>['thriller', 'suspense'],
+    'War': <String>['war'],
+    'Western': <String>['western'],
+  };
+
+  const Map<String, List<String>> languages = <String, List<String>>{
+    'Hindi': <String>['hindi'],
+    'English': <String>['english'],
+    'Tamil': <String>['tamil'],
+    'Telugu': <String>['telugu'],
+    'Malayalam': <String>['malayalam'],
+    'Kannada': <String>['kannada'],
+    'Korean': <String>['korean'],
+    'Japanese': <String>['japanese'],
+    'Spanish': <String>['spanish'],
+    'French': <String>['french'],
+    'German': <String>['german'],
+    'Italian': <String>['italian'],
+  };
+
+  final Set<String> includeGenres = <String>{};
+  final Set<String> excludeGenres = <String>{};
+  for (final MapEntry<String, List<String>> entry in genreAliases.entries) {
+    for (final String alias in entry.value) {
+      if (!lower.contains(alias)) {
+        continue;
+      }
+      if (_isNegated(lower, alias)) {
+        excludeGenres.add(entry.key);
+      } else {
+        includeGenres.add(entry.key);
+      }
+      break;
+    }
+  }
+
+  String? language;
+  for (final MapEntry<String, List<String>> entry in languages.entries) {
+    if (entry.value.any(lower.contains)) {
+      language = entry.key;
+      break;
+    }
+  }
+
+  final int? maxRuntime = _extractRuntimeMinutes(lower, max: true);
+  final int? minRuntime = _extractRuntimeMinutes(lower, max: false);
+  final (int?, int?) years = _extractYearRange(lower);
+  final List<String> similarTo = _extractSimilarTitles(prompt);
+  final List<String> intentPhrases = _extractIntentPhrases(prompt);
+  final List<String> keywords = _extractKeywords(prompt, similarTo: similarTo);
+
+  return _PromptCriteriaPreview(
+    intentPhrases: intentPhrases,
+    includeGenres: includeGenres.toList(growable: false),
+    excludeGenres: excludeGenres.toList(growable: false),
+    language: language,
+    maxRuntimeMinutes: maxRuntime,
+    minRuntimeMinutes: minRuntime,
+    yearFrom: years.$1,
+    yearTo: years.$2,
+    keywords: keywords,
+    similarTo: similarTo,
+  );
+}
+
+bool _isNegated(String text, String term) {
+  final String escapedTerm = RegExp.escape(term);
+  final RegExp negation = RegExp(
+    '(?:not|no|without|except|avoid)\\s+(?:\\w+\\s+){0,2}$escapedTerm',
+    caseSensitive: false,
+  );
+  return negation.hasMatch(text);
+}
+
+int? _extractRuntimeMinutes(String lower, {required bool max}) {
+  final RegExp hourPattern = RegExp(
+    max
+        ? '(?:under|less than|max(?:imum)?|up to|upto)\\s*(\\d{1,2})\\s*(?:hours?|hrs?|hr|h)\\b'
+        : '(?:over|more than|min(?:imum)?|at least)\\s*(\\d{1,2})\\s*(?:hours?|hrs?|hr|h)\\b',
+  );
+  final Match? hourMatch = hourPattern.firstMatch(lower);
+  if (hourMatch != null) {
+    final int? parsed = int.tryParse(hourMatch.group(1) ?? '');
+    if (parsed != null) {
+      return parsed * 60;
+    }
+  }
+
+  final RegExp minutePattern = RegExp(
+    max
+        ? '(?:under|less than|max(?:imum)?|up to|upto)\\s*(\\d{2,3})\\s*(?:min|mins|minutes?)\\b'
+        : '(?:over|more than|min(?:imum)?|at least)\\s*(\\d{2,3})\\s*(?:min|mins|minutes?)\\b',
+  );
+  final Match? minuteMatch = minutePattern.firstMatch(lower);
+  return int.tryParse(minuteMatch?.group(1) ?? '');
+}
+
+(int?, int?) _extractYearRange(String lower) {
+  final RegExp yearFromPattern = RegExp(
+    '(?:after|since|from)\\s*(19\\d{2}|20\\d{2})',
+  );
+  final RegExp yearToPattern = RegExp(
+    '(?:before|till|until)\\s*(19\\d{2}|20\\d{2})',
+  );
+  final Match? fromMatch = yearFromPattern.firstMatch(lower);
+  final Match? toMatch = yearToPattern.firstMatch(lower);
+  final int? yearFrom = int.tryParse(fromMatch?.group(1) ?? '');
+  final int? yearTo = int.tryParse(toMatch?.group(1) ?? '');
+  return (yearFrom, yearTo);
+}
+
+List<String> _extractSimilarTitles(String prompt) {
+  final Set<String> matches = <String>{};
+  final Iterable<RegExpMatch> likeMatches = RegExp(
+    '(?:like|similar to)\\s+([^,.!?;\\n]+)',
+    caseSensitive: false,
+  ).allMatches(prompt);
+  for (final RegExpMatch match in likeMatches) {
+    String value = (match.group(1) ?? '').trim();
+    value = value
+        .replaceAll(
+          RegExp(
+            '\\b(?:but|except|without|and not|not)\\b.*\$',
+            caseSensitive: false,
+          ),
+          '',
+        )
+        .trim();
+    if (value.length >= 2) {
+      matches.add(value);
+    }
+  }
+  return matches.take(3).toList(growable: false);
+}
+
+List<String> _extractIntentPhrases(String prompt) {
+  final List<String> phrases = <String>[];
+  final List<String> parts = prompt
+      .split(RegExp(r'[,.!?;\n]'))
+      .map((String p) => p.trim())
+      .where((String p) => p.isNotEmpty)
+      .toList(growable: false);
+
+  for (final String part in parts) {
+    final String normalized = part
+        .replaceAll(
+          RegExp(
+            r'^(i want|i need|give me|show me|recommend|find me)\s+',
+            caseSensitive: false,
+          ),
+          '',
+        )
+        .trim();
+    final int wordCount = normalized.split(RegExp(r'\s+')).length;
+    if (wordCount >= 3 && normalized.length >= 12) {
+      phrases.add(normalized);
+    }
+    if (phrases.length >= 3) {
+      break;
+    }
+  }
+  return phrases;
+}
+
+List<String> _extractKeywords(
+  String prompt, {
+  List<String> similarTo = const <String>[],
+}) {
+  const Set<String> stopWords = <String>{
+    'want',
+    'watch',
+    'something',
+    'show',
+    'movie',
+    'tonight',
+    'with',
+    'without',
+    'like',
+    'similar',
+    'please',
+    'give',
+    'about',
+    'that',
+    'this',
+    'from',
+    'into',
+    'need',
+    'make',
+    'more',
+    'less',
+    'than',
+    'under',
+    'over',
+    'preferably',
+    'prefer',
+    'feel',
+    'good',
+  };
+
+  final Set<String> blocked = <String>{};
+  for (final String title in similarTo) {
+    blocked.addAll(
+      title
+          .toLowerCase()
+          .split(RegExp('[^a-z0-9]+'))
+          .where((String token) => token.length >= 3),
+    );
+  }
+
+  final Set<String> keywords = <String>{};
+  final Iterable<String> tokens = prompt
+      .toLowerCase()
+      .split(RegExp('[^a-z0-9]+'))
+      .where((String token) => token.length >= 4);
+  for (final String token in tokens) {
+    if (!stopWords.contains(token) && !blocked.contains(token)) {
+      keywords.add(token);
+    }
+    if (keywords.length >= 6) {
+      break;
+    }
+  }
+  return keywords.toList(growable: false);
+}
+
+class _ErrorState extends StatelessWidget {
+  const _ErrorState({required this.message, required this.onRetry});
+
+  final String message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: const Color(0x55B4233C),
+        border: Border.all(color: const Color(0x44FF8AA1)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            message,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Colors.white.withValues(alpha: 0.86),
+              height: 1.4,
+            ),
+          ),
+          const SizedBox(height: 10),
+          TextButton.icon(
+            onPressed: onRetry,
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('Try again'),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.white.withValues(alpha: 0.08),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1149,30 +1209,18 @@ class _ChromeButton extends StatelessWidget {
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(14),
         child: Ink(
-          width: 46,
-          height: 46,
+          width: 44,
+          height: 44,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(14),
             color: Colors.white.withValues(alpha: 0.06),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
           ),
           child: Icon(icon, color: Colors.white),
         ),
       ),
     );
   }
-}
-
-Color _moodColor(MovieMood mood) {
-  return switch (mood) {
-    MovieMood.mindBending => const Color(0xFF61B8FF),
-    MovieMood.feelGood => const Color(0xFFFFC74D),
-    MovieMood.dark => const Color(0xFFFF6B8A),
-    MovieMood.fastPaced => const Color(0xFF42E695),
-    MovieMood.edgeOfYourSeat => const Color(0xFFFF8A3D),
-    MovieMood.cinematic => const Color(0xFF8B5CFF),
-    MovieMood.indie => const Color(0xFF7AE7C7),
-  };
 }

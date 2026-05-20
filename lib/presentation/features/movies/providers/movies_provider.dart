@@ -484,15 +484,23 @@ typedef _MoodCacheKey = ({
   SortField sortField,
   SortOrder sortOrder,
 });
+typedef _HiddenGemsCacheKey = ({String regionCode});
 
 final Map<_MoodCacheKey, List<MediaTitle>> _moodSectionCache = {};
 final Map<_MoodCacheKey, int> _moodLoadedPagesCache = {};
 final Map<_MoodCacheKey, bool> _moodFetchingCache = {};
 final Map<_MoodCacheKey, int> _moodTargetPages = {};
 final Map<_MoodCacheKey, bool> _moodExhaustedCache = {};
+final Map<_HiddenGemsCacheKey, List<MediaTitle>> _hiddenGemsCache = {};
+final Map<_HiddenGemsCacheKey, int> _hiddenGemsLoadedPagesCache = {};
+final Map<_HiddenGemsCacheKey, bool> _hiddenGemsFetchingCache = {};
+final Map<_HiddenGemsCacheKey, int> _hiddenGemsTargetPages = {};
+final Map<_HiddenGemsCacheKey, bool> _hiddenGemsExhaustedCache = {};
 
 int _getMoodTargetPage(_MoodCacheKey cacheKey) =>
     _moodTargetPages[cacheKey] ?? 2;
+int _getHiddenGemsTargetPage(_HiddenGemsCacheKey cacheKey) =>
+    _hiddenGemsTargetPages[cacheKey] ?? 2;
 
 void loadNextMoodPages(WidgetRef ref, MovieMood mood, {bool isTv = false}) {
   final sortFilter = ref.read(genreSortProvider);
@@ -600,6 +608,77 @@ final moodSectionProvider =
       _moodSectionCache[cacheKey] = uniqueResults;
       return uniqueResults;
     });
+
+void loadNextHiddenGemsPages(WidgetRef ref) {
+  final _HiddenGemsCacheKey cacheKey = (
+    regionCode: ref.read(preferredRegionCodeProvider),
+  );
+  if (_hiddenGemsFetchingCache[cacheKey] == true ||
+      _hiddenGemsExhaustedCache[cacheKey] == true) {
+    return;
+  }
+  _hiddenGemsTargetPages[cacheKey] = _getHiddenGemsTargetPage(cacheKey) + 2;
+  ref.invalidate(hiddenGemsSectionProvider);
+}
+
+final hiddenGemsSectionExhaustedProvider = Provider<bool>((ref) {
+  final _HiddenGemsCacheKey cacheKey = (
+    regionCode: ref.watch(preferredRegionCodeProvider),
+  );
+  return _hiddenGemsExhaustedCache[cacheKey] ?? false;
+});
+
+final hiddenGemsSectionProvider = FutureProvider<List<MediaTitle>>((ref) async {
+  final _HiddenGemsCacheKey cacheKey = (
+    regionCode: ref.watch(preferredRegionCodeProvider),
+  );
+  final repository = ref.watch(mediaRepositoryProvider);
+  final discoverUseCase = DiscoverMediaUseCase(repository);
+  final int targetPage = _getHiddenGemsTargetPage(cacheKey);
+
+  final List<MediaTitle> results = List<MediaTitle>.from(
+    _hiddenGemsCache[cacheKey] ?? const <MediaTitle>[],
+  );
+  int startPage = (_hiddenGemsLoadedPagesCache[cacheKey] ?? 0) + 1;
+
+  if (startPage <= targetPage) {
+    _hiddenGemsFetchingCache[cacheKey] = true;
+    for (int page = startPage; page <= targetPage; page++) {
+      final List<MediaTitle> pageResults = await discoverUseCase(
+        DiscoverMediaParams(
+          isTv: false,
+          filter: const MediaFilter(
+            sortField: SortField.popularity,
+            sortOrder: SortOrder.ascending,
+            userScore: RangeValues(7.01, 10.0),
+            minUserVotes: 120,
+            includeNotRated: false,
+          ),
+          page: page,
+        ),
+      );
+
+      results.addAll(pageResults);
+      _hiddenGemsLoadedPagesCache[cacheKey] = page;
+      if (pageResults.isEmpty || pageResults.length < 20) {
+        _hiddenGemsExhaustedCache[cacheKey] = true;
+        break;
+      }
+    }
+    _hiddenGemsFetchingCache[cacheKey] = false;
+  }
+
+  final List<MediaTitle> uniqueResults = <MediaTitle>[];
+  final Set<int> seenMovieIds = <int>{};
+  for (final MediaTitle movie in results) {
+    if (seenMovieIds.add(movie.id)) {
+      uniqueResults.add(movie);
+    }
+  }
+
+  _hiddenGemsCache[cacheKey] = uniqueResults;
+  return uniqueResults;
+});
 
 final moviesProvider = Provider<AsyncValue<List<MediaTitle>>>((ref) {
   final mediaType = ref.watch(exploreMediaTypeProvider);

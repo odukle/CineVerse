@@ -67,5 +67,9 @@
 		<string>https</string>
 		<string>http</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Voice input is used to capture your movie request.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Speech recognition is used to convert your voice request into text.</string>
 </dict>
 </plist>

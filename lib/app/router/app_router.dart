@@ -18,6 +18,7 @@ import 'package:cineverse/presentation/features/person/person_details_screen.dar
 import 'package:cineverse/presentation/features/watchlist/notes_screen.dart';
 import 'package:cineverse/presentation/features/watchlist/note_details_screen.dart';
 import 'package:cineverse/presentation/features/home/appearance_screen.dart';
+import 'package:cineverse/presentation/features/home/watch_history_analytics_screen.dart';
 
 import 'package:cineverse/presentation/features/movie_details/all_reviews_screen.dart';
 
@@ -255,6 +256,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AppearanceScreen(),
       ),
       GoRoute(
+        path: AppRoute.watchAnalytics.path,
+        name: AppRoute.watchAnalytics.name,
+        builder: (context, state) => const WatchHistoryAnalyticsScreen(),
+      ),
+      GoRoute(
         path: AppRoute.exploreQuotes.path,
         name: AppRoute.exploreQuotes.name,
         builder: (context, state) {
@@ -312,6 +318,7 @@ enum AppRoute {
     'what-should-i-watch-tonight',
   ),
   appearance('/appearance', 'appearance'),
+  watchAnalytics('/watch-analytics', 'watch-analytics'),
   allReviews('/reviews', 'all-reviews'),
   exploreQuotes('/explore_quotes', 'explore_quotes'),
   quoteShareEditor('/quote_share_editor', 'quote_share_editor');

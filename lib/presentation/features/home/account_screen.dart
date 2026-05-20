@@ -1,5 +1,10 @@
+import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/config/region_preferences.dart';
+import 'package:cineverse/domain/entities/global_media_filter.dart';
+import 'package:cineverse/domain/entities/watched_item.dart';
+import 'package:cineverse/presentation/features/home/providers/watch_history_insights_provider.dart';
+import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
 import 'package:cineverse/presentation/providers/auth_provider.dart';
 import 'package:cineverse/domain/entities/user_entity.dart';
 import 'package:flutter/material.dart';
@@ -216,6 +221,8 @@ class AccountScreen extends ConsumerWidget {
         const SizedBox(height: 18),
         const _RegionPreferenceCard(),
         const SizedBox(height: 14),
+        const _WatchHistoryInsightsCard(),
+        const SizedBox(height: 14),
         const _AccountActionCard(
           icon: Icons.bookmark_border_rounded,
           title: 'Watchlist',
@@ -374,6 +381,284 @@ class _RegionPreferenceCard extends ConsumerWidget {
       },
     );
   }
+}
+
+class _WatchHistoryInsightsCard extends ConsumerWidget {
+  const _WatchHistoryInsightsCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ThemeData theme = Theme.of(context);
+    final AsyncValue<WatchHistoryInsights?> insightsAsync = ref.watch(
+      watchHistoryInsightsProvider,
+    );
+    final AsyncValue<List<WatchedItem>> watchedItemsAsync = ref.watch(
+      watchedItemsProvider,
+    );
+    final int analyzedCount = watchedItemsAsync.maybeWhen(
+      data: (items) => items
+          .where(
+            (item) =>
+                item.mediaType == GlobalMediaType.movie ||
+                item.mediaType == GlobalMediaType.tv,
+          )
+          .length,
+      orElse: () => 0,
+    );
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: () => context.pushNamed(AppRoute.watchAnalytics.name),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: AppColors.cinemaPanelGradient),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: AppColors.cinemaBorder.withValues(alpha: 0.26),
+            ),
+          ),
+          child: insightsAsync.when(
+            loading: () => Row(
+              children: <Widget>[
+                const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Analyzing your watch history...',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.78),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            error: (Object error, StackTrace _) => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Text(
+                        'Watch Insights',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () =>
+                          ref.invalidate(watchHistoryInsightsProvider),
+                      icon: const Icon(
+                        Icons.refresh_rounded,
+                        color: Colors.white70,
+                      ),
+                      tooltip: 'Refresh insights',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Could not analyze watch history right now.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.74),
+                  ),
+                ),
+              ],
+            ),
+            data: (WatchHistoryInsights? insights) {
+              if (insights == null) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Text(
+                            'Watch Insights',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () =>
+                              ref.invalidate(watchHistoryInsightsProvider),
+                          icon: const Icon(
+                            Icons.refresh_rounded,
+                            color: Colors.white70,
+                          ),
+                          tooltip: 'Refresh insights',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      analyzedCount == 0
+                          ? 'Add and rate at least $kMinimumWatchedItemsForInsights watched titles to unlock personalized insights.'
+                          : 'You have $analyzedCount/$kMinimumWatchedItemsForInsights watched titles analyzed. '
+                                'Add ${kMinimumWatchedItemsForInsights - analyzedCount} more to generate insights.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.74),
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          'Watch Insights',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () =>
+                            ref.invalidate(watchHistoryInsightsProvider),
+                        icon: const Icon(
+                          Icons.refresh_rounded,
+                          color: Colors.white70,
+                        ),
+                        tooltip: 'Refresh insights',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Based on ${insights.analyzedTitlesCount} watched titles',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.64),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Last updated: ${_formatInsightsTime(insights.generatedAt)}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.58),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    insights.insightsText,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.78),
+                      height: 1.4,
+                    ),
+                  ),
+                  if (insights.favoriteGenres.isNotEmpty) ...<Widget>[
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: insights.favoriteGenres
+                          .map(
+                            (String genre) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(999),
+                                color: Colors.white.withValues(alpha: 0.1),
+                              ),
+                              child: Text(
+                                genre,
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          )
+                          .toList(growable: false),
+                    ),
+                  ],
+                  if (insights.averageRatingPerGenre.isNotEmpty) ...<Widget>[
+                    const SizedBox(height: 12),
+                    ...insights.averageRatingPerGenre.map((entry) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Text(
+                          '${entry.genre}: ${entry.averageRating.toStringAsFixed(1)}/5 (${entry.watchedCount} titles)',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.74),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
+                  if (insights.averageRuntimeMinutes > 0) ...<Widget>[
+                    const SizedBox(height: 6),
+                    Text(
+                      'Preferred runtime: ~${insights.averageRuntimeMinutes} min (${insights.preferredRuntimeLabel})',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.74),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  Row(
+                    children: <Widget>[
+                      Icon(
+                        Icons.analytics_outlined,
+                        size: 16,
+                        color: Colors.white.withValues(alpha: 0.8),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Open full analytics',
+                        style: theme.textTheme.labelMedium?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.8),
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+String _formatInsightsTime(DateTime dateTime) {
+  const List<String> months = <String>[
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+  final String hh = dateTime.hour.toString().padLeft(2, '0');
+  final String mm = dateTime.minute.toString().padLeft(2, '0');
+  return '$hh:$mm • ${dateTime.day} ${months[dateTime.month - 1]}';
 }
 
 class _AccountActionCard extends StatelessWidget {

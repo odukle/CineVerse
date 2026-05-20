@@ -22,6 +22,14 @@
           }
         },
         {
+          "client_id": "1061595926768-u1c9t7hua2d418foam2iotih1f2p51eh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.cineverse.cineverse",
+            "certificate_hash": "f75b4b95230f0751cee998004ce44c287709ebef"
+          }
+        },
+        {
           "client_id": "1061595926768-jiaebeqc5nv7b418b5j3pp2q5pm66kjk.apps.googleusercontent.com",
           "client_type": 3
         }

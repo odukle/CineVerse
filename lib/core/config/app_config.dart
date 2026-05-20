@@ -5,6 +5,8 @@ class AppConfig {
     this.tmdbApiKey = '',
     this.omdbApiKey = '',
     this.movieProxyBaseUrl = '',
+    this.openRouterApiKey = '',
+    this.tonightRecommendationsApiUrl = '',
   });
 
   factory AppConfig.fromEnvironment() {
@@ -12,18 +14,31 @@ class AppConfig {
       tmdbApiKey: String.fromEnvironment('TMDB_API_KEY'),
       omdbApiKey: String.fromEnvironment('OMDB_API_KEY'),
       movieProxyBaseUrl: String.fromEnvironment('MOVIE_PROXY_BASE_URL'),
+      openRouterApiKey: String.fromEnvironment('OPENROUTER_API_KEY'),
+      tonightRecommendationsApiUrl: String.fromEnvironment(
+        'TONIGHT_RECOMMENDATIONS_API_URL',
+        defaultValue:
+            'https://us-central1-cineverse-flutter-591.cloudfunctions.net/recommendTonight',
+      ),
     );
   }
 
   final String tmdbApiKey;
   final String omdbApiKey;
   final String movieProxyBaseUrl;
+  final String openRouterApiKey;
+  final String tonightRecommendationsApiUrl;
 
   bool get hasTmdbApiKey => tmdbApiKey.trim().isNotEmpty;
 
   bool get hasOmdbApiKey => omdbApiKey.trim().isNotEmpty;
 
   bool get hasMovieProxyBaseUrl => movieProxyBaseUrl.trim().isNotEmpty;
+
+  bool get hasOpenRouterApiKey => openRouterApiKey.trim().isNotEmpty;
+
+  bool get hasTonightRecommendationsApiUrl =>
+      tonightRecommendationsApiUrl.trim().isNotEmpty;
 
   bool get hasMovieApiAccess => hasMovieProxyBaseUrl || hasTmdbApiKey;
 

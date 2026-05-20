@@ -63,6 +63,12 @@ class ExploreScreen extends ConsumerStatefulWidget {
       ],
     ),
     ExploreShelfData(
+      title: 'Hidden Gems',
+      filters: <ExploreFilterOption>[
+        ExploreFilterOption(label: 'Low Popularity • 7+ Rated', isHiddenGems: true),
+      ],
+    ),
+    ExploreShelfData(
       title: 'Now Playing',
       filters: <ExploreFilterOption>[
         ExploreFilterOption(
@@ -1494,7 +1500,9 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
     final bool isTv = mediaType == ExploreMediaType.tv;
 
     final AsyncValue<List<MediaTitle>> movies;
-    if (_selectedFilter.mood != null) {
+    if (_selectedFilter.isHiddenGems) {
+      movies = ref.watch(hiddenGemsSectionProvider);
+    } else if (_selectedFilter.mood != null) {
       movies = ref.watch(
         moodSectionProvider((mood: _selectedFilter.mood!, isTv: isTv)),
       );
@@ -1567,6 +1575,8 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                           ref.invalidate(
                             moodSectionProvider((mood: mood, isTv: isTv)),
                           );
+                        } else if (_selectedFilter.isHiddenGems) {
+                          ref.invalidate(hiddenGemsSectionProvider);
                         } else if (genreId != null) {
                           ref.invalidate(
                             genreSectionProvider((id: genreId, isTv: isTv)),
