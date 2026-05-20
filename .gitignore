@@ -109,6 +109,7 @@ venv/
 .wrangler/
 infra/tmdb-proxy-worker/.wrangler/
 infra/**/node_modules/
+functions/node_modules/
 
 # Debug/Profile files
 *.trace
@@ -118,8 +119,23 @@ infra/**/node_modules/
 # Sensitive configuration
 config/
 .gemini/
+.codex/
+.envrc
+config/api_keys.json
+
+# Cloudflare local cache/metadata
+.wrangler/cache/
+
+# Service account / key material
+*firebase-adminsdk*.json
+*service-account*.json
+*serviceAccount*.json
+*.pem
+*.crt
+*.cer
 
 # Kaggle/Firebase recommendation index artifacts
 .tmp/
+.local/
+TMDB_movie_dataset.csv
 assets/data/tonight_kaggle_index.json
-
