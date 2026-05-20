@@ -283,10 +283,12 @@ class _PromptPanel extends StatelessWidget {
                   maxLines: 4,
                   minLines: 3,
                   textInputAction: TextInputAction.search,
-                  style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white),
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: Colors.white,
+                  ),
                   decoration: InputDecoration(
                     hintText:
-                        'Example: Something like Interstellar, but not sci-fi, preferably Hindi.',
+                        'Example: Something like Interstellar, but not sci-fi.',
                     hintStyle: theme.textTheme.bodyMedium?.copyWith(
                       color: Colors.white.withValues(alpha: 0.42),
                     ),
@@ -668,33 +670,67 @@ class _LoadingState extends ConsumerWidget {
           ValueListenableBuilder<TonightRecommendationProgressState>(
             valueListenable: todayRecommendationProgressNotifier,
             builder: (context, liveState, _) {
+              final bool hasPlan =
+                  todayRecommendationPlanNotifier.value.isNotEmpty;
+              final double progress = _loadingProgressValue(
+                liveState,
+                hasPlan: hasPlan,
+              );
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(strokeWidth: 2),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(14),
+                      color: Colors.white.withValues(alpha: 0.04),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          _friendlyProgressMessage(liveState.currentMessage),
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.84),
-                            height: 1.35,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                _friendlyProgressMessage(
+                                  liveState.currentMessage,
+                                ),
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: Colors.white.withValues(alpha: 0.9),
+                                  height: 1.35,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        _AnimatedStageBar(progress: progress),
+                        const SizedBox(height: 6),
+                        Text(
+                          '${(progress * 100).round()}% complete',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.68),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                   if (liveState.events.isNotEmpty) ...<Widget>[
                     const SizedBox(height: 12),
                     Text(
-                      'What we are doing',
+                      'Live progress',
                       style: theme.textTheme.labelLarge?.copyWith(
                         color: Colors.white.withValues(alpha: 0.92),
                         fontWeight: FontWeight.w800,
@@ -706,22 +742,41 @@ class _LoadingState extends ConsumerWidget {
                         2,
                         '0',
                       );
-                      final String mm = event.timestamp.minute.toString()
+                      final String mm = event.timestamp.minute
+                          .toString()
                           .padLeft(2, '0');
-                      final String ss = event.timestamp.second.toString()
+                      final String ss = event.timestamp.second
+                          .toString()
                           .padLeft(2, '0');
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 4),
-                        child: Text(
-                          '[$hh:$mm:$ss] ${event.isRetry ? 'Retry: ' : ''}${_friendlyProgressMessage(event.message)}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: event.isRetry
-                                ? const Color(0xFFFFD58A)
-                                : Colors.white.withValues(alpha: 0.78),
-                            fontFeatures: const <FontFeature>[
-                              FontFeature.tabularFigures(),
-                            ],
-                          ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Icon(
+                              event.isRetry
+                                  ? Icons.sync_problem_rounded
+                                  : Icons.bolt_rounded,
+                              size: 15,
+                              color: event.isRetry
+                                  ? const Color(0xFFFFD58A)
+                                  : const Color(0xFF9FE7FF),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                '[$hh:$mm:$ss] ${_friendlyProgressMessage(event.message)}',
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: event.isRetry
+                                      ? const Color(0xFFFFD58A)
+                                      : Colors.white.withValues(alpha: 0.78),
+                                  fontFeatures: const <FontFeature>[
+                                    FontFeature.tabularFigures(),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }),
@@ -759,7 +814,9 @@ class _LoadingState extends ConsumerWidget {
               );
             },
           ),
-          if (_buildPromptCriteriaPreview(request).toDisplayChips().isNotEmpty &&
+          if (_buildPromptCriteriaPreview(
+                request,
+              ).toDisplayChips().isNotEmpty &&
               todayRecommendationPlanNotifier.value.isEmpty) ...<Widget>[
             const SizedBox(height: 14),
             Text(
@@ -786,10 +843,122 @@ class _LoadingState extends ConsumerWidget {
 }
 
 String _friendlyProgressMessage(String message) {
-  if (message.contains('attempt')) return 'Trying to generate the best query';
-  if (message.contains('retry')) return 'Retrying after a temporary issue';
-  if (message.contains('TMDB details')) return 'Loading details for top matches';
+  final String lower = message.toLowerCase();
+  if (lower.contains('setting up your request')) {
+    return 'Warming up your movie search';
+  }
+  if (lower.contains('connecting to the recommendation engine')) {
+    return 'Connecting to the recommendation engine';
+  }
+  if (lower.contains('understanding your taste')) {
+    return 'Understanding what you are in the mood for';
+  }
+  if (lower.contains('building your personalized search')) {
+    return 'Building a custom search from your request';
+  }
+  if (lower.contains('network hiccup')) {
+    return 'Tiny network hiccup, trying again';
+  }
+  if (lower.contains('search plan is ready') ||
+      lower.contains('built your search plan')) {
+    return 'Plan locked: genre, style, language, and runtime';
+  }
+  if (lower.contains('scanning tmdb')) {
+    return 'Scanning TMDB for strong matches';
+  }
+  if (lower.contains('collecting details')) {
+    return 'Collecting posters, ratings, and runtime for top picks';
+  }
+  if (lower.contains('verifying pick')) {
+    final RegExp matchExpr = RegExp(r'(\d+)\s*/\s*(\d+)');
+    final Match? match = matchExpr.firstMatch(lower);
+    if (match != null) {
+      return 'Shortlisting picks (${match.group(1)}/${match.group(2)})';
+    }
+    return 'Shortlisting the best picks';
+  }
+  if (lower.contains('finalizing')) {
+    return 'Final polish on your recommendations';
+  }
+  if (lower.contains('retry')) {
+    return 'Retrying after a temporary issue';
+  }
   return message;
+}
+
+double _loadingProgressValue(
+  TonightRecommendationProgressState state, {
+  required bool hasPlan,
+}) {
+  if (state.events.isEmpty) {
+    return hasPlan ? 0.42 : 0.08;
+  }
+  final String message = state.currentMessage.toLowerCase();
+  if (message.contains('finalizing')) {
+    return 0.96;
+  }
+  if (message.contains('verifying pick')) {
+    final RegExp matchExpr = RegExp(r'(\d+)\s*/\s*(\d+)');
+    final Match? match = matchExpr.firstMatch(message);
+    if (match != null) {
+      final int current = int.tryParse(match.group(1) ?? '') ?? 1;
+      final int total = int.tryParse(match.group(2) ?? '') ?? 12;
+      return (0.62 + (current / total) * 0.3).clamp(0.62, 0.92);
+    }
+    return 0.76;
+  }
+  if (message.contains('collecting details')) {
+    return 0.6;
+  }
+  if (message.contains('search plan is ready') || hasPlan) {
+    return 0.48;
+  }
+  if (message.contains('building your personalized search') ||
+      message.contains('understanding your taste')) {
+    return 0.3;
+  }
+  if (message.contains('connecting')) {
+    return 0.18;
+  }
+  return 0.1;
+}
+
+class _AnimatedStageBar extends StatelessWidget {
+  const _AnimatedStageBar({required this.progress});
+
+  final double progress;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(999),
+      child: Container(
+        height: 8,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.14),
+          borderRadius: BorderRadius.circular(999),
+        ),
+        child: TweenAnimationBuilder<double>(
+          tween: Tween<double>(begin: 0, end: progress.clamp(0.0, 1.0)),
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeOutCubic,
+          builder: (context, value, _) {
+            return FractionallySizedBox(
+              widthFactor: value,
+              alignment: Alignment.centerLeft,
+              child: Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: <Color>[Color(0xFF82F7FF), Color(0xFF44E59A)],
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
 }
 
 class _GeneratingQueryHeader extends StatefulWidget {
@@ -838,11 +1007,15 @@ class _GeneratingQueryHeaderState extends State<_GeneratingQueryHeader> {
       ),
       child: Row(
         children: <Widget>[
-          const Icon(Icons.auto_awesome_rounded, color: Color(0xFF9FE7FF), size: 18),
+          const Icon(
+            Icons.auto_awesome_rounded,
+            color: Color(0xFF9FE7FF),
+            size: 18,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Generating query$dots',
+              'Finding your perfect watch$dots',
               style: theme.textTheme.titleSmall?.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,

@@ -3,6 +3,7 @@
 const { onRequest } = require("firebase-functions/v2/https");
 const { defineSecret, defineString } = require("firebase-functions/params");
 const admin = require("firebase-admin");
+const crypto = require("crypto");
 
 admin.initializeApp();
 
@@ -21,6 +22,59 @@ const embeddingModel = defineString("OPENROUTER_EMBEDDING_MODEL", {
 const indexCollection = defineString("TONIGHT_VECTOR_COLLECTION", {
   default: "tmdb_movie_vectors_v1",
 });
+const MAX_PROMPT_CHARS = 420;
+const RATE_LIMIT_COLLECTION = "_recommendTonightRateLimits";
+const RATE_LIMITS = {
+  anonymous: { perMinute: 8, perDay: 120, cooldownSeconds: 45 },
+  appCheckVerified: { perMinute: 16, perDay: 300, cooldownSeconds: 30 },
+  user: { perMinute: 20, perDay: 450, cooldownSeconds: 20 },
+};
+const FRANCHISE_ALIASES = {
+  marvel: [
+    "marvel",
+    "marvels",
+    "mcu",
+    "stan lee",
+    "avengers",
+    "x men",
+    "xmen",
+    "iron man",
+    "captain america",
+    "guardians of the galaxy",
+    "doctor strange",
+    "black panther",
+    "thor",
+    "hulk",
+    "black widow",
+    "spider man",
+    "spiderman",
+    "ant man",
+    "deadpool",
+    "wolverine",
+    "fantastic four",
+    "shang chi",
+    "eternals",
+  ],
+  dc: [
+    "dc",
+    "dceu",
+    "justice league",
+    "batman",
+    "superman",
+    "wonder woman",
+    "aquaman",
+    "the flash",
+    "flash",
+    "shazam",
+    "joker",
+    "suicide squad",
+    "injustice",
+    "watchmen",
+    "green lantern",
+    "teen titans",
+    "constantine",
+  ],
+};
 
 exports.recommendTonight = onRequest(
   {
@@ -42,12 +96,18 @@ exports.recommendTonight = onRequest(
     }
 
     try {
-      const prompt = String(request.body?.prompt || "").trim();
+      const prompt = normalizePromptInput(request.body?.prompt);
       const isTv = Boolean(request.body?.isTv);
       const topK = clampInt(request.body?.topK, 1, 20, 12);
 
       if (prompt.length < 4) {
         response.status(400).json({ error: "Prompt is too short." });
+        return;
+      }
+      if (prompt.length > MAX_PROMPT_CHARS) {
+        response.status(400).json({
+          error: `Prompt is too long. Keep it under ${MAX_PROMPT_CHARS} characters.`,
+        });
         return;
       }
       if (isTv) {
@@ -58,6 +118,10 @@ exports.recommendTonight = onRequest(
       }
 
       const user = await readFirebaseUser(request);
+      const appCheck = await readFirebaseAppCheck(request);
+      const callerContext = buildCallerContext(request, user, appCheck);
+      await enforceRateLimit(callerContext);
+
       const plan = await planPrompt(prompt);
       const queryTexts = buildQueryTexts(prompt, plan);
       const rawResults = await fetchCandidates(queryTexts, topK);
@@ -89,6 +153,9 @@ exports.recommendTonight = onRequest(
     } catch (error) {
       console.error("recommendTonight failed", error);
       if (error instanceof HttpError) {
+        if (error.retryAfterSeconds) {
+          response.set("Retry-After", String(error.retryAfterSeconds));
+        }
         response.status(error.statusCode).json({ error: error.message });
         return;
       }
@@ -116,6 +183,129 @@ async function readFirebaseUser(request) {
   }
 }
 
+async function readFirebaseAppCheck(request) {
+  const token = String(request.header("x-firebase-appcheck") || "").trim();
+  if (!token) {
+    return { provided: false, verified: false, appId: null };
+  }
+  try {
+    const decoded = await admin.appCheck().verifyToken(token);
+    return {
+      provided: true,
+      verified: true,
+      appId: String(decoded.appId || ""),
+    };
+  } catch (error) {
+    console.warn("Invalid Firebase App Check token", error);
+    return { provided: true, verified: false, appId: null };
+  }
+}
+
+function buildCallerContext(request, user, appCheck) {
+  const ip = extractClientIp(request);
+  const ua = String(request.header("user-agent") || "").slice(0, 180);
+  const source = user?.uid
+    ? `uid:${user.uid}`
+    : ip
+    ? `ip:${ip}`
+    : `anon:${ua || "unknown"}`;
+  const callerKey = shortHash(source);
+  const tier = user?.uid
+    ? "user"
+    : appCheck?.verified
+    ? "appCheckVerified"
+    : "anonymous";
+  return {
+    userId: user?.uid || null,
+    appCheckVerified: Boolean(appCheck?.verified),
+    appId: appCheck?.appId || null,
+    callerKey,
+    tier,
+  };
+}
+
+function extractClientIp(request) {
+  const forwarded = String(request.header("x-forwarded-for") || "");
+  if (forwarded) {
+    const first = forwarded.split(",")[0]?.trim();
+    if (first) return first;
+  }
+  const realIp = String(request.header("x-real-ip") || "").trim();
+  if (realIp) return realIp;
+  return "";
+}
+
+function shortHash(value) {
+  return crypto.createHash("sha256").update(String(value)).digest("hex").slice(0, 32);
+}
+
+async function enforceRateLimit(caller) {
+  const limits = RATE_LIMITS[caller.tier] || RATE_LIMITS.anonymous;
+  const ref = db.collection(RATE_LIMIT_COLLECTION).doc(caller.callerKey);
+  const nowMs = Date.now();
+  const minuteMs = 60 * 1000;
+  const dayMs = 24 * 60 * 60 * 1000;
+  const result = await db.runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    const data = snap.exists ? snap.data() || {} : {};
+
+    const cooldownUntilMs = Number(data.cooldownUntilMs || 0);
+    if (cooldownUntilMs > nowMs) {
+      const retryAfter = Math.ceil((cooldownUntilMs - nowMs) / 1000);
+      return { blocked: true, retryAfter };
+    }
+
+    const minuteWindowStartMs = Number(data.minuteWindowStartMs || 0);
+    const dayWindowStartMs = Number(data.dayWindowStartMs || 0);
+    const minuteCount =
+      nowMs - minuteWindowStartMs < minuteMs
+        ? Number(data.minuteCount || 0)
+        : 0;
+    const dayCount =
+      nowMs - dayWindowStartMs < dayMs ? Number(data.dayCount || 0) : 0;
+
+    const nextMinuteCount = minuteCount + 1;
+    const nextDayCount = dayCount + 1;
+    const exceeded =
+      nextMinuteCount > limits.perMinute || nextDayCount > limits.perDay;
+
+    const nextMinuteWindowStartMs =
+      minuteCount === 0 ? nowMs : minuteWindowStartMs;
+    const nextDayWindowStartMs = dayCount === 0 ? nowMs : dayWindowStartMs;
+    const nextCooldownMs = exceeded ? nowMs + limits.cooldownSeconds * 1000 : 0;
+
+    tx.set(
+      ref,
+      {
+        minuteWindowStartMs: nextMinuteWindowStartMs,
+        dayWindowStartMs: nextDayWindowStartMs,
+        minuteCount: nextMinuteCount,
+        dayCount: nextDayCount,
+        cooldownUntilMs: nextCooldownMs,
+        lastSeenMs: nowMs,
+        tier: caller.tier,
+        userId: caller.userId || null,
+        appCheckVerified: caller.appCheckVerified,
+        appId: caller.appId || null,
+      },
+      { merge: true }
+    );
+
+    if (!exceeded) {
+      return { blocked: false };
+    }
+    return { blocked: true, retryAfter: limits.cooldownSeconds };
+  });
+
+  if (result.blocked) {
+    throw new HttpError(
+      429,
+      "Too many recommendation requests right now. Please wait a bit and try again.",
+      { retryAfterSeconds: result.retryAfter || 20 }
+    );
+  }
+}
+
 async function planPrompt(prompt) {
   const models = [
     chatModel.value(),
@@ -136,14 +326,17 @@ async function planPrompt(prompt) {
     try {
       const json = await callPlannerModel(model, prompt);
       const content = String(json?.choices?.[0]?.message?.content || "{}").trim();
-      return normalizePlan(JSON.parse(stripJsonFence(content)), prompt);
+      return augmentPlanWithPromptExclusions(
+        normalizePlan(JSON.parse(stripJsonFence(content)), prompt),
+        prompt
+      );
     } catch (error) {
       lastError = error;
       console.warn(`Planner model failed: ${model}`, error);
     }
   }
   console.warn("All planner models failed; using fallback", lastError);
-  return normalizePlan({}, prompt);
+  return augmentPlanWithPromptExclusions(normalizePlan({}, prompt), prompt);
 }
 
 async function callPlannerModel(model, prompt) {
@@ -158,6 +351,7 @@ async function callPlannerModel(model, prompt) {
           "You are a movie recommendation query planner. Output only strict JSON. " +
           "Schema: {\"intent_summary\": string, \"original_language\": string|null, " +
           "\"include_genres\": string[], \"exclude_genres\": string[], " +
+          "\"exclude_franchises\": string[], \"exclude_keywords\": string[], " +
           "\"min_runtime\": int|null, \"max_runtime\": int|null, " +
           "\"min_vote_average\": number|null, \"min_vote_count\": int|null, " +
           "\"year_from\": int|null, \"year_to\": int|null, " +
@@ -171,8 +365,9 @@ async function callPlannerModel(model, prompt) {
     ],
   };
   return openRouterFetch("/chat/completions", payload, {
-    retries: 4,
-    retryBaseDelayMs: 1500,
+    retries: 3,
+    retryBaseDelayMs: 900,
+    timeoutMs: 14000,
   });
 }
 
@@ -186,8 +381,9 @@ async function embedText(text) {
         input: text,
       },
       {
-        retries: 4,
-        retryBaseDelayMs: 1500,
+        retries: 3,
+        retryBaseDelayMs: 800,
+        timeoutMs: 12000,
       }
     );
   } catch (error) {
@@ -211,40 +407,63 @@ async function openRouterFetch(path, payload, options = {}) {
   const retryBaseDelayMs = Number.isFinite(options.retryBaseDelayMs)
     ? options.retryBaseDelayMs
     : 1000;
+  const timeoutMs = Number.isFinite(options.timeoutMs)
+    ? options.timeoutMs
+    : 18000;
 
   for (let attempt = 1; attempt <= retries; attempt += 1) {
-    const result = await fetch(`https://openrouter.ai/api/v1${path}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${openRouterApiKey.value()}`,
-        "Content-Type": "application/json",
-        Accept: "application/json",
-        "HTTP-Referer": "https://cineverse.app",
-        "X-Title": "CineVerse",
-      },
-      body: JSON.stringify(payload),
-    });
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const result = await fetch(`https://openrouter.ai/api/v1${path}`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${openRouterApiKey.value()}`,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "HTTP-Referer": "https://cineverse.app",
+          "X-Title": "CineVerse",
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
 
-    const json = await result.json().catch(() => ({}));
-    if (result.ok) {
-      return json;
-    }
+      const json = await result.json().catch(() => ({}));
+      if (result.ok) {
+        return json;
+      }
 
-    const shouldRetry = result.status === 429 || result.status >= 500;
-    if (shouldRetry && attempt < retries) {
-      const delayMs = retryBaseDelayMs * Math.pow(2, attempt - 1);
-      console.warn(
-        `OpenRouter ${path} failed (${result.status}) on attempt ${attempt}/${retries}. Retrying in ${delayMs}ms`,
-        json
+      const shouldRetry = result.status === 429 || result.status >= 500;
+      if (shouldRetry && attempt < retries) {
+        const delayMs = retryBaseDelayMs * Math.pow(2, attempt - 1);
+        console.warn(
+          `OpenRouter ${path} failed (${result.status}) on attempt ${attempt}/${retries}. Retrying in ${delayMs}ms`,
+          json
+        );
+        await sleep(delayMs);
+        continue;
+      }
+
+      throw new HttpError(
+        result.status,
+        `OpenRouter ${path} failed (${result.status}): ${JSON.stringify(json)}`
       );
-      await sleep(delayMs);
-      continue;
+    } catch (error) {
+      const timeoutOrNetworkError =
+        error?.name === "AbortError" || error instanceof TypeError;
+      if (timeoutOrNetworkError && attempt < retries) {
+        const delayMs = retryBaseDelayMs * Math.pow(2, attempt - 1);
+        console.warn(
+          `OpenRouter ${path} network/timeout error on attempt ${attempt}/${retries}. Retrying in ${delayMs}ms`,
+          error
+        );
+        await sleep(delayMs);
+        continue;
+      }
+      throw error;
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    throw new HttpError(
-      result.status,
-      `OpenRouter ${path} failed (${result.status}): ${JSON.stringify(json)}`
-    );
   }
 }
 
@@ -278,13 +497,24 @@ async function findNearestMovies(queryEmbedding, limit) {
 }
 
 async function fetchCandidates(queryTexts, topK) {
-  const limitPerVariant = Math.max(40, Math.min(140, topK * 10));
-  const allRows = [];
+  const limitPerVariant = Math.max(30, Math.min(100, topK * 8));
+  const settled = await Promise.allSettled(
+    queryTexts.map(async (queryText) => {
+      const queryEmbedding = await embedText(queryText);
+      return findNearestMovies(queryEmbedding, limitPerVariant);
+    })
+  );
 
-  for (const queryText of queryTexts) {
-    const queryEmbedding = await embedText(queryText);
-    const rows = await findNearestMovies(queryEmbedding, limitPerVariant);
-    allRows.push(...rows);
+  const allRows = [];
+  for (const result of settled) {
+    if (result.status === "fulfilled") {
+      allRows.push(...result.value);
+    } else {
+      console.warn("Variant lookup failed", result.reason);
+    }
+  }
+  if (allRows.length === 0) {
+    throw new Error("All vector variant lookups failed.");
   }
 
   const byId = new Map();
@@ -303,6 +533,7 @@ async function fetchCandidates(queryTexts, topK) {
 
 function rerankResults(rows, plan, topK) {
   const excluded = new Set((plan.exclude_genres || []).map(normalizeText));
+  const exclusionTokens = buildExclusionTokenSet(plan);
   const included = new Set((plan.include_genres || []).map(normalizeText));
   const language = plan.original_language || null;
   const keywords = new Set((plan.keywords || []).map(normalizeText));
@@ -352,6 +583,7 @@ function rerankResults(rows, plan, topK) {
       .filter((row) => {
         const rowGenres = new Set((row.genres || []).map(normalizeText));
         if ([...excluded].some((genre) => rowGenres.has(genre))) return false;
+        if (candidateViolatesExclusions(row, exclusionTokens)) return false;
         if (
           stage.languagePolicy === "strict" &&
           language &&
@@ -436,11 +668,17 @@ function scoreRow(row, context) {
 
 function buildQueryTexts(prompt, plan) {
   const variants = new Set();
+  const exclusionText = [
+    ...(plan.exclude_franchises || []),
+    ...(plan.exclude_keywords || []),
+    ...(plan.avoid_titles || []),
+  ].filter(Boolean);
   const base = [];
   base.push(prompt);
   if (plan.intent_summary) base.push(plan.intent_summary);
   if (plan.include_genres?.length) base.push(`Genres: ${plan.include_genres.join(", ")}`);
   if (plan.keywords?.length) base.push(`Keywords: ${plan.keywords.join(", ")}`);
+  if (exclusionText.length) base.push(`Strictly exclude: ${exclusionText.join(", ")}`);
   if (plan.similar_titles?.length) base.push(`Similar to: ${plan.similar_titles.join(", ")}`);
   variants.add(base.join("\n"));
 
@@ -455,17 +693,25 @@ function buildQueryTexts(prompt, plan) {
 
   for (const title of plan.similar_titles || []) {
     variants.add(`Movies similar to ${title}. ${prompt}`);
+    if (variants.size >= 4) {
+      break;
+    }
   }
 
-  return [...variants].slice(0, 6);
+  return [...variants].slice(0, 4);
 }
 
 function normalizePlan(raw, fallbackPrompt) {
+  const excludeFranchises = stringList(raw.exclude_franchises).map(normalizeText);
+  const excludeKeywords = stringList(raw.exclude_keywords).map(normalizeText);
+  const avoidTitles = stringList(raw.avoid_titles);
   return {
     intent_summary: stringValue(raw.intent_summary) || fallbackPrompt,
     original_language: languageCode(stringValue(raw.original_language)),
     include_genres: stringList(raw.include_genres),
     exclude_genres: stringList(raw.exclude_genres),
+    exclude_franchises: excludeFranchises,
+    exclude_keywords: excludeKeywords,
     min_runtime: intValue(raw.min_runtime),
     max_runtime: intValue(raw.max_runtime),
     min_vote_average: numberValue(raw.min_vote_average),
@@ -474,9 +720,103 @@ function normalizePlan(raw, fallbackPrompt) {
     year_to: intValue(raw.year_to),
     keywords: stringList(raw.keywords),
     similar_titles: stringList(raw.similar_titles),
-    avoid_titles: stringList(raw.avoid_titles),
+    avoid_titles: avoidTitles,
     query_variants: stringList(raw.query_variants),
   };
+}
+
+function augmentPlanWithPromptExclusions(plan, prompt) {
+  const inferred = inferPromptExclusions(prompt);
+  const mergedFranchises = new Set([...(plan.exclude_franchises || []), ...inferred.franchises]);
+  const mergedKeywords = new Set([...(plan.exclude_keywords || []), ...inferred.keywords]);
+  const mergedAvoidTitles = new Set([...(plan.avoid_titles || []), ...inferred.titles]);
+  return {
+    ...plan,
+    exclude_franchises: [...mergedFranchises],
+    exclude_keywords: [...mergedKeywords],
+    avoid_titles: [...mergedAvoidTitles],
+  };
+}
+
+function inferPromptExclusions(prompt) {
+  const normalized = normalizeText(prompt);
+  if (!normalized) {
+    return { franchises: [], keywords: [], titles: [] };
+  }
+  const hasNegation = /\b(not|without|excluding|except|avoid|no)\b/.test(normalized);
+  if (!hasNegation) {
+    return { franchises: [], keywords: [], titles: [] };
+  }
+
+  const franchises = [];
+  const keywords = [];
+  for (const [franchise, aliases] of Object.entries(FRANCHISE_ALIASES)) {
+    if (aliases.some((alias) => containsPhrase(normalized, normalizeText(alias)))) {
+      franchises.push(franchise);
+      keywords.push(...aliases);
+    }
+  }
+  return {
+    franchises: uniqueNormalizedStrings(franchises),
+    keywords: uniqueNormalizedStrings(keywords),
+    titles: [],
+  };
+}
+
+function buildExclusionTokenSet(plan) {
+  const tokens = new Set();
+  const add = (value) => {
+    const normalized = normalizeText(value);
+    if (normalized) {
+      tokens.add(normalized);
+    }
+  };
+
+  for (const item of plan.exclude_keywords || []) add(item);
+  for (const item of plan.avoid_titles || []) add(item);
+  for (const franchise of plan.exclude_franchises || []) {
+    const normalizedFranchise = normalizeText(franchise);
+    if (!normalizedFranchise) continue;
+    add(normalizedFranchise);
+    for (const alias of FRANCHISE_ALIASES[normalizedFranchise] || []) {
+      add(alias);
+    }
+  }
+  return tokens;
+}
+
+function candidateViolatesExclusions(row, exclusionTokens) {
+  if (!exclusionTokens || exclusionTokens.size === 0) {
+    return false;
+  }
+  const rowText = normalizeText(
+    [row.title || "", ...(row.keywords || []), ...(row.genres || [])].join(" ")
+  );
+  if (!rowText) {
+    return false;
+  }
+  for (const token of exclusionTokens) {
+    if (containsPhrase(rowText, token)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function containsPhrase(haystack, needle) {
+  if (!haystack || !needle) return false;
+  if (haystack === needle) return true;
+  return haystack.includes(` ${needle} `) || haystack.startsWith(`${needle} `) || haystack.endsWith(` ${needle}`);
+}
+
+function uniqueNormalizedStrings(values) {
+  const seen = new Set();
+  for (const value of values || []) {
+    const normalized = normalizeText(value);
+    if (!normalized) continue;
+    seen.add(normalized);
+  }
+  return [...seen];
 }
 
 function qualityScore(row) {
@@ -520,6 +860,10 @@ function normalizeText(value) {
     .replace(/[^a-z0-9\s]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function normalizePromptInput(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
 }
 
 function languageCode(value) {
@@ -574,9 +918,10 @@ function sleep(ms) {
 }
 
 class HttpError extends Error {
-  constructor(statusCode, message) {
+  constructor(statusCode, message, options = {}) {
     super(message);
     this.name = "HttpError";
     this.statusCode = statusCode;
+    this.retryAfterSeconds = Number(options.retryAfterSeconds || 0) || null;
   }
 }

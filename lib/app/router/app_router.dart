@@ -19,6 +19,7 @@ import 'package:cineverse/presentation/features/watchlist/notes_screen.dart';
 import 'package:cineverse/presentation/features/watchlist/note_details_screen.dart';
 import 'package:cineverse/presentation/features/home/appearance_screen.dart';
 import 'package:cineverse/presentation/features/home/watch_history_analytics_screen.dart';
+import 'package:cineverse/presentation/features/splash/lumi_splash_screen.dart';
 
 import 'package:cineverse/presentation/features/movie_details/all_reviews_screen.dart';
 
@@ -33,8 +34,13 @@ import 'package:cineverse/domain/repositories/quotes_repository.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: AppRoute.explore.path,
+    initialLocation: AppRoute.splash.path,
     routes: [
+      GoRoute(
+        path: AppRoute.splash.path,
+        name: AppRoute.splash.name,
+        builder: (context, state) => const LumiSplashScreen(),
+      ),
       StatefulShellRoute(
         builder: (context, state, navigationShell) {
           return HomeScaffold(navigationShell: navigationShell);
@@ -293,6 +299,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
 });
 
 enum AppRoute {
+  splash('/splash', 'splash'),
   explore('/explore', 'explore'),
   movies('/', 'movies'),
   tvShows('/tv-shows', 'tv-shows'),

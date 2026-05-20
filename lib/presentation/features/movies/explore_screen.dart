@@ -65,7 +65,10 @@ class ExploreScreen extends ConsumerStatefulWidget {
     ExploreShelfData(
       title: 'Hidden Gems',
       filters: <ExploreFilterOption>[
-        ExploreFilterOption(label: 'Low Popularity • 7+ Rated', isHiddenGems: true),
+        ExploreFilterOption(
+          label: 'Low Popularity • 7+ Rated',
+          isHiddenGems: true,
+        ),
       ],
     ),
     ExploreShelfData(
@@ -477,48 +480,48 @@ class _TonightWatchLauncherSection extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(16, 22, 16, 0),
       child: TweenAnimationBuilder<double>(
         tween: Tween<double>(begin: 0, end: 1),
-        duration: const Duration(milliseconds: 900),
+        duration: const Duration(milliseconds: 850),
         curve: Curves.easeOutCubic,
         builder: (context, value, child) {
-          final double t = value;
-          final Color leadingGlow = Color.lerp(
-            const Color(0xFF2ED7FF),
-            const Color(0xFFFF4DA6),
-            t,
+          final Color accent = Color.lerp(
+            AppColors.cinemaAccent,
+            AppColors.cinemaSelected,
+            0.24 + (value * 0.2),
           )!;
-          final Color trailingGlow = Color.lerp(
-            const Color(0xFFFFB84D),
-            const Color(0xFF7A5CFF),
-            t,
+          final Color highlight = Color.lerp(
+            AppColors.cinemaSelected,
+            Colors.white,
+            0.2 + (value * 0.18),
           )!;
+          final Color baseSurface = AppColors.cinemaSurface;
 
           return DecoratedBox(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(32),
+              borderRadius: BorderRadius.circular(30),
               boxShadow: [
                 BoxShadow(
-                  color: leadingGlow.withValues(alpha: 0.32),
+                  color: accent.withValues(alpha: 0.22),
                   blurRadius: 34,
-                  spreadRadius: -14,
-                  offset: const Offset(0, 20),
+                  spreadRadius: -12,
+                  offset: const Offset(0, 18),
                 ),
                 BoxShadow(
-                  color: trailingGlow.withValues(alpha: 0.26),
-                  blurRadius: 44,
-                  spreadRadius: -22,
-                  offset: const Offset(0, -4),
+                  color: highlight.withValues(alpha: 0.12),
+                  blurRadius: 30,
+                  spreadRadius: -20,
+                  offset: const Offset(0, -2),
                 ),
               ],
             ),
             child: Container(
-              padding: const EdgeInsets.all(1.4),
+              padding: const EdgeInsets.all(1.2),
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(32),
+                borderRadius: BorderRadius.circular(30),
                 gradient: LinearGradient(
                   colors: <Color>[
-                    leadingGlow,
-                    const Color(0xFFFFA94D),
-                    trailingGlow,
+                    accent.withValues(alpha: 0.95),
+                    highlight.withValues(alpha: 0.8),
+                    accent.withValues(alpha: 0.72),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -527,7 +530,7 @@ class _TonightWatchLauncherSection extends ConsumerWidget {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(31),
+                  borderRadius: BorderRadius.circular(29),
                   onTap: () {
                     context.pushNamed(
                       AppRoute.whatShouldIWatchTonight.name,
@@ -537,14 +540,18 @@ class _TonightWatchLauncherSection extends ConsumerWidget {
                     );
                   },
                   child: Ink(
-                    padding: const EdgeInsets.all(22),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(31),
-                      gradient: const LinearGradient(
+                      borderRadius: BorderRadius.circular(29),
+                      gradient: LinearGradient(
                         colors: <Color>[
-                          Color(0xFF0B1730),
-                          Color(0xFF231043),
-                          Color(0xFF3A1657),
+                          Color.lerp(baseSurface, Colors.black, 0.18)!,
+                          Color.lerp(baseSurface, AppColors.background, 0.28)!,
+                          Color.lerp(
+                            AppColors.background,
+                            AppColors.cinemaGradientBottom,
+                            0.56,
+                          )!,
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
@@ -553,15 +560,24 @@ class _TonightWatchLauncherSection extends ConsumerWidget {
                     child: Stack(
                       children: [
                         Positioned(
-                          right: -8,
-                          top: -10,
+                          right: -12,
+                          top: -12,
                           child: Container(
-                            width: 96,
-                            height: 96,
+                            width: 112,
+                            height: 112,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: Colors.white.withValues(alpha: 0.06),
+                              color: accent.withValues(alpha: 0.1),
                             ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 6,
+                          top: 8,
+                          child: Icon(
+                            Icons.bolt_rounded,
+                            color: Colors.white.withValues(alpha: 0.7),
+                            size: 22,
                           ),
                         ),
                         Column(
@@ -570,40 +586,59 @@ class _TonightWatchLauncherSection extends ConsumerWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
-                                vertical: 8,
+                                vertical: 7,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.08),
+                                color: accent.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(999),
                               ),
                               child: Text(
-                                'Tonight Picker',
+                                'AI Tonight Watch',
                                 style: theme.textTheme.labelLarge?.copyWith(
-                                  color: const Color(0xFF93EAFF),
+                                  color: Colors.white,
                                   fontWeight: FontWeight.w800,
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 14),
                             Text(
-                              'What should I watch tonight?',
+                              'Describe it your way.\nWe find the best matches.',
                               style: theme.textTheme.headlineSmall?.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w900,
-                                height: 1,
+                                height: 1.06,
                               ),
                             ),
                             const SizedBox(height: 10),
                             Text(
                               isTv
-                                  ? 'Tell us your vibe, episode length, and language. We will return one show that fits tonight.'
-                                  : 'Tell us your vibe, runtime, and language. We will return one movie that fits tonight.',
+                                  ? 'Type or speak a natural-language request. Lumi builds an AI plan, runs vector search, and returns multiple show picks.'
+                                  : 'Type or speak a natural-language request. Lumi builds an AI plan, runs vector search, and returns multiple movie picks.',
                               style: theme.textTheme.bodyMedium?.copyWith(
-                                color: Colors.white.withValues(alpha: 0.78),
+                                color: Colors.white.withValues(alpha: 0.82),
                                 height: 1.45,
                               ),
                             ),
-                            const SizedBox(height: 20),
+                            const SizedBox(height: 14),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: const <Widget>[
+                                _TonightLauncherFeatureChip(
+                                  icon: Icons.mic_none_rounded,
+                                  label: 'Voice input',
+                                ),
+                                _TonightLauncherFeatureChip(
+                                  icon: Icons.auto_awesome_rounded,
+                                  label: 'AI query plan',
+                                ),
+                                _TonightLauncherFeatureChip(
+                                  icon: Icons.view_carousel_rounded,
+                                  label: 'Multiple picks',
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
                             Row(
                               children: [
                                 Container(
@@ -612,7 +647,7 @@ class _TonightWatchLauncherSection extends ConsumerWidget {
                                     vertical: 10,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.1),
+                                    color: Colors.white.withValues(alpha: 0.12),
                                     borderRadius: BorderRadius.circular(999),
                                   ),
                                   child: Row(
@@ -625,7 +660,7 @@ class _TonightWatchLauncherSection extends ConsumerWidget {
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        'Launch Picker',
+                                        isTv ? 'Find Shows' : 'Find Movies',
                                         style: theme.textTheme.labelLarge
                                             ?.copyWith(
                                               color: Colors.white,
@@ -652,6 +687,40 @@ class _TonightWatchLauncherSection extends ConsumerWidget {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _TonightLauncherFeatureChip extends StatelessWidget {
+  const _TonightLauncherFeatureChip({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Icon(icon, size: 14, color: Colors.white.withValues(alpha: 0.92)),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: Colors.white.withValues(alpha: 0.9),
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -971,7 +1040,7 @@ class _DiscoverSpotlightSectionState
                       ),
                     );
                   },
-                  child: Container(
+                  child: SizedBox(
                     key: ValueKey<int>(movie.id),
                     width: posterWidth,
                     child: DecoratedBox(

@@ -37,10 +37,10 @@ final tonightPromptRecommendationsProvider = FutureProvider.autoDispose
       );
       final AppConfig appConfig = ref.watch(appConfigProvider);
       _progressReset();
-      _progressAdd('Getting your request ready');
+      _progressAdd('Setting up your request');
 
       if (appConfig.hasTonightRecommendationsApiUrl) {
-        _progressAdd('Connecting to recommendation service');
+        _progressAdd('Connecting to the recommendation engine');
         return _recommendWithFirebaseRecommendationService(
           request: request,
           repository: repository,
@@ -54,7 +54,7 @@ final tonightPromptRecommendationsProvider = FutureProvider.autoDispose
         );
       }
 
-      _progressAdd('Analyzing your prompt');
+      _progressAdd('Understanding your taste and mood');
       final _PromptPlan plan = await _planPromptWithOpenRouter(
         prompt: prompt,
         isTv: request.isTv,
@@ -72,8 +72,8 @@ final tonightPromptRecommendationsProvider = FutureProvider.autoDispose
         if (plan.similarTitles.isNotEmpty)
           'Similar to: ${plan.similarTitles.take(2).join(', ')}',
       ];
-      _progressAdd('AI query plan is ready');
-      _progressAdd('Finding good matches');
+      _progressAdd('Built your search plan');
+      _progressAdd('Scanning TMDB for strong matches');
 
       final List<MovieGenre> genres = request.isTv
           ? await repository.fetchTvGenres()
@@ -169,7 +169,7 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
     Response<Map<String, dynamic>>? response;
     const int maxAttempts = 4;
     for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-      _progressAdd('Generating AI query (attempt $attempt/$maxAttempts)');
+      _progressAdd('Building your personalized search ($attempt/$maxAttempts)');
       try {
         response = await recommendationDio.post<Map<String, dynamic>>(
           appConfig.tonightRecommendationsApiUrl.trim(),
@@ -194,7 +194,7 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
         }
         final int backoffSeconds = attempt * 2;
         _progressAdd(
-          'Temporary network issue, retrying in ${backoffSeconds}s',
+          'Network hiccup, trying again in ${backoffSeconds}s',
           isRetry: true,
         );
         await Future<void>.delayed(Duration(seconds: backoffSeconds));
@@ -203,7 +203,7 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
     if (response == null) {
       throw StateError('Recommendation request failed before response.');
     }
-    _progressAdd('AI query plan received');
+    _progressAdd('Search plan is ready');
     final Map<String, dynamic>? payload = response.data;
     todayRecommendationPlanNotifier.value =
         _recommendationServiceQueryPlanChips(payload);
@@ -214,13 +214,13 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
         'The recommendation service returned no matches. Try a broader request.',
       );
     }
-    _progressAdd('Gathering movie details');
+    _progressAdd('Collecting details for top matches');
 
     final List<dynamic> shortlist = rawResults.take(12).toList(growable: false);
     final List<TonightRecommendationItem> recommendations =
         <TonightRecommendationItem>[];
     for (int i = 0; i < shortlist.length; i++) {
-      _progressAdd('Checking match ${i + 1} of ${shortlist.length}');
+      _progressAdd('Verifying pick ${i + 1}/${shortlist.length}');
       final TonightRecommendationItem? item =
           await _buildRecommendationServiceItem(
             raw: shortlist[i],
@@ -238,7 +238,7 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
         'Check TMDB proxy/API access.',
       );
     }
-    _progressAdd('Finalizing recommendations');
+    _progressAdd('Finalizing your watchlist for tonight');
     return TonightPromptResult(
       interpretedIntent: _recommendationServiceIntentSummary(
         payload,
