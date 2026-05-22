@@ -3,12 +3,17 @@ import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/config/app_config.dart';
+import 'package:dio/dio.dart';
 import 'package:cineverse/core/constants/app_constants.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
+import 'package:cineverse/presentation/features/movie_details/providers/movie_awards_provider.dart';
+import 'package:cineverse/presentation/features/movie_details/widgets/movie_awards_helper.dart';
 import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
@@ -33,6 +38,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:cineverse/presentation/features/watchlist/providers/library_provider.dart';
 import 'package:cineverse/domain/entities/library_item.dart';
@@ -180,6 +186,17 @@ class _MovieDetailsView extends ConsumerStatefulWidget {
 }
 
 class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
+  final Dio _justWatchDio = Dio(
+    BaseOptions(
+      connectTimeout: const Duration(seconds: 4),
+      receiveTimeout: const Duration(seconds: 4),
+      sendTimeout: const Duration(seconds: 4),
+      followRedirects: false,
+      validateStatus: (int? status) => status != null && status < 500,
+    ),
+  );
+  final Map<String, Future<String>> _justWatchLinkCache =
+      <String, Future<String>>{};
   Timer? _slideshowTimer;
   List<String> _slideshowImages = [];
   int _currentImageIndex = 0;
@@ -563,6 +580,10 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
             ),
           ),
 
+        SliverToBoxAdapter(
+          child: _AwardsSection(details: widget.details),
+        ),
+
         // Meta info line
         SliverToBoxAdapter(
           child: Padding(
@@ -585,6 +606,13 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                 ),
               ),
             ),
+          ),
+        ),
+        SliverToBoxAdapter(
+          child: _ContentAdvisoryCard(
+            contentRating: widget.details.contentRating,
+            contentRatingDescription: widget.details.contentRatingDescription,
+            overview: widget.details.overview,
           ),
         ),
 
@@ -639,6 +667,39 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
           ),
         ),
 
+        if (!widget.isTv &&
+            widget.details.budget != null &&
+            widget.details.budget! > 0 &&
+            widget.details.revenue != null &&
+            widget.details.revenue! > 0)
+          SliverToBoxAdapter(
+            child: _BoxOfficeSuccessCard(
+              budget: widget.details.budget!,
+              revenue: widget.details.revenue!,
+            ),
+          ),
+
+        if (widget.isTv)
+          SliverToBoxAdapter(
+            child: _TvEpisodeTrackerCard(
+              status: widget.details.status,
+              lastEpisode: widget.details.lastEpisodeToAir,
+              nextEpisode: widget.details.nextEpisodeToAir,
+            ),
+          ),
+
+        if (!widget.isTv)
+          SliverToBoxAdapter(
+            child: _ReleaseAlertTimeline(
+              movieId: widget.details.id,
+              isTv: widget.isTv,
+              title: widget.details.title,
+              theatricalDate: widget.details.releaseDate,
+              digitalDate: widget.details.digitalReleaseDate,
+              physicalDate: widget.details.physicalReleaseDate,
+            ),
+          ),
+
         // Where to Watch
         if (hasWatchAvailability)
           SliverToBoxAdapter(
@@ -646,17 +707,45 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
               padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
               child: Consumer(
                 builder: (context, ref, _) {
+                  final String resolverApiUrl = ref
+                      .watch(appConfigProvider)
+                      .watchProviderResolverApiUrl
+                      .trim();
+                  final String? canonicalLink = watchAvailability!.link;
                   final regionCode = ref
                       .watch(preferredRegionCodeProvider)
                       .toLowerCase();
                   final mediaTypePath = widget.isTv ? 'tv-show' : 'movie';
-                  final slug = _slugify(widget.details.title);
-                  final directLink =
-                      'https://www.justwatch.com/$regionCode/$mediaTypePath/$slug';
+                  final Future<String> linkFuture = _resolveJustWatchLink(
+                    regionCode: regionCode,
+                    mediaTypePath: mediaTypePath,
+                    title: widget.details.title,
+                    releaseDate: widget.details.releaseDate,
+                  );
 
-                  return _WatchAvailabilitySection(
-                    availability: watchAvailability!,
-                    customLink: directLink,
+                  return FutureBuilder<String>(
+                    future: linkFuture,
+                    builder: (context, snapshot) {
+                      final String fallbackSlug = _slugify(widget.details.title);
+                      final String fallbackJustWatchLink =
+                          'https://www.justwatch.com/$regionCode/$mediaTypePath/$fallbackSlug';
+                      final String justWatchPageLink =
+                          snapshot.data ?? fallbackJustWatchLink;
+                      final String launchLink =
+                          (canonicalLink != null && canonicalLink.isNotEmpty)
+                          ? canonicalLink
+                          : justWatchPageLink;
+                      final String resolverSourceLink =
+                          (canonicalLink != null && canonicalLink.isNotEmpty)
+                          ? canonicalLink
+                          : justWatchPageLink;
+                      return _WatchAvailabilitySection(
+                        availability: watchAvailability,
+                        launchLink: launchLink,
+                        resolverSourceLink: resolverSourceLink,
+                        resolverApiUrl: resolverApiUrl,
+                      );
+                    },
                   );
                 },
               ),
@@ -880,11 +969,82 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
     return text
         .toLowerCase()
         .replaceAll(
-          RegExp(r'[^a-z0-9\\s-]'),
+          RegExp(r'[^a-z0-9\s-]'),
           '',
         ) // Remove non-alphanumeric except space and hyphen
-        .replaceAll(RegExp(r'\\s+'), '-') // Replace spaces with hyphens
-        .replaceAll(RegExp(r'-+'), '-'); // Remove duplicate hyphens
+        .replaceAll(RegExp(r'\s+'), '-') // Replace spaces with hyphens
+        .replaceAll(RegExp(r'-+'), '-') // Remove duplicate hyphens
+        .replaceAll(RegExp(r'^-+|-+$'), '');
+  }
+
+  Future<String> _resolveJustWatchLink({
+    required String regionCode,
+    required String mediaTypePath,
+    required String title,
+    required String? releaseDate,
+  }) {
+    final String cacheKey =
+        '$regionCode|$mediaTypePath|$title|${releaseDate ?? ''}';
+    return _justWatchLinkCache.putIfAbsent(
+      cacheKey,
+      () => _computeJustWatchLink(
+        regionCode: regionCode,
+        mediaTypePath: mediaTypePath,
+        title: title,
+        releaseDate: releaseDate,
+      ),
+    );
+  }
+
+  Future<String> _computeJustWatchLink({
+    required String regionCode,
+    required String mediaTypePath,
+    required String title,
+    required String? releaseDate,
+  }) async {
+    final String slug = _slugify(title);
+    final String baseLink =
+        'https://www.justwatch.com/$regionCode/$mediaTypePath/$slug';
+
+    final bool baseExists = await _justWatchUrlExists(baseLink);
+    if (baseExists) {
+      return baseLink;
+    }
+
+    final String? releaseYear = _extractYear(releaseDate);
+    if (releaseYear != null && releaseYear.isNotEmpty) {
+      final String yearLink =
+          'https://www.justwatch.com/$regionCode/$mediaTypePath/$slug-$releaseYear';
+      final bool yearExists = await _justWatchUrlExists(yearLink);
+      if (yearExists) {
+        return yearLink;
+      }
+    }
+
+    return baseLink;
+  }
+
+  Future<bool> _justWatchUrlExists(String url) async {
+    try {
+      final Response<void> headResponse = await _justWatchDio.head<void>(url);
+      final int status = headResponse.statusCode ?? 0;
+      if (status == 404) {
+        return false;
+      }
+      if (status >= 200 && status < 400) {
+        return true;
+      }
+      if (status == 405) {
+        final Response<void> getResponse = await _justWatchDio.get<void>(url);
+        final int getStatus = getResponse.statusCode ?? 0;
+        return getStatus >= 200 && getStatus < 400;
+      }
+      return false;
+    } on DioException catch (_) {
+      return false;
+    } catch (_) {
+      return false;
+    }
   }
 
   String? _extractYear(String? releaseDate) {
@@ -1323,11 +1483,15 @@ String? _normalizeExternalRatingValue(String rawValue) {
 class _WatchAvailabilitySection extends StatelessWidget {
   const _WatchAvailabilitySection({
     required this.availability,
-    required this.customLink,
+    required this.launchLink,
+    required this.resolverSourceLink,
+    this.resolverApiUrl,
   });
 
   final MovieWatchAvailability availability;
-  final String customLink;
+  final String launchLink;
+  final String resolverSourceLink;
+  final String? resolverApiUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -1348,25 +1512,33 @@ class _WatchAvailabilitySection extends StatelessWidget {
           _WatchProviderRow(
             label: 'Stream',
             providers: availability.streaming,
-            link: customLink,
+            launchLink: launchLink,
+            resolverSourceLink: resolverSourceLink,
+            resolverApiUrl: resolverApiUrl,
           ),
         if (availability.free.isNotEmpty)
           _WatchProviderRow(
             label: 'Free',
             providers: availability.free,
-            link: customLink,
+            launchLink: launchLink,
+            resolverSourceLink: resolverSourceLink,
+            resolverApiUrl: resolverApiUrl,
           ),
         if (availability.rent.isNotEmpty)
           _WatchProviderRow(
             label: 'Rent',
             providers: availability.rent,
-            link: customLink,
+            launchLink: launchLink,
+            resolverSourceLink: resolverSourceLink,
+            resolverApiUrl: resolverApiUrl,
           ),
         if (availability.buy.isNotEmpty)
           _WatchProviderRow(
             label: 'Buy',
             providers: availability.buy,
-            link: customLink,
+            launchLink: launchLink,
+            resolverSourceLink: resolverSourceLink,
+            resolverApiUrl: resolverApiUrl,
           ),
         const SizedBox(height: 8),
         Text(
@@ -1384,12 +1556,16 @@ class _WatchProviderRow extends StatelessWidget {
   const _WatchProviderRow({
     required this.label,
     required this.providers,
-    this.link,
+    this.launchLink,
+    this.resolverSourceLink,
+    this.resolverApiUrl,
   });
 
   final String label;
   final List<MovieWatchProvider> providers;
-  final String? link;
+  final String? launchLink;
+  final String? resolverSourceLink;
+  final String? resolverApiUrl;
 
   @override
   Widget build(BuildContext context) {
@@ -1415,7 +1591,12 @@ class _WatchProviderRow extends StatelessWidget {
               itemCount: providers.length,
               separatorBuilder: (context, index) => const SizedBox(width: 10),
               itemBuilder: (context, index) =>
-                  _WatchProviderCard(provider: providers[index], link: link),
+                  _WatchProviderCard(
+                    provider: providers[index],
+                    launchLink: launchLink,
+                    resolverSourceLink: resolverSourceLink,
+                    resolverApiUrl: resolverApiUrl,
+                  ),
             ),
           ),
         ],
@@ -1425,24 +1606,45 @@ class _WatchProviderRow extends StatelessWidget {
 }
 
 class _WatchProviderCard extends StatelessWidget {
-  const _WatchProviderCard({required this.provider, this.link});
+  const _WatchProviderCard({
+    required this.provider,
+    this.launchLink,
+    this.resolverSourceLink,
+    this.resolverApiUrl,
+  });
 
   final MovieWatchProvider provider;
-  final String? link;
+  final String? launchLink;
+  final String? resolverSourceLink;
+  final String? resolverApiUrl;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
 
     return GestureDetector(
-      onTap: link == null
+      onTap: launchLink == null
           ? null
           : () async {
-              final Uri uri = Uri.parse(link!);
+              String targetLink = launchLink!;
+              final String resolverUrl = (resolverApiUrl ?? '').trim();
+              final String sourceUrl = (resolverSourceLink ?? '').trim();
+              if (resolverUrl.isNotEmpty && sourceUrl.isNotEmpty) {
+                final String? resolved = await _resolveProviderLinkWithDialog(
+                  context: context,
+                  resolverUrl: resolverUrl,
+                  sourceUrl: sourceUrl,
+                  providerName: provider.name,
+                );
+                if (resolved != null && resolved.isNotEmpty) {
+                  targetLink = resolved;
+                }
+              }
+              final Uri uri = Uri.parse(targetLink);
               try {
                 await launchUrl(uri, mode: LaunchMode.externalApplication);
               } catch (e) {
-                debugPrint('Could not launch $link: $e');
+                debugPrint('Could not launch $targetLink: $e');
               }
             },
       child: Container(
@@ -1498,6 +1700,200 @@ class _WatchProviderCard extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+final Dio _watchProviderResolverDio = Dio(
+  BaseOptions(
+    connectTimeout: const Duration(seconds: 5),
+    receiveTimeout: const Duration(seconds: 6),
+    sendTimeout: const Duration(seconds: 5),
+    validateStatus: (int? status) => status != null && status < 500,
+    headers: const <String, String>{
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+  ),
+);
+
+Future<String?> _resolveProviderLink({
+  required String resolverUrl,
+  required String sourceUrl,
+  required String providerName,
+}) async {
+  try {
+    final Response<Map<String, dynamic>> response = await _watchProviderResolverDio
+        .post<Map<String, dynamic>>(
+          resolverUrl,
+          data: <String, dynamic>{
+            'justwatchUrl': sourceUrl,
+            'providerName': providerName,
+          },
+        );
+    final Map<String, dynamic>? payload = response.data;
+    final String resolved = (payload?['resolvedUrl'] as String? ?? '').trim();
+    return resolved.isEmpty ? null : resolved;
+  } catch (error) {
+    debugPrint('Resolver call failed for $providerName: $error');
+    return null;
+  }
+}
+
+Future<String?> _resolveProviderLinkWithDialog({
+  required BuildContext context,
+  required String resolverUrl,
+  required String sourceUrl,
+  required String providerName,
+}) async {
+  DialogRoute<void>? dialogRoute;
+  NavigatorState? dialogNavigator;
+  bool finished = false;
+  final Timer showTimer = Timer(const Duration(milliseconds: 180), () {
+    if (finished || !context.mounted) return;
+    dialogNavigator = Navigator.of(context, rootNavigator: true);
+    dialogRoute = DialogRoute<void>(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.black.withValues(alpha: 0.52),
+      builder: (_) => const _WatchProviderLinkLoadingDialog(),
+    );
+    dialogNavigator?.push(dialogRoute!);
+  });
+
+  try {
+    return await _resolveProviderLink(
+      resolverUrl: resolverUrl,
+      sourceUrl: sourceUrl,
+      providerName: providerName,
+    );
+  } finally {
+    finished = true;
+    showTimer.cancel();
+    final DialogRoute<void>? route = dialogRoute;
+    if (route != null && route.isActive) {
+      dialogNavigator?.removeRoute(route);
+    }
+  }
+}
+
+class _WatchProviderLinkLoadingDialog extends StatefulWidget {
+  const _WatchProviderLinkLoadingDialog();
+
+  @override
+  State<_WatchProviderLinkLoadingDialog> createState() =>
+      _WatchProviderLinkLoadingDialogState();
+}
+
+class _WatchProviderLinkLoadingDialogState
+    extends State<_WatchProviderLinkLoadingDialog>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1400),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+
+    return Center(
+      child: Material(
+        color: Colors.transparent,
+        child: Container(
+          width: 290,
+          padding: const EdgeInsets.fromLTRB(18, 16, 18, 14),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: <Color>[
+                const Color(0xFF121D36),
+                const Color(0xFF0E1A28),
+              ],
+            ),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+            boxShadow: const <BoxShadow>[
+              BoxShadow(
+                color: Color(0x66000000),
+                blurRadius: 24,
+                offset: Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, child) {
+                      final double t = _controller.value;
+                      final double pulse = 0.9 + (math.sin(t * 2 * math.pi) * 0.1);
+                      return Transform.scale(scale: pulse, child: child);
+                    },
+                    child: Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: AppColors.cinemaAccent.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        Icons.link_rounded,
+                        color: AppColors.cinemaAccent,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    'Fetching watch link',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Finding the best provider page for this title.',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.white.withValues(alpha: 0.78),
+                  height: 1.35,
+                ),
+              ),
+              const SizedBox(height: 14),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(999),
+                child: SizedBox(
+                  height: 5,
+                  child: AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, _) {
+                      return LinearProgressIndicator(
+                        value: null,
+                        color: AppColors.cinemaAccent.withValues(alpha: 0.92),
+                        backgroundColor: Colors.white.withValues(alpha: 0.12),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1764,6 +2160,7 @@ class _TrailerPlayerState extends State<_TrailerPlayer>
     with WidgetsBindingObserver {
   late YoutubePlayerController _controller;
   bool _isPlayerReady = false;
+  bool _wasFullScreen = false;
 
   @override
   void initState() {
@@ -1799,6 +2196,15 @@ class _TrailerPlayerState extends State<_TrailerPlayer>
     if (_controller.value.hasError) {
       debugPrint('[TrailerPlayer] Error: ${_controller.value.errorCode}');
     }
+
+    final bool isFullScreen = _controller.value.isFullScreen;
+    if (_wasFullScreen && !isFullScreen) {
+      SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    }
+    _wasFullScreen = isFullScreen;
   }
 
   @override
@@ -1806,6 +2212,10 @@ class _TrailerPlayerState extends State<_TrailerPlayer>
     WidgetsBinding.instance.removeObserver(this);
     _controller.removeListener(_onPlayerStateChange);
     _controller.dispose();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
     super.dispose();
   }
 
@@ -2687,6 +3097,1233 @@ class _ReviewsSnippet extends ConsumerWidget {
       },
       loading: () => const SizedBox.shrink(),
       error: (_, _) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _AwardsSection extends ConsumerWidget {
+  const _AwardsSection({required this.details});
+
+  final MovieDetails details;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ThemeData theme = Theme.of(context);
+    final String? imdbId = details.imdbId;
+
+    // Use pre-fetched awards if available.
+    if (details.awards != null) {
+      final MovieAwards parsed = MovieAwards.parse(details.awards);
+      if (!parsed.hasAwards) return const SizedBox.shrink();
+      return _buildAwardsContent(context, theme, parsed);
+    }
+
+    // If awards info is not pre-fetched, but we have imdbId, load it lazily.
+    if (imdbId != null && imdbId.isNotEmpty) {
+      final awardsAsync = ref.watch(movieAwardsProvider(imdbId));
+      return awardsAsync.when(
+        data: (MovieAwards parsed) {
+          if (!parsed.hasAwards) return const SizedBox.shrink();
+          return _buildAwardsContent(context, theme, parsed);
+        },
+        loading: () => const Padding(
+          padding: EdgeInsets.fromLTRB(16, 14, 16, 0),
+          child: _AwardsShimmer(),
+        ),
+        error: (_, _) => const SizedBox.shrink(),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildAwardsContent(
+    BuildContext context,
+    ThemeData theme,
+    MovieAwards awards,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.detailsCard.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.emoji_events_rounded,
+              color: Color(0xFFFFD700), // Gold Color for trophy
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Awards & Nominations',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.white60,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    awards.displaySummary,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            ActionChip(
+              onPressed: () {
+                context.pushNamed(
+                  AppRoute.movieAwards.name,
+                  extra: <String, dynamic>{
+                    'awards': awards,
+                    'movieTitle': details.title,
+                  },
+                );
+              },
+              backgroundColor: AppColors.cinemaAccent.withValues(alpha: 0.15),
+              side: BorderSide(
+                color: AppColors.cinemaAccent.withValues(alpha: 0.3),
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+              label: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'View All',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: AppColors.cinemaAccent,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 2),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: AppColors.cinemaAccent,
+                    size: 16,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AwardsShimmer extends StatelessWidget {
+  const _AwardsShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppColors.detailsCard.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white10),
+      ),
+      child: Row(
+        children: [
+          const ShimmerEffect(width: 24, height: 24, borderRadius: 12),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ShimmerEffect.textLine(width: 100, height: 10),
+                const SizedBox(height: 6),
+                ShimmerEffect.textLine(width: 150, height: 14),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BoxOfficeSuccessCard extends StatelessWidget {
+  const _BoxOfficeSuccessCard({
+    required this.budget,
+    required this.revenue,
+  });
+
+  final int budget;
+  final int revenue;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final int netProfit = revenue - budget;
+    final double roi = budget > 0 ? (netProfit / budget) * 100 : 0.0;
+
+    String statusText;
+    Color statusColor;
+    double progressValue; // 0.0 to 1.0
+    
+    if (roi >= 150) {
+      statusText = 'BLOCKBUSTER';
+      statusColor = const Color(0xFF00E5FF); // Cyan
+      progressValue = 1.0;
+    } else if (roi >= 100) {
+      statusText = 'HIT';
+      statusColor = const Color(0xFF00E676); // Neon Green
+      progressValue = 0.8;
+    } else if (roi >= 0) {
+      statusText = 'BREAK-EVEN';
+      statusColor = const Color(0xFFFFD740); // Amber
+      progressValue = 0.5;
+    } else if (roi >= -50) {
+      statusText = 'UNDERPERFORMER';
+      statusColor = const Color(0xFFFF9100); // Orange
+      progressValue = 0.3;
+    } else {
+      statusText = 'BOX OFFICE BOMB';
+      statusColor = const Color(0xFFFF1744); // Red
+      progressValue = 0.1;
+    }
+
+    String formatCurrency(int amount) {
+      final String raw = amount.toString();
+      final StringBuffer buffer = StringBuffer();
+      int count = 0;
+      for (int i = raw.length - 1; i >= 0; i--) {
+        buffer.write(raw[i]);
+        count++;
+        if (count % 3 == 0 && i != 0) {
+          buffer.write(',');
+        }
+      }
+      return '\$${buffer.toString().split('').reversed.join()}';
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.detailsCard.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Box Office Financials',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: statusColor.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: statusColor.withValues(alpha: 0.4), width: 1.5),
+                  ),
+                  child: Text(
+                    statusText,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: statusColor,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.0,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: _FinancialItem(
+                    label: 'Budget',
+                    value: formatCurrency(budget),
+                  ),
+                ),
+                Expanded(
+                  child: _FinancialItem(
+                    label: 'Revenue',
+                    value: formatCurrency(revenue),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: _FinancialItem(
+                    label: 'Net Profit',
+                    value: formatCurrency(netProfit),
+                    valueColor: netProfit >= 0 ? const Color(0xFF00E676) : const Color(0xFFFF1744),
+                  ),
+                ),
+                Expanded(
+                  child: _FinancialItem(
+                    label: 'ROI',
+                    value: '${roi.toStringAsFixed(1)}%',
+                    valueColor: roi >= 0 ? const Color(0xFF00E676) : const Color(0xFFFF1744),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Success Meter',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white60,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      '${(progressValue * 100).toInt()}%',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: statusColor,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: progressValue,
+                    backgroundColor: Colors.white.withValues(alpha: 0.1),
+                    color: statusColor,
+                    minHeight: 8,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FinancialItem extends StatelessWidget {
+  const _FinancialItem({
+    required this.label,
+    required this.value,
+    this.valueColor,
+  });
+
+  final String label;
+  final String value;
+  final Color? valueColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: Colors.white60,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: valueColor ?? Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TvEpisodeTrackerCard extends StatefulWidget {
+  const _TvEpisodeTrackerCard({
+    required this.status,
+    this.lastEpisode,
+    this.nextEpisode,
+  });
+
+  final String? status;
+  final TvEpisode? lastEpisode;
+  final TvEpisode? nextEpisode;
+
+  @override
+  State<_TvEpisodeTrackerCard> createState() => _TvEpisodeTrackerCardState();
+}
+
+class _TvEpisodeTrackerCardState extends State<_TvEpisodeTrackerCard> {
+  Timer? _timer;
+  Duration? _timeRemaining;
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateTimeRemaining();
+    _startTimer();
+  }
+
+  @override
+  void didUpdateWidget(covariant _TvEpisodeTrackerCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _calculateTimeRemaining();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (mounted) {
+        _calculateTimeRemaining();
+      }
+    });
+  }
+
+  void _calculateTimeRemaining() {
+    if (widget.nextEpisode?.airDate == null) {
+      _timeRemaining = null;
+      return;
+    }
+    final nextAirDate = DateTime.tryParse(widget.nextEpisode!.airDate!);
+    if (nextAirDate == null) {
+      _timeRemaining = null;
+      return;
+    }
+    final now = DateTime.now();
+    final difference = nextAirDate.difference(now);
+    if (difference.isNegative) {
+      _timeRemaining = Duration.zero;
+      _timer?.cancel();
+    } else {
+      setState(() {
+        _timeRemaining = difference;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final bool isActive = widget.status != null &&
+        widget.status != 'Ended' &&
+        widget.status != 'Canceled';
+
+    final Color statusColor = isActive ? const Color(0xFF00E676) : Colors.white38;
+    final String statusLabel = widget.status ?? 'Unknown';
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.detailsCard.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Episode Tracker',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Row(
+                  children: [
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: statusColor,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          if (isActive)
+                            BoxShadow(
+                              color: statusColor.withValues(alpha: 0.6),
+                              blurRadius: 6,
+                              spreadRadius: 1,
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      statusLabel,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: isActive ? Colors.white : Colors.white60,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            if (_timeRemaining != null && _timeRemaining! > Duration.zero) ...[
+              const SizedBox(height: 16),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.cinemaAccent.withValues(alpha: 0.15),
+                      Colors.transparent,
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppColors.cinemaAccent.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Next Episode Countdown',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _CountdownUnit(value: _timeRemaining!.inDays, label: 'd'),
+                        _CountdownUnit(value: _timeRemaining!.inHours % 24, label: 'h'),
+                        _CountdownUnit(value: _timeRemaining!.inMinutes % 60, label: 'm'),
+                        _CountdownUnit(value: _timeRemaining!.inSeconds % 60, label: 's'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            if (widget.nextEpisode != null) ...[
+              const SizedBox(height: 16),
+              _EpisodeSubCard(
+                title: 'Next Episode',
+                episode: widget.nextEpisode!,
+                accentColor: AppColors.cinemaAccent,
+              ),
+            ],
+            if (widget.lastEpisode != null) ...[
+              const SizedBox(height: 16),
+              _EpisodeSubCard(
+                title: 'Last Episode To Air',
+                episode: widget.lastEpisode!,
+                accentColor: Colors.white54,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CountdownUnit extends StatelessWidget {
+  const _CountdownUnit({required this.value, required this.label});
+
+  final int value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Text(
+            value.toString().padLeft(2, '0'),
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'monospace',
+            ),
+          ),
+          const SizedBox(width: 1),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: AppColors.cinemaAccent,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _EpisodeSubCard extends StatelessWidget {
+  const _EpisodeSubCard({
+    required this.title,
+    required this.episode,
+    required this.accentColor,
+  });
+
+  final String title;
+  final TvEpisode episode;
+  final Color accentColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final String epCode = 'S${episode.seasonNumber.toString().padLeft(2, '0')}E${episode.episodeNumber.toString().padLeft(2, '0')}';
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              width: 4,
+              height: 14,
+              decoration: BoxDecoration(
+                color: accentColor,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.white70,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.03),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (episode.stillPath != null) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: SizedBox(
+                    width: 100,
+                    height: 60,
+                    child: CachedNetworkImage(
+                      imageUrl: episode.stillPath!,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: Colors.white10,
+                        child: const Center(
+                          child: SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white30,
+                            ),
+                          ),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.white10,
+                        child: const Icon(Icons.broken_image_outlined, size: 20, color: Colors.white30),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+              ],
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$epCode • ${episode.name}',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (episode.airDate != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        episode.airDate!,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.white38,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                    if (episode.overview != null && episode.overview!.isNotEmpty) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        episode.overview!,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.white60,
+                          height: 1.3,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ContentAdvisoryCard extends StatelessWidget {
+  const _ContentAdvisoryCard({
+    required this.contentRating,
+    this.contentRatingDescription,
+    this.overview,
+  });
+
+  final String? contentRating;
+  final String? contentRatingDescription;
+  final String? overview;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final String rating = contentRating?.trim() ?? 'NR';
+
+    Color ratingBorderColor;
+    Color ratingBgColor;
+    if (const ['G', 'PG', 'TV-G', 'TV-Y', 'TV-Y7', 'TV-PG'].contains(rating)) {
+      ratingBorderColor = const Color(0xFF00E676); // Green
+      ratingBgColor = const Color(0xFF00E676).withValues(alpha: 0.1);
+    } else if (const ['PG-13', 'TV-14', 'PG12'].contains(rating)) {
+      ratingBorderColor = const Color(0xFFFFD740); // Yellow/Amber
+      ratingBgColor = const Color(0xFFFFD740).withValues(alpha: 0.1);
+    } else if (const ['R', 'NC-17', 'TV-MA', '18', 'R15+', 'R18+'].contains(rating)) {
+      ratingBorderColor = const Color(0xFFFF1744); // Red
+      ratingBgColor = const Color(0xFFFF1744).withValues(alpha: 0.1);
+    } else {
+      ratingBorderColor = Colors.white38;
+      ratingBgColor = Colors.white10;
+    }
+
+    final Set<String> tags = {};
+    final String searchTarget = '${contentRatingDescription ?? ''} ${overview ?? ''}'.toLowerCase();
+
+    if (searchTarget.contains('violence') ||
+        searchTarget.contains('kill') ||
+        searchTarget.contains('murder') ||
+        searchTarget.contains('blood') ||
+        searchTarget.contains('fight') ||
+        searchTarget.contains('combat') ||
+        searchTarget.contains('assassin') ||
+        searchTarget.contains('death')) {
+      tags.add('Violence');
+    }
+
+    if (searchTarget.contains('sex') ||
+        searchTarget.contains('nudity') ||
+        searchTarget.contains('nude') ||
+        searchTarget.contains('erotic') ||
+        searchTarget.contains('sensual') ||
+        searchTarget.contains('sexual')) {
+      tags.add('Sex & Nudity');
+    }
+
+    if (searchTarget.contains('language') ||
+        searchTarget.contains('profanity') ||
+        searchTarget.contains('swear') ||
+        searchTarget.contains('vulgar') ||
+        searchTarget.contains('crude')) {
+      tags.add('Language');
+    }
+
+    if (searchTarget.contains('drugs') ||
+        searchTarget.contains('alcohol') ||
+        searchTarget.contains('smoke') ||
+        searchTarget.contains('drinking') ||
+        searchTarget.contains('cocaine') ||
+        searchTarget.contains('substance') ||
+        searchTarget.contains('heroin')) {
+      tags.add('Substances');
+    }
+
+    if (searchTarget.contains('horror') ||
+        searchTarget.contains('scary') ||
+        searchTarget.contains('ghost') ||
+        searchTarget.contains('monster') ||
+        searchTarget.contains('terrifying') ||
+        searchTarget.contains('fear') ||
+        searchTarget.contains('creepy') ||
+        searchTarget.contains('frightening')) {
+      tags.add('Fear & Horror');
+    }
+
+    if (tags.isEmpty) {
+      if (rating == 'G' || rating == 'TV-G') {
+        tags.add('Family Friendly');
+      } else {
+        tags.add('General Audience');
+      }
+    }
+
+    Color getTagColor(String tag) {
+      switch (tag) {
+        case 'Violence':
+          return const Color(0xFFFF5252);
+        case 'Sex & Nudity':
+          return const Color(0xFFFF4081);
+        case 'Language':
+          return const Color(0xFFFFAB40);
+        case 'Substances':
+          return const Color(0xFF64FFDA);
+        case 'Fear & Horror':
+          return const Color(0xFF7C4DFF);
+        default:
+          return Colors.white70;
+      }
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: AppColors.detailsCard.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              alignment: Alignment.center,
+              width: 70,
+              height: 48,
+              decoration: BoxDecoration(
+                color: ratingBgColor,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: ratingBorderColor, width: 2),
+              ),
+              child: Text(
+                rating,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Content Advisory',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (contentRatingDescription != null && contentRatingDescription!.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      contentRatingDescription!,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white54,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: tags.map((tag) {
+                      final tagColor = getTagColor(tag);
+                      return Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: tagColor.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(6),
+                          border: Border.all(color: tagColor.withValues(alpha: 0.3)),
+                        ),
+                        child: Text(
+                          tag,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: tagColor,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ReleaseAlertTimeline extends StatefulWidget {
+  const _ReleaseAlertTimeline({
+    required this.movieId,
+    required this.isTv,
+    required this.title,
+    this.theatricalDate,
+    this.digitalDate,
+    this.physicalDate,
+  });
+
+  final int movieId;
+  final bool isTv;
+  final String title;
+  final String? theatricalDate;
+  final String? digitalDate;
+  final String? physicalDate;
+
+  @override
+  State<_ReleaseAlertTimeline> createState() => _ReleaseAlertTimelineState();
+}
+
+class _ReleaseAlertTimelineState extends State<_ReleaseAlertTimeline> {
+  bool _isSubscribed = false;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSubscriptionState();
+  }
+
+  Future<void> _loadSubscriptionState() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = 'notify_release_${widget.isTv ? "tv" : "movie"}_${widget.movieId}';
+      if (mounted) {
+        setState(() {
+          _isSubscribed = prefs.getBool(key) ?? false;
+          _isLoading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _toggleSubscription(bool value) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final key = 'notify_release_${widget.isTv ? "tv" : "movie"}_${widget.movieId}';
+      await prefs.setBool(key, value);
+      setState(() {
+        _isSubscribed = value;
+      });
+
+      if (value && mounted) {
+        _showSuccessDialog();
+      }
+    } catch (_) {}
+  }
+
+  void _showSuccessDialog() {
+    showAnimatedDialog(
+      context: context,
+      builder: (context) {
+        final ThemeData theme = Theme.of(context);
+        return AlertDialog(
+          backgroundColor: AppColors.detailsCard,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: Colors.white10),
+          ),
+          title: Row(
+            children: [
+              const Icon(
+                Icons.notifications_active_rounded,
+                color: Color(0xFF00E676),
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Alert Set!',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            'We\'ll notify you as soon as "${widget.title}" is released digitally or on Blu-ray/DVD!',
+            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'Awesome',
+                style: TextStyle(
+                  color: AppColors.cinemaAccent,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+
+    bool hasFutureRelease = false;
+    final DateTime now = DateTime.now();
+
+    DateTime? tDate = widget.theatricalDate != null ? DateTime.tryParse(widget.theatricalDate!) : null;
+    DateTime? dDate = widget.digitalDate != null ? DateTime.tryParse(widget.digitalDate!) : null;
+    DateTime? pDate = widget.physicalDate != null ? DateTime.tryParse(widget.physicalDate!) : null;
+
+    if ((tDate != null && tDate.isAfter(now)) ||
+        (dDate != null && dDate.isAfter(now)) ||
+        (pDate != null && pDate.isAfter(now))) {
+      hasFutureRelease = true;
+    }
+
+    String formatDate(String? dateStr) {
+      if (dateStr == null) return 'TBA';
+      final parsed = DateTime.tryParse(dateStr);
+      if (parsed == null) return dateStr;
+      return DateFormat('MMM d, yyyy').format(parsed);
+    }
+
+    bool isPast(DateTime? date) {
+      if (date == null) return false;
+      return date.isBefore(now);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.detailsCard.withValues(alpha: 0.6),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Release Timeline',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                if (hasFutureRelease && !_isLoading)
+                  Row(
+                    children: [
+                      Text(
+                        'Notify Me',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.white70,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      SizedBox(
+                        height: 24,
+                        width: 40,
+                        child: FittedBox(
+                          fit: BoxFit.fill,
+                          child: Switch.adaptive(
+                            value: _isSubscribed,
+                            onChanged: _toggleSubscription,
+                            activeThumbColor: AppColors.cinemaAccent,
+                            activeTrackColor: AppColors.cinemaAccent.withValues(alpha: 0.3),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            _TimelineItem(
+              icon: Icons.movie_creation_outlined,
+              title: 'Theatrical Release',
+              date: formatDate(widget.theatricalDate),
+              isCompleted: isPast(tDate),
+              isLast: false,
+            ),
+            _TimelineItem(
+              icon: Icons.play_circle_outline_rounded,
+              title: 'Digital / Streaming',
+              date: formatDate(widget.digitalDate),
+              isCompleted: isPast(dDate),
+              isLast: false,
+            ),
+            _TimelineItem(
+              icon: Icons.album_outlined,
+              title: 'Physical (Blu-ray / DVD)',
+              date: formatDate(widget.physicalDate),
+              isCompleted: isPast(pDate),
+              isLast: true,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TimelineItem extends StatelessWidget {
+  const _TimelineItem({
+    required this.icon,
+    required this.title,
+    required this.date,
+    required this.isCompleted,
+    required this.isLast,
+  });
+
+  final IconData icon;
+  final String title;
+  final String date;
+  final bool isCompleted;
+  final bool isLast;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final Color color = isCompleted ? const Color(0xFF00E676) : Colors.white38;
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: isCompleted ? color.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.05),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: color, width: 2),
+                ),
+                child: Icon(
+                  icon,
+                  size: 16,
+                  color: isCompleted ? color : Colors.white54,
+                ),
+              ),
+              if (!isLast)
+                Expanded(
+                  child: Container(
+                    width: 2,
+                    color: color.withValues(alpha: 0.5),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: isCompleted ? Colors.white : Colors.white70,
+                      fontWeight: isCompleted ? FontWeight.bold : FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    date,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: isCompleted ? const Color(0xFF00E676) : Colors.white38,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

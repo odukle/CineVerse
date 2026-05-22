@@ -493,7 +493,9 @@ Future<_PromptPlan> _planPromptWithOpenRouter({
               '"min_vote_average": number|null, "min_vote_count": int|null, '
               '"year_from": int|null, "year_to": int|null, '
               '"keywords": string[], "similar_titles": string[], "avoid_titles": string[]}. '
-              'Keep values practical for TMDB search and respect exclusions.',
+              'Keep values practical for TMDB search and respect exclusions. '
+              'When user says not/without/avoid, always populate exclusion fields. '
+              'Use canonical TMDB genre names (for example: Science Fiction, not sci-fi).',
         },
         <String, dynamic>{
           'role': 'user',
@@ -719,7 +721,7 @@ Future<List<_ScoredTonightItem>> _rankCandidates({
       );
 
       final Set<String> titleGenres = details.genres
-          .map(_normalizeText)
+          .map(_canonicalGenreToken)
           .where((String g) => g.isNotEmpty)
           .toSet();
 
@@ -886,17 +888,26 @@ _GenreResolution _resolveGenres({
   required List<String> excludeNames,
 }) {
   final Map<String, int> index = <String, int>{};
+  final Map<String, int> canonicalIndex = <String, int>{};
   for (final MovieGenre genre in genres) {
     final String normalized = _normalizeText(genre.name);
+    final String canonical = _canonicalGenreToken(genre.name);
     if (normalized.isNotEmpty) {
       index[normalized] = genre.id;
+    }
+    if (canonical.isNotEmpty) {
+      canonicalIndex[canonical] = genre.id;
     }
   }
 
   final Set<int> includedIds = <int>{};
   for (final String genreName in includeNames) {
-    final String needle = _normalizeText(genreName);
+    final String needle = _canonicalGenreToken(genreName);
     if (needle.isEmpty) {
+      continue;
+    }
+    if (canonicalIndex.containsKey(needle)) {
+      includedIds.add(canonicalIndex[needle]!);
       continue;
     }
     for (final MapEntry<String, int> entry in index.entries) {
@@ -907,7 +918,7 @@ _GenreResolution _resolveGenres({
   }
 
   final Set<String> excludedNormalized = excludeNames
-      .map(_normalizeText)
+      .map(_canonicalGenreToken)
       .where((String value) => value.isNotEmpty)
       .toSet();
 
@@ -924,6 +935,34 @@ String _normalizeText(String value) {
       .replaceAll(RegExp(r'\s+'), ' ')
       .trim();
 }
+
+String _canonicalGenreToken(String value) {
+  final String normalized = _normalizeText(value);
+  if (normalized.isEmpty) {
+    return '';
+  }
+  return _genreAliasToCanonical[normalized] ?? normalized;
+}
+
+const Map<String, String> _genreAliasToCanonical = <String, String>{
+  'science fiction': 'science fiction',
+  'sci fi': 'science fiction',
+  'sci-fi': 'science fiction',
+  'scifi': 'science fiction',
+  'sf': 'science fiction',
+  'sci fi fantasy': 'science fiction',
+  'sci-fi fantasy': 'science fiction',
+  'rom com': 'comedy',
+  'romcom': 'comedy',
+  'romantic comedy': 'comedy',
+  'romantic': 'romance',
+  'love story': 'romance',
+  'suspense': 'thriller',
+  'suspenseful': 'thriller',
+  'scary': 'horror',
+  'animated': 'animation',
+  'historical': 'history',
+};
 
 class _ScoredTonightItem {
   const _ScoredTonightItem({

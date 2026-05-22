@@ -32,6 +32,8 @@ class TmdbMovieDetailsDto {
   final int? numberOfEpisodes;
   final TmdbTvEpisodeDto? lastEpisodeToAir;
   final TmdbTvEpisodeDto? nextEpisodeToAir;
+  final String? digitalReleaseDate;
+  final String? physicalReleaseDate;
 
   const TmdbMovieDetailsDto({
     required this.id,
@@ -62,6 +64,8 @@ class TmdbMovieDetailsDto {
     this.numberOfEpisodes,
     this.lastEpisodeToAir,
     this.nextEpisodeToAir,
+    this.digitalReleaseDate,
+    this.physicalReleaseDate,
   });
 
   factory TmdbMovieDetailsDto.fromJson(
@@ -166,6 +170,16 @@ class TmdbMovieDetailsDto {
               json['next_episode_to_air'] as Map<String, dynamic>,
             )
           : null,
+      digitalReleaseDate: _resolveReleaseDateByType(
+        json,
+        preferredRegionCode,
+        const [4],
+      ),
+      physicalReleaseDate: _resolveReleaseDateByType(
+        json,
+        preferredRegionCode,
+        const [5],
+      ),
     );
   }
 
@@ -202,6 +216,8 @@ class TmdbMovieDetailsDto {
       numberOfEpisodes: numberOfEpisodes,
       lastEpisodeToAir: lastEpisodeToAir,
       nextEpisodeToAir: nextEpisodeToAir,
+      digitalReleaseDate: digitalReleaseDate,
+      physicalReleaseDate: physicalReleaseDate,
     );
   }
 
@@ -235,6 +251,8 @@ class TmdbMovieDetailsDto {
       numberOfEpisodes: numberOfEpisodes,
       lastEpisodeToAir: lastEpisodeToAir?.toDomain(),
       nextEpisodeToAir: nextEpisodeToAir?.toDomain(),
+      digitalReleaseDate: digitalReleaseDate,
+      physicalReleaseDate: physicalReleaseDate,
     );
   }
 
@@ -520,6 +538,57 @@ class TmdbMovieDetailsDto {
     for (final Map<String, dynamic> result in typedResults) {
       if (_optionalText(result['rating']) != null) {
         return result;
+      }
+    }
+
+    return null;
+  }
+
+  static String? _resolveReleaseDateByType(
+    Map<String, dynamic> json,
+    String preferredRegionCode,
+    List<int> types,
+  ) {
+    final Map<String, dynamic> releaseDates =
+        (json['release_dates'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+    final List<dynamic> results =
+        (releaseDates['results'] as List<dynamic>?) ?? <dynamic>[];
+
+    final List<Map<String, dynamic>> typedResults = results
+        .whereType<Map<String, dynamic>>()
+        .toList(growable: false);
+
+    // 1. Try to find the release in the preferred region code
+    for (final Map<String, dynamic> result in typedResults) {
+      if (result['iso_3166_1'] == preferredRegionCode) {
+        final List<dynamic> entries =
+            (result['release_dates'] as List<dynamic>?) ?? <dynamic>[];
+        for (final Map<String, dynamic> entry
+            in entries.whereType<Map<String, dynamic>>()) {
+          final int type = (entry['type'] as num?)?.toInt() ?? 0;
+          if (types.contains(type)) {
+            final String? date = _optionalText(entry['release_date']);
+            if (date != null) {
+              return date;
+            }
+          }
+        }
+      }
+    }
+
+    // 2. Fallback to any region
+    for (final Map<String, dynamic> result in typedResults) {
+      final List<dynamic> entries =
+          (result['release_dates'] as List<dynamic>?) ?? <dynamic>[];
+      for (final Map<String, dynamic> entry
+          in entries.whereType<Map<String, dynamic>>()) {
+        final int type = (entry['type'] as num?)?.toInt() ?? 0;
+        if (types.contains(type)) {
+          final String? date = _optionalText(entry['release_date']);
+          if (date != null) {
+            return date;
+          }
+        }
       }
     }
 

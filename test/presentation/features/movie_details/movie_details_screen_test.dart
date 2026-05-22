@@ -4,6 +4,9 @@ import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
 import 'package:cineverse/presentation/features/movie_details/movie_details_screen.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
+import 'package:cineverse/presentation/features/movie_details/providers/movie_awards_provider.dart';
+import 'package:cineverse/presentation/features/movie_details/widgets/movie_awards_helper.dart';
+import 'package:cineverse/presentation/features/movie_details/movie_awards_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -149,5 +152,130 @@ void main() {
     await tester.pump();
 
     addTearDown(() => tester.binding.setSurfaceSize(null));
+  });
+
+  testWidgets('movie details screen displays pre-fetched awards', (
+    WidgetTester tester,
+  ) async {
+    const MovieDetails details = MovieDetails(
+      id: 231,
+      title: 'Titanic',
+      imdbId: 'tt0120338',
+      posterPath: null,
+      backdropPath: null,
+      releaseDate: '1997-12-19',
+      awards: 'Won 11 Oscars. Another 116 wins & 83 nominations.',
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          movieDetailsProvider(
+            const GetMovieDetailsParams(movieId: 231),
+          ).overrideWith((ref) async => details),
+          mediaImagesProvider((id: 231, isTv: false)).overrideWith(
+            (ref) async => MediaImages.empty,
+          ),
+        ],
+        child: const MaterialApp(home: MovieDetailsScreen(movieId: 231)),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('127 wins & 83 nominations'), findsOneWidget);
+    expect(find.text('Awards & Nominations'), findsOneWidget);
+    expect(find.text('View All'), findsOneWidget);
+  });
+
+  testWidgets('movie details screen lazy-loads awards when awards field is null', (
+    WidgetTester tester,
+  ) async {
+    const MovieDetails details = MovieDetails(
+      id: 231,
+      title: 'Titanic',
+      imdbId: 'tt0120338',
+      posterPath: null,
+      backdropPath: null,
+      releaseDate: '1997-12-19',
+      awards: null,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          movieDetailsProvider(
+            const GetMovieDetailsParams(movieId: 231),
+          ).overrideWith((ref) async => details),
+          mediaImagesProvider((id: 231, isTv: false)).overrideWith(
+            (ref) async => MediaImages.empty,
+          ),
+          movieAwardsProvider('tt0120338').overrideWith(
+            (ref) async => const MovieAwards(
+              rawAwards: 'Won 11 Oscars. Another 116 wins & 83 nominations.',
+              oscarWins: 11,
+              oscarNominations: 0,
+              globeWins: 0,
+              globeNominations: 0,
+              baftaWins: 0,
+              baftaNominations: 0,
+              otherWins: 116,
+              otherNominations: 83,
+            ),
+          ),
+        ],
+        child: const MaterialApp(home: MovieDetailsScreen(movieId: 231)),
+      ),
+    );
+
+    await tester.pump();
+    expect(
+      find.byWidgetPredicate(
+        (widget) => widget.runtimeType.toString() == '_AwardsShimmer',
+      ),
+      findsOneWidget,
+    );
+
+    await tester.pump(const Duration(milliseconds: 100));
+    await tester.pump();
+
+    expect(find.text('127 wins & 83 nominations'), findsOneWidget);
+    expect(find.text('Awards & Nominations'), findsOneWidget);
+  });
+
+  testWidgets('MovieAwardsScreen renders awards details correctly', (
+    WidgetTester tester,
+  ) async {
+    const MovieAwards awards = MovieAwards(
+      rawAwards: 'Won 11 Oscars. Another 116 wins & 83 nominations.',
+      oscarWins: 11,
+      oscarNominations: 0,
+      globeWins: 4,
+      globeNominations: 2,
+      baftaWins: 0,
+      baftaNominations: 0,
+      otherWins: 116,
+      otherNominations: 83,
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: MovieAwardsScreen(
+          awards: awards,
+          movieTitle: 'Titanic',
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('Awards & Accolades'), findsOneWidget);
+    expect(find.text('Titanic'), findsOneWidget);
+    expect(find.text('Accolade Summary'), findsOneWidget);
+    expect(find.text('131'), findsOneWidget);
+    expect(find.text('85'), findsOneWidget);
+    expect(find.text('Won 11 Oscars'), findsOneWidget);
+    expect(find.text('Another 116 wins & 83 nominations'), findsOneWidget);
   });
 }

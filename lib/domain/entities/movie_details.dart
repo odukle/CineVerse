@@ -31,6 +31,9 @@ class MovieDetails {
     this.numberOfEpisodes,
     this.lastEpisodeToAir,
     this.nextEpisodeToAir,
+    this.awards,
+    this.digitalReleaseDate,
+    this.physicalReleaseDate,
   });
 
   final int id;
@@ -62,10 +65,16 @@ class MovieDetails {
   final int? numberOfEpisodes;
   final TvEpisode? lastEpisodeToAir;
   final TvEpisode? nextEpisodeToAir;
+  final String? awards;
+  final String? digitalReleaseDate;
+  final String? physicalReleaseDate;
 
   MovieDetails copyWith({
     List<MovieRating>? externalRatings,
     MovieWatchAvailability? watchAvailability,
+    String? awards,
+    String? digitalReleaseDate,
+    String? physicalReleaseDate,
   }) {
     return MovieDetails(
       id: id,
@@ -97,6 +106,9 @@ class MovieDetails {
       numberOfEpisodes: numberOfEpisodes,
       lastEpisodeToAir: lastEpisodeToAir,
       nextEpisodeToAir: nextEpisodeToAir,
+      awards: awards ?? this.awards,
+      digitalReleaseDate: digitalReleaseDate ?? this.digitalReleaseDate,
+      physicalReleaseDate: physicalReleaseDate ?? this.physicalReleaseDate,
     );
   }
 }

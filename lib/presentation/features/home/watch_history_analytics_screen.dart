@@ -31,7 +31,7 @@ class WatchHistoryAnalyticsScreen extends ConsumerWidget {
         ),
         body: analyticsAsync.when(
           loading: () => const Center(child: CircularProgressIndicator()),
-          error: (_, __) => _AnalyticsMessage(
+          error: (_, _) => _AnalyticsMessage(
             title: 'Could not load analytics',
             subtitle: 'Try again after a moment.',
             actionLabel: 'Retry',
@@ -171,8 +171,9 @@ class _MoviesPerMonthChart extends StatelessWidget {
                   showTitles: true,
                   getTitlesWidget: (value, meta) {
                     final int i = value.toInt();
-                    if (i < 0 || i >= data.length)
+                    if (i < 0 || i >= data.length) {
                       return const SizedBox.shrink();
+                    }
                     return Padding(
                       padding: const EdgeInsets.only(top: 6),
                       child: Text(
@@ -353,8 +354,9 @@ class _RatingTrendChart extends StatelessWidget {
                   showTitles: true,
                   getTitlesWidget: (value, _) {
                     final int i = value.toInt();
-                    if (i < 0 || i >= data.length)
+                    if (i < 0 || i >= data.length) {
                       return const SizedBox.shrink();
+                    }
                     return Padding(
                       padding: const EdgeInsets.only(top: 6),
                       child: Text(
@@ -380,7 +382,7 @@ class _RatingTrendChart extends StatelessWidget {
                 isStrokeCapRound: true,
                 dotData: FlDotData(
                   show: true,
-                  getDotPainter: (_, __, ___, ____) => FlDotCirclePainter(
+                  getDotPainter: (_, _, _, _) => FlDotCirclePainter(
                     radius: 3.5,
                     color: AppColors.cinemaAccent,
                     strokeColor: Colors.black26,

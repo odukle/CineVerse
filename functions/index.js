@@ -75,6 +75,36 @@ const FRANCHISE_ALIASES = {
     "constantine",
   ],
 };
+const GENRE_CANONICAL_ALIASES = {
+  "science fiction": [
+    "science fiction",
+    "sci fi",
+    "sci-fi",
+    "scifi",
+    "sf",
+    "sci fi fantasy",
+    "sci-fi fantasy",
+  ],
+  fantasy: ["fantasy"],
+  action: ["action", "action packed"],
+  adventure: ["adventure"],
+  animation: ["animation", "animated"],
+  comedy: ["comedy", "funny", "humor", "humour", "rom com", "romcom"],
+  crime: ["crime", "gangster", "heist"],
+  documentary: ["documentary", "docu"],
+  drama: ["drama", "dramatic"],
+  family: ["family", "kids"],
+  history: ["history", "historical"],
+  horror: ["horror", "scary", "frightening", "supernatural horror"],
+  music: ["music", "musical"],
+  mystery: ["mystery", "detective", "whodunit"],
+  romance: ["romance", "romantic", "love story"],
+  thriller: ["thriller", "suspense", "suspenseful"],
+  war: ["war", "military"],
+  western: ["western"],
+  "tv movie": ["tv movie", "television movie", "made for tv"],
+};
+const GENRE_ALIAS_TO_CANONICAL = buildGenreAliasToCanonicalMap();
 
 exports.recommendTonight = onRequest(
   {
@@ -356,7 +386,9 @@ async function callPlannerModel(model, prompt) {
           "\"min_vote_average\": number|null, \"min_vote_count\": int|null, " +
           "\"year_from\": int|null, \"year_to\": int|null, " +
           "\"keywords\": string[], \"similar_titles\": string[], \"avoid_titles\": string[], \"query_variants\": string[]}. " +
-          "Respect exclusions and keep values practical for TMDB/Firestore search.",
+          "Respect exclusions and keep values practical for TMDB/Firestore search. " +
+          "When the user says 'not/without/avoid', always put those genres/franchises/titles in exclusion fields. " +
+          "Use canonical TMDB genre names such as 'Science Fiction' (not 'sci-fi').",
       },
       {
         role: "user",
@@ -473,6 +505,7 @@ async function findNearestMovies(queryEmbedding, limit) {
     .select(
       "id",
       "title",
+      "originalTitle",
       "genres",
       "originalLanguage",
       "runtimeMinutes",
@@ -481,6 +514,8 @@ async function findNearestMovies(queryEmbedding, limit) {
       "voteCount",
       "popularity",
       "posterPath",
+      "tagline",
+      "overview",
       "keywords",
       "vectorDistance"
     )
@@ -532,9 +567,9 @@ async function fetchCandidates(queryTexts, topK) {
 }
 
 function rerankResults(rows, plan, topK) {
-  const excluded = new Set((plan.exclude_genres || []).map(normalizeText));
+  const excluded = new Set((plan.exclude_genres || []).map(canonicalizeGenre).filter(Boolean));
   const exclusionTokens = buildExclusionTokenSet(plan);
-  const included = new Set((plan.include_genres || []).map(normalizeText));
+  const included = new Set((plan.include_genres || []).map(canonicalizeGenre).filter(Boolean));
   const language = plan.original_language || null;
   const keywords = new Set((plan.keywords || []).map(normalizeText));
   const minVoteAverage = Number(plan.min_vote_average || 0);
@@ -581,7 +616,7 @@ function rerankResults(rows, plan, topK) {
     const stage = stages[i];
     const ranked = rows
       .filter((row) => {
-        const rowGenres = new Set((row.genres || []).map(normalizeText));
+        const rowGenres = canonicalGenreSet(row.genres || []);
         if ([...excluded].some((genre) => rowGenres.has(genre))) return false;
         if (candidateViolatesExclusions(row, exclusionTokens)) return false;
         if (
@@ -624,7 +659,7 @@ function rerankResults(rows, plan, topK) {
 
 function scoreRow(row, context) {
   const { included, keywords, language, stage } = context;
-  const rowGenres = new Set((row.genres || []).map(normalizeText));
+  const rowGenres = canonicalGenreSet(row.genres || []);
   const rowKeywords = new Set((row.keywords || []).map(normalizeText));
   const genreHits = [...included].filter((genre) => rowGenres.has(genre));
   const keywordHits = [...keywords].filter((kw) => rowKeywords.has(kw));
@@ -708,8 +743,8 @@ function normalizePlan(raw, fallbackPrompt) {
   return {
     intent_summary: stringValue(raw.intent_summary) || fallbackPrompt,
     original_language: languageCode(stringValue(raw.original_language)),
-    include_genres: stringList(raw.include_genres),
-    exclude_genres: stringList(raw.exclude_genres),
+    include_genres: canonicalGenreList(raw.include_genres),
+    exclude_genres: canonicalGenreList(raw.exclude_genres),
     exclude_franchises: excludeFranchises,
     exclude_keywords: excludeKeywords,
     min_runtime: intValue(raw.min_runtime),
@@ -730,8 +765,10 @@ function augmentPlanWithPromptExclusions(plan, prompt) {
   const mergedFranchises = new Set([...(plan.exclude_franchises || []), ...inferred.franchises]);
   const mergedKeywords = new Set([...(plan.exclude_keywords || []), ...inferred.keywords]);
   const mergedAvoidTitles = new Set([...(plan.avoid_titles || []), ...inferred.titles]);
+  const mergedExcludeGenres = new Set([...(plan.exclude_genres || []), ...inferred.genres]);
   return {
     ...plan,
+    exclude_genres: [...mergedExcludeGenres],
     exclude_franchises: [...mergedFranchises],
     exclude_keywords: [...mergedKeywords],
     avoid_titles: [...mergedAvoidTitles],
@@ -741,11 +778,18 @@ function augmentPlanWithPromptExclusions(plan, prompt) {
 function inferPromptExclusions(prompt) {
   const normalized = normalizeText(prompt);
   if (!normalized) {
-    return { franchises: [], keywords: [], titles: [] };
+    return { genres: [], franchises: [], keywords: [], titles: [] };
   }
   const hasNegation = /\b(not|without|excluding|except|avoid|no)\b/.test(normalized);
   if (!hasNegation) {
-    return { franchises: [], keywords: [], titles: [] };
+    return { genres: [], franchises: [], keywords: [], titles: [] };
+  }
+
+  const genres = [];
+  for (const [alias, canonical] of Object.entries(GENRE_ALIAS_TO_CANONICAL)) {
+    if (isNegatedMention(normalized, alias)) {
+      genres.push(canonical);
+    }
   }
 
   const franchises = [];
@@ -757,6 +801,7 @@ function inferPromptExclusions(prompt) {
     }
   }
   return {
+    genres: uniqueNormalizedStrings(genres),
     franchises: uniqueNormalizedStrings(franchises),
     keywords: uniqueNormalizedStrings(keywords),
     titles: [],
@@ -774,6 +819,14 @@ function buildExclusionTokenSet(plan) {
 
   for (const item of plan.exclude_keywords || []) add(item);
   for (const item of plan.avoid_titles || []) add(item);
+  for (const genre of plan.exclude_genres || []) {
+    const canonical = canonicalizeGenre(genre);
+    if (!canonical) continue;
+    add(canonical);
+    for (const alias of GENRE_CANONICAL_ALIASES[canonical] || []) {
+      add(alias);
+    }
+  }
   for (const franchise of plan.exclude_franchises || []) {
     const normalizedFranchise = normalizeText(franchise);
     if (!normalizedFranchise) continue;
@@ -790,7 +843,14 @@ function candidateViolatesExclusions(row, exclusionTokens) {
     return false;
   }
   const rowText = normalizeText(
-    [row.title || "", ...(row.keywords || []), ...(row.genres || [])].join(" ")
+    [
+      row.title || "",
+      row.originalTitle || "",
+      row.tagline || "",
+      row.overview || "",
+      ...(row.keywords || []),
+      ...(row.genres || []),
+    ].join(" ")
   );
   if (!rowText) {
     return false;
@@ -817,6 +877,64 @@ function uniqueNormalizedStrings(values) {
     seen.add(normalized);
   }
   return [...seen];
+}
+
+function buildGenreAliasToCanonicalMap() {
+  const map = {};
+  for (const [canonical, aliases] of Object.entries(GENRE_CANONICAL_ALIASES)) {
+    const canonicalNormalized = normalizeText(canonical);
+    if (!canonicalNormalized) continue;
+    map[canonicalNormalized] = canonicalNormalized;
+    for (const alias of aliases || []) {
+      const normalized = normalizeText(alias);
+      if (!normalized) continue;
+      map[normalized] = canonicalNormalized;
+    }
+  }
+  return map;
+}
+
+function canonicalizeGenre(value) {
+  const normalized = normalizeText(value);
+  if (!normalized) return "";
+  return GENRE_ALIAS_TO_CANONICAL[normalized] || normalized;
+}
+
+function canonicalGenreSet(values) {
+  const set = new Set();
+  for (const value of values || []) {
+    const canonical = canonicalizeGenre(value);
+    if (canonical) {
+      set.add(canonical);
+    }
+  }
+  return set;
+}
+
+function canonicalGenreList(value) {
+  const set = new Set();
+  for (const raw of stringList(value)) {
+    const canonical = canonicalizeGenre(raw);
+    if (canonical) {
+      set.add(canonical);
+    }
+  }
+  return [...set];
+}
+
+function isNegatedMention(normalizedPrompt, term) {
+  if (!normalizedPrompt || !term) return false;
+  const escaped = escapeRegex(String(term).trim());
+  if (!escaped) return false;
+  const spaced = escaped.replace(/\s+/g, "\\s+");
+  const pattern = new RegExp(
+    `\\b(?:not|without|excluding|except|avoid|no)\\b(?:\\s+\\w+){0,6}\\s+${spaced}\\b`
+  );
+  return pattern.test(normalizedPrompt);
+}
+
+function escapeRegex(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function qualityScore(row) {

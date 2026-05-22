@@ -88,33 +88,37 @@ if [[ -z "${OPENROUTER_API_KEY:-}" ]]; then
   exit 1
 fi
 
-# If GOOGLE_OAUTH_ACCESS_TOKEN is not exported, try to fetch it from gcloud.
-if [[ -z "${GOOGLE_OAUTH_ACCESS_TOKEN:-}" ]]; then
-  log "Fetching Google OAuth token from gcloud..."
-  if ! command -v gcloud >/dev/null 2>&1; then
-    echo "ERROR: gcloud is not available in PATH."
-    echo "Open a terminal and run:"
-    echo "  gcloud auth login"
-    exit 1
-  fi
+# Do not pin GOOGLE_OAUTH_ACCESS_TOKEN in env for long runs.
+# The uploader refreshes via `gcloud auth print-access-token`; a fixed env token
+# expires and can cause persistent 401 ACCESS_TOKEN_TYPE_UNSUPPORTED failures.
+if [[ -n "${GOOGLE_OAUTH_ACCESS_TOKEN:-}" ]]; then
+  log "Ignoring pre-set GOOGLE_OAUTH_ACCESS_TOKEN to avoid stale-token failures."
+  unset GOOGLE_OAUTH_ACCESS_TOKEN
+fi
 
-  GCLOUD_TOKEN=""
-  if command -v timeout >/dev/null 2>&1; then
-    GCLOUD_TOKEN="$(timeout 25s gcloud auth print-access-token 2>/dev/null || true)"
-  else
-    GCLOUD_TOKEN="$(gcloud auth print-access-token 2>/dev/null || true)"
-  fi
-  if [[ -n "${GCLOUD_TOKEN}" ]]; then
-    export GOOGLE_OAUTH_ACCESS_TOKEN="${GCLOUD_TOKEN}"
-    log "Google OAuth token loaded."
-  else
-    echo "ERROR: Could not fetch Google OAuth token from gcloud."
-    echo "Run these once in terminal:"
-    echo "  gcloud auth login"
-    echo "  gcloud auth application-default login"
-    echo "Then run this script again."
-    exit 1
-  fi
+log "Checking gcloud access token availability..."
+if ! command -v gcloud >/dev/null 2>&1; then
+  echo "ERROR: gcloud is not available in PATH."
+  echo "Open a terminal and run:"
+  echo "  gcloud auth login"
+  exit 1
+fi
+
+GCLOUD_TOKEN=""
+if command -v timeout >/dev/null 2>&1; then
+  GCLOUD_TOKEN="$(timeout 25s gcloud auth print-access-token 2>/dev/null || true)"
+else
+  GCLOUD_TOKEN="$(gcloud auth print-access-token 2>/dev/null || true)"
+fi
+if [[ -n "${GCLOUD_TOKEN}" ]]; then
+  log "gcloud token check passed."
+else
+  echo "ERROR: Could not fetch Google OAuth token from gcloud."
+  echo "Run these once in terminal:"
+  echo "  gcloud auth login"
+  echo "  gcloud auth application-default login"
+  echo "Then run this script again."
+  exit 1
 fi
 
 mkdir -p .local

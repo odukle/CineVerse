@@ -20,6 +20,9 @@ test_wikiquote.json
 *.jpeg
 *.gif
 !assets/**
+!web/favicon.png
+!web/icons/
+!web/icons/*.png
 
 # IntelliJ related
 *.iml
@@ -119,6 +122,7 @@ functions/node_modules/
 # Sensitive configuration
 config/
 .gemini/
+.antigravitycli/
 .codex/
 .envrc
 config/api_keys.json

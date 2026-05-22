@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:cineverse/core/config/region_preferences.dart';
 import 'package:cineverse/data/providers/data_providers.dart';
 import 'package:cineverse/domain/entities/media_images.dart';
@@ -485,6 +487,11 @@ typedef _MoodCacheKey = ({
   SortOrder sortOrder,
 });
 typedef _HiddenGemsCacheKey = ({String regionCode});
+typedef _CuratedTonightCacheKey = ({
+  String regionCode,
+  bool isTv,
+  int dayKey,
+});
 
 final Map<_MoodCacheKey, List<MediaTitle>> _moodSectionCache = {};
 final Map<_MoodCacheKey, int> _moodLoadedPagesCache = {};
@@ -496,6 +503,168 @@ final Map<_HiddenGemsCacheKey, int> _hiddenGemsLoadedPagesCache = {};
 final Map<_HiddenGemsCacheKey, bool> _hiddenGemsFetchingCache = {};
 final Map<_HiddenGemsCacheKey, int> _hiddenGemsTargetPages = {};
 final Map<_HiddenGemsCacheKey, bool> _hiddenGemsExhaustedCache = {};
+final Map<_CuratedTonightCacheKey, CuratedTonightRailData>
+    _curatedTonightCache = {};
+
+class CuratedTonightProfile {
+  const CuratedTonightProfile({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.tags,
+    required this.movieGenres,
+    required this.tvGenres,
+    required this.runtime,
+    required this.scoreRange,
+    required this.minUserVotes,
+  });
+
+  final String id;
+  final String title;
+  final String description;
+  final List<String> tags;
+  final Set<int> movieGenres;
+  final Set<int> tvGenres;
+  final RangeValues runtime;
+  final RangeValues scoreRange;
+  final int minUserVotes;
+}
+
+class CuratedTonightRailData {
+  const CuratedTonightRailData({
+    required this.profile,
+    required this.dayKey,
+    required this.isTv,
+    required this.titles,
+  });
+
+  final CuratedTonightProfile profile;
+  final int dayKey;
+  final bool isTv;
+  final List<MediaTitle> titles;
+}
+
+const List<CuratedTonightProfile> _curatedTonightProfiles =
+    <CuratedTonightProfile>[
+      CuratedTonightProfile(
+        id: 'neo_noir_nights',
+        title: 'Neo-noir Nights',
+        description:
+            'Rain-soaked tension, morally gray leads, and atmospheric city stories.',
+        tags: <String>['Crime', 'Thriller', 'Atmospheric'],
+        movieGenres: <int>{80, 53, 18},
+        tvGenres: <int>{80, 9648, 18},
+        runtime: RangeValues(88, 160),
+        scoreRange: RangeValues(6.4, 10.0),
+        minUserVotes: 140,
+      ),
+      CuratedTonightProfile(
+        id: 'pulse_pounding',
+        title: 'Pulse-Pounding Rush',
+        description:
+            'High-stakes chases, escalating danger, and no-time-to-breathe pacing.',
+        tags: <String>['Action', 'Suspense', 'Fast-paced'],
+        movieGenres: <int>{28, 53, 12},
+        tvGenres: <int>{10759, 80, 9648},
+        runtime: RangeValues(82, 145),
+        scoreRange: RangeValues(6.0, 10.0),
+        minUserVotes: 180,
+      ),
+      CuratedTonightProfile(
+        id: 'feel_good_escape',
+        title: 'Feel-Good Escape',
+        description:
+            'Warm stories, uplifting arcs, and comforting picks for a relaxed night.',
+        tags: <String>['Feel-good', 'Heartwarming', 'Comfort'],
+        movieGenres: <int>{35, 10749, 10751},
+        tvGenres: <int>{35, 10751, 10766},
+        runtime: RangeValues(78, 145),
+        scoreRange: RangeValues(6.1, 10.0),
+        minUserVotes: 90,
+      ),
+      CuratedTonightProfile(
+        id: 'mind_benders',
+        title: 'Mind-Benders',
+        description:
+            'Reality-warping concepts, twisty plotting, and big-idea storytelling.',
+        tags: <String>['Sci-fi', 'Mystery', 'Twists'],
+        movieGenres: <int>{878, 9648, 53},
+        tvGenres: <int>{10765, 9648, 18},
+        runtime: RangeValues(90, 170),
+        scoreRange: RangeValues(6.3, 10.0),
+        minUserVotes: 120,
+      ),
+      CuratedTonightProfile(
+        id: 'epic_worlds',
+        title: 'Epic Worlds',
+        description:
+            'Big-universe adventures, mythic stakes, and cinematic scale.',
+        tags: <String>['Epic', 'Adventure', 'Fantasy'],
+        movieGenres: <int>{14, 12, 28},
+        tvGenres: <int>{10765, 10759, 18},
+        runtime: RangeValues(95, 190),
+        scoreRange: RangeValues(6.1, 10.0),
+        minUserVotes: 160,
+      ),
+      CuratedTonightProfile(
+        id: 'human_stories',
+        title: 'Human Stories',
+        description:
+            'Character-first dramas with emotional pull and memorable performances.',
+        tags: <String>['Drama', 'Character-led', 'Emotional'],
+        movieGenres: <int>{18, 10749},
+        tvGenres: <int>{18, 10766},
+        runtime: RangeValues(85, 165),
+        scoreRange: RangeValues(6.5, 10.0),
+        minUserVotes: 100,
+      ),
+      CuratedTonightProfile(
+        id: 'dark_detective',
+        title: 'Dark Detective Files',
+        description:
+            'Cold clues, layered suspects, and slow-burn investigations.',
+        tags: <String>['Detective', 'Mystery', 'Crime'],
+        movieGenres: <int>{80, 9648, 53},
+        tvGenres: <int>{80, 9648, 18},
+        runtime: RangeValues(88, 165),
+        scoreRange: RangeValues(6.3, 10.0),
+        minUserVotes: 110,
+      ),
+    ];
+
+int _calendarDayKey(DateTime now) {
+  final DateTime localDay = DateTime(now.year, now.month, now.day);
+  return localDay.millisecondsSinceEpoch ~/ Duration.millisecondsPerDay;
+}
+
+CuratedTonightProfile _profileForDay(int dayKey) {
+  final int index = dayKey % _curatedTonightProfiles.length;
+  return _curatedTonightProfiles[index];
+}
+
+List<MediaTitle> _seededShuffle(List<MediaTitle> input, int seed) {
+  final List<MediaTitle> shuffled = List<MediaTitle>.from(input);
+  final math.Random random = math.Random(seed);
+  for (int i = shuffled.length - 1; i > 0; i--) {
+    final int j = random.nextInt(i + 1);
+    final MediaTitle temp = shuffled[i];
+    shuffled[i] = shuffled[j];
+    shuffled[j] = temp;
+  }
+  return shuffled;
+}
+
+final curatedTonightDayKeyProvider = StreamProvider<int>((ref) async* {
+  int? lastKey;
+  while (true) {
+    final int nextKey = _calendarDayKey(DateTime.now());
+    if (nextKey != lastKey) {
+      lastKey = nextKey;
+      yield nextKey;
+    }
+    await Future<void>.delayed(const Duration(minutes: 20));
+  }
+});
 
 int _getMoodTargetPage(_MoodCacheKey cacheKey) =>
     _moodTargetPages[cacheKey] ?? 2;
@@ -680,6 +849,100 @@ final hiddenGemsSectionProvider = FutureProvider<List<MediaTitle>>((ref) async {
   return uniqueResults;
 });
 
+final curatedTonightRailProvider = FutureProvider<CuratedTonightRailData>((
+  ref,
+) async {
+  final String regionCode = ref.watch(preferredRegionCodeProvider);
+  final bool isTv =
+      ref.watch(exploreMediaTypeProvider) == ExploreMediaType.tv;
+  final int dayKey =
+      ref.watch(curatedTonightDayKeyProvider).value ??
+      _calendarDayKey(DateTime.now());
+
+  final _CuratedTonightCacheKey cacheKey = (
+    regionCode: regionCode,
+    isTv: isTv,
+    dayKey: dayKey,
+  );
+  final CuratedTonightRailData? cached = _curatedTonightCache[cacheKey];
+  if (cached != null) {
+    return cached;
+  }
+
+  // Keep only current and yesterday to avoid cache growth over long sessions.
+  _curatedTonightCache.removeWhere(
+    (key, value) => key.dayKey < dayKey - 1,
+  );
+
+  final repository = ref.watch(mediaRepositoryProvider);
+  final discoverUseCase = DiscoverMediaUseCase(repository);
+  final CuratedTonightProfile profile = _profileForDay(dayKey);
+  final Set<int> genreIds = isTv ? profile.tvGenres : profile.movieGenres;
+
+  final List<MediaTitle> fetched = <MediaTitle>[];
+  for (int page = 1; page <= 3; page++) {
+    final List<MediaTitle> pageResults = await discoverUseCase(
+      DiscoverMediaParams(
+        isTv: isTv,
+        filter: MediaFilter(
+          sortField: SortField.voteAverage,
+          sortOrder: SortOrder.descending,
+          userScore: profile.scoreRange,
+          minUserVotes: profile.minUserVotes,
+          includeNotRated: false,
+          genres: genreIds,
+          runtime: profile.runtime,
+        ),
+        page: page,
+      ),
+    );
+    fetched.addAll(pageResults);
+    if (pageResults.isEmpty || pageResults.length < 20) {
+      break;
+    }
+  }
+
+  final List<MediaTitle> unique = <MediaTitle>[];
+  final Set<int> seenIds = <int>{};
+  for (final MediaTitle media in fetched) {
+    if (seenIds.add(media.id)) {
+      unique.add(media);
+    }
+  }
+
+  final int seed = dayKey + profile.id.hashCode + (isTv ? 1009 : 0);
+  List<MediaTitle> source = unique;
+  if (source.isEmpty) {
+    final List<MediaTitle> relaxedFallback = await discoverUseCase(
+      DiscoverMediaParams(
+        isTv: isTv,
+        filter: MediaFilter(
+          sortField: SortField.popularity,
+          sortOrder: SortOrder.descending,
+          userScore: const RangeValues(5.5, 10.0),
+          minUserVotes: 60,
+          includeNotRated: false,
+          genres: genreIds,
+        ),
+        page: 1,
+      ),
+    );
+    source = relaxedFallback;
+  }
+
+  final List<MediaTitle> shuffled = _seededShuffle(source, seed);
+  final List<MediaTitle> curated = shuffled.take(30).toList(growable: false);
+
+  final CuratedTonightRailData result = CuratedTonightRailData(
+    profile: profile,
+    dayKey: dayKey,
+    isTv: isTv,
+    titles: curated,
+  );
+  _curatedTonightCache[cacheKey] = result;
+  return result;
+});
+
 final moviesProvider = Provider<AsyncValue<List<MediaTitle>>>((ref) {
   final mediaType = ref.watch(exploreMediaTypeProvider);
   final section = mediaType == ExploreMediaType.movie
@@ -695,6 +958,15 @@ final mediaImagesProvider =
     ) async {
       final repository = ref.watch(mediaRepositoryProvider);
       return repository.fetchMediaImages(params.id, isTv: params.isTv);
+    });
+
+final mediaTaglinesProvider =
+    FutureProvider.family<List<String>, ({int id, bool isTv})>((
+      ref,
+      params,
+    ) async {
+      final apiClient = ref.watch(tmdbApiClientProvider);
+      return apiClient.fetchMediaTaglines(params.id, isTv: params.isTv);
     });
 
 final tvSeasonImagesProvider =

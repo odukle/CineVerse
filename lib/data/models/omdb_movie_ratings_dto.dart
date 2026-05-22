@@ -5,6 +5,8 @@ class OmdbMovieRatingsDto {
     this.imdbRating,
     this.rottenTomatoesRating,
     this.metacriticRating,
+    this.awards,
+    this.dvdReleaseDate,
   });
 
   factory OmdbMovieRatingsDto.fromJson(Map<String, dynamic> json) {
@@ -18,12 +20,16 @@ class OmdbMovieRatingsDto {
         source: 'Rotten Tomatoes',
       ),
       metacriticRating: _resolveNamedRating(rawRatings, source: 'Metacritic'),
+      awards: json['Awards'] as String?,
+      dvdReleaseDate: json['DVD'] as String?,
     );
   }
 
   final String? imdbRating;
   final String? rottenTomatoesRating;
   final String? metacriticRating;
+  final String? awards;
+  final String? dvdReleaseDate;
 
   List<MovieRating> toDomain({String? imdbId, String? title}) {
     final String encodedTitle = Uri.encodeComponent(title ?? '');

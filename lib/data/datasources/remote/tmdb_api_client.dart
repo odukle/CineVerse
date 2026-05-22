@@ -420,6 +420,56 @@ class TmdbApiClient {
     }
   }
 
+  Future<List<String>> fetchMediaTaglines(
+    int mediaId, {
+    required bool isTv,
+  }) async {
+    _assertMovieApiConfigured();
+
+    final String path = isTv
+        ? '${AppConstants.tmdbTvPath}/$mediaId/translations'
+        : '${AppConstants.tmdbMoviePath}/$mediaId/translations';
+
+    try {
+      final Response<Map<String, dynamic>> response = await client
+          .get<Map<String, dynamic>>(
+            path,
+            queryParameters: _authQueryParameters(),
+          );
+
+      final Map<String, dynamic>? payload = response.data;
+      final List<dynamic> translations =
+          (payload?['translations'] as List<dynamic>?) ?? <dynamic>[];
+      final Set<String> unique = <String>{};
+      final List<String> ordered = <String>[];
+
+      for (final dynamic entry in translations) {
+        if (entry is! Map<String, dynamic>) {
+          continue;
+        }
+        final String languageCode =
+            (entry['iso_639_1'] as String? ?? '').toLowerCase();
+        if (languageCode != 'en') {
+          continue;
+        }
+        final Map<String, dynamic> data =
+            (entry['data'] as Map<String, dynamic>?) ?? <String, dynamic>{};
+        final String tagline = (data['tagline'] as String? ?? '').trim();
+        if (tagline.isEmpty) {
+          continue;
+        }
+        if (unique.add(tagline.toLowerCase())) {
+          ordered.add(tagline);
+        }
+      }
+
+      return ordered;
+    } on DioException catch (error, stackTrace) {
+      _logFailure('fetchMediaTaglines($mediaId)', error, stackTrace);
+      return const <String>[];
+    }
+  }
+
   MediaImages _parseMediaImages(Map<String, dynamic>? payload) {
     final List<dynamic> postersPayload =
         (payload?['posters'] as List<dynamic>?) ?? <dynamic>[];

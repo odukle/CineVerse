@@ -31,6 +31,8 @@ import 'package:cineverse/presentation/features/movie_details/episode_details_sc
 import 'package:cineverse/presentation/features/quotes/explore_wikiquotes_screen.dart';
 import 'package:cineverse/presentation/features/movie_details/quote_share_editor_screen.dart';
 import 'package:cineverse/domain/repositories/quotes_repository.dart';
+import 'package:cineverse/presentation/features/movie_details/movie_awards_screen.dart';
+import 'package:cineverse/presentation/features/movie_details/widgets/movie_awards_helper.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -294,6 +296,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
+      GoRoute(
+        path: AppRoute.movieAwards.path,
+        name: AppRoute.movieAwards.name,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return MovieAwardsScreen(
+            awards: extra['awards'] as MovieAwards,
+            movieTitle: extra['movieTitle'] as String,
+          );
+        },
+      ),
     ],
   );
 });
@@ -328,7 +341,8 @@ enum AppRoute {
   watchAnalytics('/watch-analytics', 'watch-analytics'),
   allReviews('/reviews', 'all-reviews'),
   exploreQuotes('/explore_quotes', 'explore_quotes'),
-  quoteShareEditor('/quote_share_editor', 'quote_share_editor');
+  quoteShareEditor('/quote_share_editor', 'quote_share_editor'),
+  movieAwards('/movie_awards', 'movie-awards');
 
   const AppRoute(this.path, this.name);
 

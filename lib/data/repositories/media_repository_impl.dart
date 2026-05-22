@@ -189,6 +189,7 @@ class MediaRepositoryImpl implements MediaRepository {
 
     try {
       final omdbRatingsDto = await omdbApiClient.fetchMovieRatings(imdbId);
+      final String? mergedDigitalRelease = baseDetails.digitalReleaseDate ?? omdbRatingsDto?.dvdReleaseDate;
       return baseDetails.copyWith(
         externalRatings:
             omdbRatingsDto?.toDomain(
@@ -196,9 +197,12 @@ class MediaRepositoryImpl implements MediaRepository {
               title: baseDetails.title,
             ) ??
             const <MovieRating>[],
+        awards: omdbRatingsDto?.awards,
+        digitalReleaseDate: mergedDigitalRelease,
       );
-    } on OmdbApiException catch (error) {
-      debugPrint('[MovieDetails] OMDb ratings unavailable for $imdbId: $error');
+    } catch (e, stackTrace) {
+      debugPrint('[MediaRepositoryImpl] OMDb rating fetch failed: $e');
+      debugPrintStack(stackTrace: stackTrace);
       return baseDetails;
     }
   }
@@ -262,30 +266,24 @@ class MediaRepositoryImpl implements MediaRepository {
     // Process Cast Credits (Acting)
     for (final castDto in creditsDto.cast) {
       final media = castDto.media.toDomain();
-      final isTv = media.mediaType == GlobalMediaType.tv;
-      final deptLabel = 'Acting (${isTv ? "TV" : "Movies"})';
-
       final credit = PersonCredit(
         media: media,
         role: castDto.character,
         department: 'Acting',
       );
-      creditsByDepartment.putIfAbsent(deptLabel, () => []).add(credit);
+      creditsByDepartment.putIfAbsent('Acting', () => []).add(credit);
     }
 
     // Process Crew Credits
     for (final crewDto in creditsDto.crew) {
       final dept = crewDto.department ?? 'Other';
       final media = crewDto.media.toDomain();
-      final isTv = media.mediaType == GlobalMediaType.tv;
-      final deptLabel = '$dept (${isTv ? "TV" : "Movies"})';
-
       final credit = PersonCredit(
         media: media,
         role: crewDto.job,
         department: dept,
       );
-      creditsByDepartment.putIfAbsent(deptLabel, () => []).add(credit);
+      creditsByDepartment.putIfAbsent(dept, () => []).add(credit);
     }
 
     // Deduplicate and sort each department

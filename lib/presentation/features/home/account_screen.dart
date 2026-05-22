@@ -260,15 +260,18 @@ class _RegionPreferenceCard extends ConsumerWidget {
     final AsyncValue<String?> selectedRegionAsync = ref.watch(
       selectedRegionCodeProvider,
     );
+    final String? detectedRegionCode = ref.watch(detectedRegionCodeProvider);
     final String effectiveRegionCode = ref.watch(preferredRegionCodeProvider);
     final String? selectedRegionCode = selectedRegionAsync.asData?.value;
     final String regionLabel = regionLabelForCode(effectiveRegionCode);
+    final String autoRegionCode = detectedRegionCode ?? effectiveRegionCode;
+    final String autoRegionLabel = regionLabelForCode(autoRegionCode);
 
     return _AccountActionCard(
       icon: Icons.public_rounded,
       title: 'Content Region',
       subtitle: selectedRegionCode == null
-          ? 'Default region: $regionLabel ($effectiveRegionCode). Select a region to localize supported movie queries and watch-provider lookups.'
+          ? 'Auto-detected region: $regionLabel ($effectiveRegionCode). Select a region to override for localized movie queries and watch-provider lookups.'
           : 'Selected region: $regionLabel ($effectiveRegionCode). Supported movie queries and watch-provider lookups will reuse this automatically next time.',
       trailing: selectedRegionAsync.isLoading
           ? const SizedBox(
@@ -277,7 +280,13 @@ class _RegionPreferenceCard extends ConsumerWidget {
               child: CircularProgressIndicator(strokeWidth: 2),
             )
           : null,
-      onTap: () => _showRegionPicker(context, ref, effectiveRegionCode),
+      onTap: () => _showRegionPicker(
+        context,
+        ref,
+        effectiveRegionCode,
+        autoRegionCode,
+        autoRegionLabel,
+      ),
     );
   }
 
@@ -285,6 +294,8 @@ class _RegionPreferenceCard extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     String effectiveRegionCode,
+    String autoRegionCode,
+    String autoRegionLabel,
   ) {
     final theme = Theme.of(context);
     return showModalBottomSheet<void>(
@@ -322,14 +333,14 @@ class _RegionPreferenceCard extends ConsumerWidget {
                 ),
                 tileColor: theme.cardTheme.color,
                 title: const Text(
-                  'Use Default (US)',
+                  'Use Auto-Detected Region',
                   style: TextStyle(color: Colors.white),
                 ),
-                subtitle: const Text(
-                  'Matches the app default when no region is selected.',
+                subtitle: Text(
+                  '$autoRegionLabel ($autoRegionCode)',
                   style: TextStyle(color: Colors.white70),
                 ),
-                trailing: effectiveRegionCode == 'US'
+                trailing: effectiveRegionCode == autoRegionCode
                     ? const Icon(Icons.check_rounded, color: Colors.white)
                     : null,
                 onTap: () async {

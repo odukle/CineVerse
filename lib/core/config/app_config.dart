@@ -7,6 +7,7 @@ class AppConfig {
     this.movieProxyBaseUrl = '',
     this.openRouterApiKey = '',
     this.tonightRecommendationsApiUrl = '',
+    this.watchProviderResolverApiUrl = '',
   });
 
   factory AppConfig.fromEnvironment() {
@@ -20,6 +21,11 @@ class AppConfig {
         defaultValue:
             'https://us-central1-cineverse-flutter-591.cloudfunctions.net/recommendTonight',
       ),
+      watchProviderResolverApiUrl: String.fromEnvironment(
+        'WATCH_PROVIDER_RESOLVER_API_URL',
+        defaultValue:
+            'https://us-central1-cineverse-flutter-591.cloudfunctions.net/resolveProviderLink',
+      ),
     );
   }
 
@@ -28,6 +34,7 @@ class AppConfig {
   final String movieProxyBaseUrl;
   final String openRouterApiKey;
   final String tonightRecommendationsApiUrl;
+  final String watchProviderResolverApiUrl;
 
   bool get hasTmdbApiKey => tmdbApiKey.trim().isNotEmpty;
 
@@ -39,6 +46,9 @@ class AppConfig {
 
   bool get hasTonightRecommendationsApiUrl =>
       tonightRecommendationsApiUrl.trim().isNotEmpty;
+
+  bool get hasWatchProviderResolverApiUrl =>
+      watchProviderResolverApiUrl.trim().isNotEmpty;
 
   bool get hasMovieApiAccess => hasMovieProxyBaseUrl || hasTmdbApiKey;
 

@@ -551,9 +551,6 @@ class FirestoreRestClient:
 
 
 def _google_access_token() -> str:
-    token = os.environ.get("GOOGLE_OAUTH_ACCESS_TOKEN", "").strip()
-    if token:
-        return token
     result = subprocess.run(
         ["gcloud", "auth", "print-access-token"],
         check=False,
@@ -562,6 +559,9 @@ def _google_access_token() -> str:
     )
     token = result.stdout.strip()
     if result.returncode == 0 and token:
+        return token
+    token = os.environ.get("GOOGLE_OAUTH_ACCESS_TOKEN", "").strip()
+    if token:
         return token
     raise RuntimeError(
         "Could not get a Google OAuth access token. "

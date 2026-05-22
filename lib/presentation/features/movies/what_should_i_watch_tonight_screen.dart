@@ -1,11 +1,16 @@
 import 'dart:async';
+import 'dart:math' as math;
+import 'dart:ui';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/domain/entities/global_media_filter.dart';
+import 'package:cineverse/domain/entities/watchlist_item.dart';
 import 'package:cineverse/presentation/features/movies/models/tonight_watch_models.dart';
 import 'package:cineverse/presentation/features/movies/providers/tonight_watch_provider.dart';
-import 'package:cineverse/presentation/widgets/background_gradient.dart';
+import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -23,18 +28,66 @@ class WhatShouldIWatchTonightScreen extends ConsumerStatefulWidget {
 }
 
 class _WhatShouldIWatchTonightScreenState
-    extends ConsumerState<WhatShouldIWatchTonightScreen> {
+    extends ConsumerState<WhatShouldIWatchTonightScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _promptController = TextEditingController();
   final FocusNode _promptFocusNode = FocusNode();
   final SpeechToText _speech = SpeechToText();
+  final math.Random _random = math.Random();
+  final AudioPlayer _audioPlayer = AudioPlayer();
   TonightPromptRequest? _submittedRequest;
   int _requestNonce = 0;
   bool _isListening = false;
   bool _speechAvailable = false;
   String? _speechError;
+  List<String> _rotatingExamples = <String>[];
+  int _suggestionRevision = 0;
+  bool _isShufflingSuggestions = false;
+  late final AnimationController _diceController;
+  late final Animation<double> _diceRotation;
+  late final Animation<double> _diceScale;
+
+  @override
+  void initState() {
+    super.initState();
+    _diceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 620),
+    );
+    _diceRotation = Tween<double>(
+      begin: 0,
+      end: 1.45,
+    ).animate(CurvedAnimation(parent: _diceController, curve: Curves.easeOut));
+    _diceScale = TweenSequence<double>(<TweenSequenceItem<double>>[
+      TweenSequenceItem<double>(
+        tween: Tween<double>(
+          begin: 1,
+          end: 0.9,
+        ).chain(CurveTween(curve: Curves.easeOut)),
+        weight: 35,
+      ),
+      TweenSequenceItem<double>(
+        tween: Tween<double>(
+          begin: 0.9,
+          end: 1.12,
+        ).chain(CurveTween(curve: Curves.easeOutBack)),
+        weight: 30,
+      ),
+      TweenSequenceItem<double>(
+        tween: Tween<double>(
+          begin: 1.12,
+          end: 1,
+        ).chain(CurveTween(curve: Curves.easeInOut)),
+        weight: 35,
+      ),
+    ]).animate(_diceController);
+    _rotatingExamples = _buildRotatingExamples();
+  }
 
   @override
   void dispose() {
+    _diceController.dispose();
+    _audioPlayer.dispose();
     _speech.stop();
     _promptController.dispose();
     _promptFocusNode.dispose();
@@ -49,7 +102,7 @@ class _WhatShouldIWatchTonightScreenState
         ? null
         : ref.watch(tonightPromptRecommendationsProvider(_submittedRequest!));
 
-    return BackgroundGradient(
+    return _AmbientGlowingBackdrop(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
@@ -82,8 +135,14 @@ class _WhatShouldIWatchTonightScreenState
                   isTv: widget.isTv,
                   controller: _promptController,
                   focusNode: _promptFocusNode,
+                  examplePrompts: _rotatingExamples,
+                  suggestionRevision: _suggestionRevision,
+                  isShufflingSuggestions: _isShufflingSuggestions,
+                  diceRotation: _diceRotation,
+                  diceScale: _diceScale,
                   onSubmit: _runSearch,
                   onExampleTap: _useExamplePrompt,
+                  onDiceTap: () => unawaited(_useRandomSuggestion()),
                   isListening: _isListening,
                   speechAvailable: _speechAvailable,
                   speechError: _speechError,
@@ -135,6 +194,54 @@ class _WhatShouldIWatchTonightScreenState
   void _useExamplePrompt(String prompt) {
     _promptController.text = prompt;
     _runSearch();
+  }
+
+  List<String> _buildRotatingExamples() {
+    final List<String> pool = List<String>.from(
+      widget.isTv ? tonightTvPromptExamples : tonightMoviePromptExamples,
+    )..shuffle(_random);
+    return pool.take(6).toList(growable: false);
+  }
+
+  Future<void> _useRandomSuggestion() async {
+    if (_rotatingExamples.length <= 1) {
+      return;
+    }
+    setState(() {
+      _isShufflingSuggestions = true;
+    });
+    _diceController.forward(from: 0);
+    unawaited(_audioPlayer.play(AssetSource('sounds/dice_shuffle.wav')));
+
+    List<String> next = _buildRotatingExamples();
+    int attempts = 0;
+    while (_sameOrder(next, _rotatingExamples) && attempts < 4) {
+      next = _buildRotatingExamples();
+      attempts += 1;
+    }
+    setState(() {
+      _rotatingExamples = next;
+      _suggestionRevision += 1;
+    });
+    await Future<void>.delayed(const Duration(milliseconds: 520));
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      _isShufflingSuggestions = false;
+    });
+  }
+
+  bool _sameOrder(List<String> a, List<String> b) {
+    if (a.length != b.length) {
+      return false;
+    }
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) {
+        return false;
+      }
+    }
+    return true;
   }
 
   Future<void> _toggleVoiceInput() async {
@@ -224,8 +331,14 @@ class _PromptPanel extends StatelessWidget {
     required this.isTv,
     required this.controller,
     required this.focusNode,
+    required this.examplePrompts,
+    required this.suggestionRevision,
+    required this.isShufflingSuggestions,
+    required this.diceRotation,
+    required this.diceScale,
     required this.onSubmit,
     required this.onExampleTap,
+    required this.onDiceTap,
     required this.isListening,
     required this.speechAvailable,
     required this.speechError,
@@ -235,8 +348,14 @@ class _PromptPanel extends StatelessWidget {
   final bool isTv;
   final TextEditingController controller;
   final FocusNode focusNode;
+  final List<String> examplePrompts;
+  final int suggestionRevision;
+  final bool isShufflingSuggestions;
+  final Animation<double> diceRotation;
+  final Animation<double> diceScale;
   final VoidCallback onSubmit;
   final ValueChanged<String> onExampleTap;
+  final VoidCallback onDiceTap;
   final bool isListening;
   final bool speechAvailable;
   final String? speechError;
@@ -318,24 +437,9 @@ class _PromptPanel extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              SizedBox(
-                height: 48,
-                width: 48,
-                child: IconButton.filled(
-                  onPressed: onMicTap,
-                  style: IconButton.styleFrom(
-                    backgroundColor: isListening
-                        ? const Color(0xFFEF5350)
-                        : const Color(0xFF3A425A),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  icon: Icon(
-                    isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
-                    color: Colors.white,
-                  ),
-                ),
+              _AudioWavePulse(
+                isListening: isListening,
+                onTap: onMicTap,
               ),
             ],
           ),
@@ -355,53 +459,119 @@ class _PromptPanel extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: tonightPromptExamples
-                .map(
-                  (String example) => InkWell(
-                    onTap: () => onExampleTap(example),
-                    borderRadius: BorderRadius.circular(999),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(999),
-                        color: Colors.white.withValues(alpha: 0.08),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.1),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 450),
+            switchInCurve: Curves.easeOutBack,
+            switchOutCurve: Curves.easeIn,
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              return FadeTransition(
+                opacity: animation,
+                child: ScaleTransition(
+                  scale: Tween<double>(begin: 0.85, end: 1.0).animate(animation),
+                  child: child,
+                ),
+              );
+            },
+            child: Wrap(
+              key: ValueKey<int>(suggestionRevision),
+              spacing: 8,
+              runSpacing: 8,
+              children: examplePrompts
+                  .map(
+                    (String example) => InkWell(
+                      onTap: () => onExampleTap(example),
+                      borderRadius: BorderRadius.circular(999),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(999),
+                          color: Colors.white.withValues(alpha: 0.08),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.1),
+                          ),
+                        ),
+                        child: Text(
+                          example,
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: Colors.white.withValues(alpha: 0.85),
+                          ),
                         ),
                       ),
-                      child: Text(
-                        example,
-                        style: theme.textTheme.labelMedium?.copyWith(
-                          color: Colors.white.withValues(alpha: 0.85),
+                    ),
+                  )
+                  .toList(growable: false),
+            ),
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: onSubmit,
+                  icon: const Icon(Icons.auto_awesome_rounded),
+                  label: Text(
+                    isTv ? 'Find Shows' : 'Find Movies',
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF6E6BFF),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: onDiceTap,
+                  borderRadius: BorderRadius.circular(12),
+                  child: Ink(
+                    width: 52,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: AppColors.cinemaSelected.withValues(
+                        alpha: isShufflingSuggestions ? 0.24 : 0.1,
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.cinemaSelected.withValues(
+                          alpha: isShufflingSuggestions ? 0.55 : 0.24,
+                        ),
+                      ),
+                    ),
+                    child: ScaleTransition(
+                      scale: diceScale,
+                      child: RotationTransition(
+                        turns: diceRotation,
+                        child: Icon(
+                          Icons.casino_outlined,
+                          color: AppColors.cinemaSelected,
+                          size: 24,
                         ),
                       ),
                     ),
                   ),
-                )
-                .toList(growable: false),
-          ),
-          const SizedBox(height: 14),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: onSubmit,
-              icon: const Icon(Icons.auto_awesome_rounded),
-              label: Text(
-                isTv ? 'Find Shows' : 'Find Movies',
-                style: const TextStyle(fontWeight: FontWeight.w800),
+                ),
               ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF6E6BFF),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
+            ],
+          ),
+          AnimatedOpacity(
+            duration: const Duration(milliseconds: 220),
+            opacity: isShufflingSuggestions ? 1 : 0,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 8),
+              child: Text(
+                'Shuffling ideas...',
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: const Color(0xFF9FE7FF),
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
@@ -473,122 +643,333 @@ class _ResultList extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 14),
-        ...result.recommendations.map(
-          (TonightRecommendationItem item) =>
-              _RecommendationCard(isTv: isTv, item: item),
+        ...result.recommendations.asMap().entries.map(
+          (MapEntry<int, TonightRecommendationItem> entry) {
+            final int index = entry.key;
+            final TonightRecommendationItem item = entry.value;
+            return _StaggeredEntrance(
+              index: index,
+              child: _RecommendationCard(isTv: isTv, item: item),
+            );
+          },
         ),
       ],
     );
   }
 }
 
-class _RecommendationCard extends StatelessWidget {
+class _RecommendationCard extends ConsumerWidget {
   const _RecommendationCard({required this.isTv, required this.item});
 
   final bool isTv;
   final TonightRecommendationItem item;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
     final String heroTag =
         'tonight-llm-${isTv ? 'tv' : 'movie'}-${item.title.id}';
     final String? poster = item.details.posterPath ?? item.title.posterPath;
+
+    final AsyncValue<bool> isInWatchlistAsync =
+        ref.watch(isInWatchlistProvider(item.title.id));
+    final bool isInWatchlist = isInWatchlistAsync.value ?? false;
+
+    final int matchPct =
+        (item.score <= 1.0 ? item.score * 100 : item.score).round().clamp(1, 100);
+
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
+      margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: Colors.white.withValues(alpha: 0.05),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Hero(
-            tag: heroTag,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: SizedBox(
-                width: 72,
-                height: 104,
-                child: poster == null
-                    ? Container(
-                        color: AppColors.cinemaPlaceholder,
-                        child: const Icon(
-                          Icons.movie_creation_outlined,
-                          color: Colors.white,
-                        ),
-                      )
-                    : CachedNetworkImage(imageUrl: poster, fit: BoxFit.cover),
-              ),
-            ),
+        borderRadius: BorderRadius.circular(24),
+        color: Colors.white.withValues(alpha: 0.04),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        boxShadow: <BoxShadow>[
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.2),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
+        ],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text(
-                  item.title.title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                Stack(
+                  clipBehavior: Clip.none,
                   children: <Widget>[
-                    _MiniBadge(
-                      label:
-                          '${(item.details.catalogScore ?? item.title.voteAverage ?? 0).toStringAsFixed(1)}/10',
-                    ),
-                    if (item.details.runtimeMinutes != null)
-                      _MiniBadge(label: '${item.details.runtimeMinutes} min'),
-                    if (item.details.originalLanguage != null)
-                      _MiniBadge(
-                        label: item.details.originalLanguage!.toUpperCase(),
+                    Hero(
+                      tag: heroTag,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: SizedBox(
+                          width: 84,
+                          height: 124,
+                          child: poster == null
+                              ? Container(
+                                  color: AppColors.cinemaPlaceholder,
+                                  child: const Icon(
+                                    Icons.movie_creation_outlined,
+                                    color: Colors.white54,
+                                    size: 28,
+                                  ),
+                                )
+                              : CachedNetworkImage(
+                                  imageUrl: poster,
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) => Container(
+                                    color: AppColors.cinemaPlaceholder,
+                                    child: const Center(
+                                      child: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 1.5,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                        ),
                       ),
+                    ),
+                    Positioned(
+                      bottom: -8,
+                      left: 6,
+                      right: 6,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          gradient: const LinearGradient(
+                            colors: <Color>[Color(0xFF00E5FF), Color(0xFF6E6BFF)],
+                          ),
+                          boxShadow: <BoxShadow>[
+                            BoxShadow(
+                              color: const Color(0xFF00E5FF).withValues(alpha: 0.3),
+                              blurRadius: 6,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          '$matchPct% Match',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: Colors.white,
+                            fontSize: 9,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 0.2,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  item.matchReason,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.78),
-                    height: 1.35,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(right: 32),
+                        child: Text(
+                          item.title.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            height: 1.15,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 6,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: <Widget>[
+                          _IconMetadataBadge(
+                            icon: Icons.star_rounded,
+                            iconColor: const Color(0xFFFFD54F),
+                            label: (item.details.catalogScore ??
+                                    item.title.voteAverage ??
+                                    0)
+                                .toStringAsFixed(1),
+                          ),
+                          if (item.details.runtimeMinutes != null)
+                            _IconMetadataBadge(
+                              icon: Icons.schedule_rounded,
+                              iconColor: const Color(0xFF78DDFF),
+                              label: '${item.details.runtimeMinutes} min',
+                            ),
+                          if (item.details.originalLanguage != null)
+                            _IconMetadataBadge(
+                              icon: Icons.translate_rounded,
+                              iconColor: const Color(0xFFB39DDB),
+                              label: item.details.originalLanguage!.toUpperCase(),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        item.matchReason,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.76),
+                          height: 1.4,
+                          fontSize: 12,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      InkWell(
+                        onTap: () {
+                          context.pushNamed(
+                            AppRoute.movieDetails.name,
+                            pathParameters: <String, String>{
+                              'movieId': item.title.id.toString(),
+                            },
+                            queryParameters: <String, String>{
+                              'isTv': isTv.toString(),
+                              'heroTag': heroTag,
+                            },
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(10),
+                        child: Ink(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.white.withValues(alpha: 0.06),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.08),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              const Icon(
+                                Icons.open_in_new_rounded,
+                                size: 14,
+                                color: Color(0xFF78DDFF),
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Explore details',
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: const Color(0xFF78DDFF),
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 10),
-                TextButton.icon(
-                  onPressed: () {
-                    context.pushNamed(
-                      AppRoute.movieDetails.name,
-                      pathParameters: <String, String>{
-                        'movieId': item.title.id.toString(),
-                      },
-                      queryParameters: <String, String>{
-                        'isTv': isTv.toString(),
-                        'heroTag': heroTag,
-                      },
-                    );
-                  },
-                  style: TextButton.styleFrom(
-                    foregroundColor: Colors.white,
-                    padding: EdgeInsets.zero,
-                    minimumSize: const Size(0, 0),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  icon: const Icon(Icons.open_in_new_rounded, size: 16),
-                  label: const Text('Open details'),
                 ),
               ],
             ),
           ),
+          Positioned(
+            top: 10,
+            right: 10,
+            child: Material(
+              color: Colors.transparent,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  return ScaleTransition(scale: animation, child: child);
+                },
+                child: InkWell(
+                  key: ValueKey<bool>(isInWatchlist),
+                  onTap: () {
+                    final watchlistItem = WatchlistItem(
+                      id: item.title.id,
+                      title: item.title.title,
+                      posterPath: poster,
+                      releaseDate: item.title.releaseDate,
+                      mediaType: isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
+                      addedDate: DateTime.now(),
+                      voteAverage: item.title.voteAverage ?? item.details.catalogScore,
+                    );
+                    ref.read(watchlistProvider.notifier).toggleItem(watchlistItem);
+                  },
+                  borderRadius: BorderRadius.circular(50),
+                  child: Ink(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isInWatchlist
+                          ? const Color(0xFF6E6BFF).withValues(alpha: 0.2)
+                          : Colors.white.withValues(alpha: 0.06),
+                      border: Border.all(
+                        color: isInWatchlist
+                            ? const Color(0xFF6E6BFF).withValues(alpha: 0.6)
+                            : Colors.white.withValues(alpha: 0.12),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: Icon(
+                      isInWatchlist
+                          ? Icons.bookmark_added_rounded
+                          : Icons.bookmark_add_outlined,
+                      color: isInWatchlist
+                          ? const Color(0xFF78DDFF)
+                          : Colors.white.withValues(alpha: 0.8),
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
+    );
+  }
+}
+
+class _IconMetadataBadge extends StatelessWidget {
+  const _IconMetadataBadge({
+    required this.icon,
+    required this.iconColor,
+    required this.label,
+  });
+
+  final IconData icon;
+  final Color iconColor;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Icon(icon, size: 14, color: iconColor),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: Colors.white.withValues(alpha: 0.85),
+                fontWeight: FontWeight.w700,
+              ),
+        ),
+      ],
     );
   }
 }
@@ -658,15 +1039,19 @@ class _LoadingState extends ConsumerWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(24),
         color: Colors.white.withValues(alpha: 0.04),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           const _GeneratingQueryHeader(),
-          const SizedBox(height: 12),
+          const SizedBox(height: 24),
+          const Center(
+            child: _AiScanScanner(),
+          ),
+          const SizedBox(height: 24),
           ValueListenableBuilder<TonightRecommendationProgressState>(
             valueListenable: todayRecommendationProgressNotifier,
             builder: (context, liveState, _) {
@@ -698,7 +1083,12 @@ class _LoadingState extends ConsumerWidget {
                             const SizedBox(
                               width: 18,
                               height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Color(0xFF82F7FF),
+                                ),
+                              ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
@@ -1396,4 +1786,453 @@ class _ChromeButton extends StatelessWidget {
       ),
     );
   }
+}
+
+// ==========================================
+// Premium Overhaul Helper Widgets
+// ==========================================
+
+class _AmbientGlowingBackdrop extends StatefulWidget {
+  const _AmbientGlowingBackdrop({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_AmbientGlowingBackdrop> createState() => _AmbientGlowingBackdropState();
+}
+
+class _AmbientGlowingBackdropState extends State<_AmbientGlowingBackdrop>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 25),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: <Widget>[
+        Positioned.fill(
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, _) {
+              return CustomPaint(
+                painter: _GlowingBlobsPainter(animationValue: _controller.value),
+              );
+            },
+          ),
+        ),
+        Positioned.fill(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 75, sigmaY: 75),
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.55),
+            ),
+          ),
+        ),
+        widget.child,
+      ],
+    );
+  }
+}
+
+class _GlowingBlobsPainter extends CustomPainter {
+  _GlowingBlobsPainter({required this.animationValue});
+
+  final double animationValue;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double angle = animationValue * 2 * math.pi;
+    final Paint paint = Paint()..style = PaintingStyle.fill;
+
+    // Blob 1: Cyan-Blueish
+    final double x1 = size.width * (0.25 + 0.15 * math.sin(angle));
+    final double y1 = size.height * (0.3 + 0.1 * math.cos(angle));
+    final double r1 = math.min(size.width, size.height) * 0.45;
+    paint.shader = RadialGradient(
+      colors: <Color>[
+        const Color(0xFF00E5FF).withValues(alpha: 0.18),
+        const Color(0xFF00E5FF).withValues(alpha: 0.0),
+      ],
+    ).createShader(Rect.fromCircle(center: Offset(x1, y1), radius: r1));
+    canvas.drawCircle(Offset(x1, y1), r1, paint);
+
+    // Blob 2: Magenta/Pinkish
+    final double x2 = size.width * (0.75 + 0.12 * math.cos(angle + 1.0));
+    final double y2 = size.height * (0.45 + 0.15 * math.sin(angle + 1.0));
+    final double r2 = math.min(size.width, size.height) * 0.5;
+    paint.shader = RadialGradient(
+      colors: <Color>[
+        const Color(0xFFE040FB).withValues(alpha: 0.15),
+        const Color(0xFFE040FB).withValues(alpha: 0.0),
+      ],
+    ).createShader(Rect.fromCircle(center: Offset(x2, y2), radius: r2));
+    canvas.drawCircle(Offset(x2, y2), r2, paint);
+
+    // Blob 3: Deep Indigo/Purple
+    final double x3 = size.width * (0.45 + 0.2 * math.sin(angle + 2.5));
+    final double y3 = size.height * (0.8 + 0.12 * math.cos(angle + 2.5));
+    final double r3 = math.min(size.width, size.height) * 0.55;
+    paint.shader = RadialGradient(
+      colors: <Color>[
+        const Color(0xFF651FFF).withValues(alpha: 0.18),
+        const Color(0xFF651FFF).withValues(alpha: 0.0),
+      ],
+    ).createShader(Rect.fromCircle(center: Offset(x3, y3), radius: r3));
+    canvas.drawCircle(Offset(x3, y3), r3, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _GlowingBlobsPainter oldDelegate) {
+    return oldDelegate.animationValue != animationValue;
+  }
+}
+
+class _AudioWavePulse extends StatefulWidget {
+  const _AudioWavePulse({
+    required this.isListening,
+    required this.onTap,
+  });
+
+  final bool isListening;
+  final VoidCallback onTap;
+
+  @override
+  State<_AudioWavePulse> createState() => _AudioWavePulseState();
+}
+
+class _AudioWavePulseState extends State<_AudioWavePulse>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1800),
+    );
+    if (widget.isListening) {
+      _controller.repeat();
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _AudioWavePulse oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isListening != oldWidget.isListening) {
+      if (widget.isListening) {
+        _controller.repeat();
+      } else {
+        _controller.stop();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          if (widget.isListening)
+            ...List<Widget>.generate(3, (int index) {
+              final double delay = index * 0.33;
+              return AnimatedBuilder(
+                animation: _controller,
+                builder: (context, _) {
+                  double progress = _controller.value + delay;
+                  if (progress > 1.0) {
+                    progress -= 1.0;
+                  }
+                  final double scale = 1.0 + (progress * 1.2);
+                  final double opacity = (1.0 - progress).clamp(0.0, 1.0);
+                  return Transform.scale(
+                    scale: scale,
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: const Color(0xFFEF5350).withValues(alpha: opacity * 0.45),
+                        border: Border.all(
+                          color: const Color(0xFFEF5350).withValues(alpha: opacity * 0.6),
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              );
+            }),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              color: widget.isListening ? const Color(0xFFEF5350) : const Color(0xFF3A425A),
+              boxShadow: widget.isListening
+                  ? <BoxShadow>[
+                      BoxShadow(
+                        color: const Color(0xFFEF5350).withValues(alpha: 0.4),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Icon(
+              widget.isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+              color: Colors.white,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StaggeredEntrance extends StatefulWidget {
+  const _StaggeredEntrance({
+    required this.index,
+    required this.child,
+  });
+
+  final int index;
+  final Widget child;
+
+  @override
+  State<_StaggeredEntrance> createState() => _StaggeredEntranceState();
+}
+
+class _StaggeredEntranceState extends State<_StaggeredEntrance>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<double> _slideAnimation;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+    _slideAnimation = Tween<double>(begin: 30.0, end: 0.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
+    );
+
+    _timer = Timer(Duration(milliseconds: 100 * widget.index), () {
+      if (mounted) {
+        _controller.forward();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, childWidget) {
+        return Opacity(
+          opacity: _fadeAnimation.value,
+          child: Transform.translate(
+            offset: Offset(0, _slideAnimation.value),
+            child: childWidget,
+          ),
+        );
+      },
+      child: widget.child,
+    );
+  }
+}
+
+class _AiScanScanner extends StatefulWidget {
+  const _AiScanScanner();
+
+  @override
+  State<_AiScanScanner> createState() => _AiScanScannerState();
+}
+
+class _AiScanScannerState extends State<_AiScanScanner>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: SizedBox(
+        width: 120,
+        height: 120,
+        child: Stack(
+          alignment: Alignment.center,
+          children: <Widget>[
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: _controller.value * 2 * math.pi,
+                  child: CustomPaint(
+                    size: const Size(110, 110),
+                    painter: _DashedCirclePainter(
+                      color: const Color(0xFF6E6BFF).withValues(alpha: 0.6),
+                      dashCount: 16,
+                      strokeWidth: 2,
+                    ),
+                  ),
+                );
+              },
+            ),
+            AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                return Transform.rotate(
+                  angle: -_controller.value * 4 * math.pi,
+                  child: ShaderMask(
+                    shaderCallback: (rect) {
+                      return SweepGradient(
+                        colors: <Color>[
+                          const Color(0xFF82F7FF),
+                          const Color(0xFF44E59A),
+                          const Color(0xFF82F7FF).withValues(alpha: 0),
+                        ],
+                        stops: const <double>[0.0, 0.5, 1.0],
+                      ).createShader(rect);
+                    },
+                    child: Container(
+                      width: 86,
+                      height: 86,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 3),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0.9, end: 1.1),
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.easeInOutSine,
+              builder: (context, scale, child) {
+                return Transform.scale(
+                  scale: scale,
+                  child: child,
+                );
+              },
+              child: Container(
+                width: 54,
+                height: 54,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: const LinearGradient(
+                    colors: <Color>[Color(0xFF6E6BFF), Color(0xFF28D7A1)],
+                  ),
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(
+                      color: const Color(0xFF6E6BFF).withValues(alpha: 0.4),
+                      blurRadius: 12,
+                      spreadRadius: 2,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DashedCirclePainter extends CustomPainter {
+  const _DashedCirclePainter({
+    required this.color,
+    required this.dashCount,
+    required this.strokeWidth,
+  });
+
+  final Color color;
+  final int dashCount;
+  final double strokeWidth;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
+
+    final double radius = size.width / 2;
+    final Offset center = Offset(size.width / 2, size.height / 2);
+    final double dashAngle = (2 * math.pi) / dashCount;
+
+    for (int i = 0; i < dashCount; i++) {
+      final double startAngle = i * dashAngle;
+      final double sweepAngle = dashAngle * 0.5;
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        startAngle,
+        sweepAngle,
+        false,
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }
