@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui';
 
-import 'package:audioplayers/audioplayers.dart' hide PlayerState;
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/config/app_config.dart';
@@ -19,6 +19,7 @@ import 'package:cineverse/presentation/features/movies/models/explore_models.dar
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:cineverse/presentation/features/movies/widgets/rating_badge.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
+import 'package:cineverse/presentation/widgets/trailer_player_screen.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/presentation/features/movies/providers/library_recommendations_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/library_provider.dart';
@@ -30,7 +31,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 _DiscoverSpotlightState? _discoverSpotlightState;
 
@@ -123,10 +123,7 @@ class ExploreScreen extends ConsumerStatefulWidget {
     ExploreShelfData(
       title: 'Hidden Gems',
       filters: <ExploreFilterOption>[
-        ExploreFilterOption(
-          label: 'See All',
-          isHiddenGems: true,
-        ),
+        ExploreFilterOption(label: 'See All', isHiddenGems: true),
       ],
     ),
     ExploreShelfData(
@@ -325,19 +322,21 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     );
                   }, childCount: baseSections.length),
                 ),
-                const SliverToBoxAdapter(child: _SectionDivider(accent: Color(0xFFE6C76A))),
                 const SliverToBoxAdapter(
-                  child: _ScrollReveal(
-                    child: _CuratedCollectionSection(),
-                  ),
+                  child: _SectionDivider(accent: Color(0xFFE6C76A)),
                 ),
-                const SliverToBoxAdapter(child: _SectionDivider(accent: Color(0xFF7DD9FF))),
                 const SliverToBoxAdapter(
-                  child: _ScrollReveal(
-                    child: _LibraryRecommendationsSection(),
-                  ),
+                  child: _ScrollReveal(child: _CuratedCollectionSection()),
                 ),
-                const SliverToBoxAdapter(child: _SectionDivider(accent: Color(0xFFB391FF))),
+                const SliverToBoxAdapter(
+                  child: _SectionDivider(accent: Color(0xFF7DD9FF)),
+                ),
+                const SliverToBoxAdapter(
+                  child: _ScrollReveal(child: _LibraryRecommendationsSection()),
+                ),
+                const SliverToBoxAdapter(
+                  child: _SectionDivider(accent: Color(0xFFB391FF)),
+                ),
                 const SliverToBoxAdapter(
                   child: _ScrollReveal(
                     child: _MovieShelfSection(
@@ -345,11 +344,11 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     ),
                   ),
                 ),
-                const SliverToBoxAdapter(child: _SectionDivider(accent: Color(0xFFE2B4FF))),
                 const SliverToBoxAdapter(
-                  child: _ScrollReveal(
-                    child: _TonightWatchLauncherSection(),
-                  ),
+                  child: _SectionDivider(accent: Color(0xFFE2B4FF)),
+                ),
+                const SliverToBoxAdapter(
+                  child: _ScrollReveal(child: _TonightWatchLauncherSection()),
                 ),
                 const SliverToBoxAdapter(child: SizedBox(height: 52)),
               ],
@@ -946,9 +945,6 @@ class _DiscoverSpotlightSectionState
   bool _isNextImageReady = false;
   int _animatedSwitcherKeyVersion = 0;
   int? _lastMovieId;
-  YoutubePlayerController? _youtubeController;
-  bool _isVideoPlaying = false;
-  bool _wasFullScreen = false;
 
   @override
   void initState() {
@@ -1010,7 +1006,6 @@ class _DiscoverSpotlightSectionState
   }
 
   void _startSlideshow(int movieId) {
-    _stopAndResetVideo();
     _slideshowTimer?.cancel();
     _currentImageIndex = 0;
     _currentTaglineIndex = 0;
@@ -1071,6 +1066,64 @@ class _DiscoverSpotlightSectionState
     });
   }
 
+  Future<void> _showTrailer(
+    BuildContext context, {
+    required MediaTitle movie,
+    required MovieDetails details,
+    required bool isTv,
+  }) async {
+    final String? trailerKey = details.trailerYouTubeKey;
+    if (trailerKey == null || trailerKey.isEmpty) {
+      return;
+    }
+    _pauseSpotlightForTrailer();
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => TrailerPlayerScreen(
+          data: TrailerPlaybackData(
+            videoKey: trailerKey,
+            title: details.title,
+            tagline: details.tagline,
+            overview: details.overview,
+            posterPath: details.posterPath ?? movie.posterPath,
+            backdropPath: details.backdropPath,
+            releaseDate: details.releaseDate ?? movie.releaseDate,
+            runtimeMinutes: details.runtimeMinutes,
+            voteAverage: details.catalogScore ?? movie.voteAverage,
+            voteCount: details.voteCount,
+            categoryLabel: 'From Spotlight',
+            sourceMediaId: details.id,
+            isTv: isTv,
+            recommendations: details.recommendations,
+          ),
+        ),
+      ),
+    );
+    if (!mounted) {
+      return;
+    }
+    _resumeSpotlightAfterTrailer();
+  }
+
+  void _pauseSpotlightForTrailer() {
+    _slideshowTimer?.cancel();
+    _slideshowTimer = null;
+    if (_pulseController.isAnimating) {
+      _pulseController.stop();
+    }
+  }
+
+  void _resumeSpotlightAfterTrailer() {
+    if (!_pulseController.isAnimating) {
+      _pulseController.repeat(reverse: true);
+    }
+    final int? movieId =
+        _discoverSpotlightState?.currentMovieId ?? _lastMovieId;
+    if (movieId != null) {
+      _startSlideshow(movieId);
+    }
+  }
+
   void _preloadNextImage() {
     if (_slideshowImages.isEmpty || !mounted) return;
     final int nextIndex = (_currentImageIndex + 1) % _slideshowImages.length;
@@ -1083,75 +1136,6 @@ class _DiscoverSpotlightSectionState
         });
       }
     });
-  }
-
-  void _initYoutubeController(String youtubeKey) {
-    if (_youtubeController != null) {
-      _stopAndResetVideo();
-    }
-    _youtubeController = YoutubePlayerController(
-      initialVideoId: youtubeKey,
-      flags: const YoutubePlayerFlags(
-        autoPlay: true,
-        mute: false,
-        disableDragSeek: true,
-        loop: false,
-        isLive: false,
-        forceHD: false,
-        enableCaption: false,
-      ),
-    )..addListener(_onYoutubePlayerStateChange);
-  }
-
-  void _onYoutubePlayerStateChange() {
-    if (!mounted || _youtubeController == null) return;
-    
-    final bool isFullScreen = _youtubeController!.value.isFullScreen;
-    if (_wasFullScreen && !isFullScreen) {
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
-    }
-    _wasFullScreen = isFullScreen;
-
-    // We only automatically close the video player if the trailer has ended or encountered an error.
-    // If it's paused or buffering, we keep the video player visible.
-    final bool hasEnded = _youtubeController!.value.playerState == PlayerState.ended;
-    final bool hasError = _youtubeController!.value.hasError;
-    
-    if (hasEnded || hasError) {
-      setState(() {
-        _animatedSwitcherKeyVersion++;
-        _stopAndResetVideo();
-        if (_lastMovieId != null) {
-          _startSlideshow(_lastMovieId!);
-        }
-      });
-    }
-  }
-
-  void _stopAndResetVideo() {
-    _youtubeController?.removeListener(_onYoutubePlayerStateChange);
-    _youtubeController?.pause();
-    _youtubeController?.dispose();
-    _youtubeController = null;
-    _wasFullScreen = false;
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-    if (_isVideoPlaying) {
-      if (mounted) {
-        setState(() {
-          _isVideoPlaying = false;
-          _animatedSwitcherKeyVersion++;
-        });
-      } else {
-        _isVideoPlaying = false;
-        _animatedSwitcherKeyVersion++;
-      }
-    }
   }
 
   Color _getGenreAccentColor(List<int> genreIds, int movieSeed) {
@@ -1199,7 +1183,9 @@ class _DiscoverSpotlightSectionState
 
   void _dismissMovie(int movieId, List<MediaTitle> movies) {
     final _DiscoverSpotlightState? spotlightState = _discoverSpotlightState;
-    final Set<int> dismissed = Set<int>.from(spotlightState?.dismissedMovieIds ?? <int>{});
+    final Set<int> dismissed = Set<int>.from(
+      spotlightState?.dismissedMovieIds ?? <int>{},
+    );
     dismissed.add(movieId);
 
     final List<int> poolMovieIds = movies
@@ -1232,7 +1218,6 @@ class _DiscoverSpotlightSectionState
       );
     });
 
-    _stopAndResetVideo();
     _checkAndLazyLoad(ref, poolMovieIds, remainingMovieIds);
   }
 
@@ -1259,7 +1244,6 @@ class _DiscoverSpotlightSectionState
         dismissedMovieIds: const <int>{},
       );
     });
-    _stopAndResetVideo();
     if (movies.isNotEmpty) {
       _startSlideshow(movies.first.id);
     }
@@ -1271,8 +1255,6 @@ class _DiscoverSpotlightSectionState
     _audioPlayer.dispose();
     _diceController.dispose();
     _pulseController.dispose();
-    _youtubeController?.removeListener(_onYoutubePlayerStateChange);
-    _youtubeController?.dispose();
     super.dispose();
   }
 
@@ -1347,7 +1329,11 @@ class _DiscoverSpotlightSectionState
         ),
         data: (List<MediaTitle> movies) {
           final List<MediaTitle> activeMovies = movies
-              .where((m) => !(spotlightState?.dismissedMovieIds.contains(m.id) ?? false))
+              .where(
+                (m) =>
+                    !(spotlightState?.dismissedMovieIds.contains(m.id) ??
+                        false),
+              )
               .toList();
 
           if (movies.isEmpty) {
@@ -1428,7 +1414,9 @@ class _DiscoverSpotlightSectionState
                         ),
                         boxShadow: <BoxShadow>[
                           BoxShadow(
-                            color: AppColors.cinemaAccent.withValues(alpha: 0.08),
+                            color: AppColors.cinemaAccent.withValues(
+                              alpha: 0.08,
+                            ),
                             blurRadius: 20,
                             spreadRadius: -4,
                             offset: const Offset(0, 8),
@@ -1454,9 +1442,11 @@ class _DiscoverSpotlightSectionState
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
-                                        color: AppColors.cinemaAccent.withValues(alpha: 0.1),
+                                        color: AppColors.cinemaAccent
+                                            .withValues(alpha: 0.1),
                                         border: Border.all(
-                                          color: AppColors.cinemaAccent.withValues(alpha: 0.2),
+                                          color: AppColors.cinemaAccent
+                                              .withValues(alpha: 0.2),
                                           width: 1.5,
                                         ),
                                       ),
@@ -1469,34 +1459,47 @@ class _DiscoverSpotlightSectionState
                                     const SizedBox(height: 20),
                                     Text(
                                       'Spotlight Completed',
-                                      style: theme.textTheme.titleMedium?.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                      style: theme.textTheme.titleMedium
+                                          ?.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
                                       'You have swiped and cleared all choices in your discover feed.',
                                       textAlign: TextAlign.center,
-                                      style: theme.textTheme.bodyMedium?.copyWith(
-                                        color: Colors.white.withValues(alpha: 0.6),
-                                        fontSize: 13,
-                                      ),
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.6,
+                                            ),
+                                            fontSize: 13,
+                                          ),
                                     ),
                                     const SizedBox(height: 20),
                                     ElevatedButton.icon(
                                       onPressed: () => _resetSpotlight(movies),
-                                      icon: const Icon(Icons.restart_alt_rounded, size: 20),
+                                      icon: const Icon(
+                                        Icons.restart_alt_rounded,
+                                        size: 20,
+                                      ),
                                       label: const Text('Reset Spotlight'),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppColors.cinemaAccent,
                                         foregroundColor: Colors.white,
                                         elevation: 4,
-                                        shadowColor: AppColors.cinemaAccent.withValues(alpha: 0.4),
+                                        shadowColor: AppColors.cinemaAccent
+                                            .withValues(alpha: 0.4),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(30),
+                                          borderRadius: BorderRadius.circular(
+                                            30,
+                                          ),
                                         ),
-                                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 24,
+                                          vertical: 12,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -1704,7 +1707,9 @@ class _DiscoverSpotlightSectionState
                           child: Container(
                             alignment: Alignment.centerRight,
                             padding: const EdgeInsets.only(right: 24),
-                            color: AppColors.cinemaSelected.withValues(alpha: 0.15),
+                            color: AppColors.cinemaSelected.withValues(
+                              alpha: 0.15,
+                            ),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -1757,13 +1762,17 @@ class _DiscoverSpotlightSectionState
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(14),
                               child: BackdropFilter(
-                                filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                                filter: ImageFilter.blur(
+                                  sigmaX: 16,
+                                  sigmaY: 16,
+                                ),
                                 child: Stack(
                                   children: [
                                     // Background image/slideshow
                                     Positioned.fill(
                                       child: Hero(
-                                        tag: 'movie-poster-${movie.id}-spotlight',
+                                        tag:
+                                            'movie-poster-${movie.id}-spotlight',
                                         child: Material(
                                           color: Colors.transparent,
                                           child: InkWell(
@@ -1773,16 +1782,22 @@ class _DiscoverSpotlightSectionState
                                                 'movieId': movie.id.toString(),
                                               },
                                               queryParameters: <String, String>{
-                                                'heroTag': 'movie-poster-${movie.id}-spotlight',
+                                                'heroTag':
+                                                    'movie-poster-${movie.id}-spotlight',
                                                 'isTv': isTv.toString(),
                                               },
                                             ),
                                             child: AnimatedSwitcher(
-                                              duration: const Duration(milliseconds: 1000),
+                                              duration: const Duration(
+                                                milliseconds: 1000,
+                                              ),
                                               child: currentSlideshowUrl == null
                                                   ? ColoredBox(
-                                                      key: ValueKey<String>('spotlight-placeholder-$_animatedSwitcherKeyVersion'),
-                                                      color: AppColors.cinemaPlaceholder,
+                                                      key: ValueKey<String>(
+                                                        'spotlight-placeholder-$_animatedSwitcherKeyVersion',
+                                                      ),
+                                                      color: AppColors
+                                                          .cinemaPlaceholder,
                                                       child: const Center(
                                                         child: Icon(
                                                           Icons.movie_outlined,
@@ -1792,8 +1807,11 @@ class _DiscoverSpotlightSectionState
                                                       ),
                                                     )
                                                   : _KenBurnsImage(
-                                                      key: ValueKey<String>('spotlight-image-${movie.id}-$currentSlideshowUrl-$_animatedSwitcherKeyVersion'),
-                                                      imageUrl: currentSlideshowUrl,
+                                                      key: ValueKey<String>(
+                                                        'spotlight-image-${movie.id}-$currentSlideshowUrl-$_animatedSwitcherKeyVersion',
+                                                      ),
+                                                      imageUrl:
+                                                          currentSlideshowUrl,
                                                       width: posterWidth,
                                                       height: 320,
                                                     ),
@@ -1803,156 +1821,131 @@ class _DiscoverSpotlightSectionState
                                       ),
                                     ),
 
-                                    // Blur and Dim overlay when video is playing
-                                    if (_isVideoPlaying)
-                                      Positioned.fill(
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(14),
-                                          child: BackdropFilter(
-                                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                                            child: ColoredBox(
-                                              color: Colors.black.withValues(alpha: 0.5),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-
-                                    // Video Player at the top of the card
-                                    if (_isVideoPlaying && _youtubeController != null)
-                                      Positioned(
-                                        top: 44,
-                                        bottom: 86,
-                                        left: 12,
-                                        right: 12,
-                                        child: Center(
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(12),
-                                            child: AspectRatio(
-                                              aspectRatio: 16 / 9,
-                                              child: YoutubePlayer(
-                                                key: ValueKey<String>('spotlight-video-$_animatedSwitcherKeyVersion'),
-                                                controller: _youtubeController!,
-                                                showVideoProgressIndicator: true,
-                                                progressIndicatorColor: spotlightTint,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-
                                     // Gradient overlay (top)
-                                    if (!_isVideoPlaying)
-                                      Positioned(
-                                        top: 0,
-                                        left: 0,
-                                        right: 0,
-                                        height: 60,
-                                        child: IgnorePointer(
-                                          child: DecoratedBox(
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                begin: Alignment.topCenter,
-                                                end: Alignment.bottomCenter,
-                                                colors: [
-                                                  Colors.black.withValues(alpha: 0.6),
-                                                  Colors.transparent,
-                                                ],
-                                              ),
+                                    Positioned(
+                                      top: 0,
+                                      left: 0,
+                                      right: 0,
+                                      height: 60,
+                                      child: IgnorePointer(
+                                        child: DecoratedBox(
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              begin: Alignment.topCenter,
+                                              end: Alignment.bottomCenter,
+                                              colors: [
+                                                Colors.black.withValues(
+                                                  alpha: 0.6,
+                                                ),
+                                                Colors.transparent,
+                                              ],
                                             ),
                                           ),
                                         ),
                                       ),
+                                    ),
 
                                     // Gradient overlay (bottom)
-                                    if (!_isVideoPlaying)
-                                      Positioned(
-                                        bottom: 0,
-                                        left: 0,
-                                        right: 0,
-                                        height: 160,
-                                        child: IgnorePointer(
-                                          child: DecoratedBox(
-                                            decoration: BoxDecoration(
-                                              gradient: LinearGradient(
-                                                begin: Alignment.bottomCenter,
-                                                end: Alignment.topCenter,
-                                                colors: [
-                                                  Colors.black.withValues(alpha: 0.8),
-                                                  Colors.transparent,
-                                                ],
-                                              ),
+                                    Positioned(
+                                      bottom: 0,
+                                      left: 0,
+                                      right: 0,
+                                      height: 160,
+                                      child: IgnorePointer(
+                                        child: DecoratedBox(
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              begin: Alignment.bottomCenter,
+                                              end: Alignment.topCenter,
+                                              colors: [
+                                                Colors.black.withValues(
+                                                  alpha: 0.8,
+                                                ),
+                                                Colors.transparent,
+                                              ],
                                             ),
                                           ),
                                         ),
                                       ),
+                                    ),
 
                                     // Play / Close Preview overlay button
-                                    if (movieDetails.value?.trailerYouTubeKey != null &&
-                                        movieDetails.value!.trailerYouTubeKey!.isNotEmpty)
+                                    if (movieDetails.value?.trailerYouTubeKey !=
+                                            null &&
+                                        movieDetails
+                                            .value!
+                                            .trailerYouTubeKey!
+                                            .isNotEmpty)
                                       Positioned(
                                         top: 12,
                                         left: 12,
                                         child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
                                           child: BackdropFilter(
-                                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                                            filter: ImageFilter.blur(
+                                              sigmaX: 8,
+                                              sigmaY: 8,
+                                            ),
                                             child: Material(
                                               color: Colors.transparent,
                                               child: InkWell(
-                                                onTap: () {
-                                                  setState(() {
-                                                    _animatedSwitcherKeyVersion++;
-                                                    if (_isVideoPlaying) {
-                                                      _stopAndResetVideo();
-                                                      if (_lastMovieId != null) {
-                                                        _startSlideshow(_lastMovieId!);
-                                                      }
-                                                    } else {
-                                                      _initYoutubeController(
-                                                        movieDetails.value!.trailerYouTubeKey!,
-                                                      );
-                                                      _youtubeController?.play();
-                                                      _isVideoPlaying = true;
-                                                      _slideshowTimer?.cancel();
-                                                      _slideshowTimer = null;
-                                                    }
-                                                  });
-                                                },
-                                                borderRadius: BorderRadius.circular(20),
+                                                onTap: () => _showTrailer(
+                                                  context,
+                                                  movie: movie,
+                                                  details: movieDetails.value!,
+                                                  isTv: isTv,
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
                                                 child: Ink(
-                                                  padding: const EdgeInsets.symmetric(
-                                                    horizontal: 10,
-                                                    vertical: 6,
-                                                  ),
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 10,
+                                                        vertical: 6,
+                                                      ),
                                                   decoration: BoxDecoration(
-                                                    color: Colors.black.withValues(alpha: 0.5),
-                                                    borderRadius: BorderRadius.circular(20),
+                                                    color: Colors.black
+                                                        .withValues(alpha: 0.5),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          20,
+                                                        ),
                                                     border: Border.all(
-                                                      color: spotlightTint.withValues(alpha: 0.6),
+                                                      color: spotlightTint
+                                                          .withValues(
+                                                            alpha: 0.6,
+                                                          ),
                                                       width: 1.0,
                                                     ),
                                                   ),
                                                   child: Row(
-                                                    mainAxisSize: MainAxisSize.min,
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
                                                     children: [
-                                                      Icon(
-                                                        _isVideoPlaying
-                                                            ? Icons.close_rounded
-                                                            : Icons.play_arrow_rounded,
+                                                      const Icon(
+                                                        Icons
+                                                            .play_arrow_rounded,
                                                         color: Colors.white,
                                                         size: 14,
                                                       ),
                                                       const SizedBox(width: 4),
                                                       Text(
-                                                        _isVideoPlaying
-                                                            ? 'Close Preview'
-                                                            : 'Play Preview',
-                                                        style: theme.textTheme.labelSmall?.copyWith(
-                                                          color: Colors.white,
-                                                          fontWeight: FontWeight.bold,
-                                                          fontSize: 10,
-                                                          letterSpacing: 0.3,
-                                                        ),
+                                                        'Play Preview',
+                                                        style: theme
+                                                            .textTheme
+                                                            .labelSmall
+                                                            ?.copyWith(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 10,
+                                                              letterSpacing:
+                                                                  0.3,
+                                                            ),
                                                       ),
                                                     ],
                                                   ),
@@ -1964,65 +1957,69 @@ class _DiscoverSpotlightSectionState
                                       ),
 
                                     // Tagline (Slide up & Fade)
-                                    if (!_isVideoPlaying)
-                                      Positioned(
-                                        bottom: 104,
-                                        left: 16,
-                                        right: 16,
+                                    Positioned(
+                                      bottom: 104,
+                                      left: 16,
+                                      right: 16,
                                       child: AnimatedSwitcher(
-                                        duration: const Duration(milliseconds: 500),
-                                        transitionBuilder: (Widget child, Animation<double> animation) {
-                                          final inAnimation = Tween<Offset>(
-                                            begin: const Offset(0.0, 0.4),
-                                            end: Offset.zero,
-                                          ).animate(CurvedAnimation(
-                                            parent: animation,
-                                            curve: Curves.easeOutCubic,
-                                          ));
-                                          final fadeAnimation = CurvedAnimation(
-                                            parent: animation,
-                                            curve: Curves.easeIn,
-                                          );
-                                          return SlideTransition(
-                                            position: inAnimation,
-                                            child: FadeTransition(
-                                              opacity: fadeAnimation,
-                                              child: child,
-                                            ),
-                                          );
-                                        },
-                                        child: rotatingTagline != null && rotatingTagline.isNotEmpty
+                                        duration: const Duration(
+                                          milliseconds: 500,
+                                        ),
+                                        transitionBuilder:
+                                            (
+                                              Widget child,
+                                              Animation<double> animation,
+                                            ) {
+                                              final inAnimation =
+                                                  Tween<Offset>(
+                                                    begin: const Offset(
+                                                      0.0,
+                                                      0.4,
+                                                    ),
+                                                    end: Offset.zero,
+                                                  ).animate(
+                                                    CurvedAnimation(
+                                                      parent: animation,
+                                                      curve:
+                                                          Curves.easeOutCubic,
+                                                    ),
+                                                  );
+                                              final fadeAnimation =
+                                                  CurvedAnimation(
+                                                    parent: animation,
+                                                    curve: Curves.easeIn,
+                                                  );
+                                              return SlideTransition(
+                                                position: inAnimation,
+                                                child: FadeTransition(
+                                                  opacity: fadeAnimation,
+                                                  child: child,
+                                                ),
+                                              );
+                                            },
+                                        child:
+                                            rotatingTagline != null &&
+                                                rotatingTagline.isNotEmpty
                                             ? Text(
                                                 rotatingTagline,
-                                                key: ValueKey<String>(rotatingTagline),
+                                                key: ValueKey<String>(
+                                                  rotatingTagline,
+                                                ),
                                                 textAlign: TextAlign.center,
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
-                                                style: theme.textTheme.labelSmall?.copyWith(
-                                                  color: Colors.white.withValues(alpha: 0.9),
-                                                  fontStyle: FontStyle.italic,
-                                                  fontWeight: FontWeight.w600,
-                                                  letterSpacing: 0.2,
-                                                  shadows: [
-                                                    const Shadow(
-                                                      color: Colors.black,
-                                                      blurRadius: 8,
-                                                    ),
-                                                  ],
-                                                ),
-                                              )
-                                            : (movieDetails.value?.tagline != null &&
-                                                    movieDetails.value!.tagline!.isNotEmpty
-                                                ? Text(
-                                                    movieDetails.value!.tagline!,
-                                                    key: ValueKey<String>(movieDetails.value!.tagline!),
-                                                    textAlign: TextAlign.center,
-                                                    maxLines: 2,
-                                                    overflow: TextOverflow.ellipsis,
-                                                    style: theme.textTheme.labelSmall?.copyWith(
-                                                      color: Colors.white.withValues(alpha: 0.9),
-                                                      fontStyle: FontStyle.italic,
-                                                      fontWeight: FontWeight.w600,
+                                                style: theme
+                                                    .textTheme
+                                                    .labelSmall
+                                                    ?.copyWith(
+                                                      color: Colors.white
+                                                          .withValues(
+                                                            alpha: 0.9,
+                                                          ),
+                                                      fontStyle:
+                                                          FontStyle.italic,
+                                                      fontWeight:
+                                                          FontWeight.w600,
                                                       letterSpacing: 0.2,
                                                       shadows: [
                                                         const Shadow(
@@ -2031,10 +2028,54 @@ class _DiscoverSpotlightSectionState
                                                         ),
                                                       ],
                                                     ),
-                                                  )
-                                                : const SizedBox.shrink(
-                                                    key: ValueKey('empty-tagline'),
-                                                  )),
+                                              )
+                                            : (movieDetails.value?.tagline !=
+                                                          null &&
+                                                      movieDetails
+                                                          .value!
+                                                          .tagline!
+                                                          .isNotEmpty
+                                                  ? Text(
+                                                      movieDetails
+                                                          .value!
+                                                          .tagline!,
+                                                      key: ValueKey<String>(
+                                                        movieDetails
+                                                            .value!
+                                                            .tagline!,
+                                                      ),
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: theme
+                                                          .textTheme
+                                                          .labelSmall
+                                                          ?.copyWith(
+                                                            color: Colors.white
+                                                                .withValues(
+                                                                  alpha: 0.9,
+                                                                ),
+                                                            fontStyle: FontStyle
+                                                                .italic,
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            letterSpacing: 0.2,
+                                                            shadows: [
+                                                              const Shadow(
+                                                                color: Colors
+                                                                    .black,
+                                                                blurRadius: 8,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                    )
+                                                  : const SizedBox.shrink(
+                                                      key: ValueKey(
+                                                        'empty-tagline',
+                                                      ),
+                                                    )),
                                       ),
                                     ),
 
@@ -2045,117 +2086,206 @@ class _DiscoverSpotlightSectionState
                                       right: 12,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: Colors.black.withValues(alpha: 0.55),
-                                          borderRadius: BorderRadius.circular(16),
+                                          color: Colors.black.withValues(
+                                            alpha: 0.55,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           border: Border.all(
-                                            color: spotlightTint.withValues(alpha: 0.35),
+                                            color: spotlightTint.withValues(
+                                              alpha: 0.35,
+                                            ),
                                             width: 1,
                                           ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: Colors.black.withValues(alpha: 0.25),
+                                              color: Colors.black.withValues(
+                                                alpha: 0.25,
+                                              ),
                                               blurRadius: 10,
                                               offset: const Offset(0, 4),
                                             ),
                                           ],
                                         ),
                                         child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(16),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
                                           child: BackdropFilter(
-                                            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                                            filter: ImageFilter.blur(
+                                              sigmaX: 12,
+                                              sigmaY: 12,
+                                            ),
                                             child: Padding(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 16,
-                                                vertical: 12,
-                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 16,
+                                                    vertical: 12,
+                                                  ),
                                               child: Row(
-                                                crossAxisAlignment: CrossAxisAlignment.center,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.center,
                                                 children: [
                                                   Expanded(
                                                     child: GestureDetector(
-                                                      behavior: HitTestBehavior.opaque,
+                                                      behavior: HitTestBehavior
+                                                          .opaque,
                                                       onTap: () => context.pushNamed(
-                                                        AppRoute.movieDetails.name,
-                                                        pathParameters: <String, String>{
-                                                          'movieId': movie.id.toString(),
-                                                        },
-                                                        queryParameters: <String, String>{
-                                                          'heroTag': 'movie-poster-${movie.id}-spotlight',
-                                                          'isTv': isTv.toString(),
-                                                        },
+                                                        AppRoute
+                                                            .movieDetails
+                                                            .name,
+                                                        pathParameters:
+                                                            <String, String>{
+                                                              'movieId': movie
+                                                                  .id
+                                                                  .toString(),
+                                                            },
+                                                        queryParameters:
+                                                            <String, String>{
+                                                              'heroTag':
+                                                                  'movie-poster-${movie.id}-spotlight',
+                                                              'isTv': isTv
+                                                                  .toString(),
+                                                            },
                                                       ),
                                                       child: Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        mainAxisSize: MainAxisSize.min,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        mainAxisSize:
+                                                            MainAxisSize.min,
                                                         children: [
                                                           if (_logoUrl != null)
-                                                            _logoUrl!.toLowerCase().endsWith('.svg')
+                                                            _logoUrl!
+                                                                    .toLowerCase()
+                                                                    .endsWith(
+                                                                      '.svg',
+                                                                    )
                                                                 ? SvgPicture.network(
                                                                     _logoUrl!,
                                                                     height: 28,
-                                                                    fit: BoxFit.contain,
-                                                                    alignment: Alignment.centerLeft,
-                                                                    placeholderBuilder: (context) =>
-                                                                        const SizedBox(height: 28),
+                                                                    fit: BoxFit
+                                                                        .contain,
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .centerLeft,
+                                                                    placeholderBuilder:
+                                                                        (
+                                                                          context,
+                                                                        ) => const SizedBox(
+                                                                          height:
+                                                                              28,
+                                                                        ),
                                                                   )
                                                                 : CachedNetworkImage(
-                                                                    imageUrl: _logoUrl!,
+                                                                    imageUrl:
+                                                                        _logoUrl!,
                                                                     height: 28,
-                                                                    fit: BoxFit.contain,
-                                                                    alignment: Alignment.centerLeft,
+                                                                    fit: BoxFit
+                                                                        .contain,
+                                                                    alignment:
+                                                                        Alignment
+                                                                            .centerLeft,
                                                                   )
                                                           else
                                                             Text(
                                                               movie.title,
                                                               maxLines: 1,
-                                                              overflow: TextOverflow.ellipsis,
-                                                              style: theme.textTheme.titleMedium?.copyWith(
-                                                                color: Colors.white,
-                                                                fontWeight: FontWeight.w900,
-                                                              ),
+                                                              overflow:
+                                                                  TextOverflow
+                                                                      .ellipsis,
+                                                              style: theme
+                                                                  .textTheme
+                                                                  .titleMedium
+                                                                  ?.copyWith(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w900,
+                                                                  ),
                                                             ),
-                                                          const SizedBox(height: 6),
+                                                          const SizedBox(
+                                                            height: 6,
+                                                          ),
                                                           Row(
                                                             children: [
                                                               if (!isRatingLoading &&
-                                                                  rottenTomatoesRating != null) ...[
+                                                                  rottenTomatoesRating !=
+                                                                      null) ...[
                                                                 const _TomatoIcon(),
-                                                                const SizedBox(width: 6),
+                                                                const SizedBox(
+                                                                  width: 6,
+                                                                ),
                                                                 Text(
                                                                   scoreLabel,
-                                                                  style: theme.textTheme.labelSmall?.copyWith(
-                                                                    color: Colors.white,
-                                                                    fontWeight: FontWeight.w800,
-                                                                  ),
+                                                                  style: theme
+                                                                      .textTheme
+                                                                      .labelSmall
+                                                                      ?.copyWith(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.w800,
+                                                                      ),
                                                                 ),
-                                                                const SizedBox(width: 10),
+                                                                const SizedBox(
+                                                                  width: 10,
+                                                                ),
                                                                 Container(
                                                                   width: 1,
                                                                   height: 10,
-                                                                  color: Colors.white.withValues(alpha: 0.2),
+                                                                  color: Colors
+                                                                      .white
+                                                                      .withValues(
+                                                                        alpha:
+                                                                            0.2,
+                                                                      ),
                                                                 ),
-                                                                const SizedBox(width: 10),
+                                                                const SizedBox(
+                                                                  width: 10,
+                                                                ),
                                                               ] else ...[
                                                                 scoreBadge,
-                                                                const SizedBox(width: 10),
+                                                                const SizedBox(
+                                                                  width: 10,
+                                                                ),
                                                               ],
-                                                              if (imdbRating != null) ...[
+                                                              if (imdbRating !=
+                                                                  null) ...[
                                                                 const _ImdbIcon(),
-                                                                const SizedBox(width: 6),
+                                                                const SizedBox(
+                                                                  width: 6,
+                                                                ),
                                                                 Text(
-                                                                  imdbRating.value,
-                                                                  style: theme.textTheme.labelSmall?.copyWith(
-                                                                    color: Colors.white,
-                                                                    fontWeight: FontWeight.w800,
-                                                                  ),
+                                                                  imdbRating
+                                                                      .value,
+                                                                  style: theme
+                                                                      .textTheme
+                                                                      .labelSmall
+                                                                      ?.copyWith(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.w800,
+                                                                      ),
                                                                 ),
                                                               ] else
                                                                 Text(
                                                                   'IMDb NA',
-                                                                  style: theme.textTheme.labelSmall?.copyWith(
-                                                                    color: Colors.white.withValues(alpha: 0.6),
-                                                                    fontWeight: FontWeight.w800,
-                                                                  ),
+                                                                  style: theme
+                                                                      .textTheme
+                                                                      .labelSmall
+                                                                      ?.copyWith(
+                                                                        color: Colors
+                                                                            .white
+                                                                            .withValues(
+                                                                              alpha: 0.6,
+                                                                            ),
+                                                                        fontWeight:
+                                                                            FontWeight.w800,
+                                                                      ),
                                                                 ),
                                                             ],
                                                           ),
@@ -2167,26 +2297,47 @@ class _DiscoverSpotlightSectionState
                                                   Material(
                                                     color: Colors.transparent,
                                                     child: InkWell(
-                                                      onTap: () => _rollNextMovie(movies),
-                                                      borderRadius: BorderRadius.circular(12),
+                                                      onTap: () =>
+                                                          _rollNextMovie(
+                                                            movies,
+                                                          ),
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
                                                       child: Ink(
                                                         width: 44,
                                                         height: 44,
                                                         decoration: BoxDecoration(
-                                                          color: AppColors.cinemaSelected.withValues(alpha: 0.1),
-                                                          borderRadius: BorderRadius.circular(8),
+                                                          color: AppColors
+                                                              .cinemaSelected
+                                                              .withValues(
+                                                                alpha: 0.1,
+                                                              ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                8,
+                                                              ),
                                                           border: Border.all(
-                                                            color: AppColors.cinemaSelected.withValues(alpha: 0.2),
+                                                            color: AppColors
+                                                                .cinemaSelected
+                                                                .withValues(
+                                                                  alpha: 0.2,
+                                                                ),
                                                           ),
                                                         ),
                                                         child: Center(
                                                           child: ScaleTransition(
-                                                            scale: _scaleAnimation,
+                                                            scale:
+                                                                _scaleAnimation,
                                                             child: RotationTransition(
-                                                              turns: _diceAnimation,
+                                                              turns:
+                                                                  _diceAnimation,
                                                               child: Icon(
-                                                                Icons.casino_outlined,
-                                                                color: AppColors.cinemaSelected,
+                                                                Icons
+                                                                    .casino_outlined,
+                                                                color: AppColors
+                                                                    .cinemaSelected,
                                                                 size: 24,
                                                               ),
                                                             ),
@@ -2259,7 +2410,8 @@ class _DiscoverSpotlightSectionState
 
   void _syncDiscoverPool(List<MediaTitle> movies) {
     final _DiscoverSpotlightState? spotlightState = _discoverSpotlightState;
-    final Set<int> dismissed = spotlightState?.dismissedMovieIds ?? const <int>{};
+    final Set<int> dismissed =
+        spotlightState?.dismissedMovieIds ?? const <int>{};
 
     final List<int> poolMovieIds = movies
         .map((movie) => movie.id)
@@ -2306,12 +2458,14 @@ class _DiscoverSpotlightSectionState
     }
 
     final _DiscoverSpotlightState? spotlightState = _discoverSpotlightState;
-    final Set<int> dismissed = spotlightState?.dismissedMovieIds ?? const <int>{};
+    final Set<int> dismissed =
+        spotlightState?.dismissedMovieIds ?? const <int>{};
 
-    final List<int> poolMovieIds = (spotlightState?.poolMovieIds ??
-            movies.map((movie) => movie.id).toList(growable: false))
-        .where((id) => !dismissed.contains(id))
-        .toList();
+    final List<int> poolMovieIds =
+        (spotlightState?.poolMovieIds ??
+                movies.map((movie) => movie.id).toList(growable: false))
+            .where((id) => !dismissed.contains(id))
+            .toList();
 
     List<int> remainingMovieIds = List<int>.from(
       spotlightState?.remainingMovieIds ?? const <int>[],
@@ -2344,7 +2498,6 @@ class _DiscoverSpotlightSectionState
       );
     });
 
-    _stopAndResetVideo();
     _checkAndLazyLoad(ref, poolMovieIds, remainingMovieIds);
 
     HapticFeedback.mediumImpact();
@@ -2508,7 +2661,8 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   itemCount: widget.section.filters.length,
-                  separatorBuilder: (context, index) => const SizedBox(width: 8),
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 8),
                   itemBuilder: (context, index) {
                     final filter = widget.section.filters[index];
                     final bool isSelected = filter == _selectedFilter;
@@ -2533,7 +2687,9 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
               switchInCurve: Curves.easeInOutCubic,
               switchOutCurve: Curves.easeInOutCubic,
               child: Container(
-                key: ValueKey<String>('${widget.section.title}_${_selectedFilter.label}'),
+                key: ValueKey<String>(
+                  '${widget.section.title}_${_selectedFilter.label}',
+                ),
                 child: movies.when(
                   skipLoadingOnReload: !movies.hasError,
                   loading: () => _ShelfShimmer(accent: visual.accent),
@@ -2624,10 +2780,7 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
 }
 
 class _ScrollReveal extends StatefulWidget {
-  const _ScrollReveal({
-    required this.child,
-    this.indexOffset = 0,
-  });
+  const _ScrollReveal({required this.child, this.indexOffset = 0});
 
   final Widget child;
   final int indexOffset;
@@ -2636,7 +2789,8 @@ class _ScrollReveal extends StatefulWidget {
   State<_ScrollReveal> createState() => _ScrollRevealState();
 }
 
-class _ScrollRevealState extends State<_ScrollReveal> with SingleTickerProviderStateMixin {
+class _ScrollRevealState extends State<_ScrollReveal>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
   late final Animation<double> _scaleAnimation;
@@ -2657,22 +2811,15 @@ class _ScrollRevealState extends State<_ScrollReveal> with SingleTickerProviderS
       curve: Curves.easeOut,
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.94, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutBack,
-      ),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.94,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.08),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutBack,
-      ),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
   }
 
   @override
@@ -2718,11 +2865,15 @@ class _ScrollRevealState extends State<_ScrollReveal> with SingleTickerProviderS
     if (scrollable == null) return;
 
     // Get the position of this widget relative to the viewport
-    final RenderBox viewport = scrollable.context.findRenderObject() as RenderBox;
+    final RenderBox viewport =
+        scrollable.context.findRenderObject() as RenderBox;
     if (!renderObject.attached || !viewport.attached) return;
 
     try {
-      final Offset position = renderObject.localToGlobal(Offset.zero, ancestor: viewport);
+      final Offset position = renderObject.localToGlobal(
+        Offset.zero,
+        ancestor: viewport,
+      );
       final double viewportHeight = viewport.size.height;
 
       // If the top of this widget is within viewport height (partially visible)
@@ -2757,10 +2908,7 @@ class _ScrollRevealState extends State<_ScrollReveal> with SingleTickerProviderS
       opacity: _fadeAnimation,
       child: ScaleTransition(
         scale: _scaleAnimation,
-        child: SlideTransition(
-          position: _slideAnimation,
-          child: widget.child,
-        ),
+        child: SlideTransition(position: _slideAnimation, child: widget.child),
       ),
     );
   }
@@ -3095,7 +3243,8 @@ class _PosterShell extends StatefulWidget {
   State<_PosterShell> createState() => _PosterShellState();
 }
 
-class _PosterShellState extends State<_PosterShell> with SingleTickerProviderStateMixin {
+class _PosterShellState extends State<_PosterShell>
+    with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
   late final Animation<double> _scaleAnimation;
@@ -3114,22 +3263,15 @@ class _PosterShellState extends State<_PosterShell> with SingleTickerProviderSta
       curve: Curves.easeOut,
     );
 
-    _scaleAnimation = Tween<double>(begin: 0.85, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutBack,
-      ),
-    );
+    _scaleAnimation = Tween<double>(
+      begin: 0.85,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.06),
       end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeOutBack,
-      ),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
 
     final int delayMs = (widget.index * 40).clamp(0, 520);
     if (delayMs == 0) {
@@ -3155,10 +3297,7 @@ class _PosterShellState extends State<_PosterShell> with SingleTickerProviderSta
       opacity: _fadeAnimation,
       child: ScaleTransition(
         scale: _scaleAnimation,
-        child: SlideTransition(
-          position: _slideAnimation,
-          child: widget.child,
-        ),
+        child: SlideTransition(position: _slideAnimation, child: widget.child),
       ),
     );
   }
@@ -3193,12 +3332,16 @@ class _ShelfShimmer extends StatelessWidget {
                   colors: <Color>[
                     (accent ?? AppColors.cinemaGlow).withValues(alpha: 0.5),
                     Colors.white.withValues(alpha: 0.12),
-                    (accent ?? AppColors.cinemaWarmGlow).withValues(alpha: 0.46),
+                    (accent ?? AppColors.cinemaWarmGlow).withValues(
+                      alpha: 0.46,
+                    ),
                   ],
                 ),
                 boxShadow: <BoxShadow>[
                   BoxShadow(
-                    color: (accent ?? AppColors.cinemaGlow).withValues(alpha: 0.16),
+                    color: (accent ?? AppColors.cinemaGlow).withValues(
+                      alpha: 0.16,
+                    ),
                     blurRadius: 20,
                     spreadRadius: -10,
                     offset: const Offset(0, 12),
@@ -3321,7 +3464,9 @@ class _InlineFilterChip extends StatelessWidget {
           curve: Curves.easeOutCubic,
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: isSelected ? accent.withValues(alpha: 0.18) : Colors.transparent,
+            color: isSelected
+                ? accent.withValues(alpha: 0.18)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
               color: isSelected ? accent : Colors.white.withValues(alpha: 0.12),
@@ -3342,7 +3487,9 @@ class _InlineFilterChip extends StatelessWidget {
               label,
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                color: isSelected ? Colors.white : Colors.white.withValues(alpha: 0.6),
+                color: isSelected
+                    ? Colors.white
+                    : Colors.white.withValues(alpha: 0.6),
                 fontSize: 13,
               ),
             ),
@@ -3418,7 +3565,8 @@ class _AmbientGlowingBackdrop extends StatefulWidget {
   final ScrollController scrollController;
 
   @override
-  State<_AmbientGlowingBackdrop> createState() => _AmbientGlowingBackdropState();
+  State<_AmbientGlowingBackdrop> createState() =>
+      _AmbientGlowingBackdropState();
 }
 
 class _AmbientGlowingBackdropState extends State<_AmbientGlowingBackdrop>
@@ -3446,7 +3594,10 @@ class _AmbientGlowingBackdropState extends State<_AmbientGlowingBackdrop>
       children: <Widget>[
         Positioned.fill(
           child: AnimatedBuilder(
-            animation: Listenable.merge(<Listenable>[_controller, widget.scrollController]),
+            animation: Listenable.merge(<Listenable>[
+              _controller,
+              widget.scrollController,
+            ]),
             builder: (context, _) {
               final double offset = widget.scrollController.hasClients
                   ? widget.scrollController.offset
@@ -3463,9 +3614,7 @@ class _AmbientGlowingBackdropState extends State<_AmbientGlowingBackdrop>
         Positioned.fill(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 75, sigmaY: 75),
-            child: Container(
-              color: Colors.black.withValues(alpha: 0.55),
-            ),
+            child: Container(color: Colors.black.withValues(alpha: 0.55)),
           ),
         ),
         widget.child,
@@ -3505,7 +3654,8 @@ class _GlowingBlobsPainter extends CustomPainter {
 
     // Blob 2: Magenta/Pinkish
     final double x2 = size.width * (0.75 + 0.12 * math.cos(angle + 1.0));
-    final double y2 = size.height * (0.45 + 0.15 * math.sin(angle + 1.0)) + yOffset;
+    final double y2 =
+        size.height * (0.45 + 0.15 * math.sin(angle + 1.0)) + yOffset;
     final double r2 = math.min(size.width, size.height) * 0.5;
     paint.shader = RadialGradient(
       colors: <Color>[
@@ -3517,7 +3667,8 @@ class _GlowingBlobsPainter extends CustomPainter {
 
     // Blob 3: Deep Indigo/Purple
     final double x3 = size.width * (0.45 + 0.2 * math.sin(angle + 2.5));
-    final double y3 = size.height * (0.8 + 0.12 * math.cos(angle + 2.5)) + yOffset;
+    final double y3 =
+        size.height * (0.8 + 0.12 * math.cos(angle + 2.5)) + yOffset;
     final double r3 = math.min(size.width, size.height) * 0.55;
     paint.shader = RadialGradient(
       colors: <Color>[
@@ -3633,9 +3784,8 @@ class _KenBurnsImageState extends State<_KenBurnsImage>
           fit: BoxFit.cover,
           width: widget.width,
           height: widget.height,
-          placeholder: (context, url) => const Center(
-            child: CircularProgressIndicator(),
-          ),
+          placeholder: (context, url) =>
+              const Center(child: CircularProgressIndicator()),
           errorWidget: (context, url, error) => const Center(
             child: Icon(
               Icons.broken_image_outlined,

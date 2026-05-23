@@ -232,6 +232,7 @@ class HomeScaffold extends ConsumerWidget {
                       value: isDescending,
                       activeThumbColor: AppColors.cinemaAccent,
                       onChanged: (value) {
+                        HapticFeedback.selectionClick();
                         final newOrder = value
                             ? SortOrder.descending
                             : SortOrder.ascending;
@@ -310,6 +311,7 @@ class HomeScaffold extends ConsumerWidget {
                             )
                           : null,
                       onTap: () {
+                        HapticFeedback.selectionClick();
                         // Use current switch state for the new field
                         ref
                             .read(genreSortProvider.notifier)
@@ -360,7 +362,10 @@ class _ChromeActionButton extends StatelessWidget {
     final Widget button = Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onTap();
+        },
         borderRadius: BorderRadius.circular(18),
         child: Ink(
           width: 42,

@@ -4,6 +4,7 @@ import 'package:cineverse/app/theme/app_theme.dart';
 import 'package:cineverse/app/theme/theme_palette.dart';
 import 'package:cineverse/app/theme/theme_provider.dart';
 import 'package:cineverse/core/constants/app_constants.dart';
+import 'package:cineverse/core/notifications/local_notification_service.dart';
 import 'package:cineverse/presentation/providers/sync_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,7 +17,17 @@ class LumiApp extends ConsumerWidget {
     ref.watch(syncInitializationProvider);
     final router = ref.watch(appRouterProvider);
     final themeType = ref.watch(appThemeTypeProvider);
-    
+
+    LocalNotificationService.instance.setNotificationTapHandler((target) async {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        router.goNamed(
+          AppRoute.movieDetails.name,
+          pathParameters: <String, String>{'movieId': '${target.mediaId}'},
+          queryParameters: <String, String>{'isTv': '${target.isTv}'},
+        );
+      });
+    });
+
     // Update the global palette before building
     AppColors.palette = ThemePalette.fromType(themeType);
 

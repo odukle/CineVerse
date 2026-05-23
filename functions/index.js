@@ -22,6 +22,21 @@ const embeddingModel = defineString("OPENROUTER_EMBEDDING_MODEL", {
 const indexCollection = defineString("TONIGHT_VECTOR_COLLECTION", {
   default: "tmdb_movie_vectors_v1",
 });
+const vectorBackend = defineString("TONIGHT_VECTOR_BACKEND", {
+  default: "firestore",
+});
+const qdrantUrl = defineString("QDRANT_URL", {
+  default: "",
+});
+const qdrantCollection = defineString("QDRANT_COLLECTION", {
+  default: "tmdb_movie_vectors_v1",
+});
+const qdrantApiKey = defineString("QDRANT_API_KEY", {
+  default: "",
+});
+const qdrantTimeoutMs = defineString("QDRANT_TIMEOUT_MS", {
+  default: "12000",
+});
 const MAX_PROMPT_CHARS = 420;
 const RATE_LIMIT_COLLECTION = "_recommendTonightRateLimits";
 const RATE_LIMITS = {
@@ -154,7 +169,8 @@ exports.recommendTonight = onRequest(
 
       const plan = await planPrompt(prompt);
       const queryTexts = buildQueryTexts(prompt, plan);
-      const rawResults = await fetchCandidates(queryTexts, topK);
+      const candidateLookup = await fetchCandidates(queryTexts, topK);
+      const rawResults = candidateLookup.rows;
       const ranking = rerankResults(rawResults, plan, topK);
       const ranked = ranking.results;
 
@@ -175,6 +191,9 @@ exports.recommendTonight = onRequest(
           strategy: "hybrid_vector_rerank_v2",
           queryVariantsUsed: queryTexts.length,
           candidateCount: rawResults.length,
+          vectorBackendRequested: normalizeBackendMode(vectorBackend.value()),
+          vectorBackendResolved: candidateLookup.backend,
+          vectorBackendStats: candidateLookup.stats,
           stage: ranking.stage,
           relaxed: ranking.relaxed,
         },
@@ -499,7 +518,7 @@ async function openRouterFetch(path, payload, options = {}) {
   }
 }
 
-async function findNearestMovies(queryEmbedding, limit) {
+async function findNearestMoviesFirestore(queryEmbedding, limit) {
   const collection = db.collection(indexCollection.value());
   const vectorQuery = collection
     .select(
@@ -531,17 +550,95 @@ async function findNearestMovies(queryEmbedding, limit) {
   return snapshot.docs.map((doc) => ({ docId: doc.id, ...doc.data() }));
 }
 
-async function fetchCandidates(queryTexts, topK) {
+async function findNearestMoviesQdrant(queryEmbedding, limit) {
+  const baseUrl = String(qdrantUrl.value() || "").trim().replace(/\/+$/, "");
+  const collectionName = String(qdrantCollection.value() || "").trim();
+  if (!baseUrl) {
+    throw new Error("QDRANT_URL is empty.");
+  }
+  if (!collectionName) {
+    throw new Error("QDRANT_COLLECTION is empty.");
+  }
+
+  const url = `${baseUrl}/collections/${encodeURIComponent(
+    collectionName
+  )}/points/query`;
+  const timeout = parsePositiveInt(qdrantTimeoutMs.value(), 12000);
+  const apiKey = String(qdrantApiKey.value() || "").trim();
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeout);
+  try {
+    const result = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        ...(apiKey ? { "api-key": apiKey } : {}),
+      },
+      body: JSON.stringify({
+        query: queryEmbedding,
+        limit,
+        with_payload: true,
+        with_vector: false,
+      }),
+      signal: controller.signal,
+    });
+    const json = await result.json().catch(() => ({}));
+    if (!result.ok) {
+      throw new Error(
+        `Qdrant query failed (${result.status}): ${JSON.stringify(json)}`
+      );
+    }
+
+    const rawPoints = Array.isArray(json?.result?.points)
+      ? json.result.points
+      : Array.isArray(json?.result)
+      ? json.result
+      : [];
+
+    return rawPoints.map((point) => {
+      const payload = point?.payload || {};
+      const vectorSimilarityRaw = Number(point?.score || 0);
+      const vectorSimilarity = Number.isFinite(vectorSimilarityRaw)
+        ? Math.max(0, Math.min(1, vectorSimilarityRaw))
+        : 0;
+      return {
+        docId: String(point?.id ?? payload.id ?? ""),
+        ...payload,
+        vectorSimilarity,
+        vectorDistance: Number((1 - vectorSimilarity).toFixed(6)),
+      };
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function fetchCandidatesFromFirestore(queryTexts, topK) {
   const limitPerVariant = Math.max(30, Math.min(100, topK * 8));
   const settled = await Promise.allSettled(
     queryTexts.map(async (queryText) => {
       const queryEmbedding = await embedText(queryText);
-      return findNearestMovies(queryEmbedding, limitPerVariant);
+      return findNearestMoviesFirestore(queryEmbedding, limitPerVariant);
     })
   );
+  return mergeCandidateRowsFromVariants(settled);
+}
 
+async function fetchCandidatesFromQdrant(queryTexts, topK) {
+  const limitPerVariant = Math.max(30, Math.min(100, topK * 8));
+  const settled = await Promise.allSettled(
+    queryTexts.map(async (queryText) => {
+      const queryEmbedding = await embedText(queryText);
+      return findNearestMoviesQdrant(queryEmbedding, limitPerVariant);
+    })
+  );
+  return mergeCandidateRowsFromVariants(settled);
+}
+
+function mergeCandidateRowsFromVariants(settledResults) {
   const allRows = [];
-  for (const result of settled) {
+  for (const result of settledResults) {
     if (result.status === "fulfilled") {
       allRows.push(...result.value);
     } else {
@@ -556,7 +653,9 @@ async function fetchCandidates(queryTexts, topK) {
   for (const row of allRows) {
     const id = Number(row.id || 0);
     if (!id) continue;
-    const vectorSimilarity = 1 - Number(row.vectorDistance || 1);
+    const vectorSimilarity = Number.isFinite(row.vectorSimilarity)
+      ? Number(row.vectorSimilarity)
+      : 1 - Number(row.vectorDistance || 1);
     const existing = byId.get(id);
     if (!existing || vectorSimilarity > existing.vectorSimilarity) {
       byId.set(id, { ...row, vectorSimilarity });
@@ -564,6 +663,61 @@ async function fetchCandidates(queryTexts, topK) {
   }
 
   return [...byId.values()];
+}
+
+async function fetchCandidates(queryTexts, topK) {
+  const backendMode = normalizeBackendMode(vectorBackend.value());
+  if (backendMode === "firestore") {
+    return {
+      rows: await fetchCandidatesFromFirestore(queryTexts, topK),
+      backend: "firestore",
+      stats: { firestore: "ok", qdrant: "skipped" },
+    };
+  }
+
+  if (backendMode === "qdrant") {
+    return {
+      rows: await fetchCandidatesFromQdrant(queryTexts, topK),
+      backend: "qdrant",
+      stats: { firestore: "skipped", qdrant: "ok" },
+    };
+  }
+
+  const [qdrantResult, firestoreResult] = await Promise.allSettled([
+    fetchCandidatesFromQdrant(queryTexts, topK),
+    fetchCandidatesFromFirestore(queryTexts, topK),
+  ]);
+
+  const merged = [];
+  const stats = {};
+  if (qdrantResult.status === "fulfilled") {
+    merged.push(...qdrantResult.value);
+    stats.qdrant = `ok:${qdrantResult.value.length}`;
+  } else {
+    console.warn("Qdrant candidate lookup failed in dual mode", qdrantResult.reason);
+    stats.qdrant = "failed";
+  }
+  if (firestoreResult.status === "fulfilled") {
+    merged.push(...firestoreResult.value);
+    stats.firestore = `ok:${firestoreResult.value.length}`;
+  } else {
+    console.warn(
+      "Firestore candidate lookup failed in dual mode",
+      firestoreResult.reason
+    );
+    stats.firestore = "failed";
+  }
+
+  if (merged.length === 0) {
+    throw new Error("Both Qdrant and Firestore candidate lookups failed.");
+  }
+
+  const deduped = mergeCandidateRowsFromVariants([{ status: "fulfilled", value: merged }]);
+  return {
+    rows: deduped,
+    backend: "dual",
+    stats,
+  };
 }
 
 function rerankResults(rows, plan, topK) {
@@ -978,6 +1132,21 @@ function normalizeText(value) {
     .replace(/[^a-z0-9\s]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+}
+
+function normalizeBackendMode(value) {
+  const normalized = String(value || "").trim().toLowerCase();
+  if (normalized === "qdrant") return "qdrant";
+  if (normalized === "dual") return "dual";
+  return "firestore";
+}
+
+function parsePositiveInt(value, fallback) {
+  const parsed = Number.parseInt(String(value ?? ""), 10);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return fallback;
+  }
+  return parsed;
 }
 
 function normalizePromptInput(value) {

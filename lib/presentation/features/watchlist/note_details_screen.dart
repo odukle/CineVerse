@@ -33,38 +33,18 @@ class NoteDetailsScreen extends ConsumerWidget {
         backgroundColor: AppColors.cinemaBackground,
         elevation: 0,
         title: const Text(
-          'Note Details',
+          'Notes',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
           onPressed: () => context.pop(),
         ),
-        actions: [
-          notesAsync.maybeWhen(
-            data: (notes) {
-              final note = notes.cast<MovieNote?>().firstWhere(
-                (n) => n?.id == noteId,
-                orElse: () => null,
-              );
-              if (note == null) return const SizedBox.shrink();
-              return IconButton(
-                icon: const Icon(
-                  Icons.delete_outline_rounded,
-                  color: Colors.redAccent,
-                ),
-                onPressed: () => _handleDelete(context, ref, note),
-                tooltip: 'Delete Note',
-              );
-            },
-            orElse: () => const SizedBox.shrink(),
-          ),
-        ],
       ),
       body: notesAsync.when(
         skipLoadingOnReload: !notesAsync.hasError,
         data: (notes) {
-          final note = notes.cast<MovieNote?>().firstWhere(
+          final MovieNote? note = notes.cast<MovieNote?>().firstWhere(
             (n) => n?.id == noteId,
             orElse: () => null,
           );
@@ -77,6 +57,19 @@ class NoteDetailsScreen extends ConsumerWidget {
               ),
             );
           }
+
+          final List<MovieNote> relatedNotes =
+              notes
+                  .where(
+                    (MovieNote n) =>
+                        n.movieId == note.movieId &&
+                        n.mediaType == note.mediaType,
+                  )
+                  .toList(growable: false)
+                ..sort(
+                  (MovieNote a, MovieNote b) =>
+                      b.createdAt.compareTo(a.createdAt),
+                );
 
           final movieDetailsAsync = ref.watch(
             movieDetailsProvider(
@@ -99,7 +92,8 @@ class NoteDetailsScreen extends ConsumerWidget {
                         AppRoute.movieDetails.name,
                         pathParameters: {'movieId': details.id.toString()},
                         queryParameters: {
-                          'isTv': (note.mediaType == GlobalMediaType.tv).toString(),
+                          'isTv': (note.mediaType == GlobalMediaType.tv)
+                              .toString(),
                         },
                       );
                     },
@@ -117,11 +111,12 @@ class NoteDetailsScreen extends ConsumerWidget {
                                   ? CachedNetworkImage(
                                       imageUrl: details.posterPath!,
                                       fit: BoxFit.cover,
-                                      placeholder: (context, url) => const ShimmerEffect(
-                                        width: 100,
-                                        height: 150,
-                                        borderRadius: 12,
-                                      ),
+                                      placeholder: (context, url) =>
+                                          const ShimmerEffect(
+                                            width: 100,
+                                            height: 150,
+                                            borderRadius: 12,
+                                          ),
                                     )
                                   : ColoredBox(
                                       color: AppColors.detailsPosterSurface,
@@ -172,7 +167,11 @@ class NoteDetailsScreen extends ConsumerWidget {
                   ),
                   loading: () => Row(
                     children: [
-                      const ShimmerEffect(width: 100, height: 150, borderRadius: 12),
+                      const ShimmerEffect(
+                        width: 100,
+                        height: 150,
+                        borderRadius: 12,
+                      ),
                       const SizedBox(width: 16),
                       Expanded(
                         child: Column(
@@ -189,52 +188,91 @@ class NoteDetailsScreen extends ConsumerWidget {
                   error: (_, _) => const SizedBox.shrink(),
                 ),
                 const SizedBox(height: 32),
-                const Text(
-                  'Your Note',
-                  style: TextStyle(
+                Text(
+                  'Your Notes (${relatedNotes.length})',
+                  style: const TextStyle(
                     color: Colors.white38,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 1.2,
                   ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  DateFormat('MMMM d, yyyy • HH:mm').format(note.createdAt),
-                  style: const TextStyle(color: Colors.white54, fontSize: 13),
-                ),
-                const SizedBox(height: 16),
-                InkWell(
-                  onTap: () {
-                    showAnimatedDialog(
-                      context: context,
-                      builder: (context) => AddNoteDialog(
-                        mediaId: note.movieId,
-                        mediaType: note.mediaType,
-                        initialNote: note,
+                const SizedBox(height: 10),
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: relatedNotes.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  itemBuilder: (BuildContext context, int index) {
+                    final MovieNote item = relatedNotes[index];
+                    return InkWell(
+                      onTap: () {
+                        showAnimatedDialog(
+                          context: context,
+                          builder: (context) => AddNoteDialog(
+                            mediaId: item.movieId,
+                            mediaType: item.mediaType,
+                            initialNote: item,
+                          ),
+                        );
+                      },
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.detailsCard.withValues(alpha: 0.22),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.06),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Row(
+                              children: <Widget>[
+                                Expanded(
+                                  child: Text(
+                                    DateFormat(
+                                      'MMMM d, yyyy • HH:mm',
+                                    ).format(item.createdAt),
+                                    style: const TextStyle(
+                                      color: Colors.white54,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.delete_outline_rounded,
+                                    color: Colors.redAccent,
+                                    size: 20,
+                                  ),
+                                  onPressed: () => _handleDelete(
+                                    context,
+                                    ref,
+                                    item,
+                                    popAfterDelete: relatedNotes.length == 1,
+                                  ),
+                                  tooltip: 'Delete Note',
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              item.text,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                height: 1.55,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: AppColors.detailsCard.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.05),
-                      ),
-                    ),
-                    child: Text(
-                      note.text,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        height: 1.6,
-                      ),
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -268,8 +306,9 @@ class NoteDetailsScreen extends ConsumerWidget {
   void _handleDelete(
     BuildContext context,
     WidgetRef ref,
-    MovieNote note,
-  ) async {
+    MovieNote note, {
+    required bool popAfterDelete,
+  }) async {
     final actions = ref.read(movieNotesActionsProvider);
 
     // Save data for undo
@@ -277,15 +316,16 @@ class NoteDetailsScreen extends ConsumerWidget {
     final deletedNoteMediaId = note.movieId;
     final deletedNoteMediaType = note.mediaType;
 
-    // Navigate back first since the note will be gone
-    context.pop();
-
     // Actually delete
     await actions.deleteNote(note.movieId, note.mediaType, note.id);
 
+    if (popAfterDelete && context.mounted) {
+      context.pop();
+    }
+
     if (!context.mounted) return;
     ToastUtils.showToast(
-      context, 
+      context,
       'Note deleted',
       duration: const Duration(seconds: 5),
       action: SnackBarAction(

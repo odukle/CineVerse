@@ -4,10 +4,12 @@ import 'package:cineverse/core/config/region_preferences.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/watched_item.dart';
 import 'package:cineverse/presentation/features/home/providers/watch_history_insights_provider.dart';
+import 'package:cineverse/presentation/features/home/providers/reminders_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
 import 'package:cineverse/presentation/providers/auth_provider.dart';
 import 'package:cineverse/domain/entities/user_entity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -19,30 +21,23 @@ class AccountScreen extends ConsumerWidget {
     final ThemeData theme = Theme.of(context);
     final userAsync = ref.watch(authStateProvider);
     final UserEntity? user = userAsync.value;
+    final int remindersCount = ref.watch(remindersCountProvider);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
       children: [
         Container(
-          padding: const EdgeInsets.all(22),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: <Color>[
-                Color(0xFF112142),
-                Color(0xFF231043),
-                Color(0xFF3A1657),
-              ],
-            ),
+            borderRadius: BorderRadius.circular(28),
+            gradient: LinearGradient(colors: AppColors.cinemaPanelGradient),
             border: Border.all(
               color: AppColors.cinemaBorder.withValues(alpha: 0.28),
             ),
             boxShadow: <BoxShadow>[
               BoxShadow(
-                color: AppColors.cinemaGlow.withValues(alpha: 0.14),
-                blurRadius: 28,
+                color: AppColors.cinemaGlow.withValues(alpha: 0.12),
+                blurRadius: 22,
                 spreadRadius: -12,
                 offset: const Offset(0, 16),
               ),
@@ -56,7 +51,7 @@ class AccountScreen extends ConsumerWidget {
                 style: theme.textTheme.headlineMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w800,
-                  fontSize: 24,
+                  fontSize: 23,
                 ),
               ),
               const SizedBox(height: 8),
@@ -139,6 +134,7 @@ class AccountScreen extends ConsumerWidget {
                       const SizedBox(height: 10),
                       ElevatedButton.icon(
                         onPressed: () async {
+                          HapticFeedback.selectionClick();
                           try {
                             await ref
                                 .read(authRepositoryProvider)
@@ -165,6 +161,7 @@ class AccountScreen extends ConsumerWidget {
                       const SizedBox(height: 10),
                       ElevatedButton.icon(
                         onPressed: () async {
+                          HapticFeedback.selectionClick();
                           final bool? confirm = await showDialog<bool>(
                             context: context,
                             builder: (context) => AlertDialog(
@@ -235,10 +232,13 @@ class AccountScreen extends ConsumerWidget {
           subtitle: 'Track the titles you keep offline for travel.',
         ),
         const SizedBox(height: 14),
-        const _AccountActionCard(
+        _AccountActionCard(
           icon: Icons.notifications_none_rounded,
           title: 'Notifications',
-          subtitle: 'Control premiere alerts and release reminders.',
+          subtitle: remindersCount == 0
+              ? 'Control premiere alerts and release reminders.'
+              : '$remindersCount reminder${remindersCount == 1 ? '' : 's'} scheduled.',
+          onTap: () => context.pushNamed(AppRoute.notifications.name),
         ),
         const SizedBox(height: 14),
         _AccountActionCard(
@@ -344,6 +344,7 @@ class _RegionPreferenceCard extends ConsumerWidget {
                     ? const Icon(Icons.check_rounded, color: Colors.white)
                     : null,
                 onTap: () async {
+                  HapticFeedback.selectionClick();
                   await ref
                       .read(selectedRegionCodeProvider.notifier)
                       .setSelectedRegion(null);
@@ -377,6 +378,7 @@ class _RegionPreferenceCard extends ConsumerWidget {
                         ? const Icon(Icons.check_rounded, color: Colors.white)
                         : null,
                     onTap: () async {
+                      HapticFeedback.selectionClick();
                       await ref
                           .read(selectedRegionCodeProvider.notifier)
                           .setSelectedRegion(option.code);
@@ -421,7 +423,10 @@ class _WatchHistoryInsightsCard extends ConsumerWidget {
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
-        onTap: () => context.pushNamed(AppRoute.watchAnalytics.name),
+        onTap: () {
+          HapticFeedback.selectionClick();
+          context.pushNamed(AppRoute.watchAnalytics.name);
+        },
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -465,8 +470,10 @@ class _WatchHistoryInsightsCard extends ConsumerWidget {
                       ),
                     ),
                     IconButton(
-                      onPressed: () =>
-                          ref.invalidate(watchHistoryInsightsProvider),
+                      onPressed: () {
+                        HapticFeedback.selectionClick();
+                        ref.invalidate(watchHistoryInsightsProvider);
+                      },
                       icon: const Icon(
                         Icons.refresh_rounded,
                         color: Colors.white70,
@@ -501,8 +508,10 @@ class _WatchHistoryInsightsCard extends ConsumerWidget {
                           ),
                         ),
                         IconButton(
-                          onPressed: () =>
-                              ref.invalidate(watchHistoryInsightsProvider),
+                          onPressed: () {
+                            HapticFeedback.selectionClick();
+                            ref.invalidate(watchHistoryInsightsProvider);
+                          },
                           icon: const Icon(
                             Icons.refresh_rounded,
                             color: Colors.white70,
@@ -541,8 +550,10 @@ class _WatchHistoryInsightsCard extends ConsumerWidget {
                         ),
                       ),
                       IconButton(
-                        onPressed: () =>
-                            ref.invalidate(watchHistoryInsightsProvider),
+                        onPressed: () {
+                          HapticFeedback.selectionClick();
+                          ref.invalidate(watchHistoryInsightsProvider);
+                        },
                         icon: const Icon(
                           Icons.refresh_rounded,
                           color: Colors.white70,
@@ -694,7 +705,12 @@ class _AccountActionCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: onTap == null
+            ? null
+            : () {
+                HapticFeedback.selectionClick();
+                onTap?.call();
+              },
         borderRadius: BorderRadius.circular(20),
         child: Ink(
           padding: const EdgeInsets.all(16),

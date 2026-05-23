@@ -1,6 +1,7 @@
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/presentation/features/movies/providers/explore_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ExploreMediaTypeToggle extends ConsumerWidget {
@@ -26,16 +27,26 @@ class ExploreMediaTypeToggle extends ConsumerWidget {
           _ToggleOption(
             label: 'Movies',
             selected: mediaType == ExploreMediaType.movie,
-            onTap: () => ref
-                .read(exploreMediaTypeProvider.notifier)
-                .setType(ExploreMediaType.movie),
+            onTap: () {
+              if (mediaType != ExploreMediaType.movie) {
+                HapticFeedback.selectionClick();
+              }
+              ref
+                  .read(exploreMediaTypeProvider.notifier)
+                  .setType(ExploreMediaType.movie);
+            },
           ),
           _ToggleOption(
             label: 'TV',
             selected: mediaType == ExploreMediaType.tv,
-            onTap: () => ref
-                .read(exploreMediaTypeProvider.notifier)
-                .setType(ExploreMediaType.tv),
+            onTap: () {
+              if (mediaType != ExploreMediaType.tv) {
+                HapticFeedback.selectionClick();
+              }
+              ref
+                  .read(exploreMediaTypeProvider.notifier)
+                  .setType(ExploreMediaType.tv);
+            },
           ),
         ],
       ),

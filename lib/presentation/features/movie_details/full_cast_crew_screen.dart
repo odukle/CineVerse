@@ -4,6 +4,7 @@ import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:go_router/go_router.dart';
 
@@ -38,10 +39,12 @@ class _FullCastCrewScreenState extends State<FullCastCrewScreen> {
     if (_searchQuery.isEmpty) return credits;
     final query = _searchQuery.toLowerCase();
     return credits
-        .where((c) =>
-            c.name.toLowerCase().contains(query) ||
-            (c.characterName?.toLowerCase().contains(query) ?? false) ||
-            c.role.toLowerCase().contains(query))
+        .where(
+          (c) =>
+              c.name.toLowerCase().contains(query) ||
+              (c.characterName?.toLowerCase().contains(query) ?? false) ||
+              c.role.toLowerCase().contains(query),
+        )
         .toList();
   }
 
@@ -60,7 +63,10 @@ class _FullCastCrewScreenState extends State<FullCastCrewScreen> {
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-              onPressed: () => context.pop(),
+              onPressed: () {
+                HapticFeedback.selectionClick();
+                context.pop();
+              },
             ),
             title: _isSearching
                 ? TextField(
@@ -105,6 +111,7 @@ class _FullCastCrewScreenState extends State<FullCastCrewScreen> {
                   color: Colors.white,
                 ),
                 onPressed: () {
+                  HapticFeedback.selectionClick();
                   setState(() {
                     if (_isSearching) {
                       _isSearching = false;
@@ -122,9 +129,9 @@ class _FullCastCrewScreenState extends State<FullCastCrewScreen> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
                 child: Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(26),
+                    borderRadius: BorderRadius.circular(999),
                     gradient: LinearGradient(
                       colors: AppColors.cinemaPanelGradient,
                     ),
@@ -140,13 +147,66 @@ class _FullCastCrewScreenState extends State<FullCastCrewScreen> {
                       ),
                     ],
                   ),
-                  child: const TabBar(
+                  child: TabBar(
+                    onTap: (_) => HapticFeedback.selectionClick(),
                     dividerColor: Colors.transparent,
-                    indicatorPadding: EdgeInsets.symmetric(vertical: 2),
-                    labelPadding: EdgeInsets.symmetric(horizontal: 16),
-                    tabs: <Tab>[
-                      Tab(text: 'Cast'),
-                      Tab(text: 'Crew'),
+                    indicatorSize: TabBarIndicatorSize.label,
+                    indicator: BoxDecoration(
+                      color: AppColors.cinemaAccent.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: AppColors.cinemaAccent.withValues(alpha: 0.4),
+                      ),
+                    ),
+                    indicatorPadding: const EdgeInsets.symmetric(
+                      vertical: 3,
+                      horizontal: 0,
+                    ),
+                    splashBorderRadius: BorderRadius.circular(999),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.white.withValues(alpha: 0.7),
+                    labelStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 2),
+                    tabs: const <Tab>[
+                      Tab(
+                        child: SizedBox(
+                          height: 28,
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Text(
+                                'Cast',
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                softWrap: false,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Tab(
+                        child: SizedBox(
+                          height: 28,
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Text(
+                                'Crew',
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                softWrap: false,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -189,7 +249,9 @@ class _CreditGrid extends StatelessWidget {
     if (credits.isEmpty) {
       return Center(
         child: Text(
-          query.isEmpty ? 'No information available.' : 'No results for "$query"',
+          query.isEmpty
+              ? 'No information available.'
+              : 'No results for "$query"',
           style: const TextStyle(color: Colors.white54),
         ),
       );

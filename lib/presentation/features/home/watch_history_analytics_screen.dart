@@ -5,6 +5,7 @@ import 'package:cineverse/presentation/features/watchlist/providers/watched_prov
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class WatchHistoryAnalyticsScreen extends ConsumerWidget {
@@ -35,7 +36,10 @@ class WatchHistoryAnalyticsScreen extends ConsumerWidget {
             title: 'Could not load analytics',
             subtitle: 'Try again after a moment.',
             actionLabel: 'Retry',
-            onTap: () => ref.invalidate(watchHistoryAnalyticsProvider),
+            onTap: () {
+              HapticFeedback.selectionClick();
+              ref.invalidate(watchHistoryAnalyticsProvider);
+            },
           ),
           data: (analytics) {
             if (analytics == null) {
@@ -514,7 +518,13 @@ class _AnalyticsMessage extends StatelessWidget {
             ),
             if (actionLabel != null && onTap != null) ...<Widget>[
               const SizedBox(height: 14),
-              ElevatedButton(onPressed: onTap, child: Text(actionLabel!)),
+              ElevatedButton(
+                onPressed: () {
+                  HapticFeedback.selectionClick();
+                  onTap?.call();
+                },
+                child: Text(actionLabel!),
+              ),
             ],
           ],
         ),

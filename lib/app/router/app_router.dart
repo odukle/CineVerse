@@ -19,6 +19,7 @@ import 'package:cineverse/presentation/features/watchlist/notes_screen.dart';
 import 'package:cineverse/presentation/features/watchlist/note_details_screen.dart';
 import 'package:cineverse/presentation/features/home/appearance_screen.dart';
 import 'package:cineverse/presentation/features/home/watch_history_analytics_screen.dart';
+import 'package:cineverse/presentation/features/home/notifications_screen.dart';
 import 'package:cineverse/presentation/features/splash/lumi_splash_screen.dart';
 
 import 'package:cineverse/presentation/features/movie_details/all_reviews_screen.dart';
@@ -269,6 +270,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const WatchHistoryAnalyticsScreen(),
       ),
       GoRoute(
+        path: AppRoute.notifications.path,
+        name: AppRoute.notifications.name,
+        builder: (context, state) => const NotificationsScreen(),
+      ),
+      GoRoute(
         path: AppRoute.exploreQuotes.path,
         name: AppRoute.exploreQuotes.name,
         builder: (context, state) {
@@ -339,6 +345,7 @@ enum AppRoute {
   ),
   appearance('/appearance', 'appearance'),
   watchAnalytics('/watch-analytics', 'watch-analytics'),
+  notifications('/notifications', 'notifications'),
   allReviews('/reviews', 'all-reviews'),
   exploreQuotes('/explore_quotes', 'explore_quotes'),
   quoteShareEditor('/quote_share_editor', 'quote_share_editor'),

@@ -11,6 +11,7 @@ import 'package:cineverse/presentation/features/watchlist/providers/watchlist_pr
 import 'package:cineverse/presentation/features/movie_details/providers/notes_provider.dart';
 import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_note.dart';
@@ -69,9 +70,13 @@ class _AddToListDialogState extends State<AddToListDialog> {
                         itemCount: lists.length,
                         itemBuilder: (context, index) {
                           final list = lists[index];
-                          final isInList = list.items.any((item) => 
-                            item.mediaId == widget.details.id && 
-                            item.mediaType == (widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie)
+                          final isInList = list.items.any(
+                            (item) =>
+                                item.mediaId == widget.details.id &&
+                                item.mediaType ==
+                                    (widget.isTv
+                                        ? GlobalMediaType.tv
+                                        : GlobalMediaType.movie),
                           );
 
                           return ListTile(
@@ -81,25 +86,37 @@ class _AddToListDialogState extends State<AddToListDialog> {
                             ),
                             trailing: Icon(
                               isInList ? Icons.remove : Icons.add,
-                              color: isInList ? Colors.redAccent : AppColors.cinemaAccent,
+                              color: isInList
+                                  ? Colors.redAccent
+                                  : AppColors.cinemaAccent,
                             ),
                             onTap: () {
                               if (isInList) {
-                                ref.read(namedListsProvider.notifier).removeItemFromList(
-                                  list.id, 
-                                  widget.details.id, 
-                                  widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie
-                                );
+                                ref
+                                    .read(namedListsProvider.notifier)
+                                    .removeItemFromList(
+                                      list.id,
+                                      widget.details.id,
+                                      widget.isTv
+                                          ? GlobalMediaType.tv
+                                          : GlobalMediaType.movie,
+                                    );
                                 if (context.mounted) {
-                                  ToastUtils.showToast(context, 'Removed from ${list.name}');
+                                  ToastUtils.showToast(
+                                    context,
+                                    'Removed from ${list.name}',
+                                  );
                                   Navigator.pop(context);
                                 }
                               } else {
                                 _addItemToList(ref, list.id);
                                 if (context.mounted) {
-                                  ToastUtils.showToast(context, _addToWatchlist 
+                                  ToastUtils.showToast(
+                                    context,
+                                    _addToWatchlist
                                         ? 'Added to ${list.name} and Watchlist'
-                                        : 'Added to ${list.name}');
+                                        : 'Added to ${list.name}',
+                                  );
                                   Navigator.pop(context);
                                 }
                               }
@@ -109,7 +126,8 @@ class _AddToListDialogState extends State<AddToListDialog> {
                       ),
                     );
                   },
-                  loading: () => const Center(child: CircularProgressIndicator()),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
                   error: (_, _) => const Text('Error loading lists'),
                 ),
                 const Divider(color: Colors.white10),
@@ -150,14 +168,19 @@ class _AddToListDialogState extends State<AddToListDialog> {
                 final name = _newListNameController.text.trim();
                 if (name.isNotEmpty) {
                   FocusScope.of(context).unfocus();
-                  final newListId = await ref.read(namedListsProvider.notifier).createList(name);
-                  
+                  final newListId = await ref
+                      .read(namedListsProvider.notifier)
+                      .createList(name);
+
                   _addItemToList(ref, newListId);
-                  
+
                   if (context.mounted) {
-                    ToastUtils.showToast(context, _addToWatchlist 
+                    ToastUtils.showToast(
+                      context,
+                      _addToWatchlist
                           ? 'Added to $name and Watchlist'
-                          : 'Added to $name');
+                          : 'Added to $name',
+                    );
                     Navigator.pop(context);
                   }
                   _newListNameController.clear();
@@ -365,7 +388,10 @@ class _WatchedDialogState extends State<WatchedDialog> {
       ref.read(watchedItemsProvider.notifier).addItem(item);
     }
     if (context.mounted) {
-      ToastUtils.showToast(context, isUpdate ? 'Watched info updated' : 'Marked as Watched');
+      ToastUtils.showToast(
+        context,
+        isUpdate ? 'Watched info updated' : 'Marked as Watched',
+      );
       Navigator.pop(context);
     }
   }
@@ -387,11 +413,16 @@ class _WatchedDialogState extends State<WatchedDialog> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: Colors.white70),
+              ),
             ),
             TextButton(
               onPressed: () {
-                ref.read(watchedItemsProvider.notifier).removeItem(
+                ref
+                    .read(watchedItemsProvider.notifier)
+                    .removeItem(
                       widget.details.id,
                       widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
                     );
@@ -400,7 +431,10 @@ class _WatchedDialogState extends State<WatchedDialog> {
                   Navigator.pop(context);
                 }
               },
-              child: const Text('Remove', style: TextStyle(color: Colors.redAccent)),
+              child: const Text(
+                'Remove',
+                style: TextStyle(color: Colors.redAccent),
+              ),
             ),
           ],
         ),
@@ -470,7 +504,10 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.white54),
+            ),
           ),
           ElevatedButton(
             onPressed: _isSubmitting
@@ -482,7 +519,9 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                     setState(() => _isSubmitting = true);
                     try {
                       if (isEditing) {
-                        await ref.read(movieNotesActionsProvider).updateNote(
+                        await ref
+                            .read(movieNotesActionsProvider)
+                            .updateNote(
                               widget.mediaId,
                               widget.mediaType,
                               widget.initialNote!.id,
@@ -493,11 +532,9 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                           Navigator.pop(context);
                         }
                       } else {
-                        await ref.read(movieNotesActionsProvider).addNote(
-                              widget.mediaId,
-                              widget.mediaType,
-                              text,
-                            );
+                        await ref
+                            .read(movieNotesActionsProvider)
+                            .addNote(widget.mediaId, widget.mediaType, text);
                         if (context.mounted) {
                           ToastUtils.showToast(context, 'Note added');
                           Navigator.pop(context);
@@ -507,7 +544,9 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                       if (context.mounted) {
                         ToastUtils.showToast(
                           context,
-                          isEditing ? 'Failed to update note' : 'Failed to add note',
+                          isEditing
+                              ? 'Failed to update note'
+                              : 'Failed to add note',
                         );
                       }
                     } finally {
@@ -550,12 +589,19 @@ class MediaActionsBottomSheet extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final mediaType = isTv ? GlobalMediaType.tv : GlobalMediaType.movie;
-    
+
     // Providers for current state
-    final isFav = ref.watch(isFavouriteProvider((id: movie.id, type: mediaType)));
-    final isInWatchlist = ref.watch(isInWatchlistProvider(movie.id)).value ?? false;
-    final isWatched = ref.watch(isWatchedProvider((id: movie.id, type: mediaType))).value ?? false;
-    final watchedItem = ref.watch(watchedItemProvider((id: movie.id, type: mediaType))).value;
+    final isFav = ref.watch(
+      isFavouriteProvider((id: movie.id, type: mediaType)),
+    );
+    final isInWatchlist =
+        ref.watch(isInWatchlistProvider(movie.id)).value ?? false;
+    final isWatched =
+        ref.watch(isWatchedProvider((id: movie.id, type: mediaType))).value ??
+        false;
+    final watchedItem = ref
+        .watch(watchedItemProvider((id: movie.id, type: mediaType)))
+        .value;
 
     final details = MovieDetails(
       id: movie.id,
@@ -587,7 +633,7 @@ class MediaActionsBottomSheet extends ConsumerWidget {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            
+
             // Movie Title & Info
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -634,7 +680,7 @@ class MediaActionsBottomSheet extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             const Divider(color: Colors.white10, height: 1),
-            
+
             // Action items
             _ActionTile(
               icon: Icons.list_rounded,
@@ -643,12 +689,15 @@ class MediaActionsBottomSheet extends ConsumerWidget {
                 Navigator.pop(context);
                 showAnimatedDialog(
                   context: context,
-                  builder: (context) => AddToListDialog(details: details, isTv: isTv),
+                  builder: (context) =>
+                      AddToListDialog(details: details, isTv: isTv),
                 );
               },
             ),
             _ActionTile(
-              icon: isFav ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+              icon: isFav
+                  ? Icons.favorite_rounded
+                  : Icons.favorite_outline_rounded,
               iconColor: isFav ? Colors.redAccent : Colors.white,
               title: isFav ? 'Remove from Favourites' : 'Add to Favourites',
               onTap: () async {
@@ -662,16 +711,25 @@ class MediaActionsBottomSheet extends ConsumerWidget {
                   addedDate: DateTime.now(),
                   voteAverage: movie.voteAverage,
                 );
-                await ref.read(favouritesProvider.notifier).toggleFavourite(item);
+                await ref
+                    .read(favouritesProvider.notifier)
+                    .toggleFavourite(item);
                 if (context.mounted) {
-                  ToastUtils.showToast(context, isFav ? 'Removed from Favourites' : 'Added to Favourites');
+                  ToastUtils.showToast(
+                    context,
+                    isFav ? 'Removed from Favourites' : 'Added to Favourites',
+                  );
                 }
               },
             ),
             _ActionTile(
-              icon: isInWatchlist ? Icons.bookmark_rounded : Icons.bookmark_add_outlined,
+              icon: isInWatchlist
+                  ? Icons.bookmark_rounded
+                  : Icons.bookmark_add_outlined,
               iconColor: isInWatchlist ? AppColors.cinemaAccent : Colors.white,
-              title: isInWatchlist ? 'Remove from Watchlist' : 'Add to Watchlist',
+              title: isInWatchlist
+                  ? 'Remove from Watchlist'
+                  : 'Add to Watchlist',
               onTap: () async {
                 Navigator.pop(context);
                 final item = WatchlistItem(
@@ -685,12 +743,19 @@ class MediaActionsBottomSheet extends ConsumerWidget {
                 );
                 await ref.read(watchlistProvider.notifier).toggleItem(item);
                 if (context.mounted) {
-                  ToastUtils.showToast(context, isInWatchlist ? 'Removed from Watchlist' : 'Added to Watchlist');
+                  ToastUtils.showToast(
+                    context,
+                    isInWatchlist
+                        ? 'Removed from Watchlist'
+                        : 'Added to Watchlist',
+                  );
                 }
               },
             ),
             _ActionTile(
-              icon: isWatched ? Icons.check_circle_rounded : Icons.check_circle_outline_rounded,
+              icon: isWatched
+                  ? Icons.check_circle_rounded
+                  : Icons.check_circle_outline_rounded,
               iconColor: isWatched ? AppColors.cinemaAccent : Colors.white,
               title: isWatched ? 'Edit Watched Status' : 'Mark as Watched',
               onTap: () {
@@ -712,10 +777,8 @@ class MediaActionsBottomSheet extends ConsumerWidget {
                 Navigator.pop(context);
                 showAnimatedDialog(
                   context: context,
-                  builder: (context) => AddNoteDialog(
-                    mediaId: movie.id,
-                    mediaType: mediaType,
-                  ),
+                  builder: (context) =>
+                      AddNoteDialog(mediaId: movie.id, mediaType: mediaType),
                 );
               },
             ),
@@ -748,7 +811,10 @@ class _ActionTile extends StatelessWidget {
         title,
         style: const TextStyle(color: Colors.white, fontSize: 16),
       ),
-      onTap: onTap,
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
       hoverColor: Colors.white10,
     );

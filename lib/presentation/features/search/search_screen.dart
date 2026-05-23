@@ -9,6 +9,7 @@ import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid
 import 'package:cineverse/presentation/features/search/providers/search_provider.dart';
 import 'package:cineverse/presentation/features/search/providers/search_history_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -95,6 +96,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         automaticallyImplyLeading: false,
         leading: IconButton(
           onPressed: () {
+            HapticFeedback.selectionClick();
             context.pushNamed(AppRoute.globalFilter.name);
           },
           icon: const Icon(Icons.tune_rounded, size: 24, color: Colors.white),
@@ -111,6 +113,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         actions: [
           IconButton(
             onPressed: () {
+              HapticFeedback.selectionClick();
               ref.read(searchProvider.notifier).submitSearch();
               _focusNode.unfocus();
             },
@@ -157,6 +160,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                               color: Colors.white.withValues(alpha: 0.7),
                             ),
                             onPressed: () {
+                              HapticFeedback.selectionClick();
                               _controller.clear();
                               ref.read(searchProvider.notifier).clear();
                             },
@@ -176,9 +180,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                 Padding(
                   padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                   child: Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(26),
+                      borderRadius: BorderRadius.circular(999),
                       gradient: LinearGradient(
                         colors: AppColors.cinemaPanelGradient,
                       ),
@@ -195,16 +199,84 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                       ],
                     ),
                     child: TabBar(
+                      onTap: (_) => HapticFeedback.selectionClick(),
                       controller: _tabController,
                       isScrollable: true,
                       tabAlignment: TabAlignment.start,
                       dividerColor: Colors.transparent,
-                      indicatorPadding: const EdgeInsets.symmetric(vertical: 2),
-                      labelPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      tabs: const [
-                        Tab(text: 'MOVIES'),
-                        Tab(text: 'TV SHOWS'),
-                        Tab(text: 'PERSONS'),
+                      indicatorSize: TabBarIndicatorSize.label,
+                      indicator: BoxDecoration(
+                        color: AppColors.cinemaAccent.withValues(alpha: 0.2),
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: AppColors.cinemaAccent.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      indicatorPadding: const EdgeInsets.symmetric(
+                        vertical: 3,
+                        horizontal: 0,
+                      ),
+                      splashBorderRadius: BorderRadius.circular(999),
+                      labelColor: Colors.white,
+                      unselectedLabelColor: Colors.white.withValues(alpha: 0.7),
+                      labelStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      unselectedLabelStyle: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      labelPadding: const EdgeInsets.symmetric(horizontal: 2),
+                      tabs: const <Tab>[
+                        Tab(
+                          child: SizedBox(
+                            height: 28,
+                            child: Center(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                child: Text(
+                                  'MOVIES',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.fade,
+                                  softWrap: false,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Tab(
+                          child: SizedBox(
+                            height: 28,
+                            child: Center(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                child: Text(
+                                  'TV SHOWS',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.fade,
+                                  softWrap: false,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Tab(
+                          child: SizedBox(
+                            height: 28,
+                            child: Center(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 10),
+                                child: Text(
+                                  'PERSONS',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.fade,
+                                  softWrap: false,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),

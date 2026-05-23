@@ -49,105 +49,105 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-        title: const Text(
-          'Filters',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: _resetFilters,
-            child: Text(
-              'Reset',
-              style: TextStyle(color: AppColors.cinemaAccent),
-            ),
+          title: const Text(
+            'Filters',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionHeader('Media Type'),
-            _buildMediaTypeChips(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('Sort By'),
-            _buildSortDropdowns(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('Availabilities'),
-            _buildAvailabilities(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('User Score'),
-            _buildUserScoreSlider(),
-            _buildIncludeNotRatedToggle(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('Release Dates'),
-            _buildReleaseTypeChips(),
-            const SizedBox(height: 16),
-            _buildDatePickers(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('Minimum User Votes'),
-            _buildMinVotesSlider(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('People'),
-            _buildPeopleFilter(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('Genres'),
-            _buildGenreChips(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('Runtime (minutes)'),
-            _buildRuntimeSlider(),
-            const SizedBox(height: 32),
-          ],
-        ),
-      ),
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-        decoration: BoxDecoration(
-          color: AppColors.cinemaBackground,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.5),
-              blurRadius: 10,
-              offset: const Offset(0, -2),
+          leading: IconButton(
+            icon: const Icon(Icons.close, color: Colors.white),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: _resetFilters,
+              child: Text(
+                'Reset',
+                style: TextStyle(color: AppColors.cinemaAccent),
+              ),
             ),
           ],
         ),
-        child: SizedBox(
-          width: double.infinity,
-          height: 50,
-          child: ElevatedButton(
-            onPressed: _applyFilters,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.cinemaAccent,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionHeader('Media Type'),
+              _buildMediaTypeChips(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('Sort By'),
+              _buildSortDropdowns(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('Availabilities'),
+              _buildAvailabilities(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('User Score'),
+              _buildUserScoreSlider(),
+              _buildIncludeNotRatedToggle(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('Release Dates'),
+              _buildReleaseTypeChips(),
+              const SizedBox(height: 16),
+              _buildDatePickers(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('Minimum User Votes'),
+              _buildMinVotesSlider(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('People'),
+              _buildPeopleFilter(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('Genres'),
+              _buildGenreChips(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('Runtime (minutes)'),
+              _buildRuntimeSlider(),
+              const SizedBox(height: 32),
+            ],
+          ),
+        ),
+        bottomNavigationBar: Container(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          decoration: BoxDecoration(
+            color: AppColors.cinemaBackground,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.5),
+                blurRadius: 10,
+                offset: const Offset(0, -2),
               ),
-            ),
-            child: const Text(
-              'Apply Filters',
-              style: TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+            ],
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            height: 50,
+            child: ElevatedButton(
+              onPressed: _applyFilters,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.cinemaAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                'Apply Filters',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
               ),
             ),
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -203,7 +203,7 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
     return Row(
       children: [
         Expanded(
-          flex: 2,
+          flex: 3,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
@@ -243,7 +243,7 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
         ),
         const SizedBox(width: 12),
         Expanded(
-          flex: 1,
+          flex: 2,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
@@ -264,6 +264,8 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
                     value: order,
                     child: Text(
                       order.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(color: Colors.white, fontSize: 14),
                     ),
                   );
@@ -646,14 +648,12 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
             return persons.map((person) {
               return ListTile(
                 leading: CircleAvatar(
-                  backgroundImage:
-                      person.posterPath != null
-                          ? CachedNetworkImageProvider(person.posterPath!)
-                          : null,
-                  child:
-                      person.posterPath == null
-                          ? const Icon(Icons.person)
-                          : null,
+                  backgroundImage: person.posterPath != null
+                      ? CachedNetworkImageProvider(person.posterPath!)
+                      : null,
+                  child: person.posterPath == null
+                      ? const Icon(Icons.person)
+                      : null,
                 ),
                 title: Text(
                   person.title,
@@ -683,43 +683,35 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children:
-                _currentFilter.personNames.map((name) {
-                  final index = _currentFilter.personNames.toList().indexOf(
-                    name,
-                  );
-                  final id = _currentFilter.personIds.toList()[index];
+            children: _currentFilter.personNames.map((name) {
+              final index = _currentFilter.personNames.toList().indexOf(name);
+              final id = _currentFilter.personIds.toList()[index];
 
-                  return InputChip(
-                    label: Text(name),
-                    onDeleted: () {
-                      setState(() {
-                        final newIds = Set<int>.from(_currentFilter.personIds);
-                        final newNames = Set<String>.from(
-                          _currentFilter.personNames,
-                        );
-                        newIds.remove(id);
-                        newNames.remove(name);
-                        _currentFilter = _currentFilter.copyWith(
-                          personIds: newIds,
-                          personNames: newNames,
-                        );
-                      });
-                    },
-                    backgroundColor: AppColors.cinemaAccent.withValues(
-                      alpha: 0.1,
-                    ),
-                    deleteIconColor: Colors.white70,
-                    labelStyle: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(color: AppColors.cinemaAccent),
-                    ),
-                  );
-                }).toList(),
+              return InputChip(
+                label: Text(name),
+                onDeleted: () {
+                  setState(() {
+                    final newIds = Set<int>.from(_currentFilter.personIds);
+                    final newNames = Set<String>.from(
+                      _currentFilter.personNames,
+                    );
+                    newIds.remove(id);
+                    newNames.remove(name);
+                    _currentFilter = _currentFilter.copyWith(
+                      personIds: newIds,
+                      personNames: newNames,
+                    );
+                  });
+                },
+                backgroundColor: AppColors.cinemaAccent.withValues(alpha: 0.1),
+                deleteIconColor: Colors.white70,
+                labelStyle: const TextStyle(color: Colors.white, fontSize: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: AppColors.cinemaAccent),
+                ),
+              );
+            }).toList(),
           ),
         ],
       ],
@@ -811,7 +803,10 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
             const SizedBox(width: 12),
             TextButton(
               onPressed: () => ref.invalidate(tvGenresProvider),
-              child: Text('Retry', style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12)),
+              child: Text(
+                'Retry',
+                style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12),
+              ),
             ),
           ],
         ),
@@ -828,7 +823,10 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
           const SizedBox(width: 12),
           TextButton(
             onPressed: () => ref.invalidate(movieGenresProvider),
-            child: Text('Retry', style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12)),
+            child: Text(
+              'Retry',
+              style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12),
+            ),
           ),
         ],
       ),

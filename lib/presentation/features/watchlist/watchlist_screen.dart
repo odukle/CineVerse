@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
@@ -18,6 +17,7 @@ import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -48,9 +48,9 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                 child: Container(
-                  padding: const EdgeInsets.all(6),
+                  padding: const EdgeInsets.all(4),
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(26),
+                    borderRadius: BorderRadius.circular(999),
                     gradient: LinearGradient(
                       colors: AppColors.cinemaPanelGradient,
                     ),
@@ -58,18 +58,116 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
                       color: AppColors.cinemaBorder.withValues(alpha: 0.28),
                     ),
                   ),
-                  child: const TabBar(
+                  child: TabBar(
+                    onTap: (_) => HapticFeedback.selectionClick(),
                     isScrollable: true,
                     tabAlignment: TabAlignment.start,
                     dividerColor: Colors.transparent,
-                    indicatorPadding: EdgeInsets.symmetric(vertical: 2),
-                    labelPadding: EdgeInsets.symmetric(horizontal: 14),
-                    tabs: [
-                      Tab(text: 'Watchlist'),
-                      Tab(text: 'Favourites'),
-                      Tab(text: 'Lists'),
-                      Tab(text: 'Notes'),
-                      Tab(text: 'Watched'),
+                    indicatorSize: TabBarIndicatorSize.label,
+                    indicator: BoxDecoration(
+                      color: AppColors.cinemaAccent.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: AppColors.cinemaAccent.withValues(alpha: 0.4),
+                      ),
+                    ),
+                    indicatorPadding: const EdgeInsets.symmetric(
+                      vertical: 3,
+                      horizontal: 0,
+                    ),
+                    splashBorderRadius: BorderRadius.circular(999),
+                    labelColor: Colors.white,
+                    unselectedLabelColor: Colors.white.withValues(alpha: 0.7),
+                    labelStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    unselectedLabelStyle: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 2),
+                    tabs: const <Tab>[
+                      Tab(
+                        child: SizedBox(
+                          height: 28,
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Text(
+                                'Watchlist',
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                softWrap: false,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Tab(
+                        child: SizedBox(
+                          height: 28,
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Text(
+                                'Favourites',
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                softWrap: false,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Tab(
+                        child: SizedBox(
+                          height: 28,
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Text(
+                                'Lists',
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                softWrap: false,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Tab(
+                        child: SizedBox(
+                          height: 28,
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Text(
+                                'Notes',
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                softWrap: false,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Tab(
+                        child: SizedBox(
+                          height: 28,
+                          child: Center(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 10),
+                              child: Text(
+                                'Watched',
+                                maxLines: 1,
+                                overflow: TextOverflow.fade,
+                                softWrap: false,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -321,6 +419,7 @@ class _ListsTab extends ConsumerWidget {
                               sectionTitle: 'library',
                               width: cardWidth,
                               isTvTitle: media.mediaType == GlobalMediaType.tv,
+                              enableWatchlistUndoOnRemove: true,
                             );
                           }, childCount: mediaTitles.length),
                         ),
@@ -526,11 +625,15 @@ class _NotesTab extends ConsumerWidget {
             ),
           );
         }
+
+        final List<_GroupedNotesEntry> groupedNotes = _groupNotesByTitle(notes);
+
         return ListView.separated(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
-          itemCount: notes.length,
+          itemCount: groupedNotes.length,
           separatorBuilder: (context, index) => const SizedBox(height: 16),
-          itemBuilder: (context, index) => _NoteListTile(note: notes[index]),
+          itemBuilder: (context, index) =>
+              _NoteListTile(entry: groupedNotes[index]),
         );
       },
       loading: () => ListView.separated(
@@ -565,121 +668,133 @@ class _NotesTab extends ConsumerWidget {
       ),
     );
   }
+
+  List<_GroupedNotesEntry> _groupNotesByTitle(List<MovieNote> notes) {
+    final Map<String, List<MovieNote>> grouped = <String, List<MovieNote>>{};
+    for (final MovieNote note in notes) {
+      final String key = '${note.mediaType.index}-${note.movieId}';
+      grouped.putIfAbsent(key, () => <MovieNote>[]).add(note);
+    }
+
+    final List<_GroupedNotesEntry> entries = grouped.values
+        .map((List<MovieNote> group) {
+          group.sort(
+            (MovieNote a, MovieNote b) => b.createdAt.compareTo(a.createdAt),
+          );
+          return _GroupedNotesEntry(
+            movieId: group.first.movieId,
+            mediaType: group.first.mediaType,
+            representativeNote: group.first,
+            noteCount: group.length,
+            latestCreatedAt: group.first.createdAt,
+          );
+        })
+        .toList(growable: false);
+
+    entries.sort(
+      (_GroupedNotesEntry a, _GroupedNotesEntry b) =>
+          b.latestCreatedAt.compareTo(a.latestCreatedAt),
+    );
+    return entries;
+  }
 }
 
 class _NoteListTile extends ConsumerWidget {
-  const _NoteListTile({required this.note});
+  const _NoteListTile({required this.entry});
 
-  final MovieNote note;
+  final _GroupedNotesEntry entry;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final movieDetailsAsync = ref.watch(
       movieDetailsProvider(
         GetMovieDetailsParams(
-          movieId: note.movieId,
-          isTv: note.mediaType == GlobalMediaType.tv,
+          movieId: entry.movieId,
+          isTv: entry.mediaType == GlobalMediaType.tv,
         ),
       ),
     );
     final dateFormat = DateFormat('MMM d, yyyy');
 
     return movieDetailsAsync.when(
-      data: (details) => Stack(
-        children: [
-          InkWell(
-            onTap: () => context.pushNamed(
-              AppRoute.noteDetails.name,
-              pathParameters: {'noteId': note.id.toString()},
+      data: (details) => InkWell(
+        onTap: () => context.pushNamed(
+          AppRoute.noteDetails.name,
+          pathParameters: {'noteId': entry.representativeNote.id.toString()},
+        ),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: AppColors.cinemaPanelGradient
+                  .map((color) => color.withValues(alpha: 0.72))
+                  .toList(growable: false),
             ),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: AppColors.cinemaPanelGradient
-                      .map((color) => color.withValues(alpha: 0.72))
-                      .toList(growable: false),
-                ),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: AppColors.cinemaBorder.withValues(alpha: 0.24),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: AppColors.cinemaBorder.withValues(alpha: 0.24),
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: SizedBox(
+                  width: 60,
+                  height: 90,
+                  child: Hero(
+                    tag:
+                        'note-poster-${entry.movieId}-${entry.mediaType.index}',
+                    child: details.posterPath != null
+                        ? CachedNetworkImage(
+                            imageUrl: details.posterPath!,
+                            fit: BoxFit.cover,
+                          )
+                        : ColoredBox(color: AppColors.detailsPosterSurface),
+                  ),
                 ),
               ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: SizedBox(
-                      width: 60,
-                      height: 90,
-                      child: Hero(
-                        tag: 'note-poster-${note.id}',
-                        child: details.posterPath != null
-                            ? CachedNetworkImage(
-                                imageUrl: details.posterPath!,
-                                fit: BoxFit.cover,
-                              )
-                            : ColoredBox(color: AppColors.detailsPosterSurface),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      details.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          details.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          dateFormat.format(note.createdAt),
-                          style: const TextStyle(
-                            color: Colors.white38,
-                            fontSize: 11,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          note.text,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 4),
+                    Text(
+                      '${entry.noteCount} note${entry.noteCount == 1 ? '' : 's'} • ${dateFormat.format(entry.latestCreatedAt)}',
+                      style: const TextStyle(
+                        color: Colors.white38,
+                        fontSize: 11,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 32), // Space for delete icon
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      entry.representativeNote.text,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
+            ],
           ),
-          Positioned(
-            top: 4,
-            right: 4,
-            child: IconButton(
-              icon: const Icon(
-                Icons.delete_outline_rounded,
-                color: Colors.white24,
-                size: 20,
-              ),
-              onPressed: () => _handleDelete(context, ref),
-              tooltip: 'Delete Note',
-            ),
-          ),
-        ],
+        ),
       ),
       loading: () => const ShimmerEffect(
         width: double.infinity,
@@ -689,96 +804,22 @@ class _NoteListTile extends ConsumerWidget {
       error: (_, _) => const SizedBox.shrink(),
     );
   }
-
-  void _handleDelete(BuildContext context, WidgetRef ref) async {
-    final actions = ref.read(movieNotesActionsProvider);
-
-    final deletedNoteText = note.text;
-    final deletedNoteMediaId = note.movieId;
-    final deletedNoteMediaType = note.mediaType;
-
-    await actions.deleteNote(note.movieId, note.mediaType, note.id);
-
-    if (!context.mounted) return;
-    ToastUtils.showToast(
-      context,
-      'Note deleted',
-      duration: const Duration(seconds: 5),
-      action: SnackBarAction(
-        label: 'UNDO',
-        textColor: AppColors.cinemaAccent,
-        onPressed: () async {
-          await actions.addNote(
-            deletedNoteMediaId,
-            deletedNoteMediaType,
-            deletedNoteText,
-          );
-        },
-      ),
-    );
-  }
 }
 
-class _UndoSnackBarContent extends StatefulWidget {
-  const _UndoSnackBarContent({required this.onUndo});
-  final VoidCallback onUndo;
+class _GroupedNotesEntry {
+  const _GroupedNotesEntry({
+    required this.movieId,
+    required this.mediaType,
+    required this.representativeNote,
+    required this.noteCount,
+    required this.latestCreatedAt,
+  });
 
-  @override
-  State<_UndoSnackBarContent> createState() => _UndoSnackBarContentState();
-}
-
-class _UndoSnackBarContentState extends State<_UndoSnackBarContent> {
-  int _remaining = 5;
-  late Timer _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (_remaining > 1) {
-        setState(() => _remaining--);
-      } else {
-        timer.cancel();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            'Note deleted (${_remaining}s)',
-            style: const TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            widget.onUndo();
-            ScaffoldMessenger.of(context).hideCurrentSnackBar();
-          },
-          child: Text(
-            'UNDO',
-            style: TextStyle(
-              color: AppColors.cinemaAccent,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+  final int movieId;
+  final GlobalMediaType mediaType;
+  final MovieNote representativeNote;
+  final int noteCount;
+  final DateTime latestCreatedAt;
 }
 
 class _MediaGrid extends StatelessWidget {
@@ -840,6 +881,7 @@ class _MediaGrid extends StatelessWidget {
           sectionTitle: 'library',
           width: cardWidth,
           isTvTitle: media.mediaType == GlobalMediaType.tv,
+          enableWatchlistUndoOnRemove: true,
         );
       },
     );

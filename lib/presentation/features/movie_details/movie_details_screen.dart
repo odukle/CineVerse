@@ -11,9 +11,10 @@ import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/movie_awards_provider.dart';
 import 'package:cineverse/presentation/features/movie_details/widgets/movie_awards_helper.dart';
+import 'package:cineverse/presentation/features/home/providers/reminders_provider.dart';
 import 'package:cineverse/presentation/widgets/animated_dialog.dart';
+import 'package:cineverse/presentation/widgets/trailer_player_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
@@ -36,7 +37,6 @@ import 'package:cineverse/presentation/widgets/full_screen_image_viewer.dart';
 import 'package:cineverse/app/router/app_router.dart' show AppRoute;
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -342,16 +342,9 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                             key: const ValueKey('placeholder'),
                             color: AppColors.detailsBackdropPlaceholder,
                           )
-                        : CachedNetworkImage(
+                        : _MovieDetailsKenBurnsImage(
                             key: ValueKey(backdropUrl),
                             imageUrl: backdropUrl,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => ColoredBox(
-                              color: AppColors.detailsBackdropPlaceholder,
-                            ),
-                            errorWidget: (context, url, error) => ColoredBox(
-                              color: AppColors.detailsBackdropPlaceholder,
-                            ),
                           ),
                   ),
                 ),
@@ -461,6 +454,10 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                                 details: widget.details,
                                 isTv: widget.isTv,
                               ),
+                              _GeneralReminderButton(
+                                details: widget.details,
+                                isTv: widget.isTv,
+                              ),
                             ],
                           ),
                         ),
@@ -542,10 +539,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                   TextButton.icon(
                     onPressed: widget.details.trailerYouTubeKey == null
                         ? null
-                        : () => _showTrailer(
-                            context,
-                            widget.details.trailerYouTubeKey!,
-                          ),
+                        : () => _showTrailer(context, widget.details),
                     iconAlignment: IconAlignment.start,
                     icon: Icon(
                       Icons.play_arrow_rounded,
@@ -580,9 +574,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
             ),
           ),
 
-        SliverToBoxAdapter(
-          child: _AwardsSection(details: widget.details),
-        ),
+        SliverToBoxAdapter(child: _AwardsSection(details: widget.details)),
 
         // Meta info line
         SliverToBoxAdapter(
@@ -682,6 +674,8 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
         if (widget.isTv)
           SliverToBoxAdapter(
             child: _TvEpisodeTrackerCard(
+              showId: widget.details.id,
+              showTitle: widget.details.title,
               status: widget.details.status,
               lastEpisode: widget.details.lastEpisodeToAir,
               nextEpisode: widget.details.nextEpisodeToAir,
@@ -726,7 +720,9 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                   return FutureBuilder<String>(
                     future: linkFuture,
                     builder: (context, snapshot) {
-                      final String fallbackSlug = _slugify(widget.details.title);
+                      final String fallbackSlug = _slugify(
+                        widget.details.title,
+                      );
                       final String fallbackJustWatchLink =
                           'https://www.justwatch.com/$regionCode/$mediaTypePath/$fallbackSlug';
                       final String justWatchPageLink =
@@ -952,15 +948,32 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
     );
   }
 
-  void _showTrailer(BuildContext context, String videoKey) {
-    showAnimatedDialog(
-      context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.85),
-      builder: (context) => Dialog(
-        insetPadding: EdgeInsets.zero,
-        backgroundColor: Colors.black,
-        alignment: Alignment.topCenter,
-        child: _TrailerPlayer(videoKey: videoKey),
+  void _showTrailer(BuildContext context, MovieDetails details) {
+    final String? trailerKey = details.trailerYouTubeKey;
+    if (trailerKey == null || trailerKey.isEmpty) {
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => TrailerPlayerScreen(
+          data: TrailerPlaybackData(
+            videoKey: trailerKey,
+            title: details.title,
+            tagline: details.tagline,
+            overview: details.overview,
+            posterPath: details.posterPath,
+            backdropPath: details.backdropPath,
+            releaseDate: details.releaseDate,
+            runtimeMinutes: details.runtimeMinutes,
+            voteAverage: details.catalogScore,
+            voteCount: details.voteCount,
+            categoryLabel: widget.isTv ? 'TV Series' : 'Movie',
+            sourceMediaId: details.id,
+            isTv: widget.isTv,
+            recommendations: details.recommendations,
+          ),
+        ),
       ),
     );
   }
@@ -1590,13 +1603,12 @@ class _WatchProviderRow extends StatelessWidget {
               scrollDirection: Axis.horizontal,
               itemCount: providers.length,
               separatorBuilder: (context, index) => const SizedBox(width: 10),
-              itemBuilder: (context, index) =>
-                  _WatchProviderCard(
-                    provider: providers[index],
-                    launchLink: launchLink,
-                    resolverSourceLink: resolverSourceLink,
-                    resolverApiUrl: resolverApiUrl,
-                  ),
+              itemBuilder: (context, index) => _WatchProviderCard(
+                provider: providers[index],
+                launchLink: launchLink,
+                resolverSourceLink: resolverSourceLink,
+                resolverApiUrl: resolverApiUrl,
+              ),
             ),
           ),
         ],
@@ -1725,8 +1737,8 @@ Future<String?> _resolveProviderLink({
   required String providerName,
 }) async {
   try {
-    final Response<Map<String, dynamic>> response = await _watchProviderResolverDio
-        .post<Map<String, dynamic>>(
+    final Response<Map<String, dynamic>> response =
+        await _watchProviderResolverDio.post<Map<String, dynamic>>(
           resolverUrl,
           data: <String, dynamic>{
             'justwatchUrl': sourceUrl,
@@ -1816,10 +1828,7 @@ class _WatchProviderLinkLoadingDialogState
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: <Color>[
-                const Color(0xFF121D36),
-                const Color(0xFF0E1A28),
-              ],
+              colors: <Color>[const Color(0xFF121D36), const Color(0xFF0E1A28)],
             ),
             border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
             boxShadow: const <BoxShadow>[
@@ -1840,7 +1849,8 @@ class _WatchProviderLinkLoadingDialogState
                     animation: _controller,
                     builder: (context, child) {
                       final double t = _controller.value;
-                      final double pulse = 0.9 + (math.sin(t * 2 * math.pi) * 0.1);
+                      final double pulse =
+                          0.9 + (math.sin(t * 2 * math.pi) * 0.1);
                       return Transform.scale(scale: pulse, child: child);
                     },
                     child: Container(
@@ -1893,6 +1903,111 @@ class _WatchProviderLinkLoadingDialogState
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MovieDetailsKenBurnsImage extends StatefulWidget {
+  const _MovieDetailsKenBurnsImage({
+    super.key,
+    required this.imageUrl,
+  });
+
+  final String imageUrl;
+
+  @override
+  State<_MovieDetailsKenBurnsImage> createState() =>
+      _MovieDetailsKenBurnsImageState();
+}
+
+class _MovieDetailsKenBurnsImageState extends State<_MovieDetailsKenBurnsImage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 6),
+  );
+  late Animation<double> _scaleAnimation;
+  late Animation<Offset> _panAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _initAnimations();
+    _controller.forward();
+  }
+
+  void _initAnimations() {
+    final int hash = widget.imageUrl.hashCode;
+    final int direction = hash % 4;
+    final bool zoomIn = hash.isEven;
+
+    _scaleAnimation = Tween<double>(
+      begin: zoomIn ? 1.06 : 1.16,
+      end: zoomIn ? 1.16 : 1.06,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
+
+    Offset startOffset;
+    Offset endOffset;
+    switch (direction) {
+      case 0:
+        startOffset = const Offset(-0.02, -0.02);
+        endOffset = const Offset(0.02, 0.02);
+        break;
+      case 1:
+        startOffset = const Offset(0.02, -0.02);
+        endOffset = const Offset(-0.02, 0.02);
+        break;
+      case 2:
+        startOffset = const Offset(-0.02, 0.02);
+        endOffset = const Offset(0.02, -0.02);
+        break;
+      case 3:
+      default:
+        startOffset = const Offset(0.02, 0.02);
+        endOffset = const Offset(-0.02, -0.02);
+        break;
+    }
+
+    _panAnimation = Tween<Offset>(
+      begin: startOffset,
+      end: endOffset,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
+  }
+
+  @override
+  void didUpdateWidget(covariant _MovieDetailsKenBurnsImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.imageUrl != widget.imageUrl) {
+      _initAnimations();
+      _controller.forward(from: 0);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SlideTransition(
+      position: _panAnimation,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: CachedNetworkImage(
+          imageUrl: widget.imageUrl,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          placeholder: (context, url) => ColoredBox(
+            color: AppColors.detailsBackdropPlaceholder,
+          ),
+          errorWidget: (context, url, error) => ColoredBox(
+            color: AppColors.detailsBackdropPlaceholder,
           ),
         ),
       ),
@@ -2147,122 +2262,6 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-class _TrailerPlayer extends StatefulWidget {
-  const _TrailerPlayer({required this.videoKey});
-
-  final String videoKey;
-
-  @override
-  State<_TrailerPlayer> createState() => _TrailerPlayerState();
-}
-
-class _TrailerPlayerState extends State<_TrailerPlayer>
-    with WidgetsBindingObserver {
-  late YoutubePlayerController _controller;
-  bool _isPlayerReady = false;
-  bool _wasFullScreen = false;
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    debugPrint('[TrailerPlayer] Initializing with key: ${widget.videoKey}');
-    _controller = YoutubePlayerController(
-      initialVideoId: widget.videoKey,
-      flags: const YoutubePlayerFlags(
-        autoPlay: true,
-        mute: false,
-        enableCaption: true,
-        isLive: false,
-        forceHD: false,
-      ),
-    )..addListener(_onPlayerStateChange);
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive) {
-      _controller.pause();
-    }
-  }
-
-  void _onPlayerStateChange() {
-    if (mounted && _controller.value.isReady && !_isPlayerReady) {
-      setState(() {
-        _isPlayerReady = true;
-      });
-    }
-    if (_controller.value.hasError) {
-      debugPrint('[TrailerPlayer] Error: ${_controller.value.errorCode}');
-    }
-
-    final bool isFullScreen = _controller.value.isFullScreen;
-    if (_wasFullScreen && !isFullScreen) {
-      SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
-    }
-    _wasFullScreen = isFullScreen;
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    _controller.removeListener(_onPlayerStateChange);
-    _controller.dispose();
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: Colors.black,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SafeArea(
-            bottom: false,
-            child: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.close, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
-                ),
-                const Text(
-                  'Trailer',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          YoutubePlayer(
-            controller: _controller,
-            showVideoProgressIndicator: true,
-            progressIndicatorColor: AppColors.cinemaScoreRing,
-            onReady: () {
-              debugPrint('[TrailerPlayer] Player is ready');
-              _isPlayerReady = true;
-            },
-            onEnded: (data) {
-              Navigator.pop(context);
-            },
-          ),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
-}
-
 class _WatchedButton extends ConsumerWidget {
   const _WatchedButton({required this.details, required this.isTv});
 
@@ -2306,6 +2305,217 @@ class _WatchedButton extends ConsumerWidget {
         isTv: isTv,
         existingItem: existingItem,
       ),
+    );
+  }
+}
+
+class _GeneralReminderButton extends ConsumerWidget {
+  const _GeneralReminderButton({required this.details, required this.isTv});
+
+  final MovieDetails details;
+  final bool isTv;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final List<AppReminder> reminders =
+        ref.watch(remindersProvider).asData?.value ?? const <AppReminder>[];
+    final DateTime now = DateTime.now();
+    final bool hasActiveReminder = reminders.any(
+      (reminder) =>
+          reminder.type == ReminderType.general &&
+          reminder.mediaId == details.id &&
+          reminder.isTv == isTv &&
+          reminder.notifyAt.isAfter(now),
+    );
+
+    return _CircleActionButton(
+      icon: hasActiveReminder
+          ? Icons.notifications_active_rounded
+          : Icons.notifications_none_rounded,
+      iconColor: hasActiveReminder ? const Color(0xFFFFC857) : Colors.white,
+      onPressed: () => _showReminderDialog(context, ref),
+    );
+  }
+
+  Future<void> _showReminderDialog(BuildContext context, WidgetRef ref) async {
+    final _GeneralReminderDialogResult? result =
+        await showDialog<_GeneralReminderDialogResult>(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => const _GeneralReminderDialog(),
+        );
+
+    if (result == null || !context.mounted) {
+      return;
+    }
+
+    await ref
+        .read(remindersProvider.notifier)
+        .addReminder(
+          AppReminder(
+            id: buildReminderId(),
+            type: ReminderType.general,
+            title: details.title,
+            message: result.reminderText.trim().isEmpty
+                ? 'Reminder for ${details.title}'
+                : result.reminderText,
+            notifyAt: result.notifyAt,
+            createdAt: DateTime.now(),
+            mediaId: details.id,
+            isTv: isTv,
+            backdropPath: details.backdropPath,
+          ),
+        );
+
+    if (context.mounted) {
+      ToastUtils.showToast(context, 'Reminder saved');
+    }
+  }
+}
+
+class _GeneralReminderDialogResult {
+  const _GeneralReminderDialogResult({
+    required this.reminderText,
+    required this.notifyAt,
+  });
+
+  final String reminderText;
+  final DateTime notifyAt;
+}
+
+class _GeneralReminderDialog extends StatefulWidget {
+  const _GeneralReminderDialog();
+
+  @override
+  State<_GeneralReminderDialog> createState() => _GeneralReminderDialogState();
+}
+
+class _GeneralReminderDialogState extends State<_GeneralReminderDialog> {
+  late final TextEditingController _textController;
+  late DateTime _selectedDateTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _textController = TextEditingController();
+    _selectedDateTime = DateTime.now().add(const Duration(hours: 1));
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickDateTime() async {
+    final DateTime now = DateTime.now();
+    final DateTime? date = await showDatePicker(
+      context: context,
+      useRootNavigator: false,
+      initialDate: _selectedDateTime,
+      firstDate: now,
+      lastDate: now.add(const Duration(days: 3650)),
+    );
+    if (date == null || !mounted) {
+      return;
+    }
+
+    final TimeOfDay? time = await showTimePicker(
+      context: context,
+      useRootNavigator: false,
+      initialTime: TimeOfDay.fromDateTime(_selectedDateTime),
+    );
+    if (time == null || !mounted) {
+      return;
+    }
+
+    setState(() {
+      _selectedDateTime = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        time.hour,
+        time.minute,
+      );
+    });
+  }
+
+  void _save() {
+    final String reminderText = _textController.text.trim();
+    if (!_selectedDateTime.isAfter(DateTime.now())) {
+      ToastUtils.showToast(context, 'Please select a future time');
+      return;
+    }
+
+    Navigator.of(context).pop(
+      _GeneralReminderDialogResult(
+        reminderText: reminderText,
+        notifyAt: _selectedDateTime,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return AlertDialog(
+      backgroundColor: AppColors.detailsCard,
+      title: const Text('Set Reminder', style: TextStyle(color: Colors.white)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: _textController,
+            style: const TextStyle(color: Colors.white),
+            maxLines: 2,
+            decoration: InputDecoration(
+              hintText: 'Reminder text',
+              hintStyle: const TextStyle(color: Colors.white54),
+              filled: true,
+              fillColor: Colors.white.withValues(alpha: 0.06),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'Notify at',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: Colors.white70,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 6),
+          InkWell(
+            onTap: _pickDateTime,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.white10),
+              ),
+              child: Text(
+                DateFormat(
+                  'EEE, d MMM yyyy • hh:mm a',
+                ).format(_selectedDateTime),
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+        ),
+        ElevatedButton(onPressed: _save, child: const Text('Save')),
+      ],
     );
   }
 }
@@ -3260,10 +3470,7 @@ class _AwardsShimmer extends StatelessWidget {
 }
 
 class _BoxOfficeSuccessCard extends StatelessWidget {
-  const _BoxOfficeSuccessCard({
-    required this.budget,
-    required this.revenue,
-  });
+  const _BoxOfficeSuccessCard({required this.budget, required this.revenue});
 
   final int budget;
   final int revenue;
@@ -3277,7 +3484,7 @@ class _BoxOfficeSuccessCard extends StatelessWidget {
     String statusText;
     Color statusColor;
     double progressValue; // 0.0 to 1.0
-    
+
     if (roi >= 150) {
       statusText = 'BLOCKBUSTER';
       statusColor = const Color(0xFF00E5FF); // Cyan
@@ -3337,11 +3544,17 @@ class _BoxOfficeSuccessCard extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: statusColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: statusColor.withValues(alpha: 0.4), width: 1.5),
+                    border: Border.all(
+                      color: statusColor.withValues(alpha: 0.4),
+                      width: 1.5,
+                    ),
                   ),
                   child: Text(
                     statusText,
@@ -3378,14 +3591,18 @@ class _BoxOfficeSuccessCard extends StatelessWidget {
                   child: _FinancialItem(
                     label: 'Net Profit',
                     value: formatCurrency(netProfit),
-                    valueColor: netProfit >= 0 ? const Color(0xFF00E676) : const Color(0xFFFF1744),
+                    valueColor: netProfit >= 0
+                        ? const Color(0xFF00E676)
+                        : const Color(0xFFFF1744),
                   ),
                 ),
                 Expanded(
                   child: _FinancialItem(
                     label: 'ROI',
                     value: '${roi.toStringAsFixed(1)}%',
-                    valueColor: roi >= 0 ? const Color(0xFF00E676) : const Color(0xFFFF1744),
+                    valueColor: roi >= 0
+                        ? const Color(0xFF00E676)
+                        : const Color(0xFFFF1744),
                   ),
                 ),
               ],
@@ -3469,24 +3686,30 @@ class _FinancialItem extends StatelessWidget {
   }
 }
 
-class _TvEpisodeTrackerCard extends StatefulWidget {
+class _TvEpisodeTrackerCard extends ConsumerStatefulWidget {
   const _TvEpisodeTrackerCard({
+    required this.showId,
+    required this.showTitle,
     required this.status,
     this.lastEpisode,
     this.nextEpisode,
   });
 
+  final int showId;
+  final String showTitle;
   final String? status;
   final TvEpisode? lastEpisode;
   final TvEpisode? nextEpisode;
 
   @override
-  State<_TvEpisodeTrackerCard> createState() => _TvEpisodeTrackerCardState();
+  ConsumerState<_TvEpisodeTrackerCard> createState() =>
+      _TvEpisodeTrackerCardState();
 }
 
-class _TvEpisodeTrackerCardState extends State<_TvEpisodeTrackerCard> {
+class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
   Timer? _timer;
   Duration? _timeRemaining;
+  bool _isSettingEpisodeReminder = false;
 
   @override
   void initState() {
@@ -3516,11 +3739,7 @@ class _TvEpisodeTrackerCardState extends State<_TvEpisodeTrackerCard> {
   }
 
   void _calculateTimeRemaining() {
-    if (widget.nextEpisode?.airDate == null) {
-      _timeRemaining = null;
-      return;
-    }
-    final nextAirDate = DateTime.tryParse(widget.nextEpisode!.airDate!);
+    final DateTime? nextAirDate = _getNextAirDateTime();
     if (nextAirDate == null) {
       _timeRemaining = null;
       return;
@@ -3528,7 +3747,9 @@ class _TvEpisodeTrackerCardState extends State<_TvEpisodeTrackerCard> {
     final now = DateTime.now();
     final difference = nextAirDate.difference(now);
     if (difference.isNegative) {
-      _timeRemaining = Duration.zero;
+      setState(() {
+        _timeRemaining = Duration.zero;
+      });
       _timer?.cancel();
     } else {
       setState(() {
@@ -3537,15 +3758,187 @@ class _TvEpisodeTrackerCardState extends State<_TvEpisodeTrackerCard> {
     }
   }
 
+  DateTime? _getNextAirDateTime() {
+    final String? rawDate = widget.nextEpisode?.airDate;
+    if (rawDate == null || rawDate.trim().isEmpty) {
+      return null;
+    }
+
+    final DateTime? parsed = DateTime.tryParse(rawDate);
+    if (parsed == null) {
+      return null;
+    }
+
+    // TMDB episode air date is often date-only; assume end of day for reminders.
+    if (!rawDate.contains('T')) {
+      return DateTime(parsed.year, parsed.month, parsed.day, 23, 59, 59);
+    }
+
+    return parsed.toLocal();
+  }
+
+  Future<void> _setEpisodeAiringReminder() async {
+    if (_isSettingEpisodeReminder) {
+      return;
+    }
+    final DateTime? nextAirDate = _getNextAirDateTime();
+    if (nextAirDate == null) {
+      return;
+    }
+
+    final int maxHours = nextAirDate.difference(DateTime.now()).inHours;
+    if (maxHours <= 0) {
+      if (mounted) {
+        ToastUtils.showToast(context, 'This episode is already due to air');
+      }
+      return;
+    }
+
+    _isSettingEpisodeReminder = true;
+    try {
+      String hoursInput = maxHours >= 6 ? '6' : '$maxHours';
+
+      final int? hoursBefore = await showDialog<int>(
+        context: context,
+        barrierDismissible: false,
+        builder: (dialogContext) {
+          return StatefulBuilder(
+            builder: (dialogContext, setDialogState) {
+              return AlertDialog(
+                backgroundColor: AppColors.detailsCard,
+                title: const Text(
+                  'Episode Reminder',
+                  style: TextStyle(color: Colors.white),
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Notify how many hours before airing?',
+                      style: Theme.of(
+                        dialogContext,
+                      ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      initialValue: hoursInput,
+                      keyboardType: TextInputType.number,
+                      style: const TextStyle(color: Colors.white),
+                      onChanged: (value) {
+                        setDialogState(() {
+                          hoursInput = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Hours before air time',
+                        hintStyle: const TextStyle(color: Colors.white54),
+                        helperText: 'Choose between 1 and $maxHours',
+                        helperStyle: const TextStyle(color: Colors.white54),
+                        filled: true,
+                        fillColor: Colors.white.withValues(alpha: 0.06),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(dialogContext).pop(),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      final int? parsed = int.tryParse(hoursInput.trim());
+                      if (parsed == null || parsed < 1 || parsed > maxHours) {
+                        ToastUtils.showToast(
+                          dialogContext,
+                          'Enter a number between 1 and $maxHours',
+                        );
+                        return;
+                      }
+                      Navigator.of(dialogContext).pop(parsed);
+                    },
+                    child: const Text('Set'),
+                  ),
+                ],
+              );
+            },
+          );
+        },
+      );
+
+      if (!mounted || hoursBefore == null) {
+        return;
+      }
+
+      final DateTime notifyAt = nextAirDate.subtract(
+        Duration(hours: hoursBefore),
+      );
+      if (!notifyAt.isAfter(DateTime.now())) {
+        if (mounted) {
+          ToastUtils.showToast(
+            context,
+            'Selected reminder time has already passed',
+          );
+        }
+        return;
+      }
+
+      final TvEpisode episode = widget.nextEpisode!;
+      await ref
+          .read(remindersProvider.notifier)
+          .addReminder(
+            AppReminder(
+              id: buildReminderId(),
+              type: ReminderType.episodeAiring,
+              title: widget.showTitle,
+              message:
+                  'S${episode.seasonNumber}E${episode.episodeNumber} "${episode.name}" airs in $hoursBefore hour${hoursBefore == 1 ? '' : 's'}.',
+              notifyAt: notifyAt,
+              createdAt: DateTime.now(),
+              mediaId: widget.showId,
+              isTv: true,
+              backdropPath: null,
+              seasonNumber: episode.seasonNumber,
+              episodeNumber: episode.episodeNumber,
+              airDate: nextAirDate,
+            ),
+          );
+
+      if (mounted) {
+        final String when = DateFormat(
+          'EEE, d MMM • hh:mm a',
+        ).format(notifyAt.toLocal());
+        ToastUtils.showToast(context, 'Episode reminder saved for $when');
+      }
+    } finally {
+      _isSettingEpisodeReminder = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final bool isActive = widget.status != null &&
+    final bool isActive =
+        widget.status != null &&
         widget.status != 'Ended' &&
         widget.status != 'Canceled';
 
-    final Color statusColor = isActive ? const Color(0xFF00E676) : Colors.white38;
+    final Color statusColor = isActive
+        ? const Color(0xFF00E676)
+        : Colors.white38;
     final String statusLabel = widget.status ?? 'Unknown';
+    final bool canSetEpisodeReminder =
+        widget.nextEpisode != null &&
+        _timeRemaining != null &&
+        _timeRemaining! > Duration.zero;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
@@ -3571,6 +3964,16 @@ class _TvEpisodeTrackerCardState extends State<_TvEpisodeTrackerCard> {
                 ),
                 Row(
                   children: [
+                    if (canSetEpisodeReminder)
+                      IconButton(
+                        tooltip: 'Set airing reminder',
+                        onPressed: _setEpisodeAiringReminder,
+                        icon: const Icon(
+                          Icons.notifications_active_outlined,
+                          color: Colors.white70,
+                          size: 20,
+                        ),
+                      ),
                     Container(
                       width: 8,
                       height: 8,
@@ -3603,7 +4006,10 @@ class _TvEpisodeTrackerCardState extends State<_TvEpisodeTrackerCard> {
               const SizedBox(height: 16),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 12,
+                  horizontal: 16,
+                ),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
@@ -3630,10 +4036,22 @@ class _TvEpisodeTrackerCardState extends State<_TvEpisodeTrackerCard> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _CountdownUnit(value: _timeRemaining!.inDays, label: 'd'),
-                        _CountdownUnit(value: _timeRemaining!.inHours % 24, label: 'h'),
-                        _CountdownUnit(value: _timeRemaining!.inMinutes % 60, label: 'm'),
-                        _CountdownUnit(value: _timeRemaining!.inSeconds % 60, label: 's'),
+                        _CountdownUnit(
+                          value: _timeRemaining!.inDays,
+                          label: 'd',
+                        ),
+                        _CountdownUnit(
+                          value: _timeRemaining!.inHours % 24,
+                          label: 'h',
+                        ),
+                        _CountdownUnit(
+                          value: _timeRemaining!.inMinutes % 60,
+                          label: 'm',
+                        ),
+                        _CountdownUnit(
+                          value: _timeRemaining!.inSeconds % 60,
+                          label: 's',
+                        ),
                       ],
                     ),
                   ],
@@ -3714,8 +4132,9 @@ class _EpisodeSubCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final String epCode = 'S${episode.seasonNumber.toString().padLeft(2, '0')}E${episode.episodeNumber.toString().padLeft(2, '0')}';
-    
+    final String epCode =
+        'S${episode.seasonNumber.toString().padLeft(2, '0')}E${episode.episodeNumber.toString().padLeft(2, '0')}';
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -3775,7 +4194,11 @@ class _EpisodeSubCard extends StatelessWidget {
                       ),
                       errorWidget: (context, url, error) => Container(
                         color: Colors.white10,
-                        child: const Icon(Icons.broken_image_outlined, size: 20, color: Colors.white30),
+                        child: const Icon(
+                          Icons.broken_image_outlined,
+                          size: 20,
+                          color: Colors.white30,
+                        ),
                       ),
                     ),
                   ),
@@ -3805,7 +4228,8 @@ class _EpisodeSubCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                    if (episode.overview != null && episode.overview!.isNotEmpty) ...[
+                    if (episode.overview != null &&
+                        episode.overview!.isNotEmpty) ...[
                       const SizedBox(height: 6),
                       Text(
                         episode.overview!,
@@ -3852,7 +4276,14 @@ class _ContentAdvisoryCard extends StatelessWidget {
     } else if (const ['PG-13', 'TV-14', 'PG12'].contains(rating)) {
       ratingBorderColor = const Color(0xFFFFD740); // Yellow/Amber
       ratingBgColor = const Color(0xFFFFD740).withValues(alpha: 0.1);
-    } else if (const ['R', 'NC-17', 'TV-MA', '18', 'R15+', 'R18+'].contains(rating)) {
+    } else if (const [
+      'R',
+      'NC-17',
+      'TV-MA',
+      '18',
+      'R15+',
+      'R18+',
+    ].contains(rating)) {
       ratingBorderColor = const Color(0xFFFF1744); // Red
       ratingBgColor = const Color(0xFFFF1744).withValues(alpha: 0.1);
     } else {
@@ -3861,7 +4292,8 @@ class _ContentAdvisoryCard extends StatelessWidget {
     }
 
     final Set<String> tags = {};
-    final String searchTarget = '${contentRatingDescription ?? ''} ${overview ?? ''}'.toLowerCase();
+    final String searchTarget =
+        '${contentRatingDescription ?? ''} ${overview ?? ''}'.toLowerCase();
 
     if (searchTarget.contains('violence') ||
         searchTarget.contains('kill') ||
@@ -3979,7 +4411,8 @@ class _ContentAdvisoryCard extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  if (contentRatingDescription != null && contentRatingDescription!.isNotEmpty) ...[
+                  if (contentRatingDescription != null &&
+                      contentRatingDescription!.isNotEmpty) ...[
                     const SizedBox(height: 2),
                     Text(
                       contentRatingDescription!,
@@ -3997,11 +4430,16 @@ class _ContentAdvisoryCard extends StatelessWidget {
                     children: tags.map((tag) {
                       final tagColor = getTagColor(tag);
                       return Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
                         decoration: BoxDecoration(
                           color: tagColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: tagColor.withValues(alpha: 0.3)),
+                          border: Border.all(
+                            color: tagColor.withValues(alpha: 0.3),
+                          ),
                         ),
                         child: Text(
                           tag,
@@ -4058,7 +4496,8 @@ class _ReleaseAlertTimelineState extends State<_ReleaseAlertTimeline> {
   Future<void> _loadSubscriptionState() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final key = 'notify_release_${widget.isTv ? "tv" : "movie"}_${widget.movieId}';
+      final key =
+          'notify_release_${widget.isTv ? "tv" : "movie"}_${widget.movieId}';
       if (mounted) {
         setState(() {
           _isSubscribed = prefs.getBool(key) ?? false;
@@ -4077,7 +4516,8 @@ class _ReleaseAlertTimelineState extends State<_ReleaseAlertTimeline> {
   Future<void> _toggleSubscription(bool value) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final key = 'notify_release_${widget.isTv ? "tv" : "movie"}_${widget.movieId}';
+      final key =
+          'notify_release_${widget.isTv ? "tv" : "movie"}_${widget.movieId}';
       await prefs.setBool(key, value);
       setState(() {
         _isSubscribed = value;
@@ -4147,9 +4587,15 @@ class _ReleaseAlertTimelineState extends State<_ReleaseAlertTimeline> {
     bool hasFutureRelease = false;
     final DateTime now = DateTime.now();
 
-    DateTime? tDate = widget.theatricalDate != null ? DateTime.tryParse(widget.theatricalDate!) : null;
-    DateTime? dDate = widget.digitalDate != null ? DateTime.tryParse(widget.digitalDate!) : null;
-    DateTime? pDate = widget.physicalDate != null ? DateTime.tryParse(widget.physicalDate!) : null;
+    DateTime? tDate = widget.theatricalDate != null
+        ? DateTime.tryParse(widget.theatricalDate!)
+        : null;
+    DateTime? dDate = widget.digitalDate != null
+        ? DateTime.tryParse(widget.digitalDate!)
+        : null;
+    DateTime? pDate = widget.physicalDate != null
+        ? DateTime.tryParse(widget.physicalDate!)
+        : null;
 
     if ((tDate != null && tDate.isAfter(now)) ||
         (dDate != null && dDate.isAfter(now)) ||
@@ -4211,7 +4657,9 @@ class _ReleaseAlertTimelineState extends State<_ReleaseAlertTimeline> {
                             value: _isSubscribed,
                             onChanged: _toggleSubscription,
                             activeThumbColor: AppColors.cinemaAccent,
-                            activeTrackColor: AppColors.cinemaAccent.withValues(alpha: 0.3),
+                            activeTrackColor: AppColors.cinemaAccent.withValues(
+                              alpha: 0.3,
+                            ),
                           ),
                         ),
                       ),
@@ -4277,7 +4725,9 @@ class _TimelineItem extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: isCompleted ? color.withValues(alpha: 0.15) : Colors.white.withValues(alpha: 0.05),
+                  color: isCompleted
+                      ? color.withValues(alpha: 0.15)
+                      : Colors.white.withValues(alpha: 0.05),
                   shape: BoxShape.circle,
                   border: Border.all(color: color, width: 2),
                 ),
@@ -4307,14 +4757,18 @@ class _TimelineItem extends StatelessWidget {
                     title,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: isCompleted ? Colors.white : Colors.white70,
-                      fontWeight: isCompleted ? FontWeight.bold : FontWeight.w600,
+                      fontWeight: isCompleted
+                          ? FontWeight.bold
+                          : FontWeight.w600,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     date,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: isCompleted ? const Color(0xFF00E676) : Colors.white38,
+                      color: isCompleted
+                          ? const Color(0xFF00E676)
+                          : Colors.white38,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

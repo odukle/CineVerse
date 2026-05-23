@@ -243,6 +243,11 @@ final movieSectionProvider = FutureProvider.family<List<MediaTitle>, MovieSectio
   ref,
   section,
 ) async {
+  var disposed = false;
+  ref.onDispose(() {
+    disposed = true;
+  });
+
   final String regionCode = ref.watch(preferredRegionCodeProvider);
   final sortFilter = ref.watch(genreSortProvider);
 
@@ -267,6 +272,12 @@ final movieSectionProvider = FutureProvider.family<List<MediaTitle>, MovieSectio
   );
   final repository = ref.watch(mediaRepositoryProvider);
   final discoverUseCase = DiscoverMediaUseCase(repository);
+  final movieDiscoverFilter = section == MovieSection.discover
+      ? ref.read(movieFilterProvider)
+      : null;
+  final tvDiscoverFilter = section == MovieSection.tvDiscover
+      ? ref.read(tvFilterProvider)
+      : null;
 
   final List<MediaTitle> results = List<MediaTitle>.from(
     _movieSectionCache[cacheKey] ?? const <MediaTitle>[],
@@ -277,10 +288,13 @@ final movieSectionProvider = FutureProvider.family<List<MediaTitle>, MovieSectio
   if (startPage <= targetPage) {
     _fetchingCache[cacheKey] = true;
     for (int i = startPage; i <= targetPage; i++) {
+      if (disposed) {
+        break;
+      }
       try {
         final List<MediaTitle> pageResults;
         if (section == MovieSection.discover) {
-          final filter = ref.watch(movieFilterProvider);
+          final filter = movieDiscoverFilter!;
           // Merge global sort into discover filter
           final effectiveFilter = filter.copyWith(
             sortField: sortFilter.sortField,
@@ -290,7 +304,7 @@ final movieSectionProvider = FutureProvider.family<List<MediaTitle>, MovieSectio
             DiscoverMediaParams(isTv: false, filter: effectiveFilter, page: i),
           );
         } else if (section == MovieSection.tvDiscover) {
-          final filter = ref.watch(tvFilterProvider);
+          final filter = tvDiscoverFilter!;
           // Merge global sort into discover filter
           final effectiveFilter = filter.copyWith(
             sortField: sortFilter.sortField,

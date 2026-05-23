@@ -30,7 +30,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
         ? ref.read(tvFilterProvider)
         : ref.read(movieFilterProvider);
     final globalSort = ref.read(genreSortProvider);
-    
+
     _currentFilter = baseFilter.copyWith(
       sortField: globalSort.sortField,
       sortOrder: globalSort.sortOrder,
@@ -39,8 +39,10 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
 
   void _applyFilters() {
     // Update global sort first
-    ref.read(genreSortProvider.notifier).updateSort(_currentFilter.sortField, _currentFilter.sortOrder);
-    
+    ref
+        .read(genreSortProvider.notifier)
+        .updateSort(_currentFilter.sortField, _currentFilter.sortOrder);
+
     if (widget.isTv) {
       resetMovieSection(ref, MovieSection.tvDiscover);
       ref.read(tvFilterProvider.notifier).updateFilter(_currentFilter);
@@ -59,95 +61,102 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
 
   @override
   Widget build(BuildContext context) {
-
     return BackgroundGradient(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-        title: const Text('Filters', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        actions: [
-          TextButton(
-            onPressed: _resetFilters,
-            child: Text('Reset', style: TextStyle(color: AppColors.cinemaAccent)),
+          title: const Text(
+            'Filters',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionHeader('Sort By'),
-            _buildSortDropdowns(),
-            const Divider(color: Colors.white24, height: 32),
-            
-            _buildSectionHeader('Availabilities'),
-            _buildAvailabilities(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('User Score'),
-            _buildUserScoreSlider(),
-            _buildIncludeNotRatedToggle(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('Release Dates'),
-            _buildReleaseTypeChips(),
-            const SizedBox(height: 16),
-            _buildDatePickers(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('Minimum User Votes'),
-            _buildMinVotesSlider(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('Genres'),
-            _buildGenreChips(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('Mood'),
-            _buildMoodChips(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('People'),
-            _buildPeopleFilter(),
-            const Divider(color: Colors.white24, height: 32),
-
-            _buildSectionHeader('Runtime (minutes)'),
-            _buildRuntimeSlider(),
-            const SizedBox(height: 16),
+          leading: IconButton(
+            icon: const Icon(Icons.close, color: Colors.white),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: _resetFilters,
+              child: Text(
+                'Reset',
+                style: TextStyle(color: AppColors.cinemaAccent),
+              ),
+            ),
           ],
         ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
+        body: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: SizedBox(
-            width: double.infinity,
-            height: 50,
-            child: ElevatedButton(
-              onPressed: _applyFilters,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.cinemaAccent,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text(
-                'Apply Filters',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionHeader('Sort By'),
+              _buildSortDropdowns(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('Availabilities'),
+              _buildAvailabilities(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('User Score'),
+              _buildUserScoreSlider(),
+              _buildIncludeNotRatedToggle(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('Release Dates'),
+              _buildReleaseTypeChips(),
+              const SizedBox(height: 16),
+              _buildDatePickers(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('Minimum User Votes'),
+              _buildMinVotesSlider(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('Genres'),
+              _buildGenreChips(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('Mood'),
+              _buildMoodChips(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('People'),
+              _buildPeopleFilter(),
+              const Divider(color: Colors.white24, height: 32),
+
+              _buildSectionHeader('Runtime (minutes)'),
+              _buildRuntimeSlider(),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                onPressed: _applyFilters,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.cinemaAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Apply Filters',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
               ),
             ),
           ),
         ),
       ),
-    ),
     );
   }
 
@@ -156,7 +165,11 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         title,
-        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }
@@ -165,7 +178,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
     return Row(
       children: [
         Expanded(
-          flex: 2,
+          flex: 3,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
@@ -177,16 +190,26 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                 value: _currentFilter.sortField,
                 isExpanded: true,
                 dropdownColor: AppColors.cinemaSurface,
-                icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white70),
+                icon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white70,
+                ),
                 items: SortField.values.map((field) {
                   return DropdownMenuItem(
                     value: field,
-                    child: Text(field.label, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                    child: Text(
+                      field.label,
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) {
                   if (value != null) {
-                    setState(() => _currentFilter = _currentFilter.copyWith(sortField: value));
+                    setState(
+                      () => _currentFilter = _currentFilter.copyWith(
+                        sortField: value,
+                      ),
+                    );
                   }
                 },
               ),
@@ -195,7 +218,7 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
         ),
         const SizedBox(width: 12),
         Expanded(
-          flex: 1,
+          flex: 2,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
@@ -207,16 +230,28 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                 value: _currentFilter.sortOrder,
                 isExpanded: true,
                 dropdownColor: AppColors.cinemaSurface,
-                icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white70),
+                icon: const Icon(
+                  Icons.keyboard_arrow_down,
+                  color: Colors.white70,
+                ),
                 items: SortOrder.values.map((order) {
                   return DropdownMenuItem(
                     value: order,
-                    child: Text(order.label, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                    child: Text(
+                      order.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) {
                   if (value != null) {
-                    setState(() => _currentFilter = _currentFilter.copyWith(sortOrder: value));
+                    setState(
+                      () => _currentFilter = _currentFilter.copyWith(
+                        sortOrder: value,
+                      ),
+                    );
                   }
                 },
               ),
@@ -241,10 +276,10 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
       spacing: 8,
       runSpacing: 8,
       children: options.entries.map((entry) {
-        final isSelected = entry.value == '' 
-            ? _currentFilter.availabilities.isEmpty 
+        final isSelected = entry.value == ''
+            ? _currentFilter.availabilities.isEmpty
             : _currentFilter.availabilities.contains(entry.value);
-            
+
         return FilterChip(
           label: Text(entry.key),
           selected: isSelected,
@@ -259,15 +294,25 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                 } else {
                   newSet.remove(entry.value);
                 }
-                _currentFilter = _currentFilter.copyWith(availabilities: newSet);
+                _currentFilter = _currentFilter.copyWith(
+                  availabilities: newSet,
+                );
               }
             });
           },
           backgroundColor: Colors.white.withValues(alpha: 0.05),
           selectedColor: AppColors.cinemaAccent.withValues(alpha: 0.4),
-          labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.white70, fontSize: 13),
+          labelStyle: TextStyle(
+            color: isSelected ? Colors.white : Colors.white70,
+            fontSize: 13,
+          ),
           checkmarkColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide(color: isSelected ? AppColors.cinemaAccent : Colors.white10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(
+              color: isSelected ? AppColors.cinemaAccent : Colors.white10,
+            ),
+          ),
         );
       }).toList(),
     );
@@ -279,8 +324,20 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('${(_currentFilter.userScore.start * 10).toInt()}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            Text('${(_currentFilter.userScore.end * 10).toInt()}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(
+              '${(_currentFilter.userScore.start * 10).toInt()}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              '${(_currentFilter.userScore.end * 10).toInt()}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
         RangeSlider(
@@ -291,7 +348,9 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
           activeColor: Colors.cyan,
           inactiveColor: Colors.white10,
           onChanged: (values) {
-            setState(() => _currentFilter = _currentFilter.copyWith(userScore: values));
+            setState(
+              () => _currentFilter = _currentFilter.copyWith(userScore: values),
+            );
           },
         ),
       ],
@@ -302,14 +361,21 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        const Text('Include Not Rated', style: TextStyle(color: Colors.white70, fontSize: 14)),
+        const Text(
+          'Include Not Rated',
+          style: TextStyle(color: Colors.white70, fontSize: 14),
+        ),
         const SizedBox(width: 8),
         Switch(
           value: _currentFilter.includeNotRated,
           activeThumbColor: Colors.white,
           activeTrackColor: Colors.cyan,
           onChanged: (value) {
-            setState(() => _currentFilter = _currentFilter.copyWith(includeNotRated: value));
+            setState(
+              () => _currentFilter = _currentFilter.copyWith(
+                includeNotRated: value,
+              ),
+            );
           },
         ),
       ],
@@ -333,8 +399,8 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
       spacing: 8,
       runSpacing: 8,
       children: options.entries.map((entry) {
-        final isSelected = entry.value == 0 
-            ? _currentFilter.releaseTypes.isEmpty 
+        final isSelected = entry.value == 0
+            ? _currentFilter.releaseTypes.isEmpty
             : _currentFilter.releaseTypes.contains(entry.value);
 
         return FilterChip(
@@ -357,9 +423,17 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
           },
           backgroundColor: Colors.white.withValues(alpha: 0.05),
           selectedColor: AppColors.cinemaAccent.withValues(alpha: 0.4),
-          labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.white70, fontSize: 13),
+          labelStyle: TextStyle(
+            color: isSelected ? Colors.white : Colors.white70,
+            fontSize: 13,
+          ),
           checkmarkColor: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide(color: isSelected ? AppColors.cinemaAccent : Colors.white10)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+            side: BorderSide(
+              color: isSelected ? AppColors.cinemaAccent : Colors.white10,
+            ),
+          ),
         );
       }).toList(),
     );
@@ -372,7 +446,11 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
           child: _buildDatePicker(
             label: 'From',
             date: _currentFilter.releaseDateFrom,
-            onChanged: (date) => setState(() => _currentFilter = _currentFilter.copyWith(releaseDateFrom: date)),
+            onChanged: (date) => setState(
+              () => _currentFilter = _currentFilter.copyWith(
+                releaseDateFrom: date,
+              ),
+            ),
           ),
         ),
         const SizedBox(width: 16),
@@ -380,14 +458,21 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
           child: _buildDatePicker(
             label: 'To',
             date: _currentFilter.releaseDateTo,
-            onChanged: (date) => setState(() => _currentFilter = _currentFilter.copyWith(releaseDateTo: date)),
+            onChanged: (date) => setState(
+              () =>
+                  _currentFilter = _currentFilter.copyWith(releaseDateTo: date),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildDatePicker({required String label, DateTime? date, required ValueChanged<DateTime?> onChanged}) {
+  Widget _buildDatePicker({
+    required String label,
+    DateTime? date,
+    required ValueChanged<DateTime?> onChanged,
+  }) {
     return InkWell(
       onTap: () async {
         final picked = await showDatePicker(
@@ -424,16 +509,25 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(label, style: const TextStyle(color: Colors.white54, fontSize: 12)),
+                  Text(
+                    label,
+                    style: const TextStyle(color: Colors.white54, fontSize: 12),
+                  ),
                   const SizedBox(height: 4),
                   Text(
-                    date != null ? DateFormat('MM/dd/yy').format(date) : '--/--/--',
+                    date != null
+                        ? DateFormat('MM/dd/yy').format(date)
+                        : '--/--/--',
                     style: const TextStyle(color: Colors.white, fontSize: 14),
                   ),
                 ],
               ),
             ),
-            const Icon(Icons.calendar_today_rounded, color: Colors.white54, size: 18),
+            const Icon(
+              Icons.calendar_today_rounded,
+              color: Colors.white54,
+              size: 18,
+            ),
           ],
         ),
       ),
@@ -446,8 +540,20 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('0', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            Text('${_currentFilter.minUserVotes}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            const Text(
+              '0',
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              '${_currentFilter.minUserVotes}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
         Slider(
@@ -458,7 +564,11 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
           activeColor: Colors.grey,
           inactiveColor: Colors.white10,
           onChanged: (value) {
-            setState(() => _currentFilter = _currentFilter.copyWith(minUserVotes: value.toInt()));
+            setState(
+              () => _currentFilter = _currentFilter.copyWith(
+                minUserVotes: value.toInt(),
+              ),
+            );
           },
         ),
       ],
@@ -466,8 +576,10 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
   }
 
   Widget _buildGenreChips() {
-    final genresAsync = ref.watch(widget.isTv ? tvGenresProvider : movieGenresProvider);
-    
+    final genresAsync = ref.watch(
+      widget.isTv ? tvGenresProvider : movieGenresProvider,
+    );
+
     return genresAsync.when(
       data: (genres) => Wrap(
         spacing: 8,
@@ -490,13 +602,23 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
             },
             backgroundColor: Colors.white.withValues(alpha: 0.05),
             selectedColor: AppColors.cinemaAccent.withValues(alpha: 0.4),
-            labelStyle: TextStyle(color: isSelected ? Colors.white : Colors.white70, fontSize: 13),
+            labelStyle: TextStyle(
+              color: isSelected ? Colors.white : Colors.white70,
+              fontSize: 13,
+            ),
             checkmarkColor: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8), side: BorderSide(color: isSelected ? AppColors.cinemaAccent : Colors.white10)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(
+                color: isSelected ? AppColors.cinemaAccent : Colors.white10,
+              ),
+            ),
           );
         }).toList(),
       ),
-      loading: () => Center(child: CircularProgressIndicator(color: AppColors.cinemaAccent)),
+      loading: () => Center(
+        child: CircularProgressIndicator(color: AppColors.cinemaAccent),
+      ),
       error: (error, stack) => Row(
         children: [
           const Text(
@@ -506,7 +628,10 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
           const SizedBox(width: 12),
           TextButton(
             onPressed: () => ref.invalidate(movieGenresProvider),
-            child: Text('Retry', style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12)),
+            child: Text(
+              'Retry',
+              style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12),
+            ),
           ),
         ],
       ),
@@ -519,8 +644,20 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('${_currentFilter.runtime.start.toInt()}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            Text('${_currentFilter.runtime.end.toInt()}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(
+              '${_currentFilter.runtime.start.toInt()}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            Text(
+              '${_currentFilter.runtime.end.toInt()}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
         RangeSlider(
@@ -531,7 +668,9 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
           activeColor: Colors.cyan,
           inactiveColor: Colors.white10,
           onChanged: (values) {
-            setState(() => _currentFilter = _currentFilter.copyWith(runtime: values));
+            setState(
+              () => _currentFilter = _currentFilter.copyWith(runtime: values),
+            );
           },
         ),
       ],
@@ -598,14 +737,19 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
               onChanged: (_) {
                 controller.openView();
               },
-              leading: const Icon(Icons.person_search_rounded, color: Colors.white70),
+              leading: const Icon(
+                Icons.person_search_rounded,
+                color: Colors.white70,
+              ),
             );
           },
           suggestionsBuilder: (context, controller) async {
             final query = controller.text;
             if (query.length < 2) return [];
 
-            final results = await ref.read(searchProvider.notifier).searchPersons(query);
+            final results = await ref
+                .read(searchProvider.notifier)
+                .searchPersons(query);
 
             return results.map((person) {
               return ListTile(
@@ -629,7 +773,9 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
                 onTap: () {
                   setState(() {
                     final newIds = Set<int>.from(_currentFilter.personIds);
-                    final newNames = Set<String>.from(_currentFilter.personNames);
+                    final newNames = Set<String>.from(
+                      _currentFilter.personNames,
+                    );
                     newIds.add(person.id);
                     newNames.add(person.title);
                     _currentFilter = _currentFilter.copyWith(
@@ -649,38 +795,34 @@ class _FilterScreenState extends ConsumerState<FilterScreen> {
           Wrap(
             spacing: 8,
             runSpacing: 8,
-            children:
-                _currentFilter.personIds.map((id) {
-                  final index = _currentFilter.personIds.toList().indexOf(id);
-                  final name = _currentFilter.personNames.elementAt(index);
-                  return InputChip(
-                    label: Text(name),
-                    onDeleted: () {
-                      setState(() {
-                        final newIds = Set<int>.from(_currentFilter.personIds);
-                        final newNames = Set<String>.from(_currentFilter.personNames);
-                        newIds.remove(id);
-                        newNames.remove(name);
-                        _currentFilter = _currentFilter.copyWith(
-                          personIds: newIds,
-                          personNames: newNames,
-                        );
-                      });
-                    },
-                    backgroundColor: AppColors.cinemaAccent.withValues(
-                      alpha: 0.1,
-                    ),
-                    deleteIconColor: Colors.white70,
-                    labelStyle: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 12,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(color: AppColors.cinemaAccent),
-                    ),
-                  );
-                }).toList(),
+            children: _currentFilter.personIds.map((id) {
+              final index = _currentFilter.personIds.toList().indexOf(id);
+              final name = _currentFilter.personNames.elementAt(index);
+              return InputChip(
+                label: Text(name),
+                onDeleted: () {
+                  setState(() {
+                    final newIds = Set<int>.from(_currentFilter.personIds);
+                    final newNames = Set<String>.from(
+                      _currentFilter.personNames,
+                    );
+                    newIds.remove(id);
+                    newNames.remove(name);
+                    _currentFilter = _currentFilter.copyWith(
+                      personIds: newIds,
+                      personNames: newNames,
+                    );
+                  });
+                },
+                backgroundColor: AppColors.cinemaAccent.withValues(alpha: 0.1),
+                deleteIconColor: Colors.white70,
+                labelStyle: const TextStyle(color: Colors.white, fontSize: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: AppColors.cinemaAccent),
+                ),
+              );
+            }).toList(),
           ),
         ],
       ],

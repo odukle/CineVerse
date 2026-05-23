@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
@@ -22,15 +24,18 @@ class MediaPosterGridCard extends ConsumerStatefulWidget {
     required this.sectionTitle,
     required this.width,
     this.isTvTitle = false,
+    this.enableWatchlistUndoOnRemove = false,
   });
 
   final MediaTitle movie;
   final String sectionTitle;
   final double width;
   final bool isTvTitle;
+  final bool enableWatchlistUndoOnRemove;
 
   @override
-  ConsumerState<MediaPosterGridCard> createState() => _MediaPosterGridCardState();
+  ConsumerState<MediaPosterGridCard> createState() =>
+      _MediaPosterGridCardState();
 }
 
 class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
@@ -45,14 +50,19 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
     final double titleGap = badgeOffset + 5;
 
     final bool isPerson = widget.movie.mediaType == GlobalMediaType.person;
-    final String heroTag = 'media-poster-${widget.movie.id}-${widget.sectionTitle}';
+    final String heroTag =
+        'media-poster-${widget.movie.id}-${widget.sectionTitle}';
 
     final mediaType =
         widget.movie.mediaType ??
         (widget.isTvTitle ? GlobalMediaType.tv : GlobalMediaType.movie);
     final bool isWatched = isPerson
         ? false
-        : ref.watch(isWatchedProvider((id: widget.movie.id, type: mediaType))).value ??
+        : ref
+                  .watch(
+                    isWatchedProvider((id: widget.movie.id, type: mediaType)),
+                  )
+                  .value ??
               false;
     final bool isInWatchlist = isPerson
         ? false
@@ -60,7 +70,10 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
 
     final Widget scoreBadge = isPerson
         ? const SizedBox.shrink()
-        : RatingBadge.tmdb(catalogScore: widget.movie.voteAverage, size: badgeSize);
+        : RatingBadge.tmdb(
+            catalogScore: widget.movie.voteAverage,
+            size: badgeSize,
+          );
 
     // Check if we are currently sorting by a specific field to show it below the title
     final currentSort = ref.watch(genreSortProvider);
@@ -75,18 +88,23 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
         case SortField.revenue:
           int? effectiveRevenue = widget.movie.revenue;
           if (effectiveRevenue == null && !widget.isTvTitle && !isPerson) {
-            effectiveRevenue = ref.watch(mediaRevenueProvider(widget.movie.id)).value;
+            effectiveRevenue = ref
+                .watch(mediaRevenueProvider(widget.movie.id))
+                .value;
           }
           if (effectiveRevenue != null && effectiveRevenue > 0) {
             subtitleText = _formatRevenue(effectiveRevenue);
           }
           break;
         case SortField.popularity:
-          subtitleText = '${widget.movie.popularity.toStringAsFixed(1)} Popularity';
+          subtitleText =
+              '${widget.movie.popularity.toStringAsFixed(1)} Popularity';
           break;
         case SortField.voteAverage:
-          if (widget.movie.voteAverage != null && widget.movie.voteAverage! > 0) {
-            subtitleText = '${widget.movie.voteAverage!.toStringAsFixed(1)} Rating';
+          if (widget.movie.voteAverage != null &&
+              widget.movie.voteAverage! > 0) {
+            subtitleText =
+                '${widget.movie.voteAverage!.toStringAsFixed(1)} Rating';
           }
           break;
         case SortField.voteCount:
@@ -115,7 +133,9 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
           if (isPerson) {
             context.pushNamed(
               AppRoute.personDetails.name,
-              pathParameters: <String, String>{'personId': widget.movie.id.toString()},
+              pathParameters: <String, String>{
+                'personId': widget.movie.id.toString(),
+              },
               queryParameters: <String, String>{'heroTag': heroTag},
             );
           } else {
@@ -124,7 +144,9 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
                 (widget.movie.mediaType == null && widget.isTvTitle);
             context.pushNamed(
               AppRoute.movieDetails.name,
-              pathParameters: <String, String>{'movieId': widget.movie.id.toString()},
+              pathParameters: <String, String>{
+                'movieId': widget.movie.id.toString(),
+              },
               queryParameters: <String, String>{
                 'isTv': effectiveIsTv.toString(),
                 'heroTag': heroTag,
@@ -132,9 +154,7 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
             );
           }
         },
-        onLongPress: isPerson
-            ? null
-            : () => _showMediaActionsMenu(context),
+        onLongPress: isPerson ? null : () => _showMediaActionsMenu(context),
         child: AnimatedScale(
           scale: _isPressed ? 0.96 : 1.0,
           duration: const Duration(milliseconds: 120),
@@ -263,19 +283,11 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
                       child: Material(
                         color: Colors.transparent,
                         child: InkWell(
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-                            final watchlistItem = WatchlistItem(
-                              id: widget.movie.id,
-                              title: widget.movie.title,
-                              posterPath: widget.movie.posterPath,
-                              releaseDate: widget.movie.releaseDate,
-                              mediaType: mediaType,
-                              addedDate: DateTime.now(),
-                              voteAverage: widget.movie.voteAverage,
-                            );
-                            ref.read(watchlistProvider.notifier).toggleItem(watchlistItem);
-                          },
+                          onTap: () => _handleWatchlistIconTap(
+                            context: context,
+                            mediaType: mediaType,
+                            isInWatchlist: isInWatchlist,
+                          ),
                           borderRadius: BorderRadius.circular(50),
                           child: Ink(
                             width: 28,
@@ -283,7 +295,9 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: isInWatchlist
-                                  ? AppColors.cinemaAccent.withValues(alpha: 0.8)
+                                  ? AppColors.cinemaAccent.withValues(
+                                      alpha: 0.8,
+                                    )
                                   : Colors.black.withValues(alpha: 0.46),
                               border: Border.all(
                                 color: isInWatchlist
@@ -296,7 +310,9 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
                               isInWatchlist
                                   ? Icons.bookmark_added_rounded
                                   : Icons.bookmark_add_outlined,
-                              color: isInWatchlist ? Colors.black : Colors.white,
+                              color: isInWatchlist
+                                  ? Colors.black
+                                  : Colors.white,
                               size: 14,
                             ),
                           ),
@@ -332,6 +348,47 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
     );
   }
 
+  Future<void> _handleWatchlistIconTap({
+    required BuildContext context,
+    required GlobalMediaType mediaType,
+    required bool isInWatchlist,
+  }) async {
+    HapticFeedback.lightImpact();
+    final watchlistNotifier = ref.read(watchlistProvider.notifier);
+    final WatchlistItem watchlistItem = WatchlistItem(
+      id: widget.movie.id,
+      title: widget.movie.title,
+      posterPath: widget.movie.posterPath,
+      releaseDate: widget.movie.releaseDate,
+      mediaType: mediaType,
+      addedDate: DateTime.now(),
+      voteAverage: widget.movie.voteAverage,
+    );
+
+    await watchlistNotifier.toggleItem(watchlistItem);
+
+    final bool shouldShowUndo =
+        widget.enableWatchlistUndoOnRemove && isInWatchlist;
+    if (!shouldShowUndo || !context.mounted) {
+      return;
+    }
+
+    final ScaffoldMessengerState messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+    messenger.showSnackBar(
+      SnackBar(
+        duration: const Duration(seconds: 5),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: AppColors.detailsCard.withValues(alpha: 0.96),
+        content: _WatchlistUndoSnackBarContent(
+          onUndo: () {
+            watchlistNotifier.toggleItem(watchlistItem);
+          },
+        ),
+      ),
+    );
+  }
+
   String _formatRevenue(int amount) {
     if (amount >= 1000000000) {
       return '\$${(amount / 1000000000).toStringAsFixed(1)}B';
@@ -361,6 +418,78 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
       isScrollControlled: true,
       builder: (context) =>
           MediaActionsBottomSheet(movie: widget.movie, isTv: widget.isTvTitle),
+    );
+  }
+}
+
+class _WatchlistUndoSnackBarContent extends StatefulWidget {
+  const _WatchlistUndoSnackBarContent({required this.onUndo});
+
+  final VoidCallback onUndo;
+
+  @override
+  State<_WatchlistUndoSnackBarContent> createState() =>
+      _WatchlistUndoSnackBarContentState();
+}
+
+class _WatchlistUndoSnackBarContentState
+    extends State<_WatchlistUndoSnackBarContent> {
+  static const int _initialSeconds = 5;
+  late int _remainingSeconds;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _remainingSeconds = _initialSeconds;
+    _timer = Timer.periodic(const Duration(seconds: 1), (Timer timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_remainingSeconds <= 1) {
+        timer.cancel();
+      } else {
+        setState(() {
+          _remainingSeconds -= 1;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: Text(
+            'Removed from watchlist ($_remainingSeconds s)',
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            widget.onUndo();
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+          child: Text(
+            'UNDO',
+            style: TextStyle(
+              color: AppColors.cinemaAccent,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

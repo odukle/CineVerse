@@ -30,12 +30,14 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final articleAsync = ref.watch(fullWikiquoteProvider((
-      title: title,
-      isTv: isTv,
-      isSeason: isSeason,
-      pageName: pageName,
-    )));
+    final articleAsync = ref.watch(
+      fullWikiquoteProvider((
+        title: title,
+        isTv: isTv,
+        isSeason: isSeason,
+        pageName: pageName,
+      )),
+    );
 
     return BackgroundGradient(
       child: articleAsync.when(
@@ -59,7 +61,7 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
           final displaySections = article.sections.toList();
 
           if (displaySections.isEmpty) {
-             return Scaffold(
+            return Scaffold(
               backgroundColor: Colors.transparent,
               appBar: AppBar(
                 backgroundColor: AppColors.cinemaGradientTop,
@@ -90,34 +92,118 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       centerTitle: false,
-                      bottom: displaySections.length > 1 ? TabBar(
-                        isScrollable: true,
-                        tabAlignment: TabAlignment.start,
-                        indicatorColor: AppColors.cinemaAccent,
-                        labelColor: AppColors.cinemaAccent,
-                        unselectedLabelColor: Colors.white70,
-                        dividerColor: Colors.transparent,
-                        tabs: displaySections.map((s) {
-                          final isIntro = s.title.toLowerCase() == 'introduction';
-                          return Tab(text: isIntro ? 'Overview' : s.title);
-                        }).toList(),
-                      ) : null,
+                      bottom: displaySections.length > 1
+                          ? PreferredSize(
+                              preferredSize: const Size.fromHeight(68),
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  0,
+                                  16,
+                                  8,
+                                ),
+                                child: Container(
+                                  padding: const EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(999),
+                                    gradient: LinearGradient(
+                                      colors: AppColors.cinemaPanelGradient,
+                                    ),
+                                    border: Border.all(
+                                      color: AppColors.cinemaBorder.withValues(
+                                        alpha: 0.28,
+                                      ),
+                                    ),
+                                  ),
+                                  child: TabBar(
+                                    onTap: (_) =>
+                                        HapticFeedback.selectionClick(),
+                                    isScrollable: true,
+                                    tabAlignment: TabAlignment.start,
+                                    dividerColor: Colors.transparent,
+                                    indicatorSize: TabBarIndicatorSize.label,
+                                    indicator: BoxDecoration(
+                                      color: AppColors.cinemaAccent.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      borderRadius: BorderRadius.circular(999),
+                                      border: Border.all(
+                                        color: AppColors.cinemaAccent
+                                            .withValues(alpha: 0.4),
+                                      ),
+                                    ),
+                                    indicatorPadding:
+                                        const EdgeInsets.symmetric(
+                                          vertical: 3,
+                                          horizontal: 0,
+                                        ),
+                                    splashBorderRadius: BorderRadius.circular(
+                                      999,
+                                    ),
+                                    labelColor: Colors.white,
+                                    unselectedLabelColor: Colors.white70,
+                                    labelStyle: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    unselectedLabelStyle: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    labelPadding: const EdgeInsets.symmetric(
+                                      horizontal: 4,
+                                    ),
+                                    tabs: displaySections.map((s) {
+                                      final isIntro =
+                                          s.title.toLowerCase() ==
+                                          'introduction';
+                                      final String label = isIntro
+                                          ? 'Overview'
+                                          : s.title;
+                                      return Tab(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                            vertical: 4,
+                                          ),
+                                          child: Text(
+                                            label,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.fade,
+                                            softWrap: false,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : null,
                     ),
                   ];
                 },
                 body: TabBarView(
                   children: displaySections.map((section) {
-                    final isOverview = section.title.toLowerCase() == 'introduction';
-                    final content = isOverview 
-                        ? section.content.where((c) => c is! WikiquoteSeasonLink).toList()
+                    final isOverview =
+                        section.title.toLowerCase() == 'introduction';
+                    final content = isOverview
+                        ? section.content
+                              .where((c) => c is! WikiquoteSeasonLink)
+                              .toList()
                         : section.content;
 
-                    if (content.isEmpty && isOverview) return const SizedBox.shrink();
+                    if (content.isEmpty && isOverview) {
+                      return const SizedBox.shrink();
+                    }
 
                     return ListView(
                       padding: const EdgeInsets.only(top: 8, bottom: 32),
                       children: [
-                        _buildSectionContent(context, section.copyWith(content: content)),
+                        _buildSectionContent(
+                          context,
+                          section.copyWith(content: content),
+                        ),
                       ],
                     );
                   }).toList(),
@@ -153,7 +239,9 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
 
   Widget _buildSectionContent(BuildContext context, WikiquoteSection section) {
     // Check if the section only contains seasons
-    bool isSeasonsSection = section.content.isNotEmpty && section.content.every((c) => c is WikiquoteSeasonLink);
+    bool isSeasonsSection =
+        section.content.isNotEmpty &&
+        section.content.every((c) => c is WikiquoteSeasonLink);
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
@@ -184,8 +272,10 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
             )
           else
             Column(
-               crossAxisAlignment: CrossAxisAlignment.stretch,
-               children: section.content.map((c) => _buildContentItem(context, c)).toList(),
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: section.content
+                  .map((c) => _buildContentItem(context, c))
+                  .toList(),
             ),
         ],
       ),
@@ -244,7 +334,11 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                         },
                       );
                     },
-                    icon: Icon(Icons.share_rounded, color: AppColors.cinemaAccent.withValues(alpha: 0.8), size: 18),
+                    icon: Icon(
+                      Icons.share_rounded,
+                      color: AppColors.cinemaAccent.withValues(alpha: 0.8),
+                      size: 18,
+                    ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                     tooltip: 'Share quote',
@@ -252,13 +346,17 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                 const SizedBox(width: 8),
                 IconButton(
                   onPressed: () {
-                    final textToCopy = content.character != null 
+                    final textToCopy = content.character != null
                         ? '"${content.text}" — ${content.character}'
                         : content.text;
                     Clipboard.setData(ClipboardData(text: textToCopy));
                     ToastUtils.showToast(context, 'Quote copied to clipboard');
                   },
-                  icon: const Icon(Icons.copy_rounded, color: Colors.white54, size: 18),
+                  icon: const Icon(
+                    Icons.copy_rounded,
+                    color: Colors.white54,
+                    size: 18,
+                  ),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
                   tooltip: 'Copy quote',
@@ -305,11 +403,16 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  if (details != null && content.lines.map((l) => l.text).join('\n').length < 300)
+                  if (details != null &&
+                      content.lines.map((l) => l.text).join('\n').length < 300)
                     IconButton(
                       onPressed: () {
                         final dialogueText = content.lines
-                            .map((l) => l.character.isNotEmpty ? '${l.character}: ${l.text}' : l.text)
+                            .map(
+                              (l) => l.character.isNotEmpty
+                                  ? '${l.character}: ${l.text}'
+                                  : l.text,
+                            )
                             .join('\n');
                         context.push(
                           '/quote_share_editor',
@@ -324,7 +427,11 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                           },
                         );
                       },
-                      icon: Icon(Icons.share_rounded, color: AppColors.cinemaAccent.withValues(alpha: 0.8), size: 18),
+                      icon: Icon(
+                        Icons.share_rounded,
+                        color: AppColors.cinemaAccent.withValues(alpha: 0.8),
+                        size: 18,
+                      ),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
                       tooltip: 'Share dialogue',
@@ -333,12 +440,23 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                   IconButton(
                     onPressed: () {
                       final dialogueText = content.lines
-                          .map((l) => l.character.isNotEmpty ? '${l.character}: ${l.text}' : l.text)
+                          .map(
+                            (l) => l.character.isNotEmpty
+                                ? '${l.character}: ${l.text}'
+                                : l.text,
+                          )
                           .join('\n');
                       Clipboard.setData(ClipboardData(text: dialogueText));
-                      ToastUtils.showToast(context, 'Dialogue copied to clipboard');
+                      ToastUtils.showToast(
+                        context,
+                        'Dialogue copied to clipboard',
+                      );
                     },
-                    icon: const Icon(Icons.copy_rounded, color: Colors.white54, size: 18),
+                    icon: const Icon(
+                      Icons.copy_rounded,
+                      color: Colors.white54,
+                      size: 18,
+                    ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
                     tooltip: 'Copy dialogue',
@@ -383,7 +501,11 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white54, size: 16),
+                  const Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Colors.white54,
+                    size: 16,
+                  ),
                 ],
               ),
             ),

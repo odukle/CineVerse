@@ -1,5 +1,6 @@
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 enum HomeTab { explore, movies, tvShows, watchlist, account }
 
@@ -127,14 +128,16 @@ class _BottomNavItem extends StatelessWidget {
       child: InkWell(
         onTap: selected
             ? null
-            : () =>
-                  (context
-                          .findAncestorWidgetOfExactType<
-                            AppBottomNavigationBar
-                          >()!)
-                      .onTabSelected(
-                        AppBottomNavigationBar._tabOrder.indexOf(tab),
-                      ),
+            : () {
+                HapticFeedback.lightImpact();
+                (context
+                        .findAncestorWidgetOfExactType<
+                          AppBottomNavigationBar
+                        >()!)
+                    .onTabSelected(
+                      AppBottomNavigationBar._tabOrder.indexOf(tab),
+                    );
+              },
         borderRadius: BorderRadius.circular(18),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 1),

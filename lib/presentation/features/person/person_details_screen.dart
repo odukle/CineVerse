@@ -6,6 +6,7 @@ import 'package:cineverse/presentation/widgets/full_screen_image_viewer.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:cineverse/presentation/providers/quotes_provider.dart';
@@ -63,7 +64,10 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                             backgroundColor: AppColors.cinemaGradientTop,
                             elevation: 0,
                             leading: IconButton(
-                              onPressed: () => Navigator.pop(context),
+                              onPressed: () {
+                                HapticFeedback.selectionClick();
+                                Navigator.pop(context);
+                              },
                               icon: const Icon(
                                 Icons.arrow_back_rounded,
                                 color: Colors.white,
@@ -227,10 +231,10 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                           8,
                                         ),
                                         child: Container(
-                                          padding: const EdgeInsets.all(8),
+                                          padding: const EdgeInsets.all(4),
                                           decoration: BoxDecoration(
                                             borderRadius: BorderRadius.circular(
-                                              26,
+                                              999,
                                             ),
                                             gradient: LinearGradient(
                                               colors:
@@ -251,23 +255,71 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                             ],
                                           ),
                                           child: TabBar(
+                                            onTap: (_) =>
+                                                HapticFeedback.selectionClick(),
                                             isScrollable: true,
                                             tabAlignment: TabAlignment.start,
                                             dividerColor: Colors.transparent,
+                                            indicatorSize:
+                                                TabBarIndicatorSize.label,
+                                            indicator: BoxDecoration(
+                                              color: AppColors.cinemaAccent
+                                                  .withValues(alpha: 0.2),
+                                              borderRadius:
+                                                  BorderRadius.circular(999),
+                                              border: Border.all(
+                                                color: AppColors.cinemaAccent
+                                                    .withValues(alpha: 0.4),
+                                              ),
+                                            ),
                                             indicatorPadding:
                                                 const EdgeInsets.symmetric(
-                                                  vertical: 2,
+                                                  vertical: 3,
+                                                  horizontal: 0,
+                                                ),
+                                            splashBorderRadius:
+                                                BorderRadius.circular(999),
+                                            labelColor: Colors.white,
+                                            unselectedLabelColor: Colors.white
+                                                .withValues(alpha: 0.7),
+                                            labelStyle: const TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                            unselectedLabelStyle:
+                                                const TextStyle(
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
                                                 ),
                                             labelPadding:
                                                 const EdgeInsets.symmetric(
-                                                  horizontal: 16,
+                                                  horizontal: 2,
                                                 ),
                                             tabs: departments
                                                 .map(
                                                   (d) => Tab(
-                                                    text: departments.length > 5
-                                                        ? d
-                                                        : d.toUpperCase(),
+                                                    child: SizedBox(
+                                                      height: 28,
+                                                      child: Center(
+                                                        child: Padding(
+                                                          padding:
+                                                              const EdgeInsets.symmetric(
+                                                                horizontal: 10,
+                                                              ),
+                                                          child: Text(
+                                                            departments.length >
+                                                                    5
+                                                                ? d
+                                                                : d.toUpperCase(),
+                                                            maxLines: 1,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .fade,
+                                                            softWrap: false,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
                                                   ),
                                                 )
                                                 .toList(),
@@ -275,34 +327,52 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                         ),
                                       ),
                                       Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                          vertical: 4,
+                                        ),
                                         child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Row(
                                               children: [
                                                 _FilterChip(
                                                   label: 'All',
-                                                  isActive: _activeFilter == 'all',
-                                                  onTap: () => setState(() => _activeFilter = 'all'),
+                                                  isActive:
+                                                      _activeFilter == 'all',
+                                                  onTap: () => setState(() {
+                                                    HapticFeedback.selectionClick();
+                                                    _activeFilter = 'all';
+                                                  }),
                                                 ),
                                                 const SizedBox(width: 8),
                                                 _FilterChip(
                                                   label: 'Movies',
-                                                  isActive: _activeFilter == 'movie',
-                                                  onTap: () => setState(() => _activeFilter = 'movie'),
+                                                  isActive:
+                                                      _activeFilter == 'movie',
+                                                  onTap: () => setState(() {
+                                                    HapticFeedback.selectionClick();
+                                                    _activeFilter = 'movie';
+                                                  }),
                                                 ),
                                                 const SizedBox(width: 8),
                                                 _FilterChip(
                                                   label: 'TV',
-                                                  isActive: _activeFilter == 'tv',
-                                                  onTap: () => setState(() => _activeFilter = 'tv'),
+                                                  isActive:
+                                                      _activeFilter == 'tv',
+                                                  onTap: () => setState(() {
+                                                    HapticFeedback.selectionClick();
+                                                    _activeFilter = 'tv';
+                                                  }),
                                                 ),
                                               ],
                                             ),
                                             _SortSelector(
                                               activeSort: _activeSort,
-                                              onSortChanged: (sort) => setState(() => _activeSort = sort),
+                                              onSortChanged: (sort) => setState(
+                                                () => _activeSort = sort,
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -322,24 +392,34 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                   builder: (context) {
                     return TabBarView(
                       children: departments.map((dept) {
-                        final rawCredits = details.creditsByDepartment[dept] ?? [];
+                        final rawCredits =
+                            details.creditsByDepartment[dept] ?? [];
 
                         // 1. Filter
                         List<PersonCredit> credits = rawCredits;
                         if (_activeFilter == 'movie') {
                           credits = rawCredits
-                              .where((c) => c.media.mediaType == GlobalMediaType.movie)
+                              .where(
+                                (c) =>
+                                    c.media.mediaType == GlobalMediaType.movie,
+                              )
                               .toList();
                         } else if (_activeFilter == 'tv') {
                           credits = rawCredits
-                              .where((c) => c.media.mediaType == GlobalMediaType.tv)
+                              .where(
+                                (c) => c.media.mediaType == GlobalMediaType.tv,
+                              )
                               .toList();
                         }
 
                         // 2. Sort
                         credits = List.from(credits); // mutable copy
                         if (_activeSort == 'popularity') {
-                          credits.sort((a, b) => b.media.popularity.compareTo(a.media.popularity));
+                          credits.sort(
+                            (a, b) => b.media.popularity.compareTo(
+                              a.media.popularity,
+                            ),
+                          );
                         } else if (_activeSort == 'releaseDate') {
                           credits.sort((a, b) {
                             final dateA = a.media.releaseDate ?? '';
@@ -353,7 +433,9 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                           credits.sort((a, b) {
                             final scoreA = a.media.voteAverage ?? 0.0;
                             final scoreB = b.media.voteAverage ?? 0.0;
-                            return scoreB.compareTo(scoreA); // highest rated first
+                            return scoreB.compareTo(
+                              scoreA,
+                            ); // highest rated first
                           });
                         }
 
@@ -362,9 +444,10 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                             key: PageStorageKey<String>('$dept-empty'),
                             slivers: [
                               SliverOverlapInjector(
-                                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                                  context,
-                                ),
+                                handle:
+                                    NestedScrollView.sliverOverlapAbsorberHandleFor(
+                                      context,
+                                    ),
                               ),
                               SliverFillRemaining(
                                 hasScrollBody: false,
@@ -394,38 +477,43 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                         }
 
                         return CustomScrollView(
-                          key: PageStorageKey<String>('$dept-$_activeFilter-$_activeSort'),
+                          key: PageStorageKey<String>(
+                            '$dept-$_activeFilter-$_activeSort',
+                          ),
                           slivers: [
                             SliverOverlapInjector(
-                              handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                                context,
-                              ),
+                              handle:
+                                  NestedScrollView.sliverOverlapAbsorberHandleFor(
+                                    context,
+                                  ),
                             ),
                             SliverPadding(
                               padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                               sliver: SliverGrid(
-                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 3,
-                                  crossAxisSpacing: 12,
-                                  mainAxisSpacing: 16,
-                                  childAspectRatio: 0.55,
-                                ),
-                                delegate: SliverChildBuilderDelegate(
-                                  (context, index) {
-                                    final credit = credits[index];
-                                    final double cardWidth = (MediaQuery.sizeOf(context).width -
-                                            (16 * 2) -
-                                            (12 * 2)) /
-                                        3;
+                                gridDelegate:
+                                    const SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 3,
+                                      crossAxisSpacing: 12,
+                                      mainAxisSpacing: 16,
+                                      childAspectRatio: 0.55,
+                                    ),
+                                delegate: SliverChildBuilderDelegate((
+                                  context,
+                                  index,
+                                ) {
+                                  final credit = credits[index];
+                                  final double cardWidth =
+                                      (MediaQuery.sizeOf(context).width -
+                                          (16 * 2) -
+                                          (12 * 2)) /
+                                      3;
 
-                                    return MediaPosterGridCard(
-                                      movie: credit.media,
-                                      sectionTitle: 'credits-$dept',
-                                      width: cardWidth,
-                                    );
-                                  },
-                                  childCount: credits.length,
-                                ),
+                                  return MediaPosterGridCard(
+                                    movie: credit.media,
+                                    sectionTitle: 'credits-$dept',
+                                    width: cardWidth,
+                                  );
+                                }, childCount: credits.length),
                               ),
                             ),
                             const SliverToBoxAdapter(
@@ -781,10 +869,7 @@ class _FilterChip extends StatelessWidget {
 }
 
 class _SortSelector extends StatelessWidget {
-  const _SortSelector({
-    required this.activeSort,
-    required this.onSortChanged,
-  });
+  const _SortSelector({required this.activeSort, required this.onSortChanged});
 
   final String activeSort;
   final ValueChanged<String> onSortChanged;
@@ -792,7 +877,7 @@ class _SortSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     String getSortLabel(String value) {
       switch (value) {
         case 'popularity':
@@ -807,9 +892,7 @@ class _SortSelector extends StatelessWidget {
     }
 
     return Theme(
-      data: theme.copyWith(
-        cardColor: AppColors.cinemaPanelMid,
-      ),
+      data: theme.copyWith(cardColor: AppColors.cinemaPanelMid),
       child: PopupMenuButton<String>(
         initialValue: activeSort,
         onSelected: onSortChanged,
@@ -825,18 +908,12 @@ class _SortSelector extends StatelessWidget {
           decoration: BoxDecoration(
             color: Colors.white.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.15),
-            ),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.sort_rounded,
-                color: Colors.white70,
-                size: 16,
-              ),
+              const Icon(Icons.sort_rounded, color: Colors.white70, size: 16),
               const SizedBox(width: 6),
               Text(
                 getSortLabel(activeSort),
@@ -888,7 +965,8 @@ class _ExpandableBiographyCard extends StatefulWidget {
   final String biography;
 
   @override
-  State<_ExpandableBiographyCard> createState() => _ExpandableBiographyCardState();
+  State<_ExpandableBiographyCard> createState() =>
+      _ExpandableBiographyCardState();
 }
 
 class _ExpandableBiographyCardState extends State<_ExpandableBiographyCard> {
@@ -906,9 +984,7 @@ class _ExpandableBiographyCardState extends State<_ExpandableBiographyCard> {
         child: Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              colors: AppColors.cinemaPanelGradient,
-            ),
+            gradient: LinearGradient(colors: AppColors.cinemaPanelGradient),
             border: Border.all(
               color: AppColors.cinemaBorder.withValues(alpha: 0.2),
             ),
@@ -952,7 +1028,9 @@ class _ExpandableBiographyCardState extends State<_ExpandableBiographyCard> {
                       Text(
                         text,
                         maxLines: _isExpanded ? null : 5,
-                        overflow: _isExpanded ? TextOverflow.clip : TextOverflow.ellipsis,
+                        overflow: _isExpanded
+                            ? TextOverflow.clip
+                            : TextOverflow.ellipsis,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: Colors.white.withValues(alpha: 0.85),
                           height: 1.5,
@@ -972,7 +1050,9 @@ class _ExpandableBiographyCardState extends State<_ExpandableBiographyCard> {
                                 end: Alignment.bottomCenter,
                                 colors: [
                                   Colors.transparent,
-                                  AppColors.cinemaPanelBottom.withValues(alpha: 0.95),
+                                  AppColors.cinemaPanelBottom.withValues(
+                                    alpha: 0.95,
+                                  ),
                                 ],
                               ),
                             ),
@@ -1013,7 +1093,9 @@ class _KnownForCarousel extends StatelessWidget {
     }
 
     // 3. Sort by popularity descending
-    uniqueCredits.sort((a, b) => b.media.popularity.compareTo(a.media.popularity));
+    uniqueCredits.sort(
+      (a, b) => b.media.popularity.compareTo(a.media.popularity),
+    );
 
     // 4. Take top 12
     final topCredits = uniqueCredits.take(12).toList();
