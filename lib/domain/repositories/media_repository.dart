@@ -6,6 +6,11 @@ import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/movie_genre.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/domain/entities/person_details.dart';
+import 'package:cineverse/domain/entities/search_collection.dart';
+import 'package:cineverse/domain/entities/search_keyword.dart';
+import 'package:cineverse/domain/entities/search_company.dart';
+import 'package:cineverse/domain/entities/movie_collection.dart';
+import 'package:cineverse/domain/entities/company_details.dart';
 
 abstract interface class MediaRepository {
   Future<List<MediaTitle>> fetchPopularMovies();
@@ -29,11 +34,18 @@ abstract interface class MediaRepository {
     required MediaFilter filter,
     String? query,
     int page = 1,
+    String? withKeywords,
+    String? withCompanies,
   });
 
   Future<List<MediaTitle>> searchMovies(String query, {int page = 1});
   Future<List<MediaTitle>> searchTvShows(String query, {int page = 1});
   Future<List<MediaTitle>> searchMulti(String query, {int page = 1});
+  Future<List<SearchCollection>> searchCollections(String query, {int page = 1});
+  Future<List<SearchKeyword>> searchKeywords(String query, {int page = 1});
+  Future<List<SearchCompany>> searchCompanies(String query, {int page = 1});
+  Future<MovieCollection> fetchMovieCollectionDetails(int collectionId);
+  Future<CompanyDetails> fetchCompanyDetails(int companyId);
 
   Future<MovieDetails> fetchMovieDetails(int movieId, {bool isTv = false});
 
@@ -54,6 +66,7 @@ abstract interface class MediaRepository {
 
   Future<PersonDetails> fetchPersonDetails(int personId);
   Future<List<MediaTitle>> searchPersons(String query, {int page = 1});
+  Future<List<MediaTitle>> fetchMovieCollectionParts(int collectionId);
 
   Future<TvSeason> fetchTvSeasonDetails(int tvId, int seasonNumber);
   Future<TvEpisode> fetchTvEpisodeDetails(

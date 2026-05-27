@@ -7,7 +7,8 @@ can switch between Firestore and Qdrant without changing reranking logic.
 Example:
   python3 scripts/upload_tmdb_openrouter_vectors_to_qdrant.py \
       --qdrant-url https://<cluster>.cloud.qdrant.io \
-      --collection tmdb_movie_vectors_v1 \
+      --collection tmdb_movie_vectors_v2 \
+      --embedding-profile movie_profile_v2 \
       --resume \
       --log-file .local/tmdb-qdrant-upload.log
 """
@@ -29,8 +30,10 @@ from typing import Iterable, Iterator, List, Optional
 import requests
 
 DEFAULT_CSV = Path("TMDB_movie_dataset.csv")
-DEFAULT_COLLECTION = "tmdb_movie_vectors_v1"
+DEFAULT_COLLECTION = "tmdb_movie_vectors_v2"
 DEFAULT_MODEL = "nvidia/llama-nemotron-embed-vl-1b-v2:free"
+DEFAULT_EMBEDDING_PROFILE = "movie_profile_v2"
+DEFAULT_VECTOR_DIM = 1024
 CONFIG_PATH = Path("config/api_keys.json")
 LOGGER = logging.getLogger("tmdb_qdrant_upload")
 REGIONAL_LANGUAGE_CODES = {
@@ -50,6 +53,36 @@ REGIONAL_LANGUAGE_CODES = {
     "tr",
     "ur",
     "zh",
+}
+FRANCHISE_ALIASES = {
+    "marvel": [
+        "marvel",
+        "mcu",
+        "avengers",
+        "x-men",
+        "x men",
+        "spider-man",
+        "spiderman",
+        "iron man",
+        "captain america",
+    ],
+    "dc": [
+        "dc",
+        "dceu",
+        "justice league",
+        "batman",
+        "superman",
+        "wonder woman",
+        "aquaman",
+        "joker",
+        "suicide squad",
+    ],
+    "star wars": [
+        "star wars",
+        "skywalker",
+        "jedi",
+        "sith",
+    ],
 }
 
 
@@ -78,13 +111,16 @@ def main() -> None:
     )
     parser.add_argument("--collection", default=DEFAULT_COLLECTION)
     parser.add_argument("--model", default=DEFAULT_MODEL)
+    parser.add_argument("--embedding-profile", default=DEFAULT_EMBEDDING_PROFILE)
+    parser.add_argument("--vector-dim", type=int, default=DEFAULT_VECTOR_DIM)
     parser.add_argument("--batch-size", type=int, default=8)
     parser.add_argument("--upsert-size", type=int, default=128)
     parser.add_argument("--max-rows", type=int, default=0)
     parser.add_argument("--max-items", type=int, default=0)
-    parser.add_argument("--min-vote-count", type=int, default=5)
-    parser.add_argument("--regional-min-vote-count", type=int, default=1)
-    parser.add_argument("--min-vote-average", type=float, default=1.0)
+    parser.add_argument("--min-vote-count", type=int, default=0)
+    parser.add_argument("--regional-min-vote-count", type=int, default=0)
+    parser.add_argument("--min-vote-average", type=float, default=0.0)
+    parser.add_argument("--exclude-adult", action="store_true")
     parser.add_argument("--scan-log-every", type=int, default=5000)
     parser.add_argument("--embed-retries", type=int, default=5)
     parser.add_argument("--qdrant-retries", type=int, default=5)
@@ -114,6 +150,8 @@ def main() -> None:
         raise ValueError("--upsert-size must be > 0")
     if args.scan_log_every <= 0:
         raise ValueError("--scan-log-every must be > 0")
+    if args.vector_dim <= 0:
+        raise ValueError("--vector-dim must be > 0")
 
     api_key = _openrouter_api_key()
     stats = UploadStats(started_at=time.time(), max_items=args.max_items)
@@ -123,6 +161,8 @@ def main() -> None:
         enabled=args.resume,
         collection=args.collection,
         model=args.model,
+        embedding_profile=args.embedding_profile,
+        vector_dim=args.vector_dim,
         csv_path=csv_path,
     )
     resume_after_row = checkpoint.get("last_committed_row", 0) if checkpoint else 0
@@ -136,7 +176,8 @@ def main() -> None:
 
     LOGGER.info(
         "Starting Qdrant upload: csv=%s collection=%s model=%s batch_size=%s upsert_size=%s "
-        "max_rows=%s max_items=%s resume=%s resume_after_row=%s",
+        "max_rows=%s max_items=%s resume=%s resume_after_row=%s embedding_profile=%s vector_dim=%s "
+        "exclude_adult=%s",
         csv_path,
         args.collection,
         args.model,
@@ -146,6 +187,9 @@ def main() -> None:
         args.max_items or "all",
         args.resume,
         resume_after_row or 0,
+        args.embedding_profile,
+        args.vector_dim,
+        args.exclude_adult,
     )
 
     rows = _iter_eligible_movies(
@@ -155,6 +199,7 @@ def main() -> None:
         min_vote_count=args.min_vote_count,
         regional_min_vote_count=args.regional_min_vote_count,
         min_vote_average=args.min_vote_average,
+        exclude_adult=args.exclude_adult,
         stats=stats,
         scan_log_every=args.scan_log_every,
         resume_after_row=resume_after_row,
@@ -165,7 +210,7 @@ def main() -> None:
 
     for chunk in _chunks(rows, args.batch_size):
         stats.embed_batches += 1
-        texts = [_embedding_text(row) for row in chunk]
+        texts = [_embedding_text(row, profile=args.embedding_profile) for row in chunk]
         LOGGER.info(
             "Embedding batch %s with %s rows (eligible=%s uploaded=%s scanned=%s)",
             stats.embed_batches,
@@ -181,6 +226,7 @@ def main() -> None:
             retries=args.embed_retries,
             retry_base_delay=args.retry_base_delay,
             request_timeout=args.request_timeout,
+            target_dim=args.vector_dim,
         )
         stats.embedded_rows += len(embeddings)
 
@@ -227,6 +273,8 @@ def main() -> None:
                     csv_path=csv_path,
                     collection=args.collection,
                     model=args.model,
+                    embedding_profile=args.embedding_profile,
+                    vector_dim=args.vector_dim,
                     last_committed_row=last_committed_row,
                     stats=stats,
                 ),
@@ -259,6 +307,8 @@ def main() -> None:
                 csv_path=csv_path,
                 collection=args.collection,
                 model=args.model,
+                embedding_profile=args.embedding_profile,
+                vector_dim=args.vector_dim,
                 last_committed_row=last_committed_row,
                 stats=stats,
             ),
@@ -314,6 +364,7 @@ def _embed_batch(
     retries: int,
     retry_base_delay: float,
     request_timeout: float,
+    target_dim: int,
 ) -> List[List[float]]:
     payload = {"model": model, "input": texts}
 
@@ -335,7 +386,7 @@ def _embed_batch(
         data = body.get("data", [])
         if len(data) != len(texts):
             raise RuntimeError(f"Unexpected OpenRouter response: {body}")
-        return [item["embedding"] for item in data]
+        return [_project_embedding(item["embedding"], target_dim=target_dim) for item in data]
 
     return _retry(
         run,
@@ -343,6 +394,16 @@ def _embed_batch(
         retries=retries,
         retry_base_delay=retry_base_delay,
     )
+
+
+def _project_embedding(embedding: List[float], *, target_dim: int) -> List[float]:
+    if len(embedding) < target_dim:
+        raise RuntimeError(
+            f"Embedding dimension {len(embedding)} is smaller than requested target_dim={target_dim}."
+        )
+    if len(embedding) == target_dim:
+        return embedding
+    return embedding[:target_dim]
 
 
 def _ensure_qdrant_collection(
@@ -367,9 +428,9 @@ def _ensure_qdrant_collection(
             timeout=request_timeout,
         )
         if response.status_code == 200:
-            return "exists"
+            return response.json()
         if response.status_code == 404:
-            return "missing"
+            return None
         raise RuntimeError(
             f"Qdrant collection check failed ({response.status_code}): {response.text}"
         )
@@ -380,7 +441,15 @@ def _ensure_qdrant_collection(
         retries=retries,
         retry_base_delay=retry_base_delay,
     )
-    if state == "exists":
+    if state is not None:
+        existing_size = _qdrant_vector_size(state)
+        if existing_size is not None and int(existing_size) != int(vector_size):
+            raise RuntimeError(
+                "Existing collection vector size mismatch: "
+                f"{collection} has size={existing_size}, requested={vector_size}. "
+                "Use a new collection name (for example tmdb_movie_vectors_v3) "
+                "when changing embedding dimension."
+            )
         return
 
     payload = {
@@ -410,6 +479,25 @@ def _ensure_qdrant_collection(
         retry_base_delay=retry_base_delay,
     )
     LOGGER.info("Created Qdrant collection %s (vector_size=%s)", collection, vector_size)
+
+
+def _qdrant_vector_size(collection_response: dict) -> Optional[int]:
+    vectors = (
+        collection_response.get("result", {})
+        .get("config", {})
+        .get("params", {})
+        .get("vectors")
+    )
+    if isinstance(vectors, dict):
+        size = vectors.get("size")
+        if isinstance(size, (int, float)):
+            return int(size)
+        for value in vectors.values():
+            if isinstance(value, dict):
+                nested_size = value.get("size")
+                if isinstance(nested_size, (int, float)):
+                    return int(nested_size)
+    return None
 
 
 def _qdrant_upsert_points(
@@ -478,6 +566,8 @@ def _load_checkpoint(
     enabled: bool,
     collection: str,
     model: str,
+    embedding_profile: str,
+    vector_dim: int,
     csv_path: Path,
 ) -> Optional[dict]:
     if not enabled or not checkpoint_path.exists():
@@ -486,6 +576,8 @@ def _load_checkpoint(
     if (
         payload.get("collection") != collection
         or payload.get("model") != model
+        or payload.get("embedding_profile") != embedding_profile
+        or int(payload.get("vector_dim", DEFAULT_VECTOR_DIM)) != int(vector_dim)
         or payload.get("csvPath") != str(csv_path.resolve())
     ):
         LOGGER.warning("Checkpoint exists but metadata mismatched. Ignoring checkpoint.")
@@ -513,6 +605,8 @@ def _checkpoint_payload(
     csv_path: Path,
     collection: str,
     model: str,
+    embedding_profile: str,
+    vector_dim: int,
     last_committed_row: int,
     stats: UploadStats,
 ) -> dict:
@@ -520,6 +614,8 @@ def _checkpoint_payload(
         "csvPath": str(csv_path.resolve()),
         "collection": collection,
         "model": model,
+        "embedding_profile": embedding_profile,
+        "vector_dim": int(vector_dim),
         "last_committed_row": int(last_committed_row),
         "rows_scanned": int(stats.rows_scanned),
         "eligible_rows": int(stats.eligible_rows),
@@ -539,6 +635,7 @@ def _iter_eligible_movies(
     min_vote_count: int,
     regional_min_vote_count: int,
     min_vote_average: float,
+    exclude_adult: bool,
     stats: UploadStats,
     scan_log_every: int,
     resume_after_row: int,
@@ -564,6 +661,7 @@ def _iter_eligible_movies(
                 min_vote_count=min_vote_count,
                 regional_min_vote_count=regional_min_vote_count,
                 min_vote_average=min_vote_average,
+                exclude_adult=exclude_adult,
             )
             if parsed is None or parsed["id"] in seen_ids:
                 continue
@@ -582,10 +680,11 @@ def _parse_movie(
     min_vote_count: int,
     regional_min_vote_count: int,
     min_vote_average: float,
+    exclude_adult: bool,
 ) -> Optional[dict]:
     if _clean(row.get("status")).lower() != "released":
         return None
-    if _clean(row.get("adult")).lower() == "true":
+    if exclude_adult and _clean(row.get("adult")).lower() == "true":
         return None
     movie_id = _to_int(row.get("id"))
     title = _clean(row.get("title"))
@@ -608,6 +707,7 @@ def _parse_movie(
     return {
         "id": movie_id,
         "mediaType": "movie",
+        "schemaVersion": "tmdb_movie_payload_v2",
         "title": title,
         "originalTitle": _clean(row.get("original_title")) or title,
         "overview": overview,
@@ -616,6 +716,7 @@ def _parse_movie(
         "keywords": _split_list(row.get("keywords")),
         "originalLanguage": original_language,
         "spokenLanguages": _split_list(row.get("spoken_languages")),
+        "productionCompanies": _split_list(row.get("production_companies")),
         "productionCountries": _split_list(row.get("production_countries")),
         "releaseDate": release_date,
         "releaseYear": _release_year(release_date),
@@ -624,10 +725,31 @@ def _parse_movie(
         "voteCount": vote_count,
         "popularity": round(_to_float(row.get("popularity")) or 0.0, 3),
         "posterPath": _clean(row.get("poster_path")) or None,
+        "adult": False,
+        "runtimeBucket": _runtime_bucket(_to_int(row.get("runtime"))),
+        "decade": _decade(_release_year(release_date)),
+        "qualityTier": _quality_tier(vote_average, vote_count),
+        "franchiseHints": _franchise_hints(
+            title=title,
+            original_title=_clean(row.get("original_title")) or title,
+            keywords=_split_list(row.get("keywords")),
+        ),
     }
 
 
-def _embedding_text(row: dict) -> str:
+def _embedding_text(row: dict, *, profile: str) -> str:
+    if profile == "movie_profile_v1":
+        return _embedding_text_v1(row)
+    if profile != DEFAULT_EMBEDDING_PROFILE:
+        LOGGER.warning(
+            "Unknown embedding profile %s. Falling back to %s.",
+            profile,
+            DEFAULT_EMBEDDING_PROFILE,
+        )
+    return _embedding_text_v2(row)
+
+
+def _embedding_text_v1(row: dict) -> str:
     parts = [
         f"Title: {row['title']}",
         f"Original title: {row['originalTitle']}",
@@ -647,6 +769,49 @@ def _embedding_text(row: dict) -> str:
         parts.append(f"Runtime: {row['runtimeMinutes']} minutes")
     if row["releaseYear"]:
         parts.append(f"Release year: {row['releaseYear']}")
+    return "\n".join(parts)
+
+
+def _embedding_text_v2(row: dict) -> str:
+    genres = ", ".join(row["genres"][:8]) if row["genres"] else "unknown"
+    keywords = ", ".join(row["keywords"][:32]) if row["keywords"] else "none"
+    companies = (
+        ", ".join(row["productionCompanies"][:8])
+        if row["productionCompanies"]
+        else "unknown"
+    )
+    countries = (
+        ", ".join(row["productionCountries"][:8])
+        if row["productionCountries"]
+        else "unknown"
+    )
+    languages = (
+        ", ".join(row["spokenLanguages"][:8]) if row["spokenLanguages"] else "unknown"
+    )
+    franchise_hints = ", ".join(row["franchiseHints"]) if row["franchiseHints"] else "none"
+    quality = (
+        f"tier={row['qualityTier']}, rating={row['voteAverage']}, "
+        f"votes={row['voteCount']}, popularity={row['popularity']}"
+    )
+    parts = [
+        "Movie retrieval profile (v2)",
+        f"title={row['title']}",
+        f"original_title={row['originalTitle']}",
+        f"tagline={row['tagline'] or 'none'}",
+        f"overview={row['overview']}",
+        f"genres={genres}",
+        f"keywords={keywords}",
+        f"language.original={row['originalLanguage'] or 'unknown'}",
+        f"language.spoken={languages}",
+        f"countries={countries}",
+        f"production_companies={companies}",
+        f"runtime.minutes={row['runtimeMinutes'] or 0}",
+        f"runtime.bucket={row['runtimeBucket']}",
+        f"release.year={row['releaseYear'] or 0}",
+        f"release.decade={row['decade'] or 'unknown'}",
+        f"franchise_hints={franchise_hints}",
+        f"quality={quality}",
+    ]
     return "\n".join(parts)
 
 
@@ -708,6 +873,60 @@ def _split_list(raw: str) -> List[str]:
     return values
 
 
+def _runtime_bucket(runtime_minutes: Optional[int]) -> str:
+    if runtime_minutes is None or runtime_minutes <= 0:
+        return "unknown"
+    if runtime_minutes < 95:
+        return "short"
+    if runtime_minutes <= 130:
+        return "medium"
+    return "long"
+
+
+def _decade(year: Optional[int]) -> Optional[str]:
+    if year is None or year <= 0:
+        return None
+    return f"{(year // 10) * 10}s"
+
+
+def _quality_tier(vote_average: float, vote_count: int) -> str:
+    if vote_average >= 7.4 and vote_count >= 200:
+        return "high"
+    if vote_average >= 6.5 and vote_count >= 50:
+        return "medium"
+    return "emerging"
+
+
+def _franchise_hints(*, title: str, original_title: str, keywords: List[str]) -> List[str]:
+    source = normalize_text(" ".join([title, original_title, " ".join(keywords)]))
+    matches = []
+    for franchise, aliases in FRANCHISE_ALIASES.items():
+        for alias in aliases:
+            needle = normalize_text(alias)
+            if not needle:
+                continue
+            if contains_phrase(source, needle):
+                matches.append(franchise)
+                break
+    return sorted(set(matches))
+
+
+def normalize_text(value: str) -> str:
+    return " ".join(str(value or "").lower().replace("-", " ").split())
+
+
+def contains_phrase(haystack: str, needle: str) -> bool:
+    if not haystack or not needle:
+        return False
+    if haystack == needle:
+        return True
+    return (
+        haystack.startswith(f"{needle} ")
+        or haystack.endswith(f" {needle}")
+        or f" {needle} " in haystack
+    )
+
+
 def _release_year(release_date: Optional[str]) -> Optional[int]:
     if not release_date:
         return None
@@ -730,4 +949,3 @@ def _format_duration(seconds: float) -> str:
 
 if __name__ == "__main__":
     main()
-

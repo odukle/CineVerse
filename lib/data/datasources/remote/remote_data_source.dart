@@ -10,6 +10,11 @@ import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_images.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
+import 'package:cineverse/data/models/tmdb_search_collection_dto.dart';
+import 'package:cineverse/data/models/tmdb_search_keyword_dto.dart';
+import 'package:cineverse/data/models/tmdb_search_company_dto.dart';
+import 'package:cineverse/data/models/tmdb_movie_collection_dto.dart';
+import 'package:cineverse/data/models/tmdb_company_details_dto.dart';
 
 abstract interface class RemoteDataSource {
   Future<List<TmdbMovieDto>> fetchPopularMovies();
@@ -33,12 +38,19 @@ abstract interface class RemoteDataSource {
     required MediaFilter filter,
     String? query,
     int page = 1,
+    String? withKeywords,
+    String? withCompanies,
   });
 
   Future<List<TmdbMovieDto>> searchMovies(String query, {int page = 1});
   Future<List<TmdbMovieDto>> searchTvShows(String query, {int page = 1});
   Future<List<TmdbMovieDto>> searchMulti(String query, {int page = 1});
   Future<List<TmdbMovieDto>> searchPersons(String query, {int page = 1});
+  Future<List<TmdbSearchCollectionDto>> searchCollections(String query, {int page = 1});
+  Future<List<TmdbSearchKeywordDto>> searchKeywords(String query, {int page = 1});
+  Future<List<TmdbSearchCompanyDto>> searchCompanies(String query, {int page = 1});
+  Future<TmdbMovieCollectionDto> fetchMovieCollectionDetails(int collectionId);
+  Future<TmdbCompanyDetailsDto> fetchCompanyDetails(int companyId);
 
   Future<TmdbMovieDetailsDto> fetchMovieDetails(
     int movieId, {
@@ -62,6 +74,7 @@ abstract interface class RemoteDataSource {
 
   Future<TmdbPersonDetailsDto> fetchPersonDetails(int personId);
   Future<TmdbPersonCombinedCreditsDto> fetchPersonCombinedCredits(int personId);
+  Future<List<TmdbMovieDto>> fetchMovieCollectionParts(int collectionId);
 
   Future<TmdbTvSeasonDto> fetchTvSeasonDetails(int tvId, int seasonNumber);
   Future<TmdbTvEpisodeDto> fetchTvEpisodeDetails(
@@ -139,12 +152,16 @@ class TmdbRemoteDataSource implements RemoteDataSource {
     required MediaFilter filter,
     String? query,
     int page = 1,
+    String? withKeywords,
+    String? withCompanies,
   }) async {
     final TmdbMoviesResponseDto response = await apiClient.discoverMedia(
       isTv: isTv,
       filter: filter,
       query: query,
       page: page,
+      withKeywords: withKeywords,
+      withCompanies: withCompanies,
     );
     return response.movies;
   }
@@ -234,6 +251,11 @@ class TmdbRemoteDataSource implements RemoteDataSource {
   }
 
   @override
+  Future<List<TmdbMovieDto>> fetchMovieCollectionParts(int collectionId) {
+    return apiClient.fetchMovieCollectionParts(collectionId);
+  }
+
+  @override
   Future<TmdbTvSeasonDto> fetchTvSeasonDetails(int tvId, int seasonNumber) {
     return apiClient.fetchTvSeasonDetails(tvId, seasonNumber);
   }
@@ -250,5 +272,30 @@ class TmdbRemoteDataSource implements RemoteDataSource {
   @override
   Future<MediaImages> fetchTvSeasonImages(int tvId, int seasonNumber) {
     return apiClient.fetchTvSeasonImages(tvId, seasonNumber);
+  }
+
+  @override
+  Future<List<TmdbSearchCollectionDto>> searchCollections(String query, {int page = 1}) {
+    return apiClient.searchCollections(query, page: page);
+  }
+
+  @override
+  Future<List<TmdbSearchKeywordDto>> searchKeywords(String query, {int page = 1}) {
+    return apiClient.searchKeywords(query, page: page);
+  }
+
+  @override
+  Future<List<TmdbSearchCompanyDto>> searchCompanies(String query, {int page = 1}) {
+    return apiClient.searchCompanies(query, page: page);
+  }
+
+  @override
+  Future<TmdbMovieCollectionDto> fetchMovieCollectionDetails(int collectionId) {
+    return apiClient.fetchMovieCollection(collectionId);
+  }
+
+  @override
+  Future<TmdbCompanyDetailsDto> fetchCompanyDetails(int companyId) {
+    return apiClient.fetchCompanyDetails(companyId);
   }
 }

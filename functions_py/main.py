@@ -27,6 +27,8 @@ _CACHE_ADMIN_HEADER = "X-Cache-Admin-Key"
 _CACHE_ADMIN_ENV = "WATCH_PROVIDER_CACHE_ADMIN_KEY"
 _TMDB_PROXY_BASE_URL_ENV = "TMDB_PROXY_BASE_URL"
 _TMDB_PROXY_BASE_URL_DEFAULT = "https://cineverse-tmdb-proxy.sodukle.workers.dev"
+_OMDB_API_KEY_ENV = "OMDB_API_KEY"
+_OMDB_BASE_URL = "https://www.omdbapi.com"
 
 _PROVIDER_ALIASES: dict[str, list[str]] = {
     "amazon prime video": ["prime video", "amazon prime video", "amazon video"],
@@ -221,11 +223,267 @@ def watchProviderCacheAdmin(req: https_fn.Request) -> https_fn.Response:
     return _json_response(400, {"error": "Unknown action. Use stats or cleanup."})
 
 
+@https_fn.on_request()
+def resolveMovieAwards(req: https_fn.Request) -> https_fn.Response:
+    if req.method == "OPTIONS":
+        return _json_response(204, {})
+    if req.method != "POST":
+        return _json_response(405, {"error": "Use POST."})
+
+    payload = req.get_json(silent=True) or {}
+    movie_id = str(payload.get("movieId") or "").strip()
+    imdb_id = str(payload.get("imdbId") or "").strip()
+    language = str(payload.get("language") or "en-US").strip() or "en-US"
+
+    if not movie_id.isdigit():
+        return _json_response(400, {"error": "movieId is required (numeric)."})
+
+    tmdb_result = _scrape_tmdb_awards(movie_id=movie_id, language=language)
+    if tmdb_result is not None and tmdb_result.get("awardsText"):
+        return _json_response(
+            200,
+            {
+                "source": "tmdb_scrape",
+                "awardsText": tmdb_result["awardsText"],
+                "totalWins": tmdb_result.get("totalWins", 0),
+                "totalNominations": tmdb_result.get("totalNominations", 0),
+                "detailLines": tmdb_result.get("detailLines", []),
+                "detailItems": tmdb_result.get("detailItems", []),
+            },
+        )
+
+    omdb_result = _fetch_omdb_awards(imdb_id=imdb_id)
+    if omdb_result is not None and omdb_result.get("awardsText"):
+        return _json_response(
+            200,
+            {
+                "source": "omdb_fallback",
+                "awardsText": omdb_result["awardsText"],
+                "totalWins": omdb_result.get("totalWins", 0),
+                "totalNominations": omdb_result.get("totalNominations", 0),
+                "detailLines": omdb_result.get("detailLines", []),
+                "detailItems": [],
+            },
+        )
+
+    return _json_response(
+        200,
+        {
+            "source": "none",
+            "awardsText": "",
+            "totalWins": 0,
+            "totalNominations": 0,
+            "detailLines": [],
+            "detailItems": [],
+        },
+    )
+
+
 def _build_cache_key(justwatch_url: str, normalized_provider: str) -> str:
     digest = hashlib.sha256(
         f"{justwatch_url.strip()}|{normalized_provider.strip()}".encode("utf-8"),
     ).hexdigest()
     return digest
+
+
+def _scrape_tmdb_awards(*, movie_id: str, language: str) -> Optional[dict]:
+    url = f"https://www.themoviedb.org/movie/{movie_id}/awards"
+    if language:
+        url = f"{url}?language={language}"
+
+    try:
+        response = requests.get(
+            url,
+            timeout=12,
+            headers={
+                "User-Agent": (
+                    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+                    "(KHTML, like Gecko) Chrome/123.0 Safari/537.36"
+                ),
+                "Accept-Language": "en-US,en;q=0.9",
+            },
+        )
+        if response.status_code >= 400:
+            return None
+        page_html = response.text
+    except requests.RequestException:
+        return None
+
+    wins, nominations = _extract_award_counts(page_html)
+    detail_items = _extract_award_detail_items(page_html, max_items=50)
+    detail_lines = [str(item.get("text") or "").strip() for item in detail_items]
+    detail_lines = [line for line in detail_lines if line]
+
+    if wins == 0 and nominations == 0 and not detail_lines:
+        return None
+
+    summary_parts: list[str] = []
+    if wins > 0:
+        summary_parts.append(f"{wins} {'win' if wins == 1 else 'wins'}")
+    if nominations > 0:
+        summary_parts.append(
+            f"{nominations} {'nomination' if nominations == 1 else 'nominations'}"
+        )
+    summary = " & ".join(summary_parts).strip()
+
+    lines: list[str] = []
+    if summary:
+        lines.append(summary)
+    lines.extend(detail_lines)
+
+    awards_text = ". ".join(line.strip().rstrip(".") for line in lines if line.strip())
+    if awards_text:
+        awards_text = f"{awards_text}."
+
+    return {
+        "awardsText": awards_text,
+        "totalWins": wins,
+        "totalNominations": nominations,
+        "detailLines": detail_lines,
+        "detailItems": detail_items,
+    }
+
+
+def _extract_award_counts(page_html: str) -> tuple[int, int]:
+    wins = 0
+    nominations = 0
+
+    meta_match = re.search(
+        r"has received\s+(\d+)\s+nominations?\s+and\s+(\d+)\s+wins?",
+        page_html,
+        flags=re.IGNORECASE,
+    )
+    if meta_match:
+        nominations = int(meta_match.group(1))
+        wins = int(meta_match.group(2))
+        return wins, nominations
+
+    heading_match = re.search(
+        r"(\d+)\s+Nominations\s*,\s*(\d+)\s+Wins",
+        page_html,
+        flags=re.IGNORECASE,
+    )
+    if heading_match:
+        nominations = int(heading_match.group(1))
+        wins = int(heading_match.group(2))
+
+    return wins, nominations
+
+
+def _extract_award_detail_items(
+    page_html: str, *, max_items: int
+) -> list[dict[str, str]]:
+    normalized_html = html.unescape(page_html)
+    compact = re.sub(r"\s+", " ", normalized_html)
+    award_logo_map = _extract_award_logo_map(compact)
+
+    pattern = re.compile(
+        r'href="/award/(\d+)[^"]*/ceremony/[^"]+"[^>]*>([^<]+)</a>.*?'
+        r'<span[^>]*>\s*(Winner|Nominee)\s*</span>\s*'
+        r'<a[^>]*href="/award/(\d+)[^"]*/category/[^"]+"[^>]*>([^<]+)</a>',
+        flags=re.IGNORECASE,
+    )
+
+    items: list[dict[str, str]] = []
+    seen: set[str] = set()
+
+    for match in pattern.finditer(compact):
+        award_id = str(match.group(1) or match.group(4) or "").strip()
+        ceremony = re.sub(r"\s+", " ", match.group(2)).strip()
+        status = re.sub(r"\s+", " ", match.group(3)).strip().title()
+        category = re.sub(r"\s+", " ", match.group(5)).strip()
+        if not ceremony or not status or not category:
+            continue
+        line = f"{status}: {category} ({ceremony})"
+        key = line.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        logo = award_logo_map.get(award_id, {})
+        item: dict[str, str] = {"text": line}
+        logo_url = str(logo.get("logoUrl") or "").strip()
+        award_name = str(logo.get("awardName") or "").strip()
+        if logo_url:
+            item["logoUrl"] = logo_url
+        if award_name:
+            item["awardName"] = award_name
+        items.append(item)
+        if len(items) >= max_items:
+            break
+
+    return items
+
+
+def _extract_award_logo_map(compact_html: str) -> dict[str, dict[str, str]]:
+    logo_map: dict[str, dict[str, str]] = {}
+    pattern = re.compile(
+        r'href="/award/(\d+)[^"]*"\s+title="([^"]+)"[^>]*>.*?'
+        r'<img[^>]+src="([^"]+)"',
+        flags=re.IGNORECASE,
+    )
+    for match in pattern.finditer(compact_html):
+        award_id = str(match.group(1) or "").strip()
+        award_name = re.sub(r"\s+", " ", str(match.group(2) or "").strip())
+        logo_url = str(match.group(3) or "").strip()
+        if not award_id or not logo_url:
+            continue
+        if logo_url.startswith("/"):
+            logo_url = f"https://www.themoviedb.org{logo_url}"
+        logo_map[award_id] = {
+            "awardName": award_name,
+            "logoUrl": logo_url,
+        }
+    return logo_map
+
+
+def _fetch_omdb_awards(*, imdb_id: str) -> Optional[dict]:
+    if not imdb_id:
+        return None
+
+    omdb_api_key = os.getenv(_OMDB_API_KEY_ENV, "").strip()
+    if not omdb_api_key:
+        return None
+
+    try:
+        response = requests.get(
+            _OMDB_BASE_URL,
+            timeout=10,
+            params={"apikey": omdb_api_key, "i": imdb_id},
+            headers={"Accept": "application/json"},
+        )
+        if response.status_code >= 400:
+            return None
+        payload = response.json()
+    except Exception:
+        return None
+
+    if str(payload.get("Response") or "").strip().lower() == "false":
+        return None
+
+    awards = str(payload.get("Awards") or "").strip()
+    if not awards or awards.lower() == "n/a":
+        return None
+
+    wins = _extract_numeric_awards(awards, r"(\d+)\s+wins?")
+    nominations = _extract_numeric_awards(awards, r"(\d+)\s+nominations?")
+    detail_lines = [
+        part.strip()
+        for part in awards.split(".")
+        if part.strip() and part.strip().lower() != "n/a"
+    ]
+    return {
+        "awardsText": awards,
+        "totalWins": wins,
+        "totalNominations": nominations,
+        "detailLines": detail_lines,
+    }
+
+
+def _extract_numeric_awards(text: str, pattern: str) -> int:
+    total = 0
+    for match in re.finditer(pattern, text, flags=re.IGNORECASE):
+        total += int(match.group(1))
+    return total
 
 
 def _read_cache_entry(cache_key: str) -> Optional[dict]:

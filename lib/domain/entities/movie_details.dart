@@ -25,6 +25,12 @@ class MovieDetails {
     this.recommendations = const <MovieRecommendation>[],
     this.watchAvailability,
     this.imdbId,
+    this.facebookId,
+    this.instagramId,
+    this.twitterId,
+    this.tiktokId,
+    this.youtubeId,
+    this.wikidataId,
     this.trailerYouTubeKey,
     this.seasons = const <TvSeason>[],
     this.numberOfSeasons,
@@ -34,6 +40,11 @@ class MovieDetails {
     this.awards,
     this.digitalReleaseDate,
     this.physicalReleaseDate,
+    this.belongsToCollection,
+    this.keywords = const <MovieKeyword>[],
+    this.videos = const <MovieVideo>[],
+    this.productionCompanies = const <ProductionCompany>[],
+    this.productionCountries = const <String>[],
   });
 
   final int id;
@@ -59,6 +70,12 @@ class MovieDetails {
   final List<MovieRecommendation> recommendations;
   final MovieWatchAvailability? watchAvailability;
   final String? imdbId;
+  final String? facebookId;
+  final String? instagramId;
+  final String? twitterId;
+  final String? tiktokId;
+  final String? youtubeId;
+  final String? wikidataId;
   final String? trailerYouTubeKey;
   final List<TvSeason> seasons;
   final int? numberOfSeasons;
@@ -68,6 +85,19 @@ class MovieDetails {
   final String? awards;
   final String? digitalReleaseDate;
   final String? physicalReleaseDate;
+  final MovieCollectionInfo? belongsToCollection;
+  final List<MovieKeyword> keywords;
+  final List<MovieVideo> videos;
+  final List<ProductionCompany> productionCompanies;
+  final List<String> productionCountries;
+
+  bool get hasSocialHandles =>
+      (facebookId?.isNotEmpty ?? false) ||
+      (instagramId?.isNotEmpty ?? false) ||
+      (twitterId?.isNotEmpty ?? false) ||
+      (tiktokId?.isNotEmpty ?? false) ||
+      (youtubeId?.isNotEmpty ?? false) ||
+      (imdbId?.isNotEmpty ?? false);
 
   MovieDetails copyWith({
     List<MovieRating>? externalRatings,
@@ -75,6 +105,11 @@ class MovieDetails {
     String? awards,
     String? digitalReleaseDate,
     String? physicalReleaseDate,
+    MovieCollectionInfo? belongsToCollection,
+    List<MovieKeyword>? keywords,
+    List<MovieVideo>? videos,
+    List<ProductionCompany>? productionCompanies,
+    List<String>? productionCountries,
   }) {
     return MovieDetails(
       id: id,
@@ -100,6 +135,12 @@ class MovieDetails {
       recommendations: recommendations,
       watchAvailability: watchAvailability ?? this.watchAvailability,
       imdbId: imdbId,
+      facebookId: facebookId,
+      instagramId: instagramId,
+      twitterId: twitterId,
+      tiktokId: tiktokId,
+      youtubeId: youtubeId,
+      wikidataId: wikidataId,
       trailerYouTubeKey: trailerYouTubeKey,
       seasons: seasons,
       numberOfSeasons: numberOfSeasons,
@@ -109,6 +150,11 @@ class MovieDetails {
       awards: awards ?? this.awards,
       digitalReleaseDate: digitalReleaseDate ?? this.digitalReleaseDate,
       physicalReleaseDate: physicalReleaseDate ?? this.physicalReleaseDate,
+      belongsToCollection: belongsToCollection ?? this.belongsToCollection,
+      keywords: keywords ?? this.keywords,
+      videos: videos ?? this.videos,
+      productionCompanies: productionCompanies ?? this.productionCompanies,
+      productionCountries: productionCountries ?? this.productionCountries,
     );
   }
 }
@@ -249,4 +295,58 @@ class MovieWatchProvider {
   final int id;
   final String name;
   final String? logoPath;
+}
+
+class MovieCollectionInfo {
+  const MovieCollectionInfo({
+    required this.id,
+    required this.name,
+    this.posterPath,
+    this.backdropPath,
+  });
+
+  final int id;
+  final String name;
+  final String? posterPath;
+  final String? backdropPath;
+}
+
+class MovieVideo {
+  const MovieVideo({
+    required this.name,
+    required this.key,
+    required this.site,
+    required this.type,
+    required this.official,
+  });
+
+  final String name;
+  final String key;
+  final String site;
+  final String type;
+  final bool official;
+}
+
+class ProductionCompany {
+  const ProductionCompany({
+    required this.id,
+    required this.name,
+    this.logoPath,
+    required this.originCountry,
+  });
+
+  final int id;
+  final String name;
+  final String? logoPath;
+  final String originCountry;
+}
+
+class MovieKeyword {
+  const MovieKeyword({
+    required this.id,
+    required this.name,
+  });
+
+  final int id;
+  final String name;
 }

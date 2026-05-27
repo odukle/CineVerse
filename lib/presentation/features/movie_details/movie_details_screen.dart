@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/services.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/config/app_config.dart';
 import 'package:dio/dio.dart';
@@ -11,12 +12,14 @@ import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/movie_awards_provider.dart';
 import 'package:cineverse/presentation/features/movie_details/widgets/movie_awards_helper.dart';
+import 'package:cineverse/presentation/features/movie_details/full_plot_screen.dart';
 import 'package:cineverse/presentation/features/home/providers/reminders_provider.dart';
 import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:cineverse/presentation/widgets/trailer_player_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
@@ -54,11 +57,13 @@ class MovieDetailsScreen extends ConsumerWidget {
     super.key,
     required this.movieId,
     this.isTv = false,
+    this.fromNotification = false,
     this.heroTag,
   });
 
   final int movieId;
   final bool isTv;
+  final bool fromNotification;
   final String? heroTag;
 
   @override
@@ -162,8 +167,12 @@ class MovieDetailsScreen extends ConsumerWidget {
               ),
             );
           },
-          data: (MovieDetails details) =>
-              _MovieDetailsView(details: details, isTv: isTv, heroTag: heroTag),
+          data: (MovieDetails details) => _MovieDetailsView(
+            details: details,
+            isTv: isTv,
+            fromNotification: fromNotification,
+            heroTag: heroTag,
+          ),
         ),
       ),
     );
@@ -174,11 +183,13 @@ class _MovieDetailsView extends ConsumerStatefulWidget {
   const _MovieDetailsView({
     required this.details,
     required this.isTv,
+    required this.fromNotification,
     this.heroTag,
   });
 
   final MovieDetails details;
   final bool isTv;
+  final bool fromNotification;
   final String? heroTag;
 
   @override
@@ -287,577 +298,428 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
     );
     final latestNote = notesAsync.value?.lastOrNull?.text;
 
-    return CustomScrollView(
-      slivers: [
-        // App Bar
-        SliverAppBar(
-          pinned: true,
-          toolbarHeight: 56,
-          backgroundColor: AppColors.cinemaGradientTop,
-          elevation: 0,
-          leading: IconButton(
-            onPressed: () => Navigator.of(context).maybePop(),
-            icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-          ),
-          title: SizedBox(
-            height: 24,
-            child: SvgPicture.asset(
-              'assets/logos/logo.svg',
-              fit: BoxFit.contain,
-              alignment: Alignment.center,
-              semanticsLabel: AppConstants.appName,
+    return PopScope(
+      canPop: !widget.fromNotification,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) {
+          return;
+        }
+        await _handleBackNavigation();
+      },
+      child: CustomScrollView(
+        slivers: [
+          // App Bar
+          SliverAppBar(
+            pinned: true,
+            toolbarHeight: 56,
+            backgroundColor: AppColors.cinemaGradientTop,
+            elevation: 0,
+            leading: IconButton(
+              onPressed: _handleBackNavigation,
+              icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
             ),
-          ),
-          centerTitle: true,
-          actions: [
-            IconButton(
-              onPressed: () => MovieDetailsShareBottomSheet.show(
-                context,
-                details: widget.details,
-                isTv: widget.isTv,
-                userRating: userRating,
-                userNote: latestNote,
-              ),
-              icon: const Icon(
-                Icons.share_outlined,
-                color: Colors.white,
-                size: 22,
+            title: SizedBox(
+              height: 24,
+              child: SvgPicture.asset(
+                'assets/logos/logo.svg',
+                fit: BoxFit.contain,
+                alignment: Alignment.center,
+                semanticsLabel: AppConstants.appName,
               ),
             ),
-          ],
-        ),
-
-        // Backdrop + Poster
-        SliverToBoxAdapter(
-          child: AspectRatio(
-            aspectRatio: 16 / 9,
-            child: Stack(
-              children: [
-                // Backdrop Slideshow
-                Positioned.fill(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 1000),
-                    child: backdropUrl == null
-                        ? ColoredBox(
-                            key: const ValueKey('placeholder'),
-                            color: AppColors.detailsBackdropPlaceholder,
-                          )
-                        : _MovieDetailsKenBurnsImage(
-                            key: ValueKey(backdropUrl),
-                            imageUrl: backdropUrl,
-                          ),
-                  ),
+            centerTitle: true,
+            actions: [
+              IconButton(
+                onPressed: () => MovieDetailsShareBottomSheet.show(
+                  context,
+                  details: widget.details,
+                  isTv: widget.isTv,
+                  userRating: userRating,
+                  userNote: latestNote,
                 ),
-                // Gradient overlay
-                Positioned.fill(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withValues(alpha: 0.15),
-                          Colors.black.withValues(alpha: 0.5),
-                          AppColors.cinemaBackground,
-                        ],
+                icon: const Icon(
+                  Icons.share_outlined,
+                  color: Colors.white,
+                  size: 22,
+                ),
+              ),
+            ],
+          ),
+
+          // Backdrop + Poster
+          SliverToBoxAdapter(
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Stack(
+                children: [
+                  // Backdrop Slideshow
+                  Positioned.fill(
+                    child: ClipRect(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 1000),
+                        child: backdropUrl == null
+                            ? ColoredBox(
+                                key: const ValueKey('placeholder'),
+                                color: AppColors.detailsBackdropPlaceholder,
+                              )
+                            : _MovieDetailsKenBurnsImage(
+                                key: ValueKey(backdropUrl),
+                                imageUrl: backdropUrl,
+                              ),
                       ),
                     ),
                   ),
-                ),
-                // Poster + Title row
-                Positioned(
-                  left: 16,
-                  bottom: 0,
-                  right: 16,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Hero(
-                        tag:
-                            widget.heroTag ??
-                            'movie-poster-${widget.details.id}',
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: <BoxShadow>[
-                              BoxShadow(
-                                color: AppColors.detailsPosterShadow,
-                                blurRadius: 16,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: SizedBox(
-                              width: 100,
-                              height: 150,
-                              child: widget.details.posterPath == null
-                                  ? ColoredBox(
-                                      color: AppColors.detailsPosterSurface,
-                                      child: const Center(
-                                        child: Icon(
-                                          Icons.movie_outlined,
-                                          size: 36,
-                                        ),
-                                      ),
-                                    )
-                                  : CachedNetworkImage(
-                                      imageUrl: widget.details.posterPath!,
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) =>
-                                          const ShimmerEffect(
-                                            width: 100,
-                                            height: 150,
-                                            borderRadius: 12,
+                  // Gradient overlay
+                  Positioned.fill(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.black.withValues(alpha: 0.15),
+                            Colors.black.withValues(alpha: 0.5),
+                            AppColors.cinemaBackground,
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Poster + Title row
+                  Positioned(
+                    left: 16,
+                    bottom: 0,
+                    right: 16,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Hero(
+                          tag:
+                              widget.heroTag ??
+                              'movie-poster-${widget.details.id}',
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              boxShadow: <BoxShadow>[
+                                BoxShadow(
+                                  color: AppColors.detailsPosterShadow,
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: SizedBox(
+                                width: 100,
+                                height: 150,
+                                child: widget.details.posterPath == null
+                                    ? ColoredBox(
+                                        color: AppColors.detailsPosterSurface,
+                                        child: const Center(
+                                          child: Icon(
+                                            Icons.movie_outlined,
+                                            size: 36,
                                           ),
-                                      errorWidget: (context, url, error) =>
-                                          ColoredBox(
-                                            color:
-                                                AppColors.detailsPosterSurface,
-                                            child: const Center(
-                                              child: Icon(
-                                                Icons.broken_image_outlined,
-                                                size: 36,
+                                        ),
+                                      )
+                                    : CachedNetworkImage(
+                                        imageUrl: widget.details.posterPath!,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) =>
+                                            const ShimmerEffect(
+                                              width: 100,
+                                              height: 150,
+                                              borderRadius: 12,
+                                            ),
+                                        errorWidget: (context, url, error) =>
+                                            ColoredBox(
+                                              color: AppColors
+                                                  .detailsPosterSurface,
+                                              child: const Center(
+                                                child: Icon(
+                                                  Icons.broken_image_outlined,
+                                                  size: 36,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                    ),
+                                      ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      // Action Buttons beside poster
-                      Expanded(
-                        child: Container(
-                          height: 150, // Match poster height
-                          alignment: Alignment.bottomLeft,
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: Wrap(
-                            spacing: 12,
-                            runSpacing: 12,
-                            children: [
-                              _LibraryListButton(
-                                details: widget.details,
-                                isTv: widget.isTv,
-                              ),
-                              _LibraryFavouriteButton(
-                                details: widget.details,
-                                isTv: widget.isTv,
-                              ),
-                              _LibraryWatchlistButton(
-                                details: widget.details,
-                                isTv: widget.isTv,
-                              ),
-                              _WatchedButton(
-                                details: widget.details,
-                                isTv: widget.isTv,
-                              ),
-                              _GeneralReminderButton(
-                                details: widget.details,
-                                isTv: widget.isTv,
-                              ),
-                            ],
+                        const SizedBox(width: 16),
+                        // Action Buttons beside poster
+                        Expanded(
+                          child: Container(
+                            height: 150, // Match poster height
+                            alignment: Alignment.bottomLeft,
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Wrap(
+                              spacing: 12,
+                              runSpacing: 12,
+                              children: [
+                                _LibraryListButton(
+                                  details: widget.details,
+                                  isTv: widget.isTv,
+                                ),
+                                _LibraryFavouriteButton(
+                                  details: widget.details,
+                                  isTv: widget.isTv,
+                                ),
+                                _LibraryWatchlistButton(
+                                  details: widget.details,
+                                  isTv: widget.isTv,
+                                ),
+                                _WatchedButton(
+                                  details: widget.details,
+                                  isTv: widget.isTv,
+                                ),
+                                _GeneralReminderButton(
+                                  details: widget.details,
+                                  isTv: widget.isTv,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        // Title + Year
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: Text.rich(
-              TextSpan(
-                children: [
-                  TextSpan(
-                    text: widget.details.title,
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
+                      ],
                     ),
                   ),
-                  if (releaseYear != null)
-                    TextSpan(
-                      text: ' ($releaseYear)',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.7),
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
                 ],
               ),
-              textAlign: TextAlign.center,
             ),
           ),
-        ),
 
-        // User Score + Play Trailer
-        if (scorePercent != null)
+          // Title + Year
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _UserScoreIndicator(percent: scorePercent),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        'User Score',
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.titleSmall?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      if (widget.details.voteCount != null)
-                        Text(
-                          '${_formatNumber(widget.details.voteCount!)} votes',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.6),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(width: 20),
-                  Container(
-                    width: 1,
-                    height: 32,
-                    color: Colors.white.withValues(alpha: 0.2),
-                  ),
-                  const SizedBox(width: 16),
-                  TextButton.icon(
-                    onPressed: widget.details.trailerYouTubeKey == null
-                        ? null
-                        : () => _showTrailer(context, widget.details),
-                    iconAlignment: IconAlignment.start,
-                    icon: Icon(
-                      Icons.play_arrow_rounded,
-                      color: widget.details.trailerYouTubeKey == null
-                          ? Colors.white.withValues(alpha: 0.2)
-                          : Colors.white,
-                      size: 24,
-                    ),
-                    label: Text(
-                      'Play Trailer',
-                      style: theme.textTheme.titleSmall?.copyWith(
-                        color: widget.details.trailerYouTubeKey == null
-                            ? Colors.white.withValues(alpha: 0.4)
-                            : Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-        if (externalRatings.isNotEmpty || userRating != null)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-              child: _ExternalRatingsRow(
-                ratings: externalRatings,
-                userRating: userRating,
-              ),
-            ),
-          ),
-
-        SliverToBoxAdapter(child: _AwardsSection(details: widget.details)),
-
-        // Meta info line
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(
-                color: AppColors.detailsCard.withValues(alpha: 0.6),
-                border: const Border.symmetric(
-                  horizontal: BorderSide(color: Colors.white10),
-                ),
-              ),
-              child: Text(
-                _buildMetaLine(widget.details),
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.85),
-                  height: 1.4,
-                ),
-              ),
-            ),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: _ContentAdvisoryCard(
-            contentRating: widget.details.contentRating,
-            contentRatingDescription: widget.details.contentRatingDescription,
-            overview: widget.details.overview,
-          ),
-        ),
-
-        // Current Season Section
-        if (widget.isTv && widget.details.seasons.isNotEmpty)
-          SliverToBoxAdapter(
-            child: _CurrentSeasonSection(details: widget.details),
-          ),
-
-        // Tagline
-        if (widget.details.tagline != null &&
-            widget.details.tagline!.isNotEmpty)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-              child: Text(
-                widget.details.tagline!,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.75),
-                  fontStyle: FontStyle.italic,
-                  height: 1.4,
-                ),
-              ),
-            ),
-          ),
-
-        // Overview
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Overview',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  widget.details.overview ??
-                      'Overview unavailable for this title.',
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: Colors.white.withValues(alpha: 0.9),
-                    height: 1.45,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-
-        if (!widget.isTv &&
-            widget.details.budget != null &&
-            widget.details.budget! > 0 &&
-            widget.details.revenue != null &&
-            widget.details.revenue! > 0)
-          SliverToBoxAdapter(
-            child: _BoxOfficeSuccessCard(
-              budget: widget.details.budget!,
-              revenue: widget.details.revenue!,
-            ),
-          ),
-
-        if (widget.isTv)
-          SliverToBoxAdapter(
-            child: _TvEpisodeTrackerCard(
-              showId: widget.details.id,
-              showTitle: widget.details.title,
-              status: widget.details.status,
-              lastEpisode: widget.details.lastEpisodeToAir,
-              nextEpisode: widget.details.nextEpisodeToAir,
-            ),
-          ),
-
-        if (!widget.isTv)
-          SliverToBoxAdapter(
-            child: _ReleaseAlertTimeline(
-              movieId: widget.details.id,
-              isTv: widget.isTv,
-              title: widget.details.title,
-              theatricalDate: widget.details.releaseDate,
-              digitalDate: widget.details.digitalReleaseDate,
-              physicalDate: widget.details.physicalReleaseDate,
-            ),
-          ),
-
-        // Where to Watch
-        if (hasWatchAvailability)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-              child: Consumer(
-                builder: (context, ref, _) {
-                  final String resolverApiUrl = ref
-                      .watch(appConfigProvider)
-                      .watchProviderResolverApiUrl
-                      .trim();
-                  final String? canonicalLink = watchAvailability!.link;
-                  final regionCode = ref
-                      .watch(preferredRegionCodeProvider)
-                      .toLowerCase();
-                  final mediaTypePath = widget.isTv ? 'tv-show' : 'movie';
-                  final Future<String> linkFuture = _resolveJustWatchLink(
-                    regionCode: regionCode,
-                    mediaTypePath: mediaTypePath,
-                    title: widget.details.title,
-                    releaseDate: widget.details.releaseDate,
-                  );
-
-                  return FutureBuilder<String>(
-                    future: linkFuture,
-                    builder: (context, snapshot) {
-                      final String fallbackSlug = _slugify(
-                        widget.details.title,
-                      );
-                      final String fallbackJustWatchLink =
-                          'https://www.justwatch.com/$regionCode/$mediaTypePath/$fallbackSlug';
-                      final String justWatchPageLink =
-                          snapshot.data ?? fallbackJustWatchLink;
-                      final String launchLink =
-                          (canonicalLink != null && canonicalLink.isNotEmpty)
-                          ? canonicalLink
-                          : justWatchPageLink;
-                      final String resolverSourceLink =
-                          (canonicalLink != null && canonicalLink.isNotEmpty)
-                          ? canonicalLink
-                          : justWatchPageLink;
-                      return _WatchAvailabilitySection(
-                        availability: watchAvailability,
-                        launchLink: launchLink,
-                        resolverSourceLink: resolverSourceLink,
-                        resolverApiUrl: resolverApiUrl,
-                      );
-                    },
-                  );
-                },
-              ),
-            ),
-          ),
-
-        // Featured Crew
-        if (featuredCrew.isNotEmpty)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.only(top: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text(
-                      'Featured Crew',
-                      style: theme.textTheme.titleMedium?.copyWith(
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: widget.details.title,
+                      style: theme.textTheme.headlineSmall?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 14),
-                  SizedBox(
-                    height: 170, // Smaller than top billed cast
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: featuredCrew.length,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(width: 12),
-                      itemBuilder: (context, index) {
-                        final credit = featuredCrew[index];
-                        return MediaPosterGridCard(
-                          movie: MediaTitle(
-                            id: credit.id,
-                            title: credit.name,
-                            posterPath: credit.imageUrl,
-                            releaseDate: credit.role,
-                            mediaType: GlobalMediaType.person,
-                          ),
-                          sectionTitle: 'Crew',
-                          width: 80, // Smaller than 108
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                    if (releaseYear != null)
+                      TextSpan(
+                        text: ' ($releaseYear)',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.7),
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
               ),
             ),
           ),
 
-        // Divider
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-            child: Divider(
-              color: Colors.white.withValues(alpha: 0.1),
-              height: 1,
+          // User Score + Play Trailer
+          if (scorePercent != null)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _UserScoreIndicator(percent: scorePercent),
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'User Score',
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        if (widget.details.voteCount != null)
+                          Text(
+                            '${_formatNumber(widget.details.voteCount!)} votes',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: Colors.white.withValues(alpha: 0.6),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(width: 20),
+                    Container(
+                      width: 1,
+                      height: 32,
+                      color: Colors.white.withValues(alpha: 0.2),
+                    ),
+                    const SizedBox(width: 16),
+                    TextButton.icon(
+                      onPressed: widget.details.trailerYouTubeKey == null
+                          ? null
+                          : () => _showTrailer(context, widget.details),
+                      iconAlignment: IconAlignment.start,
+                      icon: Icon(
+                        Icons.play_arrow_rounded,
+                        color: widget.details.trailerYouTubeKey == null
+                            ? Colors.white.withValues(alpha: 0.2)
+                            : Colors.white,
+                        size: 24,
+                      ),
+                      label: Text(
+                        'Play Trailer',
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          color: widget.details.trailerYouTubeKey == null
+                              ? Colors.white.withValues(alpha: 0.4)
+                              : Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
 
-        // Top Billed Cast
-        if (widget.details.cast.isNotEmpty)
+          if (externalRatings.isNotEmpty || userRating != null)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+                child: _ExternalRatingsRow(
+                  ratings: externalRatings,
+                  userRating: userRating,
+                ),
+              ),
+            ),
+          if (widget.details.hasSocialHandles)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+                child: _SocialLinksRow(details: widget.details),
+              ),
+            ),
+
+          SliverToBoxAdapter(child: _AwardsSection(details: widget.details)),
+
+          // Meta info line
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.only(top: 20),
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.detailsCard.withValues(alpha: 0.6),
+                  border: const Border.symmetric(
+                    horizontal: BorderSide(color: Colors.white10),
+                  ),
+                ),
+                child: Text(
+                  _buildMetaLine(widget.details),
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.85),
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: _ContentAdvisoryCard(
+              contentRating: widget.details.contentRating,
+              contentRatingDescription: widget.details.contentRatingDescription,
+              overview: widget.details.overview,
+            ),
+          ),
+
+          // Current Season Section
+          if (widget.isTv && widget.details.seasons.isNotEmpty)
+            SliverToBoxAdapter(
+              child: _CurrentSeasonSection(details: widget.details),
+            ),
+
+          // Tagline
+          if (widget.details.tagline != null &&
+              widget.details.tagline!.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                child: Text(
+                  widget.details.tagline!,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.75),
+                    fontStyle: FontStyle.italic,
+                    height: 1.4,
+                  ),
+                ),
+              ),
+            ),
+
+          // Overview
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Top Billed Cast',
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Overview',
                           style: theme.textTheme.titleLarge?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
-                        FullCastCrewChip(
-                          title: widget.details.title,
-                          cast: widget.details.cast,
-                          crew: widget.details.crew,
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 14),
-                  SizedBox(
-                    height: 220,
-                    child: ListView.separated(
-                      scrollDirection: Axis.horizontal,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      itemCount: math.min(widget.details.cast.length, 10),
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(width: 12),
-                      itemBuilder: (context, index) {
-                        final credit = widget.details.cast[index];
-                        return MediaPosterGridCard(
-                          movie: MediaTitle(
-                            id: credit.id,
-                            title: credit.name,
-                            posterPath: credit.imageUrl,
-                            releaseDate: credit.characterName ?? credit.role,
-                            mediaType: GlobalMediaType.person,
+                      ),
+                      if ((widget.details.imdbId ?? '').trim().isNotEmpty)
+                        TextButton.icon(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute<void>(
+                                builder: (_) => FullPlotScreen(
+                                  imdbId: widget.details.imdbId!.trim(),
+                                  fallbackTitle: widget.details.title,
+                                  posterPath: widget.details.posterPath,
+                                  releaseDate: widget.details.releaseDate,
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.menu_book_rounded, size: 16),
+                          label: const Text('Full plot'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.cinemaAccent,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 8,
+                            ),
+                            textStyle: theme.textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
                           ),
-                          sectionTitle: 'Cast',
-                          width: 108,
-                        );
-                      },
+                        ),
+                    ],
+                  ),
+                  if ((widget.details.imdbId ?? '').trim().isNotEmpty)
+                    Text(
+                      'Open complete plot and extra metadata from OMDb.',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: Colors.white54,
+                      ),
+                    ),
+                  const SizedBox(height: 10),
+                  Text(
+                    widget.details.overview ??
+                        'Overview unavailable for this title.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      height: 1.45,
                     ),
                   ),
                 ],
@@ -865,87 +727,342 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
             ),
           ),
 
-        // Images Section
-        SliverToBoxAdapter(
-          child: _ImagesCarousel(movieId: widget.details.id, isTv: widget.isTv),
-        ),
-
-        // Divider
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-            child: Divider(
-              color: Colors.white.withValues(alpha: 0.1),
-              height: 1,
-            ),
-          ),
-        ),
-
-        // Reviews
-        SliverToBoxAdapter(
-          child: _ReviewsSnippet(mediaId: widget.details.id, isTv: widget.isTv),
-        ),
-
-        if (widget.details.recommendations.isNotEmpty)
           SliverToBoxAdapter(
-            child: _RecommendationsCarousel(
-              movieId: widget.details.id,
-              initialItems: widget.details.recommendations,
+            child: _KeywordsThemesSection(keywords: widget.details.keywords),
+          ),
+
+          SliverToBoxAdapter(
+            child: _TrailersClipsSection(
+              videos: widget.details.videos,
+              movieTitle: widget.details.title,
+              details: widget.details,
               isTv: widget.isTv,
             ),
           ),
 
-        // Quotes Section
-        SliverToBoxAdapter(
-          child: QuotesCarousel(details: widget.details, isTv: widget.isTv),
-        ),
+          SliverToBoxAdapter(
+            child: _ProductionCompaniesSection(
+              companies: widget.details.productionCompanies,
+            ),
+          ),
 
-        // Additional Info
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
-            child: Divider(
-              color: Colors.white.withValues(alpha: 0.1),
-              height: 1,
+          if (!widget.isTv &&
+              widget.details.budget != null &&
+              widget.details.budget! > 0 &&
+              widget.details.revenue != null &&
+              widget.details.revenue! > 0)
+            SliverToBoxAdapter(
+              child: _BoxOfficeSuccessCard(
+                budget: widget.details.budget!,
+                revenue: widget.details.revenue!,
+              ),
+            ),
+
+          if (widget.isTv)
+            SliverToBoxAdapter(
+              child: _TvEpisodeTrackerCard(
+                showId: widget.details.id,
+                showTitle: widget.details.title,
+                backdropPath:
+                    widget.details.backdropPath ?? widget.details.posterPath,
+                status: widget.details.status,
+                lastEpisode: widget.details.lastEpisodeToAir,
+                nextEpisode: widget.details.nextEpisodeToAir,
+              ),
+            ),
+
+          if (!widget.isTv)
+            SliverToBoxAdapter(
+              child: _ReleaseAlertTimeline(
+                movieId: widget.details.id,
+                isTv: widget.isTv,
+                title: widget.details.title,
+                theatricalDate: widget.details.releaseDate,
+                digitalDate: widget.details.digitalReleaseDate,
+                physicalDate: widget.details.physicalReleaseDate,
+              ),
+            ),
+
+          if (!widget.isTv && widget.details.belongsToCollection != null)
+            SliverToBoxAdapter(
+              child: _MovieCollectionSection(
+                belongsToCollection: widget.details.belongsToCollection!,
+              ),
+            ),
+
+          // Where to Watch
+          if (hasWatchAvailability)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                child: Consumer(
+                  builder: (context, ref, _) {
+                    final String resolverApiUrl = ref
+                        .watch(appConfigProvider)
+                        .watchProviderResolverApiUrl
+                        .trim();
+                    final String? canonicalLink = watchAvailability!.link;
+                    final regionCode = ref
+                        .watch(preferredRegionCodeProvider)
+                        .toLowerCase();
+                    final mediaTypePath = widget.isTv ? 'tv-show' : 'movie';
+                    final Future<String> linkFuture = _resolveJustWatchLink(
+                      regionCode: regionCode,
+                      mediaTypePath: mediaTypePath,
+                      title: widget.details.title,
+                      releaseDate: widget.details.releaseDate,
+                    );
+
+                    return FutureBuilder<String>(
+                      future: linkFuture,
+                      builder: (context, snapshot) {
+                        final String fallbackSlug = _slugify(
+                          widget.details.title,
+                        );
+                        final String fallbackJustWatchLink =
+                            'https://www.justwatch.com/$regionCode/$mediaTypePath/$fallbackSlug';
+                        final String justWatchPageLink =
+                            snapshot.data ?? fallbackJustWatchLink;
+                        final String launchLink =
+                            (canonicalLink != null && canonicalLink.isNotEmpty)
+                            ? canonicalLink
+                            : justWatchPageLink;
+                        final String resolverSourceLink =
+                            (canonicalLink != null && canonicalLink.isNotEmpty)
+                            ? canonicalLink
+                            : justWatchPageLink;
+                        return _WatchAvailabilitySection(
+                          availability: watchAvailability,
+                          launchLink: launchLink,
+                          resolverSourceLink: resolverSourceLink,
+                          resolverApiUrl: resolverApiUrl,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ),
+
+          // Featured Crew
+          if (featuredCrew.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(
+                        'Featured Crew',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    SizedBox(
+                      height: 170, // Smaller than top billed cast
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: featuredCrew.length,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          final credit = featuredCrew[index];
+                          return MediaPosterGridCard(
+                            movie: MediaTitle(
+                              id: credit.id,
+                              title: credit.name,
+                              posterPath: credit.imageUrl,
+                              releaseDate: credit.role,
+                              mediaType: GlobalMediaType.person,
+                            ),
+                            sectionTitle: 'Crew',
+                            width: 80, // Smaller than 108
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Divider
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+              child: Divider(
+                color: Colors.white.withValues(alpha: 0.1),
+                height: 1,
+              ),
             ),
           ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (widget.details.status != null)
-                  _InfoRow(label: 'Status', value: widget.details.status!),
-                if (widget.details.originalLanguage != null)
-                  _InfoRow(
-                    label: 'Original Language',
-                    value: _formatLanguage(widget.details.originalLanguage!),
-                  ),
-                if (widget.details.budget != null && widget.details.budget! > 0)
-                  _InfoRow(
-                    label: 'Budget',
-                    value: _formatCurrency(widget.details.budget!),
-                  ),
-                if (widget.details.revenue != null &&
-                    widget.details.revenue! > 0)
-                  _InfoRow(
-                    label: 'Revenue',
-                    value: _formatCurrency(widget.details.revenue!),
-                  ),
-              ],
+
+          // Top Billed Cast
+          if (widget.details.cast.isNotEmpty)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Top Billed Cast',
+                            style: theme.textTheme.titleLarge?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          FullCastCrewChip(
+                            title: widget.details.title,
+                            cast: widget.details.cast,
+                            crew: widget.details.crew,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    SizedBox(
+                      height: 220,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: math.min(widget.details.cast.length, 10),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          final credit = widget.details.cast[index];
+                          return MediaPosterGridCard(
+                            movie: MediaTitle(
+                              id: credit.id,
+                              title: credit.name,
+                              posterPath: credit.imageUrl,
+                              releaseDate: credit.characterName ?? credit.role,
+                              mediaType: GlobalMediaType.person,
+                            ),
+                            sectionTitle: 'Cast',
+                            width: 108,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Images Section
+          SliverToBoxAdapter(
+            child: _ImagesCarousel(
+              movieId: widget.details.id,
+              isTv: widget.isTv,
             ),
           ),
-        ),
-        SliverToBoxAdapter(
-          child: _NotesSection(
-            mediaId: widget.details.id,
-            mediaType: widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
+
+          // Divider
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+              child: Divider(
+                color: Colors.white.withValues(alpha: 0.1),
+                height: 1,
+              ),
+            ),
           ),
-        ),
-      ],
+
+          // Reviews
+          SliverToBoxAdapter(
+            child: _ReviewsSnippet(
+              mediaId: widget.details.id,
+              isTv: widget.isTv,
+            ),
+          ),
+
+          if (widget.details.recommendations.isNotEmpty)
+            SliverToBoxAdapter(
+              child: _RecommendationsCarousel(
+                movieId: widget.details.id,
+                initialItems: widget.details.recommendations,
+                isTv: widget.isTv,
+              ),
+            ),
+
+          // Quotes Section
+          SliverToBoxAdapter(
+            child: QuotesCarousel(details: widget.details, isTv: widget.isTv),
+          ),
+
+          // Additional Info
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+              child: Divider(
+                color: Colors.white.withValues(alpha: 0.1),
+                height: 1,
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 40),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (widget.details.status != null)
+                    _InfoRow(label: 'Status', value: widget.details.status!),
+                  if (widget.details.originalLanguage != null)
+                    _InfoRow(
+                      label: 'Original Language',
+                      value: _formatLanguage(widget.details.originalLanguage!),
+                    ),
+                  if (widget.details.budget != null &&
+                      widget.details.budget! > 0)
+                    _InfoRow(
+                      label: 'Budget',
+                      value: _formatCurrency(widget.details.budget!),
+                    ),
+                  if (widget.details.revenue != null &&
+                      widget.details.revenue! > 0)
+                    _InfoRow(
+                      label: 'Revenue',
+                      value: _formatCurrency(widget.details.revenue!),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: _NotesSection(
+              mediaId: widget.details.id,
+              mediaType: widget.isTv
+                  ? GlobalMediaType.tv
+                  : GlobalMediaType.movie,
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  Future<void> _handleBackNavigation() async {
+    if (!mounted) {
+      return;
+    }
+    if (context.canPop()) {
+      context.pop();
+      return;
+    }
+    context.goNamed(AppRoute.explore.name);
   }
 
   void _showTrailer(BuildContext context, MovieDetails details) {
@@ -1079,7 +1196,10 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
       parts.add(details.contentRating!);
     }
     if (details.releaseDate != null) {
-      parts.add('${details.releaseDate!} (US)');
+      final countrySuffix = details.productionCountries.isNotEmpty
+          ? details.productionCountries.first
+          : 'US';
+      parts.add('${details.releaseDate!} ($countrySuffix)');
     }
     if (details.runtimeMinutes != null && details.runtimeMinutes! > 0) {
       final int hours = details.runtimeMinutes! ~/ 60;
@@ -1342,6 +1462,169 @@ class _ExternalRatingsRow extends StatelessWidget {
       alignment: WrapAlignment.center,
       children: chips,
     );
+  }
+}
+
+class _SocialLinksRow extends StatelessWidget {
+  const _SocialLinksRow({required this.details});
+
+  final MovieDetails details;
+
+  @override
+  Widget build(BuildContext context) {
+    final List<_SocialLinkItem> links =
+        <_SocialLinkItem>[
+              _SocialLinkItem(
+                label: 'Instagram',
+                icon: const FaIcon(FontAwesomeIcons.instagram),
+                url: _socialProfileUrl('instagram', details.instagramId),
+              ),
+              _SocialLinkItem(
+                label: 'X',
+                icon: const FaIcon(FontAwesomeIcons.xTwitter),
+                url: _socialProfileUrl('x', details.twitterId),
+              ),
+              _SocialLinkItem(
+                label: 'Facebook',
+                icon: const FaIcon(FontAwesomeIcons.facebook),
+                url: _socialProfileUrl('facebook', details.facebookId),
+              ),
+              _SocialLinkItem(
+                label: 'TikTok',
+                icon: const FaIcon(FontAwesomeIcons.tiktok),
+                url: _socialProfileUrl('tiktok', details.tiktokId),
+              ),
+              _SocialLinkItem(
+                label: 'YouTube',
+                icon: const FaIcon(FontAwesomeIcons.youtube),
+                url: _socialProfileUrl('youtube', details.youtubeId),
+              ),
+            ]
+            .where((item) => item.url != null && item.url!.isNotEmpty)
+            .toList(growable: false);
+
+    if (links.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      alignment: WrapAlignment.center,
+      runAlignment: WrapAlignment.center,
+      children: links
+          .map(
+            (link) => _SocialLinkChip(
+              label: link.label,
+              icon: link.icon,
+              url: link.url!,
+            ),
+          )
+          .toList(growable: false),
+    );
+  }
+}
+
+class _SocialLinkItem {
+  const _SocialLinkItem({
+    required this.label,
+    required this.icon,
+    required this.url,
+  });
+
+  final String label;
+  final Widget icon;
+  final String? url;
+}
+
+class _SocialLinkChip extends StatelessWidget {
+  const _SocialLinkChip({
+    required this.label,
+    required this.icon,
+    required this.url,
+  });
+
+  final String label;
+  final Widget icon;
+  final String url;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: AppColors.detailsCard.withValues(alpha: 0.7),
+      borderRadius: BorderRadius.circular(999),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () async {
+          final Uri uri = Uri.parse(url);
+          try {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          } catch (e) {
+            debugPrint('Could not launch $url: $e');
+          }
+        },
+        child: Container(
+          height: 34,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconTheme(
+                data: IconThemeData(
+                  size: 15.5,
+                  color: Colors.white.withValues(alpha: 0.92),
+                ),
+                child: icon,
+              ),
+              const SizedBox(width: 7),
+              Text(
+                label,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+String? _socialProfileUrl(String platform, String? rawId) {
+  final String id = (rawId ?? '').trim();
+  if (id.isEmpty) return null;
+  switch (platform) {
+    case 'instagram':
+      return 'https://www.instagram.com/$id';
+    case 'x':
+      return 'https://x.com/$id';
+    case 'facebook':
+      return 'https://www.facebook.com/$id';
+    case 'tiktok':
+      final String handle = id.startsWith('@') ? id : '@$id';
+      return 'https://www.tiktok.com/$handle';
+    case 'youtube':
+      if (id.startsWith('UC')) {
+        return 'https://www.youtube.com/channel/$id';
+      }
+      final String handle = id.startsWith('@') ? id : '@$id';
+      return 'https://www.youtube.com/$handle';
+    case 'imdb':
+      if (id.startsWith('tt')) {
+        return 'https://www.imdb.com/title/$id/';
+      }
+      if (id.startsWith('nm')) {
+        return 'https://www.imdb.com/name/$id/';
+      }
+      return null;
+    default:
+      return null;
   }
 }
 
@@ -1769,7 +2052,7 @@ Future<String?> _resolveProviderLinkWithDialog({
     dialogRoute = DialogRoute<void>(
       context: context,
       barrierDismissible: false,
-      barrierColor: Colors.black.withValues(alpha: 0.52),
+      barrierColor: AppColors.cinemaBackground.withValues(alpha: 0.62),
       builder: (_) => const _WatchProviderLinkLoadingDialog(),
     );
     dialogNavigator?.push(dialogRoute!);
@@ -1828,12 +2111,18 @@ class _WatchProviderLinkLoadingDialogState
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: <Color>[const Color(0xFF121D36), const Color(0xFF0E1A28)],
+              colors: <Color>[
+                AppColors.cinemaPanelTop.withValues(alpha: 0.97),
+                AppColors.cinemaPanelMid.withValues(alpha: 0.97),
+                AppColors.cinemaPanelBottom.withValues(alpha: 0.97),
+              ],
             ),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-            boxShadow: const <BoxShadow>[
+            border: Border.all(
+              color: AppColors.cinemaBorder.withValues(alpha: 0.45),
+            ),
+            boxShadow: <BoxShadow>[
               BoxShadow(
-                color: Color(0x66000000),
+                color: AppColors.detailsCardShadow.withValues(alpha: 0.55),
                 blurRadius: 24,
                 offset: Offset(0, 10),
               ),
@@ -1911,10 +2200,7 @@ class _WatchProviderLinkLoadingDialogState
 }
 
 class _MovieDetailsKenBurnsImage extends StatefulWidget {
-  const _MovieDetailsKenBurnsImage({
-    super.key,
-    required this.imageUrl,
-  });
+  const _MovieDetailsKenBurnsImage({super.key, required this.imageUrl});
 
   final String imageUrl;
 
@@ -2003,12 +2289,10 @@ class _MovieDetailsKenBurnsImageState extends State<_MovieDetailsKenBurnsImage>
           fit: BoxFit.cover,
           width: double.infinity,
           height: double.infinity,
-          placeholder: (context, url) => ColoredBox(
-            color: AppColors.detailsBackdropPlaceholder,
-          ),
-          errorWidget: (context, url, error) => ColoredBox(
-            color: AppColors.detailsBackdropPlaceholder,
-          ),
+          placeholder: (context, url) =>
+              ColoredBox(color: AppColors.detailsBackdropPlaceholder),
+          errorWidget: (context, url, error) =>
+              ColoredBox(color: AppColors.detailsBackdropPlaceholder),
         ),
       ),
     );
@@ -2285,7 +2569,9 @@ class _WatchedButton extends ConsumerWidget {
         icon: isWatched
             ? Icons.check_circle_rounded
             : Icons.check_circle_outline_rounded,
-        iconColor: isWatched ? AppColors.cinemaAccent : Colors.white,
+        iconColor: Colors.white,
+        activeIconColor: AppColors.cinemaAccent,
+        isActive: isWatched,
       ),
       loading: () => const _CircleActionShimmer(),
       error: (_, _) => const SizedBox.shrink(),
@@ -2332,17 +2618,19 @@ class _GeneralReminderButton extends ConsumerWidget {
       icon: hasActiveReminder
           ? Icons.notifications_active_rounded
           : Icons.notifications_none_rounded,
-      iconColor: hasActiveReminder ? const Color(0xFFFFC857) : Colors.white,
+      iconColor: Colors.white,
+      activeIconColor: AppColors.cinemaWarmGlow,
+      isActive: hasActiveReminder,
       onPressed: () => _showReminderDialog(context, ref),
     );
   }
 
   Future<void> _showReminderDialog(BuildContext context, WidgetRef ref) async {
-    final _GeneralReminderDialogResult? result =
-        await showDialog<_GeneralReminderDialogResult>(
+    final GeneralReminderDialogResult? result =
+        await showAnimatedDialog<GeneralReminderDialogResult>(
           context: context,
           barrierDismissible: false,
-          builder: (_) => const _GeneralReminderDialog(),
+          builder: (_) => const GeneralReminderDialog(),
         );
 
     if (result == null || !context.mounted) {
@@ -2363,7 +2651,7 @@ class _GeneralReminderButton extends ConsumerWidget {
             createdAt: DateTime.now(),
             mediaId: details.id,
             isTv: isTv,
-            backdropPath: details.backdropPath,
+            backdropPath: details.backdropPath ?? details.posterPath,
           ),
         );
 
@@ -2373,8 +2661,8 @@ class _GeneralReminderButton extends ConsumerWidget {
   }
 }
 
-class _GeneralReminderDialogResult {
-  const _GeneralReminderDialogResult({
+class GeneralReminderDialogResult {
+  const GeneralReminderDialogResult({
     required this.reminderText,
     required this.notifyAt,
   });
@@ -2383,14 +2671,14 @@ class _GeneralReminderDialogResult {
   final DateTime notifyAt;
 }
 
-class _GeneralReminderDialog extends StatefulWidget {
-  const _GeneralReminderDialog();
+class GeneralReminderDialog extends StatefulWidget {
+  const GeneralReminderDialog({super.key});
 
   @override
-  State<_GeneralReminderDialog> createState() => _GeneralReminderDialogState();
+  State<GeneralReminderDialog> createState() => GeneralReminderDialogState();
 }
 
-class _GeneralReminderDialogState extends State<_GeneralReminderDialog> {
+class GeneralReminderDialogState extends State<GeneralReminderDialog> {
   late final TextEditingController _textController;
   late DateTime _selectedDateTime;
 
@@ -2448,7 +2736,7 @@ class _GeneralReminderDialogState extends State<_GeneralReminderDialog> {
     }
 
     Navigator.of(context).pop(
-      _GeneralReminderDialogResult(
+      GeneralReminderDialogResult(
         reminderText: reminderText,
         notifyAt: _selectedDateTime,
       ),
@@ -2460,50 +2748,83 @@ class _GeneralReminderDialogState extends State<_GeneralReminderDialog> {
     final ThemeData theme = Theme.of(context);
     return AlertDialog(
       backgroundColor: AppColors.detailsCard,
-      title: const Text('Set Reminder', style: TextStyle(color: Colors.white)),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.08), width: 1),
+      ),
+      title: Text(
+        'Set Reminder',
+        style: theme.textTheme.titleMedium?.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextField(
             controller: _textController,
-            style: const TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white, fontSize: 14),
             maxLines: 2,
             decoration: InputDecoration(
-              hintText: 'Reminder text',
-              hintStyle: const TextStyle(color: Colors.white54),
+              hintText: 'Add a brief note (optional)...',
+              hintStyle: const TextStyle(color: Colors.white38),
               filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.06),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide.none,
+              fillColor: Colors.white.withValues(alpha: 0.03),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.white10),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(
+                  color: AppColors.cinemaAccent,
+                  width: 1.5,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Text(
             'Notify at',
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: theme.textTheme.labelMedium?.copyWith(
               color: Colors.white70,
-              fontWeight: FontWeight.w600,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
           InkWell(
             onTap: _pickDateTime,
-            child: Container(
+            borderRadius: BorderRadius.circular(12),
+            child: Ink(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(10),
+                color: Colors.white.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: Colors.white10),
               ),
-              child: Text(
-                DateFormat(
-                  'EEE, d MMM yyyy • hh:mm a',
-                ).format(_selectedDateTime),
-                style: const TextStyle(color: Colors.white),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      DateFormat(
+                        'EEE, d MMM yyyy • hh:mm a',
+                      ).format(_selectedDateTime),
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ),
+                  Icon(
+                    Icons.calendar_today_rounded,
+                    color: AppColors.cinemaAccent,
+                    size: 16,
+                  ),
+                ],
               ),
             ),
           ),
@@ -2512,9 +2833,28 @@ class _GeneralReminderDialogState extends State<_GeneralReminderDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+          style: TextButton.styleFrom(foregroundColor: Colors.white60),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
         ),
-        ElevatedButton(onPressed: _save, child: const Text('Save')),
+        ElevatedButton(
+          onPressed: _save,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.cinemaAccent,
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            elevation: 0,
+          ),
+          child: const Text(
+            'Save',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
       ],
     );
   }
@@ -2698,20 +3038,31 @@ class _NoteItem extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.detailsCard,
-        title: const Text(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
+        title: Text(
           'Delete Note?',
-          style: TextStyle(color: Colors.white),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         content: const Text(
           'Are you sure you want to delete this note?',
-          style: TextStyle(color: Colors.white70),
+          style: TextStyle(color: Colors.white70, fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(foregroundColor: Colors.white60),
             child: const Text(
               'Cancel',
-              style: TextStyle(color: Colors.white70),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           TextButton(
@@ -2721,9 +3072,10 @@ class _NoteItem extends ConsumerWidget {
                   .deleteNote(note.movieId, note.mediaType, note.id);
               Navigator.pop(context);
             },
+            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
             child: const Text(
               'Delete',
-              style: TextStyle(color: Colors.redAccent),
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -3056,7 +3408,9 @@ class _LibraryFavouriteButton extends ConsumerWidget {
 
     return _CircleActionButton(
       icon: isFav ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
-      iconColor: isFav ? Colors.redAccent : Colors.white,
+      iconColor: Colors.white,
+      activeIconColor: AppColors.cinemaAccent,
+      isActive: isFav,
       onPressed: () async {
         final item = FavouriteItem(
           id: details.id,
@@ -3091,7 +3445,9 @@ class _LibraryWatchlistButton extends ConsumerWidget {
     return isInWatchlistAsync.when(
       data: (isAdded) => _CircleActionButton(
         icon: isAdded ? Icons.bookmark_rounded : Icons.bookmark_add_outlined,
-        iconColor: isAdded ? AppColors.cinemaAccent : Colors.white,
+        iconColor: Colors.white,
+        activeIconColor: AppColors.cinemaAccent,
+        isActive: isAdded,
         onPressed: () async {
           final item = WatchlistItem(
             id: details.id,
@@ -3122,26 +3478,48 @@ class _CircleActionButton extends StatelessWidget {
     required this.icon,
     required this.onPressed,
     this.iconColor = Colors.white,
+    this.activeIconColor,
+    this.isActive = false,
   });
 
   final IconData icon;
   final VoidCallback onPressed;
   final Color iconColor;
+  final Color? activeIconColor;
+  final bool isActive;
 
   @override
   Widget build(BuildContext context) {
+    final Color effectiveIconColor = isActive
+        ? (activeIconColor ?? AppColors.cinemaAccent)
+        : iconColor;
+    final Color surfaceColor = Color.alphaBlend(
+      Colors.white.withValues(alpha: isActive ? 0.06 : 0.03),
+      AppColors.detailsCard.withValues(alpha: 0.95),
+    );
+    final Color borderColor = isActive
+        ? AppColors.cinemaAccent.withValues(alpha: 0.48)
+        : Colors.white.withValues(alpha: 0.14);
+
     return Material(
-      color: const Color(0xFF032541), // Deep blue from image
+      color: surfaceColor,
       shape: const CircleBorder(),
-      elevation: 4,
+      shadowColor: AppColors.detailsCardShadow.withValues(alpha: 0.55),
+      elevation: isActive ? 8 : 4,
       child: InkWell(
         onTap: onPressed,
         customBorder: const CircleBorder(),
-        child: Container(
-          width: 40,
-          height: 40,
-          alignment: Alignment.center,
-          child: Icon(icon, color: iconColor, size: 20),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(color: borderColor),
+          ),
+          child: Container(
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            child: Icon(icon, color: effectiveIconColor, size: 20),
+          ),
         ),
       ),
     );
@@ -3330,7 +3708,11 @@ class _AwardsSection extends ConsumerWidget {
 
     // If awards info is not pre-fetched, but we have imdbId, load it lazily.
     if (imdbId != null && imdbId.isNotEmpty) {
-      final awardsAsync = ref.watch(movieAwardsProvider(imdbId));
+      final awardsAsync = ref.watch(
+        movieAwardsProvider(
+          MovieAwardsRequest(movieId: details.id, imdbId: imdbId),
+        ),
+      );
       return awardsAsync.when(
         data: (MovieAwards parsed) {
           if (!parsed.hasAwards) return const SizedBox.shrink();
@@ -3690,6 +4072,7 @@ class _TvEpisodeTrackerCard extends ConsumerStatefulWidget {
   const _TvEpisodeTrackerCard({
     required this.showId,
     required this.showTitle,
+    this.backdropPath,
     required this.status,
     this.lastEpisode,
     this.nextEpisode,
@@ -3697,6 +4080,7 @@ class _TvEpisodeTrackerCard extends ConsumerStatefulWidget {
 
   final int showId;
   final String showTitle;
+  final String? backdropPath;
   final String? status;
   final TvEpisode? lastEpisode;
   final TvEpisode? nextEpisode;
@@ -3798,7 +4182,7 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
     try {
       String hoursInput = maxHours >= 6 ? '6' : '$maxHours';
 
-      final int? hoursBefore = await showDialog<int>(
+      final int? hoursBefore = await showAnimatedDialog<int>(
         context: context,
         barrierDismissible: false,
         builder: (dialogContext) {
@@ -3806,9 +4190,20 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
             builder: (dialogContext, setDialogState) {
               return AlertDialog(
                 backgroundColor: AppColors.detailsCard,
-                title: const Text(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    width: 1,
+                  ),
+                ),
+                title: Text(
                   'Episode Reminder',
-                  style: TextStyle(color: Colors.white),
+                  style: Theme.of(dialogContext).textTheme.titleMedium
+                      ?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -3816,15 +4211,14 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
                   children: [
                     Text(
                       'Notify how many hours before airing?',
-                      style: Theme.of(
-                        dialogContext,
-                      ).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                      style: Theme.of(dialogContext).textTheme.bodyMedium
+                          ?.copyWith(color: Colors.white70, fontSize: 14),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       initialValue: hoursInput,
                       keyboardType: TextInputType.number,
-                      style: const TextStyle(color: Colors.white),
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
                       onChanged: (value) {
                         setDialogState(() {
                           hoursInput = value;
@@ -3832,14 +4226,25 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
                       },
                       decoration: InputDecoration(
                         hintText: 'Hours before air time',
-                        hintStyle: const TextStyle(color: Colors.white54),
+                        hintStyle: const TextStyle(color: Colors.white38),
                         helperText: 'Choose between 1 and $maxHours',
                         helperStyle: const TextStyle(color: Colors.white54),
                         filled: true,
-                        fillColor: Colors.white.withValues(alpha: 0.06),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: BorderSide.none,
+                        fillColor: Colors.white.withValues(alpha: 0.03),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Colors.white10),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: AppColors.cinemaAccent,
+                            width: 1.5,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
                         ),
                       ),
                     ),
@@ -3848,9 +4253,12 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(dialogContext).pop(),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.white60,
+                    ),
                     child: const Text(
                       'Cancel',
-                      style: TextStyle(color: Colors.white70),
+                      style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
                   ElevatedButton(
@@ -3865,7 +4273,22 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
                       }
                       Navigator.of(dialogContext).pop(parsed);
                     },
-                    child: const Text('Set'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.cinemaAccent,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Set',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ],
               );
@@ -3905,7 +4328,7 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
               createdAt: DateTime.now(),
               mediaId: widget.showId,
               isTv: true,
-              backdropPath: null,
+              backdropPath: widget.backdropPath,
               seasonNumber: episode.seasonNumber,
               episodeNumber: episode.episodeNumber,
               airDate: nextAirDate,
@@ -4462,7 +4885,7 @@ class _ContentAdvisoryCard extends StatelessWidget {
   }
 }
 
-class _ReleaseAlertTimeline extends StatefulWidget {
+class _ReleaseAlertTimeline extends ConsumerStatefulWidget {
   const _ReleaseAlertTimeline({
     required this.movieId,
     required this.isTv,
@@ -4480,10 +4903,11 @@ class _ReleaseAlertTimeline extends StatefulWidget {
   final String? physicalDate;
 
   @override
-  State<_ReleaseAlertTimeline> createState() => _ReleaseAlertTimelineState();
+  ConsumerState<_ReleaseAlertTimeline> createState() =>
+      _ReleaseAlertTimelineState();
 }
 
-class _ReleaseAlertTimelineState extends State<_ReleaseAlertTimeline> {
+class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
   bool _isSubscribed = false;
   bool _isLoading = true;
 
@@ -4516,17 +4940,64 @@ class _ReleaseAlertTimelineState extends State<_ReleaseAlertTimeline> {
   Future<void> _toggleSubscription(bool value) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final key =
-          'notify_release_${widget.isTv ? "tv" : "movie"}_${widget.movieId}';
+      final key = _releaseReminderId;
       await prefs.setBool(key, value);
       setState(() {
         _isSubscribed = value;
       });
 
+      if (value) {
+        final DateTime notifyAt = _resolveReleaseNotifyAt();
+        final DateFormat formatter = DateFormat('MMM d, yyyy');
+        await ref.read(remindersProvider.notifier).dismissReminder(key);
+        await ref
+            .read(remindersProvider.notifier)
+            .addReminder(
+              AppReminder(
+                id: key,
+                type: ReminderType.general,
+                title: '${widget.title} release alert',
+                message:
+                    'Release watch alert set for ${formatter.format(notifyAt)}. '
+                    'We will notify you when it is out.',
+                notifyAt: notifyAt,
+                createdAt: DateTime.now(),
+                mediaId: widget.movieId,
+                isTv: widget.isTv,
+              ),
+            );
+      } else {
+        await ref.read(remindersProvider.notifier).dismissReminder(key);
+      }
+
       if (value && mounted) {
         _showSuccessDialog();
       }
     } catch (_) {}
+  }
+
+  String get _releaseReminderId =>
+      'notify_release_${widget.isTv ? "tv" : "movie"}_${widget.movieId}';
+
+  DateTime _resolveReleaseNotifyAt() {
+    final DateTime now = DateTime.now();
+    final List<DateTime> candidates =
+        <String?>[
+              widget.theatricalDate,
+              widget.digitalDate,
+              widget.physicalDate,
+            ]
+            .map((value) => value == null ? null : DateTime.tryParse(value))
+            .whereType<DateTime>()
+            .map((date) => DateTime(date.year, date.month, date.day, 9))
+            .where((date) => date.isAfter(now))
+            .toList(growable: false)
+          ..sort((a, b) => a.compareTo(b));
+
+    if (candidates.isNotEmpty) {
+      return candidates.first;
+    }
+    return now.add(const Duration(minutes: 1));
   }
 
   void _showSuccessDialog() {
@@ -4537,8 +5008,11 @@ class _ReleaseAlertTimelineState extends State<_ReleaseAlertTimeline> {
         return AlertDialog(
           backgroundColor: AppColors.detailsCard,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: const BorderSide(color: Colors.white10),
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(
+              color: Colors.white.withValues(alpha: 0.08),
+              width: 1,
+            ),
           ),
           title: Row(
             children: [
@@ -4551,7 +5025,7 @@ class _ReleaseAlertTimelineState extends State<_ReleaseAlertTimeline> {
               Expanded(
                 child: Text(
                   'Alert Set!',
-                  style: theme.textTheme.titleLarge?.copyWith(
+                  style: theme.textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
@@ -4561,17 +5035,20 @@ class _ReleaseAlertTimelineState extends State<_ReleaseAlertTimeline> {
           ),
           content: Text(
             'We\'ll notify you as soon as "${widget.title}" is released digitally or on Blu-ray/DVD!',
-            style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: Colors.white70,
+              fontSize: 14,
+            ),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.cinemaAccent,
+              ),
+              child: const Text(
                 'Awesome',
-                style: TextStyle(
-                  color: AppColors.cinemaAccent,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -4648,19 +5125,13 @@ class _ReleaseAlertTimelineState extends State<_ReleaseAlertTimeline> {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      SizedBox(
-                        height: 24,
-                        width: 40,
-                        child: FittedBox(
-                          fit: BoxFit.fill,
-                          child: Switch.adaptive(
-                            value: _isSubscribed,
-                            onChanged: _toggleSubscription,
-                            activeThumbColor: AppColors.cinemaAccent,
-                            activeTrackColor: AppColors.cinemaAccent.withValues(
-                              alpha: 0.3,
-                            ),
-                          ),
+                      Switch.adaptive(
+                        value: _isSubscribed,
+                        onChanged: _toggleSubscription,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        activeThumbColor: AppColors.cinemaAccent,
+                        activeTrackColor: AppColors.cinemaAccent.withValues(
+                          alpha: 0.3,
                         ),
                       ),
                     ],
@@ -4769,7 +5240,6 @@ class _TimelineItem extends StatelessWidget {
                       color: isCompleted
                           ? const Color(0xFF00E676)
                           : Colors.white38,
-                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -4777,6 +5247,566 @@ class _TimelineItem extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _MovieCollectionSection extends ConsumerWidget {
+  const _MovieCollectionSection({required this.belongsToCollection});
+
+  final MovieCollectionInfo belongsToCollection;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final collectionAsync = ref.watch(
+      movieCollectionProvider(belongsToCollection.id),
+    );
+    final watchedItemsAsync = ref.watch(watchedItemsProvider);
+    final theme = Theme.of(context);
+
+    return collectionAsync.when(
+      data: (parts) {
+        if (parts.isEmpty) return const SizedBox.shrink();
+        final watchedItems = watchedItemsAsync.value ?? const [];
+        final watchedCount = parts
+            .where(
+              (part) => watchedItems.any(
+                (w) => w.id == part.id && w.mediaType == GlobalMediaType.movie,
+              ),
+            )
+            .length;
+
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: AppColors.detailsCard.withValues(alpha: 0.6),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.detailsCardShadow,
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        'Part of the ${belongsToCollection.name}',
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      '$watchedCount / ${parts.length} Watched',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: AppColors.cinemaAccent,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(4),
+                  child: LinearProgressIndicator(
+                    value: parts.isEmpty ? 0 : watchedCount / parts.length,
+                    backgroundColor: Colors.white12,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.cinemaAccent,
+                    ),
+                    minHeight: 6,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  height: 175,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: parts.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: 12),
+                    itemBuilder: (context, index) {
+                      final part = parts[index];
+                      final isWatched = watchedItems.any(
+                        (w) =>
+                            w.id == part.id &&
+                            w.mediaType == GlobalMediaType.movie,
+                      );
+
+                      return GestureDetector(
+                        onTap: () {
+                          HapticFeedback.selectionClick();
+                          context.pushNamed(
+                            AppRoute.movieDetails.name,
+                            pathParameters: {'movieId': part.id.toString()},
+                            queryParameters: {'isTv': 'false'},
+                          );
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Stack(
+                              children: [
+                                Container(
+                                  width: 90,
+                                  height: 135,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    image: part.posterPath != null
+                                        ? DecorationImage(
+                                            image: CachedNetworkImageProvider(
+                                              part.posterPath!,
+                                            ),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : null,
+                                    color: Colors.white10,
+                                  ),
+                                  child: part.posterPath == null
+                                      ? const Center(
+                                          child: Icon(
+                                            Icons.movie_outlined,
+                                            color: Colors.white24,
+                                          ),
+                                        )
+                                      : null,
+                                ),
+                                if (isWatched)
+                                  Positioned(
+                                    top: 6,
+                                    right: 6,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(4),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.black87,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: const Icon(
+                                        Icons.check_circle,
+                                        color: Colors.green,
+                                        size: 16,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            SizedBox(
+                              width: 90,
+                              child: Text(
+                                part.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+      loading: () => const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+        child: ShimmerEffect(
+          width: double.infinity,
+          height: 180,
+          borderRadius: 16,
+        ),
+      ),
+      error: (error, stackTrace) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _KeywordsThemesSection extends StatelessWidget {
+  const _KeywordsThemesSection({required this.keywords});
+
+  final List<MovieKeyword> keywords;
+
+  @override
+  Widget build(BuildContext context) {
+    if (keywords.isEmpty) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Keywords & Themes',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: keywords.map((keyword) {
+              return GestureDetector(
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  context.pushNamed(
+                    AppRoute.keywordDetails.name,
+                    pathParameters: {'keywordId': keyword.id.toString()},
+                    queryParameters: {'keywordName': keyword.name},
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20),
+                    color: Colors.white.withValues(alpha: 0.06),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
+                  ),
+                  child: Text(
+                    keyword.name,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.87),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TrailersClipsSection extends StatefulWidget {
+  const _TrailersClipsSection({
+    required this.videos,
+    required this.movieTitle,
+    required this.details,
+    required this.isTv,
+  });
+
+  final List<MovieVideo> videos;
+  final String movieTitle;
+  final MovieDetails details;
+  final bool isTv;
+
+  @override
+  State<_TrailersClipsSection> createState() => _TrailersClipsSectionState();
+}
+
+class _TrailersClipsSectionState extends State<_TrailersClipsSection> {
+  String _activeFilter = 'All';
+
+  @override
+  Widget build(BuildContext context) {
+    final cleanVideos = widget.videos
+        .where((v) => v.site.toLowerCase() == 'youtube' && v.key.isNotEmpty)
+        .toList();
+    if (cleanVideos.isEmpty) return const SizedBox.shrink();
+
+    final types = ['All', ...cleanVideos.map((e) => e.type).toSet()];
+    final filteredVideos = _activeFilter == 'All'
+        ? cleanVideos
+        : cleanVideos.where((v) => v.type == _activeFilter).toList();
+
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Videos & Behind-the-Scenes',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          if (types.length > 2) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 36,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: types.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final type = types[index];
+                  final isSelected = type == _activeFilter;
+                  return GestureDetector(
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      setState(() {
+                        _activeFilter = type;
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.cinemaAccent.withValues(alpha: 0.2)
+                            : Colors.white.withValues(alpha: 0.04),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isSelected
+                              ? AppColors.cinemaAccent.withValues(alpha: 0.4)
+                              : Colors.white.withValues(alpha: 0.08),
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          type,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: isSelected ? Colors.white : Colors.white70,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+          const SizedBox(height: 16),
+          SizedBox(
+            height: 160,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: filteredVideos.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 16),
+              itemBuilder: (context, index) {
+                final video = filteredVideos[index];
+                return GestureDetector(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) => TrailerPlayerScreen(
+                          data: TrailerPlaybackData(
+                            videoKey: video.key,
+                            title: video.name,
+                            tagline: widget.details.tagline,
+                            overview: widget.details.overview,
+                            posterPath: widget.details.posterPath,
+                            backdropPath: widget.details.backdropPath,
+                            releaseDate: widget.details.releaseDate,
+                            runtimeMinutes: widget.details.runtimeMinutes,
+                            voteAverage: widget.details.catalogScore,
+                            voteCount: widget.details.voteCount,
+                            categoryLabel: widget.isTv ? 'TV Series' : 'Movie',
+                            sourceMediaId: widget.details.id,
+                            isTv: widget.isTv,
+                            recommendations: widget.details.recommendations,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  child: SizedBox(
+                    width: 180,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Stack(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  image: DecorationImage(
+                                    image: CachedNetworkImageProvider(
+                                      'https://img.youtube.com/vi/${video.key}/hqdefault.jpg',
+                                    ),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ),
+                              Positioned.fill(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.black26,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Center(
+                                    child: Icon(
+                                      Icons.play_circle_outline_rounded,
+                                      color: Colors.white,
+                                      size: 36,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 6,
+                                left: 6,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black87,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    video.type,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: Colors.white,
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          video.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProductionCompaniesSection extends StatelessWidget {
+  const _ProductionCompaniesSection({required this.companies});
+
+  final List<ProductionCompany> companies;
+
+  @override
+  Widget build(BuildContext context) {
+    if (companies.isEmpty) return const SizedBox.shrink();
+    final theme = Theme.of(context);
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Production Studios',
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 80,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: companies.length,
+              separatorBuilder: (context, index) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                final company = companies[index];
+                return InkWell(
+                  borderRadius: BorderRadius.circular(12),
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    context.pushNamed(
+                      AppRoute.companyDetails.name,
+                      pathParameters: {'companyId': company.id.toString()},
+                    );
+                  },
+                  child: Container(
+                    width: 140,
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.detailsCard.withValues(alpha: 0.4),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.08),
+                      ),
+                    ),
+                    child: company.logoPath != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: CachedNetworkImage(
+                              imageUrl: company.logoPath!,
+                              fit: BoxFit.contain,
+                              placeholder: (context, url) =>
+                                  const SizedBox.shrink(),
+                              errorWidget: (context, url, error) =>
+                                  _StudioTextCard(name: company.name),
+                            ),
+                          )
+                        : _StudioTextCard(name: company.name),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StudioTextCard extends StatelessWidget {
+  const _StudioTextCard({required this.name});
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        name,
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: Colors.white70,
+          fontWeight: FontWeight.w600,
+        ),
       ),
     );
   }

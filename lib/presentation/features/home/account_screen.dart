@@ -1,5 +1,6 @@
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:cineverse/core/config/region_preferences.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/watched_item.dart';
@@ -8,10 +9,12 @@ import 'package:cineverse/presentation/features/home/providers/reminders_provide
 import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
 import 'package:cineverse/presentation/providers/auth_provider.dart';
 import 'package:cineverse/domain/entities/user_entity.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
@@ -162,32 +165,56 @@ class AccountScreen extends ConsumerWidget {
                       ElevatedButton.icon(
                         onPressed: () async {
                           HapticFeedback.selectionClick();
-                          final bool? confirm = await showDialog<bool>(
+                          final bool? confirm = await showAnimatedDialog<bool>(
                             context: context,
                             builder: (context) => AlertDialog(
                               backgroundColor: AppColors.detailsCard,
-                              title: const Text(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                                side: BorderSide(
+                                  color: Colors.white.withValues(alpha: 0.08),
+                                  width: 1,
+                                ),
+                              ),
+                              title: Text(
                                 'Sign Out',
-                                style: TextStyle(color: Colors.white),
+                                style: Theme.of(context).textTheme.titleMedium
+                                    ?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                               ),
                               content: const Text(
                                 'Are you sure you want to sign out? Your local data will remain, but cloud syncing will stop.',
-                                style: TextStyle(color: Colors.white70),
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
                               ),
                               actions: [
                                 TextButton(
                                   onPressed: () =>
                                       Navigator.pop(context, false),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.white60,
+                                  ),
                                   child: const Text(
                                     'Cancel',
-                                    style: TextStyle(color: Colors.white70),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
                                   ),
                                 ),
                                 TextButton(
                                   onPressed: () => Navigator.pop(context, true),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.redAccent,
+                                  ),
                                   child: const Text(
                                     'Sign Out',
-                                    style: TextStyle(color: Colors.redAccent),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -220,18 +247,6 @@ class AccountScreen extends ConsumerWidget {
         const SizedBox(height: 14),
         const _WatchHistoryInsightsCard(),
         const SizedBox(height: 14),
-        const _AccountActionCard(
-          icon: Icons.bookmark_border_rounded,
-          title: 'Watchlist',
-          subtitle: 'Save titles you want to revisit later.',
-        ),
-        const SizedBox(height: 14),
-        const _AccountActionCard(
-          icon: Icons.download_outlined,
-          title: 'Downloads',
-          subtitle: 'Track the titles you keep offline for travel.',
-        ),
-        const SizedBox(height: 14),
         _AccountActionCard(
           icon: Icons.notifications_none_rounded,
           title: 'Notifications',
@@ -247,7 +262,88 @@ class AccountScreen extends ConsumerWidget {
           subtitle: 'Choose your theme and customize the app look.',
           onTap: () => context.pushNamed('appearance'),
         ),
+        const SizedBox(height: 14),
+        _AccountActionCard(
+          icon: Icons.visibility_off_outlined,
+          title: 'Hidden Titles',
+          subtitle:
+              'Manage the titles you have hidden from the Spotlight section.',
+          onTap: () => context.pushNamed(AppRoute.hiddenTitles.name),
+        ),
+        const SizedBox(height: 18),
+        const _DeveloperFooter(),
       ],
+    );
+  }
+}
+
+class _DeveloperFooter extends StatelessWidget {
+  const _DeveloperFooter();
+
+  static final Uri _instagramUri = Uri.parse(
+    'https://www.instagram.com/odukle',
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Center(
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8,
+        children: <Widget>[
+          Text(
+            'Developed by',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: Colors.white.withValues(alpha: 0.62),
+            ),
+          ),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(999),
+              onTap: () async {
+                HapticFeedback.selectionClick();
+                await launchUrl(
+                  _instagramUri,
+                  mode: LaunchMode.externalApplication,
+                );
+              },
+              child: Ink(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 7,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(999),
+                  color: Colors.white.withValues(alpha: 0.08),
+                  border: Border.all(
+                    color: AppColors.cinemaBorder.withValues(alpha: 0.28),
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const FaIcon(
+                      FontAwesomeIcons.instagram,
+                      size: 14,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '@odukle',
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

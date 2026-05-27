@@ -1,4 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/presentation/features/movies/models/explore_models.dart';
 import 'package:cineverse/presentation/features/movies/providers/library_recommendations_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
@@ -21,7 +22,8 @@ class ExploreSectionScreen extends ConsumerStatefulWidget {
   final bool isTv;
 
   @override
-  ConsumerState<ExploreSectionScreen> createState() => _ExploreSectionScreenState();
+  ConsumerState<ExploreSectionScreen> createState() =>
+      _ExploreSectionScreenState();
 }
 
 class _ExploreSectionScreenState extends ConsumerState<ExploreSectionScreen> {
@@ -49,7 +51,7 @@ class _ExploreSectionScreenState extends ConsumerState<ExploreSectionScreen> {
 
   void _selectFilter(ExploreFilterOption option, {bool fromPage = false}) {
     if (option == _selectedFilter) return;
-    
+
     final index = widget.filters.indexOf(option);
     setState(() {
       _selectedFilter = option;
@@ -79,82 +81,93 @@ class _ExploreSectionScreenState extends ConsumerState<ExploreSectionScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return BackgroundGradient(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-        title: Text(
-          widget.sectionTitle,
-          style: theme.textTheme.titleLarge?.copyWith(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+          title: Text(
+            widget.sectionTitle,
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          leading: IconButton(
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
+            ),
+            onPressed: () => Navigator.of(context).pop(),
           ),
         ),
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-      ),
-      body: Column(
-        children: [
-          if (widget.filters.length > 1)
-            Container(
-              height: 50,
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: ListView.separated(
-                controller: _chipScrollController,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                scrollDirection: Axis.horizontal,
-                itemCount: widget.filters.length,
-                separatorBuilder: (context, index) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final option = widget.filters[index];
-                  final isSelected = option.matches(_selectedFilter);
-                  return ChoiceChip(
-                    key: _chipKeys[index],
-                    label: Text(option.label),
-                    selected: isSelected,
-                    onSelected: (_) => _selectFilter(option),
-                    backgroundColor: AppColors.cinemaSurface.withValues(alpha: 0.5),
-                    selectedColor: AppColors.cinemaAccent,
-                    labelStyle: TextStyle(
-                      color: isSelected ? Colors.black : Colors.white.withValues(alpha: 0.7),
-                      fontSize: 12,
-                      fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(
-                        color: isSelected
-                            ? Colors.transparent
-                            : Colors.white.withValues(alpha: 0.1),
+        body: Column(
+          children: [
+            if (widget.filters.length > 1)
+              Container(
+                height: 50,
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: ListView.separated(
+                  controller: _chipScrollController,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  scrollDirection: Axis.horizontal,
+                  itemCount: widget.filters.length,
+                  separatorBuilder: (context, index) =>
+                      const SizedBox(width: 8),
+                  itemBuilder: (context, index) {
+                    final option = widget.filters[index];
+                    final isSelected = option.matches(_selectedFilter);
+                    return ChoiceChip(
+                      key: _chipKeys[index],
+                      label: Text(option.label),
+                      selected: isSelected,
+                      onSelected: (_) => _selectFilter(option),
+                      backgroundColor: AppColors.cinemaSurface.withValues(
+                        alpha: 0.5,
                       ),
-                    ),
-                    showCheckmark: false,
+                      selectedColor: AppColors.cinemaAccent,
+                      labelStyle: TextStyle(
+                        color: isSelected
+                            ? Colors.black
+                            : Colors.white.withValues(alpha: 0.7),
+                        fontSize: 12,
+                        fontWeight: isSelected
+                            ? FontWeight.w800
+                            : FontWeight.w600,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(
+                          color: isSelected
+                              ? Colors.transparent
+                              : Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      showCheckmark: false,
+                    );
+                  },
+                ),
+              ),
+            Expanded(
+              child: PageView.builder(
+                controller: _pageController,
+                itemCount: widget.filters.length,
+                onPageChanged: (index) =>
+                    _selectFilter(widget.filters[index], fromPage: true),
+                itemBuilder: (context, index) {
+                  final filter = widget.filters[index];
+                  return _FilterResultsGrid(
+                    filter: filter,
+                    isTv: widget.isTv,
+                    sectionTitle: widget.sectionTitle,
                   );
                 },
               ),
             ),
-          Expanded(
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: widget.filters.length,
-              onPageChanged: (index) => _selectFilter(widget.filters[index], fromPage: true),
-              itemBuilder: (context, index) {
-                final filter = widget.filters[index];
-                return _FilterResultsGrid(
-                  filter: filter,
-                  isTv: widget.isTv,
-                  sectionTitle: widget.sectionTitle,
-                );
-              },
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
     );
   }
 }
@@ -175,7 +188,10 @@ class _FilterResultsGrid extends ConsumerStatefulWidget {
 }
 
 class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
+  static const int _hiddenGemsMinItemsForScrollableGrid = 12;
+
   final ScrollController _scrollController = ScrollController();
+  bool _hiddenGemsAutoLoadScheduled = false;
 
   @override
   void initState() {
@@ -191,8 +207,16 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
 
   void _onScroll() {
     if (widget.filter.isLibraryRecommendations) {
-      if (ref.read(libraryRecommendationsProvider(widget.filter.recSource)).isLoading) return;
-      if (ref.read(libraryRecommendationsExhaustedProvider(widget.filter.recSource))) return;
+      if (ref
+          .read(libraryRecommendationsProvider(widget.filter.recSource))
+          .isLoading) {
+        return;
+      }
+      if (ref.read(
+        libraryRecommendationsExhaustedProvider(widget.filter.recSource),
+      )) {
+        return;
+      }
 
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 400) {
@@ -201,34 +225,56 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
       return;
     }
 
-    final movies = widget.filter.mood != null
-        ? ref.read(moodSectionProvider((mood: widget.filter.mood!, isTv: widget.isTv)))
-        : (widget.filter.genreId != null
-            ? ref.read(genreSectionProvider((id: widget.filter.genreId!, isTv: widget.isTv)))
-            : (widget.filter.isHiddenGems
-                ? ref.read(hiddenGemsSectionProvider)
-                : ref.read(movieSectionProvider(widget.filter.section!))));
+    final movies = widget.filter.isHiddenGems
+        ? ref.read(hiddenGemsSectionProvider)
+        : (widget.filter.mood != null
+              ? ref.read(
+                  moodSectionProvider((
+                    mood: widget.filter.mood!,
+                    isTv: widget.isTv,
+                  )),
+                )
+              : (widget.filter.genreId != null
+                    ? ref.read(
+                        genreSectionProvider((
+                          id: widget.filter.genreId!,
+                          isTv: widget.isTv,
+                        )),
+                      )
+                    : ref.read(movieSectionProvider(widget.filter.section!))));
 
     if (movies.isLoading) return;
-    
+
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 400) {
-      final isExhausted = widget.filter.mood != null
-          ? ref.read(moodSectionExhaustedProvider((mood: widget.filter.mood!, isTv: widget.isTv)))
-          : (widget.filter.genreId != null
-              ? ref.read(genreSectionExhaustedProvider((id: widget.filter.genreId!, isTv: widget.isTv)))
-              : (widget.filter.isHiddenGems
-                  ? ref.read(hiddenGemsSectionExhaustedProvider)
-                  : ref.read(movieSectionExhaustedProvider(widget.filter.section!))));
-          
+      final isExhausted = widget.filter.isHiddenGems
+          ? ref.read(hiddenGemsSectionExhaustedProvider)
+          : (widget.filter.mood != null
+                ? ref.read(
+                    moodSectionExhaustedProvider((
+                      mood: widget.filter.mood!,
+                      isTv: widget.isTv,
+                    )),
+                  )
+                : (widget.filter.genreId != null
+                      ? ref.read(
+                          genreSectionExhaustedProvider((
+                            id: widget.filter.genreId!,
+                            isTv: widget.isTv,
+                          )),
+                        )
+                      : ref.read(
+                          movieSectionExhaustedProvider(widget.filter.section!),
+                        )));
+
       if (isExhausted) return;
 
-      if (widget.filter.mood != null) {
+      if (widget.filter.isHiddenGems) {
+        loadNextHiddenGemsPages(ref);
+      } else if (widget.filter.mood != null) {
         loadNextMoodPages(ref, widget.filter.mood!, isTv: widget.isTv);
       } else if (widget.filter.genreId != null) {
         loadNextGenrePages(ref, widget.filter.genreId!, isTv: widget.isTv);
-      } else if (widget.filter.isHiddenGems) {
-        loadNextHiddenGemsPages(ref);
       } else if (widget.filter.section != null) {
         loadNextPages(ref, widget.filter.section!);
       }
@@ -240,25 +286,51 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
     final theme = Theme.of(context);
     final movies = widget.filter.isLibraryRecommendations
         ? ref.watch(libraryRecommendationsProvider(widget.filter.recSource))
-        : (widget.filter.mood != null
-            ? ref.watch(moodSectionProvider((mood: widget.filter.mood!, isTv: widget.isTv)))
-            : (widget.filter.genreId != null
-                ? ref.watch(
-                    genreSectionProvider((id: widget.filter.genreId!, isTv: widget.isTv)),
-                  )
-                : (widget.filter.isHiddenGems
-                    ? ref.watch(hiddenGemsSectionProvider)
-                    : ref.watch(movieSectionProvider(widget.filter.section!)))));
+        : (widget.filter.isHiddenGems
+              ? ref.watch(hiddenGemsSectionProvider)
+              : (widget.filter.mood != null
+                    ? ref.watch(
+                        moodSectionProvider((
+                          mood: widget.filter.mood!,
+                          isTv: widget.isTv,
+                        )),
+                      )
+                    : (widget.filter.genreId != null
+                          ? ref.watch(
+                              genreSectionProvider((
+                                id: widget.filter.genreId!,
+                                isTv: widget.isTv,
+                              )),
+                            )
+                          : ref.watch(
+                              movieSectionProvider(widget.filter.section!),
+                            ))));
 
     final bool isExhausted = widget.filter.isLibraryRecommendations
-        ? ref.watch(libraryRecommendationsExhaustedProvider(widget.filter.recSource))
-        : (widget.filter.mood != null
-            ? ref.watch(moodSectionExhaustedProvider((mood: widget.filter.mood!, isTv: widget.isTv)))
-            : (widget.filter.genreId != null
-                ? ref.watch(genreSectionExhaustedProvider((id: widget.filter.genreId!, isTv: widget.isTv)))
-                : (widget.filter.isHiddenGems
-                    ? ref.watch(hiddenGemsSectionExhaustedProvider)
-                    : ref.watch(movieSectionExhaustedProvider(widget.filter.section!)))));
+        ? ref.watch(
+            libraryRecommendationsExhaustedProvider(widget.filter.recSource),
+          )
+        : (widget.filter.isHiddenGems
+              ? ref.watch(hiddenGemsSectionExhaustedProvider)
+              : (widget.filter.mood != null
+                    ? ref.watch(
+                        moodSectionExhaustedProvider((
+                          mood: widget.filter.mood!,
+                          isTv: widget.isTv,
+                        )),
+                      )
+                    : (widget.filter.genreId != null
+                          ? ref.watch(
+                              genreSectionExhaustedProvider((
+                                id: widget.filter.genreId!,
+                                isTv: widget.isTv,
+                              )),
+                            )
+                          : ref.watch(
+                              movieSectionExhaustedProvider(
+                                widget.filter.section!,
+                              ),
+                            ))));
 
     return movies.when(
       skipLoadingOnReload: true,
@@ -271,12 +343,22 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
-                if (widget.filter.genreId != null) {
-                  ref.invalidate(genreSectionProvider((id: widget.filter.genreId!, isTv: widget.isTv)));
-                } else if (widget.filter.mood != null) {
-                  ref.invalidate(moodSectionProvider((mood: widget.filter.mood!, isTv: widget.isTv)));
-                } else if (widget.filter.isHiddenGems) {
+                if (widget.filter.isHiddenGems) {
                   ref.invalidate(hiddenGemsSectionProvider);
+                } else if (widget.filter.genreId != null) {
+                  ref.invalidate(
+                    genreSectionProvider((
+                      id: widget.filter.genreId!,
+                      isTv: widget.isTv,
+                    )),
+                  );
+                } else if (widget.filter.mood != null) {
+                  ref.invalidate(
+                    moodSectionProvider((
+                      mood: widget.filter.mood!,
+                      isTv: widget.isTv,
+                    )),
+                  );
                 } else {
                   ref.invalidate(movieSectionProvider(widget.filter.section!));
                 }
@@ -287,9 +369,45 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
         ),
       ),
       data: (data) {
-        if (data.isEmpty) {
+        final List<MediaTitle> dataForFilter =
+            widget.filter.isHiddenGems && widget.filter.genreId != null
+            ? data
+                  .where(
+                    (item) => item.genreIds.contains(widget.filter.genreId),
+                  )
+                  .toList(growable: false)
+            : data;
+
+        if (widget.filter.isHiddenGems &&
+            widget.filter.genreId != null &&
+            !movies.isLoading &&
+            !isExhausted &&
+            dataForFilter.length < _hiddenGemsMinItemsForScrollableGrid &&
+            !_hiddenGemsAutoLoadScheduled) {
+          _hiddenGemsAutoLoadScheduled = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _hiddenGemsAutoLoadScheduled = false;
+            if (!mounted) return;
+            loadNextHiddenGemsPages(ref);
+          });
+        }
+
+        if (dataForFilter.isEmpty) {
+          if (widget.filter.isHiddenGems &&
+              !isExhausted &&
+              !_hiddenGemsAutoLoadScheduled) {
+            _hiddenGemsAutoLoadScheduled = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _hiddenGemsAutoLoadScheduled = false;
+              if (!mounted) return;
+              loadNextHiddenGemsPages(ref);
+            });
+          }
           return const Center(
-            child: Text('No items found', style: TextStyle(color: Colors.white70)),
+            child: Text(
+              'No items found',
+              style: TextStyle(color: Colors.white70),
+            ),
           );
         }
 
@@ -297,7 +415,7 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
         final double cardWidth = (screenWidth - 32 - 24) / 3;
 
         final bool showFooter = movies.isLoading || isExhausted;
-        final int itemCount = data.length + (showFooter ? 3 : 0);
+        final int itemCount = dataForFilter.length + (showFooter ? 3 : 0);
 
         return GridView.builder(
           controller: _scrollController,
@@ -310,8 +428,9 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
           ),
           itemCount: itemCount,
           itemBuilder: (context, index) {
-            if (index >= data.length) {
-              if (index == data.length + 1) { // Middle of the last row
+            if (index >= dataForFilter.length) {
+              if (index == dataForFilter.length + 1) {
+                // Middle of the last row
                 return Center(
                   child: movies.isLoading
                       ? CircularProgressIndicator(color: AppColors.cinemaAccent)
@@ -329,7 +448,7 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
             }
 
             return MediaPosterGridCard(
-              movie: data[index],
+              movie: dataForFilter[index],
               sectionTitle: widget.sectionTitle,
               width: cardWidth,
               isTvTitle: widget.isTv,
@@ -340,7 +459,6 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
     );
   }
 }
-
 
 class _GridShimmer extends StatelessWidget {
   const _GridShimmer();
@@ -359,7 +477,12 @@ class _GridShimmer extends StatelessWidget {
       itemBuilder: (context, index) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: ShimmerEffect.poster(width: double.infinity, height: double.infinity)),
+          Expanded(
+            child: ShimmerEffect.poster(
+              width: double.infinity,
+              height: double.infinity,
+            ),
+          ),
           const SizedBox(height: 8),
           ShimmerEffect.textLine(width: 60, height: 12),
         ],

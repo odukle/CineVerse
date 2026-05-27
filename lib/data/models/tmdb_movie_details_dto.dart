@@ -27,6 +27,12 @@ class TmdbMovieDetailsDto {
   final List<MovieRecommendation> recommendations;
   final MovieWatchAvailability? watchAvailability;
   final String? trailerYouTubeKey;
+  final String? facebookId;
+  final String? instagramId;
+  final String? twitterId;
+  final String? tiktokId;
+  final String? youtubeId;
+  final String? wikidataId;
   final List<TmdbTvSeasonDto> seasons;
   final int? numberOfSeasons;
   final int? numberOfEpisodes;
@@ -34,6 +40,11 @@ class TmdbMovieDetailsDto {
   final TmdbTvEpisodeDto? nextEpisodeToAir;
   final String? digitalReleaseDate;
   final String? physicalReleaseDate;
+  final TmdbMovieCollectionInfoDto? belongsToCollection;
+  final List<MovieKeyword> keywords;
+  final List<TmdbMovieVideoDto> videos;
+  final List<TmdbProductionCompanyDto> productionCompanies;
+  final List<String> productionCountries;
 
   const TmdbMovieDetailsDto({
     required this.id,
@@ -59,6 +70,12 @@ class TmdbMovieDetailsDto {
     this.recommendations = const <MovieRecommendation>[],
     this.watchAvailability,
     this.trailerYouTubeKey,
+    this.facebookId,
+    this.instagramId,
+    this.twitterId,
+    this.tiktokId,
+    this.youtubeId,
+    this.wikidataId,
     this.seasons = const <TmdbTvSeasonDto>[],
     this.numberOfSeasons,
     this.numberOfEpisodes,
@@ -66,6 +83,11 @@ class TmdbMovieDetailsDto {
     this.nextEpisodeToAir,
     this.digitalReleaseDate,
     this.physicalReleaseDate,
+    this.belongsToCollection,
+    this.keywords = const <MovieKeyword>[],
+    this.videos = const <TmdbMovieVideoDto>[],
+    this.productionCompanies = const <TmdbProductionCompanyDto>[],
+    this.productionCountries = const <String>[],
   });
 
   factory TmdbMovieDetailsDto.fromJson(
@@ -150,6 +172,12 @@ class TmdbMovieDetailsDto {
               rawWatchProviders,
               preferredRegionCode: preferredRegionCode,
             ).toDomain(),
+      facebookId: (externalIds['facebook_id'] as String?)?.trim(),
+      instagramId: (externalIds['instagram_id'] as String?)?.trim(),
+      twitterId: (externalIds['twitter_id'] as String?)?.trim(),
+      tiktokId: (externalIds['tiktok_id'] as String?)?.trim(),
+      youtubeId: (externalIds['youtube_id'] as String?)?.trim(),
+      wikidataId: (externalIds['wikidata_id'] as String?)?.trim(),
       trailerYouTubeKey: _resolveTrailerKey(
         (rawVideos['results'] as List<dynamic>?) ?? <dynamic>[],
       ),
@@ -180,12 +208,39 @@ class TmdbMovieDetailsDto {
         preferredRegionCode,
         const [5],
       ),
+      belongsToCollection: json['belongs_to_collection'] != null
+          ? TmdbMovieCollectionInfoDto.fromJson(
+              json['belongs_to_collection'] as Map<String, dynamic>,
+            )
+          : null,
+      keywords: _resolveKeywords(json, isTv: isTv),
+      videos: (rawVideos['results'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(TmdbMovieVideoDto.fromJson)
+              .toList() ??
+          const <TmdbMovieVideoDto>[],
+      productionCompanies: (json['production_companies'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map(TmdbProductionCompanyDto.fromJson)
+              .toList() ??
+          const <TmdbProductionCompanyDto>[],
+      productionCountries: (json['production_countries'] as List<dynamic>?)
+              ?.whereType<Map<String, dynamic>>()
+              .map((c) => (c['iso_3166_1'] as String?)?.trim() ?? '')
+              .where((c) => c.isNotEmpty)
+              .toList() ??
+          const <String>[],
     );
   }
 
   TmdbMovieDetailsDto copyWith({
     MovieWatchAvailability? watchAvailability,
     List<TmdbTvSeasonDto>? seasons,
+    TmdbMovieCollectionInfoDto? belongsToCollection,
+    List<MovieKeyword>? keywords,
+    List<TmdbMovieVideoDto>? videos,
+    List<TmdbProductionCompanyDto>? productionCompanies,
+    List<String>? productionCountries,
   }) {
     return TmdbMovieDetailsDto(
       id: id,
@@ -210,6 +265,12 @@ class TmdbMovieDetailsDto {
       voteCount: voteCount,
       recommendations: recommendations,
       watchAvailability: watchAvailability ?? this.watchAvailability,
+      facebookId: facebookId,
+      instagramId: instagramId,
+      twitterId: twitterId,
+      tiktokId: tiktokId,
+      youtubeId: youtubeId,
+      wikidataId: wikidataId,
       trailerYouTubeKey: trailerYouTubeKey,
       seasons: seasons ?? this.seasons,
       numberOfSeasons: numberOfSeasons,
@@ -218,6 +279,11 @@ class TmdbMovieDetailsDto {
       nextEpisodeToAir: nextEpisodeToAir,
       digitalReleaseDate: digitalReleaseDate,
       physicalReleaseDate: physicalReleaseDate,
+      belongsToCollection: belongsToCollection ?? this.belongsToCollection,
+      keywords: keywords ?? this.keywords,
+      videos: videos ?? this.videos,
+      productionCompanies: productionCompanies ?? this.productionCompanies,
+      productionCountries: productionCountries ?? this.productionCountries,
     );
   }
 
@@ -245,6 +311,12 @@ class TmdbMovieDetailsDto {
       recommendations: recommendations,
       watchAvailability: watchAvailability,
       imdbId: imdbId,
+      facebookId: facebookId,
+      instagramId: instagramId,
+      twitterId: twitterId,
+      tiktokId: tiktokId,
+      youtubeId: youtubeId,
+      wikidataId: wikidataId,
       trailerYouTubeKey: trailerYouTubeKey,
       seasons: seasons.map((e) => e.toDomain()).toList(),
       numberOfSeasons: numberOfSeasons,
@@ -253,6 +325,11 @@ class TmdbMovieDetailsDto {
       nextEpisodeToAir: nextEpisodeToAir?.toDomain(),
       digitalReleaseDate: digitalReleaseDate,
       physicalReleaseDate: physicalReleaseDate,
+      belongsToCollection: belongsToCollection?.toDomain(),
+      keywords: keywords,
+      videos: videos.map((e) => e.toDomain()).toList(),
+      productionCompanies: productionCompanies.map((e) => e.toDomain()).toList(),
+      productionCountries: productionCountries,
     );
   }
 
@@ -595,6 +672,22 @@ class TmdbMovieDetailsDto {
     return null;
   }
 
+  static List<MovieKeyword> _resolveKeywords(Map<String, dynamic> json, {required bool isTv}) {
+    final Map<String, dynamic>? keywordsObj = json['keywords'] as Map<String, dynamic>?;
+    if (keywordsObj == null) return const [];
+    final List<dynamic>? list = (isTv ? keywordsObj['results'] : keywordsObj['keywords']) as List<dynamic>?;
+    if (list == null) return const [];
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map((e) {
+          final id = (e['id'] as num?)?.toInt() ?? 0;
+          final name = (e['name'] as String?)?.trim() ?? '';
+          return MovieKeyword(id: id, name: name);
+        })
+        .where((e) => e.name.isNotEmpty)
+        .toList();
+  }
+
   static String? _optionalText(Object? value) {
     final String? text = value as String?;
     if (text == null) {
@@ -651,4 +744,114 @@ String? _resolveTrailerKey(List<dynamic> rawVideos) {
   }
 
   return null;
+}
+
+class TmdbMovieCollectionInfoDto {
+  const TmdbMovieCollectionInfoDto({
+    required this.id,
+    required this.name,
+    this.posterPath,
+    this.backdropPath,
+  });
+
+  factory TmdbMovieCollectionInfoDto.fromJson(Map<String, dynamic> json) {
+    return TmdbMovieCollectionInfoDto(
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      name: (json['name'] as String?)?.trim() ?? 'Collection',
+      posterPath: _normalizeImagePath(json['poster_path'] as String?, size: 'w500'),
+      backdropPath: _normalizeImagePath(json['backdrop_path'] as String?, size: 'w780'),
+    );
+  }
+
+  final int id;
+  final String name;
+  final String? posterPath;
+  final String? backdropPath;
+
+  MovieCollectionInfo toDomain() {
+    return MovieCollectionInfo(
+      id: id,
+      name: name,
+      posterPath: posterPath,
+      backdropPath: backdropPath,
+    );
+  }
+
+  static String? _normalizeImagePath(String? path, {required String size}) {
+    if (path == null || path.isEmpty) return null;
+    return '${AppConstants.tmdbImageBaseUrl}/$size$path';
+  }
+}
+
+class TmdbMovieVideoDto {
+  const TmdbMovieVideoDto({
+    required this.name,
+    required this.key,
+    required this.site,
+    required this.type,
+    required this.official,
+  });
+
+  factory TmdbMovieVideoDto.fromJson(Map<String, dynamic> json) {
+    return TmdbMovieVideoDto(
+      name: (json['name'] as String?)?.trim() ?? 'Video',
+      key: (json['key'] as String?)?.trim() ?? '',
+      site: (json['site'] as String?)?.trim() ?? 'YouTube',
+      type: (json['type'] as String?)?.trim() ?? 'Clip',
+      official: json['official'] as bool? ?? false,
+    );
+  }
+
+  final String name;
+  final String key;
+  final String site;
+  final String type;
+  final bool official;
+
+  MovieVideo toDomain() {
+    return MovieVideo(
+      name: name,
+      key: key,
+      site: site,
+      type: type,
+      official: official,
+    );
+  }
+}
+
+class TmdbProductionCompanyDto {
+  const TmdbProductionCompanyDto({
+    required this.id,
+    required this.name,
+    this.logoPath,
+    required this.originCountry,
+  });
+
+  factory TmdbProductionCompanyDto.fromJson(Map<String, dynamic> json) {
+    return TmdbProductionCompanyDto(
+      id: (json['id'] as num?)?.toInt() ?? 0,
+      name: (json['name'] as String?)?.trim() ?? 'Studio',
+      logoPath: _normalizeImagePath(json['logo_path'] as String?, size: 'w185'),
+      originCountry: (json['origin_country'] as String?)?.trim() ?? '',
+    );
+  }
+
+  final int id;
+  final String name;
+  final String? logoPath;
+  final String originCountry;
+
+  ProductionCompany toDomain() {
+    return ProductionCompany(
+      id: id,
+      name: name,
+      logoPath: logoPath,
+      originCountry: originCountry,
+    );
+  }
+
+  static String? _normalizeImagePath(String? path, {required String size}) {
+    if (path == null || path.isEmpty) return null;
+    return '${AppConstants.tmdbImageBaseUrl}/$size$path';
+  }
 }

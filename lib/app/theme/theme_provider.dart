@@ -2,9 +2,11 @@ import 'package:cineverse/app/theme/theme_palette.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-final appThemeTypeProvider = NotifierProvider<AppThemeNotifier, AppThemeType>(() {
-  return AppThemeNotifier();
-});
+final appThemeTypeProvider = NotifierProvider<AppThemeNotifier, AppThemeType>(
+  () {
+    return AppThemeNotifier();
+  },
+);
 
 class AppThemeNotifier extends Notifier<AppThemeType> {
   static const _themeKey = 'selected_app_theme';
@@ -12,7 +14,7 @@ class AppThemeNotifier extends Notifier<AppThemeType> {
   @override
   AppThemeType build() {
     _loadTheme();
-    return AppThemeType.lumi;
+    return AppThemeType.forest;
   }
 
   Future<void> _loadTheme() async {
@@ -21,7 +23,7 @@ class AppThemeNotifier extends Notifier<AppThemeType> {
     if (savedTheme != null) {
       state = AppThemeType.values.firstWhere(
         (e) => e.name == savedTheme,
-        orElse: () => AppThemeType.lumi,
+        orElse: () => AppThemeType.forest,
       );
     }
   }

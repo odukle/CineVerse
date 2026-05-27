@@ -5,6 +5,9 @@ import 'package:cineverse/core/constants/app_constants.dart';
 import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
+import 'package:cineverse/domain/entities/search_collection.dart';
+import 'package:cineverse/domain/entities/search_keyword.dart';
+import 'package:cineverse/domain/entities/search_company.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:cineverse/presentation/features/search/providers/search_provider.dart';
 import 'package:cineverse/presentation/features/search/providers/search_history_provider.dart';
@@ -15,48 +18,39 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
-  const SearchScreen({super.key});
+  const SearchScreen({super.key, this.initialQuery});
+
+  final String? initialQuery;
 
   @override
   ConsumerState<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends ConsumerState<SearchScreen>
-    with SingleTickerProviderStateMixin {
+class _SearchScreenState extends ConsumerState<SearchScreen> {
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
-  late final TabController _tabController;
-  late final ScrollController _moviesScrollController;
-  late final ScrollController _tvScrollController;
-  late final ScrollController _personsScrollController;
-  late final ScrollController _discoverScrollController;
+  late final ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController();
     _focusNode = FocusNode();
-    _tabController = TabController(length: 3, vsync: this);
-
-    _moviesScrollController = ScrollController()
-      ..addListener(
-        () => _onScroll(_moviesScrollController, GlobalMediaType.movie),
-      );
-    _tvScrollController = ScrollController()
-      ..addListener(() => _onScroll(_tvScrollController, GlobalMediaType.tv));
-    _personsScrollController = ScrollController()
-      ..addListener(
-        () => _onScroll(_personsScrollController, GlobalMediaType.person),
-      );
-    _discoverScrollController = ScrollController()
-      ..addListener(() => _onScroll(_discoverScrollController, null));
+    _scrollController = ScrollController()
+      ..addListener(_onScroll);
 
     _focusNode.requestFocus();
 
-    // Clear search results on launch
+    // Clear search results on launch, or trigger search if initialQuery is provided
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        ref.read(searchProvider.notifier).clear();
+        if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
+          _controller.text = widget.initialQuery!;
+          ref.read(searchProvider.notifier).updateQuery(widget.initialQuery!);
+          ref.read(searchProvider.notifier).submitSearch(widget.initialQuery!);
+        } else {
+          ref.read(searchProvider.notifier).clear();
+        }
       }
     });
   }
@@ -65,20 +59,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
   void dispose() {
     _controller.dispose();
     _focusNode.dispose();
-    _tabController.dispose();
-    _moviesScrollController.dispose();
-    _tvScrollController.dispose();
-    _personsScrollController.dispose();
-    _discoverScrollController.dispose();
+    _scrollController.dispose();
     // Reset search state when leaving the screen
     ref.read(searchProvider.notifier).clear();
     super.dispose();
   }
 
-  void _onScroll(ScrollController controller, GlobalMediaType? type) {
-    if (controller.position.pixels >=
-        controller.position.maxScrollExtent - 400) {
-      ref.read(searchProvider.notifier).loadMore(type);
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 400) {
+      ref.read(searchProvider.notifier).loadMore();
     }
   }
 
@@ -145,7 +135,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                     ref.read(searchProvider.notifier).submitSearch();
                   },
                   decoration: InputDecoration(
-                    hintText: 'Search movies, TV shows...',
+                    hintText: 'Search movies, TV shows, companies...',
                     hintStyle: TextStyle(
                       color: Colors.white.withValues(alpha: 0.5),
                     ),
@@ -177,108 +167,45 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
                 ),
               ),
               if (searchState.hasSearched && !isDiscoverMode)
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(999),
-                      gradient: LinearGradient(
-                        colors: AppColors.cinemaPanelGradient,
-                      ),
-                      border: Border.all(
-                        color: AppColors.cinemaBorder.withValues(alpha: 0.28),
-                      ),
-                      boxShadow: <BoxShadow>[
-                        BoxShadow(
-                          color: AppColors.cinemaGlow.withValues(alpha: 0.12),
-                          blurRadius: 22,
-                          spreadRadius: -12,
-                          offset: const Offset(0, 14),
-                        ),
-                      ],
-                    ),
-                    child: TabBar(
-                      onTap: (_) => HapticFeedback.selectionClick(),
-                      controller: _tabController,
-                      isScrollable: true,
-                      tabAlignment: TabAlignment.start,
-                      dividerColor: Colors.transparent,
-                      indicatorSize: TabBarIndicatorSize.label,
-                      indicator: BoxDecoration(
-                        color: AppColors.cinemaAccent.withValues(alpha: 0.2),
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(
-                          color: AppColors.cinemaAccent.withValues(alpha: 0.4),
-                        ),
-                      ),
-                      indicatorPadding: const EdgeInsets.symmetric(
-                        vertical: 3,
-                        horizontal: 0,
-                      ),
-                      splashBorderRadius: BorderRadius.circular(999),
-                      labelColor: Colors.white,
-                      unselectedLabelColor: Colors.white.withValues(alpha: 0.7),
-                      labelStyle: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                      ),
-                      unselectedLabelStyle: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      labelPadding: const EdgeInsets.symmetric(horizontal: 2),
-                      tabs: const <Tab>[
-                        Tab(
-                          child: SizedBox(
-                            height: 28,
-                            child: Center(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                child: Text(
-                                  'MOVIES',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.fade,
-                                  softWrap: false,
-                                ),
-                              ),
+                SizedBox(
+                  height: 48,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: SearchCategory.values.length,
+                    itemBuilder: (context, index) {
+                      final category = SearchCategory.values[index];
+                      final isSelected = searchState.selectedCategory == category;
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: ChoiceChip(
+                          label: Text(category.label),
+                          selected: isSelected,
+                          onSelected: (selected) {
+                            if (selected) {
+                              HapticFeedback.selectionClick();
+                              ref.read(searchProvider.notifier).setCategory(category);
+                            }
+                          },
+                          backgroundColor: AppColors.cinemaSurface.withValues(alpha: 0.5),
+                          selectedColor: AppColors.cinemaAccent,
+                          labelStyle: TextStyle(
+                            color: isSelected ? Colors.black : Colors.white.withValues(alpha: 0.7),
+                            fontSize: 12,
+                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(
+                              color: isSelected
+                                  ? Colors.transparent
+                                  : Colors.white.withValues(alpha: 0.1),
                             ),
                           ),
+                          showCheckmark: false,
                         ),
-                        Tab(
-                          child: SizedBox(
-                            height: 28,
-                            child: Center(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                child: Text(
-                                  'TV SHOWS',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.fade,
-                                  softWrap: false,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Tab(
-                          child: SizedBox(
-                            height: 28,
-                            child: Center(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 10),
-                                child: Text(
-                                  'PERSONS',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.fade,
-                                  softWrap: false,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                 ),
             ],
@@ -299,6 +226,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         searchState.movieResults.isEmpty &&
         searchState.tvResults.isEmpty &&
         searchState.personResults.isEmpty &&
+        searchState.collectionResults.isEmpty &&
+        searchState.keywordResults.isEmpty &&
+        searchState.companyResults.isEmpty &&
         searchState.results.isEmpty) {
       return Center(
         child: CircularProgressIndicator(color: AppColors.cinemaAccent),
@@ -310,6 +240,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
         searchState.movieResults.isEmpty &&
         searchState.tvResults.isEmpty &&
         searchState.personResults.isEmpty &&
+        searchState.collectionResults.isEmpty &&
+        searchState.keywordResults.isEmpty &&
+        searchState.companyResults.isEmpty &&
         searchState.results.isEmpty) {
       return Center(
         child: Padding(
@@ -333,37 +266,58 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
           searchState.results,
           searchState.isLoadingMore,
           searchState.hasMore,
-          _discoverScrollController,
+          _scrollController,
           null,
         );
       }
 
-      return TabBarView(
-        controller: _tabController,
-        children: [
-          _buildResults(
+      switch (searchState.selectedCategory) {
+        case SearchCategory.movies:
+          return _buildResults(
             searchState.movieResults,
             searchState.isLoadingMore,
             searchState.movieHasMore,
-            _moviesScrollController,
+            _scrollController,
             GlobalMediaType.movie,
-          ),
-          _buildResults(
+          );
+        case SearchCategory.tvShows:
+          return _buildResults(
             searchState.tvResults,
             searchState.isLoadingMore,
             searchState.tvHasMore,
-            _tvScrollController,
+            _scrollController,
             GlobalMediaType.tv,
-          ),
-          _buildResults(
+          );
+        case SearchCategory.persons:
+          return _buildResults(
             searchState.personResults,
             searchState.isLoadingMore,
             searchState.personHasMore,
-            _personsScrollController,
+            _scrollController,
             GlobalMediaType.person,
-          ),
-        ],
-      );
+          );
+        case SearchCategory.collections:
+          return _buildCollectionsResults(
+            searchState.collectionResults,
+            searchState.isLoadingMore,
+            searchState.collectionHasMore,
+            _scrollController,
+          );
+        case SearchCategory.keywords:
+          return _buildKeywordsResults(
+            searchState.keywordResults,
+            searchState.isLoadingMore,
+            searchState.keywordHasMore,
+            _scrollController,
+          );
+        case SearchCategory.companies:
+          return _buildCompaniesResults(
+            searchState.companyResults,
+            searchState.isLoadingMore,
+            searchState.companyHasMore,
+            _scrollController,
+          );
+      }
     }
 
     return Center(
@@ -452,7 +406,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
               child: Center(
                 child: TextButton(
                   onPressed: () {
-                    ref.read(searchProvider.notifier).loadMore(type);
+                    ref.read(searchProvider.notifier).loadMore();
                   },
                   child: Text(
                     'Load More',
@@ -479,6 +433,364 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
             ),
           ),
       ],
+    );
+  }
+
+  Widget _buildCollectionsResults(
+    List<SearchCollection> results,
+    bool isLoadingMore,
+    bool hasMore,
+    ScrollController controller,
+  ) {
+    if (results.isEmpty && !isLoadingMore) {
+      return const Center(
+        child: Text(
+          'No collections found',
+          style: TextStyle(color: Colors.white70),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      key: const PageStorageKey('collections'),
+      controller: controller,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+      itemCount: results.length + (isLoadingMore || hasMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == results.length) {
+          if (isLoadingMore) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.cinemaAccent),
+              ),
+            );
+          } else {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: TextButton(
+                  onPressed: () {
+                    ref.read(searchProvider.notifier).loadMore();
+                  },
+                  child: Text(
+                    'Load More',
+                    style: TextStyle(color: AppColors.cinemaAccent),
+                  ),
+                ),
+              ),
+            );
+          }
+        }
+
+        final collection = results[index];
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () {
+              HapticFeedback.selectionClick();
+              context.pushNamed(
+                AppRoute.collectionDetails.name,
+                pathParameters: {'collectionId': collection.id.toString()},
+              );
+            },
+            child: Container(
+              height: 110,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                color: AppColors.detailsCard,
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              ),
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(15),
+                      bottomLeft: Radius.circular(15),
+                    ),
+                    child: SizedBox(
+                      width: 74,
+                      height: 110,
+                      child: collection.posterPath != null
+                          ? CachedNetworkImage(
+                              imageUrl: collection.posterPath!,
+                              fit: BoxFit.cover,
+                              placeholder: (_, __) => Container(
+                                color: AppColors.cinemaPlaceholder,
+                                child: const Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              ),
+                              errorWidget: (_, __, ___) => Container(
+                                color: AppColors.cinemaPlaceholder,
+                                child: const Icon(Icons.movie_outlined, color: Colors.white30),
+                              ),
+                            )
+                          : Container(
+                              color: AppColors.cinemaPlaceholder,
+                              child: const Icon(Icons.movie_outlined, color: Colors.white30),
+                            ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            collection.name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 6),
+                          Expanded(
+                            child: Text(
+                              collection.overview ?? 'No overview available.',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.6),
+                                fontSize: 13,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(right: 12),
+                    child: Icon(Icons.chevron_right_rounded, color: Colors.white54),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildKeywordsResults(
+    List<SearchKeyword> results,
+    bool isLoadingMore,
+    bool hasMore,
+    ScrollController controller,
+  ) {
+    if (results.isEmpty && !isLoadingMore) {
+      return const Center(
+        child: Text(
+          'No keywords found',
+          style: TextStyle(color: Colors.white70),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      key: const PageStorageKey('keywords'),
+      controller: controller,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+      itemCount: results.length + (isLoadingMore || hasMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == results.length) {
+          if (isLoadingMore) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.cinemaAccent),
+              ),
+            );
+          } else {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: TextButton(
+                  onPressed: () {
+                    ref.read(searchProvider.notifier).loadMore();
+                  },
+                  child: Text(
+                    'Load More',
+                    style: TextStyle(color: AppColors.cinemaAccent),
+                  ),
+                ),
+              ),
+            );
+          }
+        }
+
+        final keyword = results[index];
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () {
+              HapticFeedback.selectionClick();
+              context.pushNamed(
+                AppRoute.keywordDetails.name,
+                pathParameters: {'keywordId': keyword.id.toString()},
+                queryParameters: {'keywordName': keyword.name},
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.white.withValues(alpha: 0.04),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.tag_rounded, color: AppColors.cinemaAccent, size: 20),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      keyword.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right_rounded, color: Colors.white30, size: 20),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildCompaniesResults(
+    List<SearchCompany> results,
+    bool isLoadingMore,
+    bool hasMore,
+    ScrollController controller,
+  ) {
+    if (results.isEmpty && !isLoadingMore) {
+      return const Center(
+        child: Text(
+          'No companies found',
+          style: TextStyle(color: Colors.white70),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      key: const PageStorageKey('companies'),
+      controller: controller,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+      itemCount: results.length + (isLoadingMore || hasMore ? 1 : 0),
+      itemBuilder: (context, index) {
+        if (index == results.length) {
+          if (isLoadingMore) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.cinemaAccent),
+              ),
+            );
+          } else {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: Center(
+                child: TextButton(
+                  onPressed: () {
+                    ref.read(searchProvider.notifier).loadMore();
+                  },
+                  child: Text(
+                    'Load More',
+                    style: TextStyle(color: AppColors.cinemaAccent),
+                  ),
+                ),
+              ),
+            );
+          }
+        }
+
+        final company = results[index];
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () {
+              HapticFeedback.selectionClick();
+              context.pushNamed(
+                AppRoute.companyDetails.name,
+                pathParameters: {'companyId': company.id.toString()},
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: AppColors.detailsCard,
+                border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.all(4),
+                    child: company.logoPath != null
+                        ? CachedNetworkImage(
+                            imageUrl: company.logoPath!,
+                            fit: BoxFit.contain,
+                            placeholder: (_, __) => const Center(
+                              child: SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              ),
+                            ),
+                            errorWidget: (_, __, ___) => const Icon(
+                              Icons.business_rounded,
+                              color: Colors.black45,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.business_rounded,
+                            color: Colors.black45,
+                          ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      company.name,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right_rounded, color: Colors.white54, size: 20),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -653,3 +965,4 @@ class _SearchScreenState extends ConsumerState<SearchScreen>
     );
   }
 }
+

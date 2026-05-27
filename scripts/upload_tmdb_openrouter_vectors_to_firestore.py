@@ -92,9 +92,10 @@ def main() -> None:
     parser.add_argument("--commit-size", type=int, default=100)
     parser.add_argument("--max-rows", type=int, default=0)
     parser.add_argument("--max-items", type=int, default=0)
-    parser.add_argument("--min-vote-count", type=int, default=5)
-    parser.add_argument("--regional-min-vote-count", type=int, default=1)
-    parser.add_argument("--min-vote-average", type=float, default=1.0)
+    parser.add_argument("--min-vote-count", type=int, default=0)
+    parser.add_argument("--regional-min-vote-count", type=int, default=0)
+    parser.add_argument("--min-vote-average", type=float, default=0.0)
+    parser.add_argument("--exclude-adult", action="store_true")
     parser.add_argument("--scan-log-every", type=int, default=5000)
     parser.add_argument("--embed-retries", type=int, default=5)
     parser.add_argument("--firestore-retries", type=int, default=5)
@@ -148,7 +149,8 @@ def main() -> None:
 
     LOGGER.info(
         "Starting upload: csv=%s project=%s collection=%s model=%s batch_size=%s "
-        "commit_size=%s max_rows=%s max_items=%s resume=%s resume_after_row=%s skip_existing=%s",
+        "commit_size=%s max_rows=%s max_items=%s resume=%s resume_after_row=%s "
+        "skip_existing=%s exclude_adult=%s",
         csv_path,
         args.project,
         args.collection,
@@ -160,6 +162,7 @@ def main() -> None:
         args.resume,
         resume_after_row or 0,
         args.skip_existing or args.resume,
+        args.exclude_adult,
     )
 
     rows = _iter_eligible_movies(
@@ -169,6 +172,7 @@ def main() -> None:
         min_vote_count=args.min_vote_count,
         regional_min_vote_count=args.regional_min_vote_count,
         min_vote_average=args.min_vote_average,
+        exclude_adult=args.exclude_adult,
         stats=stats,
         scan_log_every=args.scan_log_every,
         resume_after_row=resume_after_row,
@@ -622,6 +626,7 @@ def _iter_eligible_movies(
     min_vote_count: int,
     regional_min_vote_count: int,
     min_vote_average: float,
+    exclude_adult: bool,
     stats: UploadStats,
     scan_log_every: int,
     resume_after_row: int,
@@ -656,6 +661,7 @@ def _iter_eligible_movies(
                 min_vote_count=min_vote_count,
                 regional_min_vote_count=regional_min_vote_count,
                 min_vote_average=min_vote_average,
+                exclude_adult=exclude_adult,
             )
             if parsed is None or parsed["id"] in seen_ids:
                 continue
@@ -674,10 +680,11 @@ def _parse_movie(
     min_vote_count: int,
     regional_min_vote_count: int,
     min_vote_average: float,
+    exclude_adult: bool,
 ) -> Optional[dict]:
     if _clean(row.get("status")).lower() != "released":
         return None
-    if _clean(row.get("adult")).lower() == "true":
+    if exclude_adult and _clean(row.get("adult")).lower() == "true":
         return None
     movie_id = _to_int(row.get("id"))
     title = _clean(row.get("title"))

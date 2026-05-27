@@ -15,12 +15,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cineverse/presentation/features/person/person_details_screen.dart';
+import 'package:cineverse/presentation/features/collection/collection_details_screen.dart';
+import 'package:cineverse/presentation/features/keyword/keyword_titles_screen.dart';
+import 'package:cineverse/presentation/features/company/company_details_screen.dart';
 import 'package:cineverse/presentation/features/watchlist/notes_screen.dart';
 import 'package:cineverse/presentation/features/watchlist/note_details_screen.dart';
 import 'package:cineverse/presentation/features/home/appearance_screen.dart';
 import 'package:cineverse/presentation/features/home/watch_history_analytics_screen.dart';
 import 'package:cineverse/presentation/features/home/notifications_screen.dart';
 import 'package:cineverse/presentation/features/splash/lumi_splash_screen.dart';
+import 'package:cineverse/presentation/features/movies/hidden_titles_screen.dart';
 
 import 'package:cineverse/presentation/features/movie_details/all_reviews_screen.dart';
 
@@ -34,6 +38,7 @@ import 'package:cineverse/presentation/features/movie_details/quote_share_editor
 import 'package:cineverse/domain/repositories/quotes_repository.dart';
 import 'package:cineverse/presentation/features/movie_details/movie_awards_screen.dart';
 import 'package:cineverse/presentation/features/movie_details/widgets/movie_awards_helper.dart';
+import 'package:cineverse/presentation/features/movie_details/full_plot_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -122,10 +127,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final String movieIdValue = state.pathParameters['movieId']!;
           final bool isTv = state.uri.queryParameters['isTv'] == 'true';
+          final bool fromNotification =
+              state.uri.queryParameters['fromNotification'] == 'true';
           final String? heroTag = state.uri.queryParameters['heroTag'];
           return MovieDetailsScreen(
             movieId: int.parse(movieIdValue),
             isTv: isTv,
+            fromNotification: fromNotification,
             heroTag: heroTag,
           );
         },
@@ -141,7 +149,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoute.search.path,
         name: AppRoute.search.name,
-        builder: (context, state) => const SearchScreen(),
+        builder: (context, state) {
+          final query = state.uri.queryParameters['query'];
+          return SearchScreen(initialQuery: query);
+        },
       ),
       GoRoute(
         path: AppRoute.globalFilter.path,
@@ -158,6 +169,38 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             personId: int.parse(personIdValue),
             heroTag: heroTag,
           );
+        },
+      ),
+      GoRoute(
+        path: AppRoute.collectionDetails.path,
+        name: AppRoute.collectionDetails.name,
+        builder: (context, state) {
+          final String collectionIdValue =
+              state.pathParameters['collectionId']!;
+          return CollectionDetailsScreen(
+            collectionId: int.parse(collectionIdValue),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoute.keywordDetails.path,
+        name: AppRoute.keywordDetails.name,
+        builder: (context, state) {
+          final String keywordIdValue = state.pathParameters['keywordId']!;
+          final String keywordName =
+              state.uri.queryParameters['keywordName'] ?? 'Keyword';
+          return KeywordTitlesScreen(
+            keywordId: int.parse(keywordIdValue),
+            keywordName: keywordName,
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoute.companyDetails.path,
+        name: AppRoute.companyDetails.name,
+        builder: (context, state) {
+          final String companyIdValue = state.pathParameters['companyId']!;
+          return CompanyDetailsScreen(companyId: int.parse(companyIdValue));
         },
       ),
       GoRoute(
@@ -265,6 +308,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const AppearanceScreen(),
       ),
       GoRoute(
+        path: AppRoute.hiddenTitles.path,
+        name: AppRoute.hiddenTitles.name,
+        builder: (context, state) => const HiddenTitlesScreen(),
+      ),
+      GoRoute(
         path: AppRoute.watchAnalytics.path,
         name: AppRoute.watchAnalytics.name,
         builder: (context, state) => const WatchHistoryAnalyticsScreen(),
@@ -313,6 +361,19 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           );
         },
       ),
+      GoRoute(
+        path: AppRoute.fullPlot.path,
+        name: AppRoute.fullPlot.name,
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return FullPlotScreen(
+            imdbId: extra['imdbId'] as String,
+            fallbackTitle: extra['fallbackTitle'] as String,
+            posterPath: extra['posterPath'] as String?,
+            releaseDate: extra['releaseDate'] as String?,
+          );
+        },
+      ),
     ],
   );
 });
@@ -329,6 +390,9 @@ enum AppRoute {
   search('/search', 'search'),
   globalFilter('/global-filter', 'global-filter'),
   personDetails('/person/:personId', 'person-details'),
+  collectionDetails('/collection/:collectionId', 'collection-details'),
+  keywordDetails('/keyword/:keywordId/titles', 'keyword-details'),
+  companyDetails('/company/:companyId', 'company-details'),
   notes('/notes', 'notes'),
   noteDetails('/notes/:noteId', 'note-details'),
   fullCastCrew('/full-cast-crew', 'full-cast-crew'),
@@ -349,7 +413,9 @@ enum AppRoute {
   allReviews('/reviews', 'all-reviews'),
   exploreQuotes('/explore_quotes', 'explore_quotes'),
   quoteShareEditor('/quote_share_editor', 'quote_share_editor'),
-  movieAwards('/movie_awards', 'movie-awards');
+  movieAwards('/movie_awards', 'movie-awards'),
+  fullPlot('/full_plot', 'full-plot'),
+  hiddenTitles('/hidden-titles', 'hidden-titles');
 
   const AppRoute(this.path, this.name);
 

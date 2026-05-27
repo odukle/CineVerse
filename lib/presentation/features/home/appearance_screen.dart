@@ -11,6 +11,7 @@ class AppearanceScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentTheme = ref.watch(appThemeTypeProvider);
+    final theme = Theme.of(context);
 
     return BackgroundGradient(
       child: Scaffold(
@@ -37,36 +38,63 @@ class AppearanceScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                gradient: const LinearGradient(
+                gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: <Color>[
-                    Color(0xFF112142),
-                    Color(0xFF231043),
-                    Color(0xFF3A1657),
+                    AppColors.cinemaPanelTop,
+                    AppColors.cinemaPanelMid,
+                    AppColors.cinemaPanelBottom,
                   ],
                 ),
                 border: Border.all(
                   color: AppColors.cinemaBorder.withValues(alpha: 0.28),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.cinemaAccent.withValues(alpha: 0.14),
+                    blurRadius: 22,
+                    spreadRadius: -12,
+                    offset: const Offset(0, 12),
+                  ),
+                ],
               ),
-              child: const Column(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.cinemaAccent.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(999),
+                      border: Border.all(
+                        color: AppColors.cinemaAccent.withValues(alpha: 0.35),
+                      ),
+                    ),
+                    child: Text(
+                      'Theme presets',
+                      style: theme.textTheme.labelLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 8),
                   Text(
                     'Choose your vibe',
-                    style: TextStyle(
+                    style: theme.textTheme.headlineSmall?.copyWith(
                       color: Colors.white,
-                      fontSize: 22,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                   SizedBox(height: 8),
                   Text(
                     'Swap the app between cinematic personalities without changing any behavior.',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 15,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.75),
                       height: 1.45,
                     ),
                   ),

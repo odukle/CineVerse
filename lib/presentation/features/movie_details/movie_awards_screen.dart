@@ -16,6 +16,7 @@ class MovieAwardsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final List<AwardDetailEntry> detailEntries = awards.detailEntries;
     final List<String> detailLines = awards.detailLines;
 
     return BackgroundGradient(
@@ -160,10 +161,20 @@ class MovieAwardsScreen extends StatelessWidget {
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
+                        if (detailEntries.isNotEmpty) {
+                          return _buildDetailItem(
+                            theme,
+                            detailEntries[index].text,
+                            logoUrl: detailEntries[index].logoUrl,
+                            awardName: detailEntries[index].awardName,
+                          );
+                        }
                         final String line = detailLines[index];
                         return _buildDetailItem(theme, line);
                       },
-                      childCount: detailLines.length,
+                      childCount: detailEntries.isNotEmpty
+                          ? detailEntries.length
+                          : detailLines.length,
                     ),
                   ),
 
@@ -210,7 +221,12 @@ class MovieAwardsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDetailItem(ThemeData theme, String text) {
+  Widget _buildDetailItem(
+    ThemeData theme,
+    String text, {
+    String? logoUrl,
+    String? awardName,
+  }) {
     final String lower = text.toLowerCase();
 
     // Determine the icon and accent color based on award type
@@ -248,15 +264,47 @@ class MovieAwardsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            width: 44,
+            height: 44,
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
-              color: accentColor.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
+              color: Colors.white.withValues(alpha: 0.14),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: Colors.white24),
             ),
-            child: Icon(
-              iconData,
-              color: accentColor,
-              size: 24,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Icon(
+                  iconData,
+                  color: accentColor,
+                  size: 22,
+                ),
+                if (logoUrl != null && logoUrl.trim().isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: Image.network(
+                      logoUrl,
+                      fit: BoxFit.contain,
+                      frameBuilder: (
+                        BuildContext context,
+                        Widget child,
+                        int? frame,
+                        bool wasSynchronouslyLoaded,
+                      ) {
+                        if (wasSynchronouslyLoaded || frame != null) {
+                          return child;
+                        }
+                        return const SizedBox.shrink();
+                      },
+                      errorBuilder: (
+                        BuildContext context,
+                        Object error,
+                        StackTrace? stackTrace,
+                      ) => const SizedBox.shrink(),
+                    ),
+                  ),
+              ],
             ),
           ),
           const SizedBox(width: 16),
@@ -264,6 +312,16 @@ class MovieAwardsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (awardName != null && awardName.trim().isNotEmpty) ...[
+                  Text(
+                    awardName.trim(),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                ],
                 Text(
                   text,
                   style: theme.textTheme.bodyLarge?.copyWith(

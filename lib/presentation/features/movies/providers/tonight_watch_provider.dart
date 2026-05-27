@@ -203,8 +203,13 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
     if (response == null) {
       throw StateError('Recommendation request failed before response.');
     }
-    _progressAdd('Search plan is ready');
     final Map<String, dynamic>? payload = response.data;
+    final String? backendProgressMessage =
+        _recommendationBackendProgressMessage(payload);
+    if (backendProgressMessage != null) {
+      _progressAdd(backendProgressMessage);
+    }
+    _progressAdd('Search plan is ready');
     todayRecommendationPlanNotifier.value =
         _recommendationServiceQueryPlanChips(payload);
     final List<dynamic> rawResults =
@@ -362,6 +367,7 @@ String _recommendationServiceIntentSummary(
   Map<String, dynamic>? payload,
   String fallbackPrompt,
 ) {
+  final String backendLabel = _recommendationBackendLabel(payload);
   final Map<String, dynamic> criteria =
       payload?['criteria'] as Map<String, dynamic>? ?? <String, dynamic>{};
   final List<String> chips = <String>[];
@@ -382,9 +388,9 @@ String _recommendationServiceIntentSummary(
     chips.add('under $maxRuntime min');
   }
   if (chips.isEmpty) {
-    return 'Firebase vector search for "$fallbackPrompt"';
+    return '$backendLabel for "$fallbackPrompt"';
   }
-  return 'Firebase vector search using ${chips.join(' • ')}.';
+  return '$backendLabel using ${chips.join(' • ')}.';
 }
 
 List<String> _recommendationServiceQueryPlanChips(
@@ -396,6 +402,7 @@ List<String> _recommendationServiceQueryPlanChips(
       payload?['diagnostics'] as Map<String, dynamic>? ?? <String, dynamic>{};
 
   final List<String> chips = <String>[];
+  chips.add('Backend: ${_recommendationBackendChipLabel(payload)}');
   final String language = _readString(criteria['language']);
   final List<String> includeGenres = _readStringList(criteria['includeGenres']);
   final List<String> excludeGenres = _readStringList(criteria['excludeGenres']);
@@ -447,6 +454,64 @@ List<String> _recommendationServiceQueryPlanChips(
   }
 
   return chips;
+}
+
+String _recommendationBackendLabel(Map<String, dynamic>? payload) {
+  final Map<String, dynamic>? diagnostics =
+      payload?['diagnostics'] as Map<String, dynamic>?;
+  final String resolved = _readString(
+    diagnostics?['vectorBackendResolved'],
+  ).toLowerCase();
+  if (resolved.contains('zilliz')) {
+    return 'Zilliz vector search';
+  }
+  if (resolved.contains('qdrant')) {
+    return 'Qdrant vector search';
+  }
+  if (resolved.contains('firestore')) {
+    return 'Firebase vector search';
+  }
+  return 'Recommendation vector search';
+}
+
+String _recommendationBackendChipLabel(Map<String, dynamic>? payload) {
+  final Map<String, dynamic>? diagnostics =
+      payload?['diagnostics'] as Map<String, dynamic>?;
+  final String resolved = _readString(
+    diagnostics?['vectorBackendResolved'],
+  ).toLowerCase();
+  if (resolved.contains('zilliz')) {
+    return 'Zilliz';
+  }
+  if (resolved.contains('qdrant')) {
+    return 'Qdrant';
+  }
+  if (resolved.contains('firestore')) {
+    return 'Firebase';
+  }
+  return 'Unknown';
+}
+
+String? _recommendationBackendProgressMessage(Map<String, dynamic>? payload) {
+  final Map<String, dynamic>? diagnostics =
+      payload?['diagnostics'] as Map<String, dynamic>?;
+  final String resolved = _readString(
+    diagnostics?['vectorBackendResolved'],
+  ).toLowerCase();
+  final String requested = _readString(
+    diagnostics?['vectorBackendRequested'],
+  ).toLowerCase();
+
+  if (resolved.contains('qdrant') && requested.contains('zilliz')) {
+    return 'Zilliz took too long, switched to Qdrant to keep things moving';
+  }
+  if (resolved.contains('firestore') && requested.contains('zilliz')) {
+    return 'Zilliz and Qdrant were unavailable, switched to Firebase fallback';
+  }
+  if (resolved.contains('firestore') && requested.contains('qdrant')) {
+    return 'Qdrant was unavailable, switched to Firebase fallback';
+  }
+  return null;
 }
 
 Future<_PromptPlan> _planPromptWithOpenRouter({

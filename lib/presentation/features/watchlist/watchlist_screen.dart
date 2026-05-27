@@ -261,7 +261,7 @@ class _WatchedTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final watchedAsync = ref.watch(watchedItemsProvider);
     return watchedAsync.when(
-      data: (items) => _MediaGrid(
+      data: (items) => _WatchedScrollableContent(
         items: items
             .map(
               (e) => MediaTitle(
@@ -274,12 +274,178 @@ class _WatchedTab extends ConsumerWidget {
               ),
             )
             .toList(),
-        emptyLabel: 'Your watched list is empty',
-        emptyIcon: Icons.check_circle_outline_rounded,
       ),
       loading: () => const _LoadingGrid(),
       error: (e, _) => Center(
         child: Text('Error: $e', style: const TextStyle(color: Colors.white)),
+      ),
+    );
+  }
+}
+
+class _WatchedScrollableContent extends StatelessWidget {
+  const _WatchedScrollableContent({required this.items});
+
+  final List<MediaTitle> items;
+
+  @override
+  Widget build(BuildContext context) {
+    const double crossAxisSpacing = 12;
+    const int crossAxisCount = 3;
+    final double cardWidth =
+        (MediaQuery.sizeOf(context).width - (16 * 2) - (crossAxisSpacing * 2)) /
+        crossAxisCount;
+
+    return CustomScrollView(
+      slivers: [
+        const SliverToBoxAdapter(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
+            child: _WatchHistoryAnalyticsCard(),
+          ),
+        ),
+        if (items.isEmpty)
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.check_circle_outline_rounded,
+                    size: 64,
+                    color: Colors.white24,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Your watched list is empty',
+                    style: TextStyle(
+                      color: Colors.white54,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+        else
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+            sliver: SliverGrid(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final media = items[index];
+                return MediaPosterGridCard(
+                  movie: media,
+                  sectionTitle: 'library',
+                  width: cardWidth,
+                  isTvTitle: media.mediaType == GlobalMediaType.tv,
+                  enableWatchlistUndoOnRemove: true,
+                );
+              }, childCount: items.length),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: crossAxisSpacing,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.55,
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _WatchHistoryAnalyticsCard extends StatelessWidget {
+  const _WatchHistoryAnalyticsCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          colors: AppColors.cinemaPanelGradient,
+        ),
+        border: Border.all(
+          color: AppColors.cinemaBorder.withValues(alpha: 0.2),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.cinemaGlow.withValues(alpha: 0.08),
+            blurRadius: 16,
+            spreadRadius: -8,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            context.pushNamed(AppRoute.watchAnalytics.name);
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 14,
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.cinemaAccent.withValues(
+                      alpha: 0.15,
+                    ),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.cinemaAccent.withValues(
+                        alpha: 0.3,
+                      ),
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.analytics_rounded,
+                    color: AppColors.cinemaAccent,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Watch History Analytics',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'View personalized insights, charts, and trends.',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.6),
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: Colors.white.withValues(alpha: 0.5),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -524,22 +690,49 @@ class _ListsTab extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.detailsCard,
-        title: const Text('Rename List', style: TextStyle(color: Colors.white)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
+        title: Text(
+          'Rename List',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         content: TextField(
           controller: controller,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white, fontSize: 14),
           autofocus: true,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: 'Enter new name...',
-            hintStyle: TextStyle(color: Colors.white38),
+            hintStyle: const TextStyle(color: Colors.white38),
+            filled: true,
+            fillColor: Colors.white.withValues(alpha: 0.03),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.white10),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.cinemaAccent, width: 1.5),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white60,
+            ),
             child: const Text(
               'Cancel',
-              style: TextStyle(color: Colors.white54),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           ElevatedButton(
@@ -559,8 +752,14 @@ class _ListsTab extends ConsumerWidget {
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.cinemaAccent,
+              foregroundColor: Colors.black,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              elevation: 0,
             ),
-            child: const Text('Rename', style: TextStyle(color: Colors.black)),
+            child: const Text('Rename', style: TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -572,20 +771,33 @@ class _ListsTab extends ConsumerWidget {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: AppColors.detailsCard,
-        title: const Text(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
+        title: Text(
           'Delete List?',
-          style: TextStyle(color: Colors.white),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         content: Text(
           'Are you sure you want to delete "${list.name}"?',
-          style: const TextStyle(color: Colors.white70),
+          style: const TextStyle(color: Colors.white70, fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white60,
+            ),
             child: const Text(
               'Cancel',
-              style: TextStyle(color: Colors.white70),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           TextButton(
@@ -596,9 +808,12 @@ class _ListsTab extends ConsumerWidget {
                 ToastUtils.showToast(context, 'List "${list.name}" deleted');
               }
             },
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.redAccent,
+            ),
             child: const Text(
               'Delete',
-              style: TextStyle(color: Colors.redAccent),
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],

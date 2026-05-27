@@ -1,5 +1,6 @@
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/constants/app_constants.dart';
+import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:cineverse/presentation/features/home/app_bottom_navigation_bar.dart';
 import 'package:cineverse/presentation/features/home/widgets/explore_media_type_toggle.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
@@ -50,31 +51,47 @@ class HomeScaffold extends ConsumerWidget {
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
 
-        final bool? shouldPop = await showDialog<bool>(
+        final bool? shouldPop = await showAnimatedDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
             backgroundColor: AppColors.detailsCard,
-            title: const Text(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: BorderSide(
+                color: Colors.white.withValues(alpha: 0.08),
+                width: 1,
+              ),
+            ),
+            title: Text(
               'Exit App',
-              style: TextStyle(color: Colors.white),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             content: const Text(
               'Are you sure you want to exit Lumi?',
-              style: TextStyle(color: Colors.white70),
+              style: TextStyle(color: Colors.white70, fontSize: 14),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white60,
+                ),
                 child: const Text(
                   'Cancel',
-                  style: TextStyle(color: Colors.white70),
+                  style: TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: Text(
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.cinemaAccent,
+                ),
+                child: const Text(
                   'Exit',
-                  style: TextStyle(color: AppColors.cinemaAccent),
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ],

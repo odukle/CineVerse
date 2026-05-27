@@ -137,7 +137,7 @@ class AutoReleaseNotificationScheduler {
         scheduledAt: scheduledAt,
         mediaId: details.id,
         isTv: true,
-        backdropPath: details.backdropPath,
+        backdropPath: details.backdropPath ?? details.posterPath,
       );
     } catch (_) {
       return null;
@@ -158,15 +158,18 @@ class AutoReleaseNotificationScheduler {
   _buildMovieNotification(_TrackedMovie movie) async {
     try {
       MovieDetails? details;
+      try {
+        details = await _mediaRepository.fetchMovieDetails(
+          movie.id,
+          isTv: false,
+        );
+      } catch (_) {}
+
       DateTime? releaseDate = _parseTmdbDate(movie.releaseDate);
       if (releaseDate == null ||
           releaseDate.isBefore(
             _todayStart().subtract(const Duration(days: 1)),
           )) {
-        details = await _mediaRepository.fetchMovieDetails(
-          movie.id,
-          isTv: false,
-        );
         releaseDate = _parseMovieReleaseDate(details);
       }
       if (releaseDate == null) {
@@ -209,7 +212,7 @@ class AutoReleaseNotificationScheduler {
         scheduledAt: scheduledAt,
         mediaId: movie.id,
         isTv: false,
-        backdropPath: details?.backdropPath,
+        backdropPath: details?.backdropPath ?? details?.posterPath,
       );
     } catch (_) {
       return null;

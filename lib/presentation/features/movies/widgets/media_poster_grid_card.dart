@@ -6,6 +6,7 @@ import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
+import 'package:cineverse/domain/entities/movie_genre.dart';
 import 'package:cineverse/domain/entities/watchlist_item.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:cineverse/presentation/features/movies/widgets/rating_badge.dart';
@@ -25,6 +26,10 @@ class MediaPosterGridCard extends ConsumerStatefulWidget {
     required this.width,
     this.isTvTitle = false,
     this.enableWatchlistUndoOnRemove = false,
+    this.subtitleOverride,
+    this.disableSortBasedSubtitle = false,
+    this.subtitleMaxLines = 1,
+    this.showGenreChips = false,
   });
 
   final MediaTitle movie;
@@ -32,6 +37,10 @@ class MediaPosterGridCard extends ConsumerStatefulWidget {
   final double width;
   final bool isTvTitle;
   final bool enableWatchlistUndoOnRemove;
+  final String? subtitleOverride;
+  final bool disableSortBasedSubtitle;
+  final int subtitleMaxLines;
+  final bool showGenreChips;
 
   @override
   ConsumerState<MediaPosterGridCard> createState() =>
@@ -44,10 +53,12 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final double posterHeight = widget.width * 1.42;
+    final bool hasExpandedSubtitle = widget.subtitleMaxLines > 1;
+    final double posterHeight =
+        widget.width * (hasExpandedSubtitle ? 1.34 : 1.42);
     final double badgeSize = widget.width * 0.20;
     final double badgeOffset = badgeSize * 0.0;
-    final double titleGap = badgeOffset + 5;
+    final double titleGap = badgeOffset + (hasExpandedSubtitle ? 3 : 5);
 
     final bool isPerson = widget.movie.mediaType == GlobalMediaType.person;
     final String heroTag =
@@ -81,9 +92,11 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
     final bool isDefaultSort = currentSort.isDefault;
 
     // Determine what to display as the primary subtitle
-    String? subtitleText;
+    String? subtitleText = widget.subtitleOverride;
 
-    if (!isDefaultSort) {
+    if (subtitleText == null &&
+        !widget.disableSortBasedSubtitle &&
+        !isDefaultSort) {
       switch (activeField) {
         case SortField.revenue:
           int? effectiveRevenue = widget.movie.revenue;
@@ -121,6 +134,8 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
         widget.movie.subtitle ??
         widget.movie.releaseDate ??
         (widget.sectionTitle == 'search' ? '' : widget.sectionTitle);
+
+    final List<String> genreChips = _buildGenreChipLabels(isPerson: isPerson);
 
     return SizedBox(
       width: widget.width,
@@ -334,13 +349,50 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
               const SizedBox(height: 2),
               Text(
                 subtitleText,
-                maxLines: 1,
+                maxLines: widget.subtitleMaxLines,
                 overflow: TextOverflow.ellipsis,
                 style: theme.textTheme.labelSmall?.copyWith(
                   color: Colors.white.withValues(alpha: 0.68),
                   fontWeight: FontWeight.w500,
                 ),
               ),
+              if (genreChips.isNotEmpty) ...<Widget>[
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 5,
+                  runSpacing: 5,
+                  children: genreChips
+                      .map(
+                        (String genre) => Container(
+                          constraints: BoxConstraints(
+                            maxWidth: widget.width * 0.78,
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(999),
+                            border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.2),
+                            ),
+                          ),
+                          child: Text(
+                            genre,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: Colors.white.withValues(alpha: 0.88),
+                              fontWeight: FontWeight.w700,
+                              fontSize: 10.5,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
             ],
           ),
         ),
@@ -409,6 +461,34 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
     } else {
       return '$count';
     }
+  }
+
+  List<String> _buildGenreChipLabels({required bool isPerson}) {
+    if (!widget.showGenreChips || isPerson || widget.movie.genreIds.isEmpty) {
+      return const <String>[];
+    }
+    final genresAsync = widget.isTvTitle
+        ? ref.watch(tvGenresProvider)
+        : ref.watch(movieGenresProvider);
+    final List<MovieGenre> genres =
+        genresAsync.asData?.value ?? const <MovieGenre>[];
+    if (genres.isEmpty) {
+      return const <String>[];
+    }
+    final Map<int, String> genresById = <int, String>{
+      for (final MovieGenre genre in genres) genre.id: genre.name,
+    };
+    final Set<String> names = <String>{};
+    for (final int id in widget.movie.genreIds) {
+      final String? name = genresById[id];
+      if (name != null && name.isNotEmpty) {
+        names.add(name);
+      }
+      if (names.length >= 2) {
+        break;
+      }
+    }
+    return names.toList(growable: false);
   }
 
   void _showMediaActionsMenu(BuildContext context) {

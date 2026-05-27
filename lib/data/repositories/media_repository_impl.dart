@@ -11,6 +11,11 @@ import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/domain/entities/person_details.dart';
 import 'package:cineverse/domain/repositories/media_repository.dart';
+import 'package:cineverse/domain/entities/search_collection.dart';
+import 'package:cineverse/domain/entities/search_keyword.dart';
+import 'package:cineverse/domain/entities/search_company.dart';
+import 'package:cineverse/domain/entities/movie_collection.dart';
+import 'package:cineverse/domain/entities/company_details.dart';
 import 'package:flutter/foundation.dart';
 
 class MediaRepositoryImpl implements MediaRepository {
@@ -103,12 +108,16 @@ class MediaRepositoryImpl implements MediaRepository {
     required MediaFilter filter,
     String? query,
     int page = 1,
+    String? withKeywords,
+    String? withCompanies,
   }) async {
     final movieDtos = await remoteDataSource.discoverMedia(
       isTv: isTv,
       filter: filter,
       query: query,
       page: page,
+      withKeywords: withKeywords,
+      withCompanies: withCompanies,
     );
 
     return movieDtos
@@ -197,7 +206,6 @@ class MediaRepositoryImpl implements MediaRepository {
               title: baseDetails.title,
             ) ??
             const <MovieRating>[],
-        awards: omdbRatingsDto?.awards,
         digitalReleaseDate: mergedDigitalRelease,
       );
     } catch (e, stackTrace) {
@@ -270,6 +278,10 @@ class MediaRepositoryImpl implements MediaRepository {
         media: media,
         role: castDto.character,
         department: 'Acting',
+        creditId: castDto.creditId,
+        episodeCount: castDto.episodeCount,
+        billingOrder: castDto.order,
+        isCastCredit: true,
       );
       creditsByDepartment.putIfAbsent('Acting', () => []).add(credit);
     }
@@ -282,6 +294,9 @@ class MediaRepositoryImpl implements MediaRepository {
         media: media,
         role: crewDto.job,
         department: dept,
+        creditId: crewDto.creditId,
+        episodeCount: crewDto.episodeCount,
+        isCastCredit: false,
       );
       creditsByDepartment.putIfAbsent(dept, () => []).add(credit);
     }
@@ -289,9 +304,7 @@ class MediaRepositoryImpl implements MediaRepository {
     // Deduplicate and sort each department
     for (final dept in creditsByDepartment.keys) {
       final credits = creditsByDepartment[dept]!;
-      final seenIds = <int>{};
-      final uniqueCredits =
-          credits.where((e) => seenIds.add(e.media.id)).toList();
+      final uniqueCredits = _mergeDuplicateCredits(credits);
       uniqueCredits.sort(
         (a, b) => b.media.popularity.compareTo(a.media.popularity),
       );
@@ -299,5 +312,74 @@ class MediaRepositoryImpl implements MediaRepository {
     }
 
     return personDetailsDto.toDomain(creditsByDepartment: creditsByDepartment);
+  }
+
+  @override
+  Future<List<MediaTitle>> fetchMovieCollectionParts(int collectionId) async {
+    final dtos = await remoteDataSource.fetchMovieCollectionParts(collectionId);
+    return dtos.map((dto) => dto.toDomain()).toList();
+  }
+
+  @override
+  Future<List<SearchCollection>> searchCollections(String query, {int page = 1}) async {
+    final dtos = await remoteDataSource.searchCollections(query, page: page);
+    return dtos.map((dto) => dto.toDomain()).toList();
+  }
+
+  @override
+  Future<List<SearchKeyword>> searchKeywords(String query, {int page = 1}) async {
+    final dtos = await remoteDataSource.searchKeywords(query, page: page);
+    return dtos.map((dto) => dto.toDomain()).toList();
+  }
+
+  @override
+  Future<List<SearchCompany>> searchCompanies(String query, {int page = 1}) async {
+    final dtos = await remoteDataSource.searchCompanies(query, page: page);
+    return dtos.map((dto) => dto.toDomain()).toList();
+  }
+
+  @override
+  Future<MovieCollection> fetchMovieCollectionDetails(int collectionId) async {
+    final dto = await remoteDataSource.fetchMovieCollectionDetails(collectionId);
+    return dto.toDomain();
+  }
+
+  @override
+  Future<CompanyDetails> fetchCompanyDetails(int companyId) async {
+    final dto = await remoteDataSource.fetchCompanyDetails(companyId);
+    return dto.toDomain();
+  }
+
+  List<PersonCredit> _mergeDuplicateCredits(List<PersonCredit> credits) {
+    final Map<int, PersonCredit> mergedByMediaId = <int, PersonCredit>{};
+    for (final credit in credits) {
+      final existing = mergedByMediaId[credit.media.id];
+      if (existing == null) {
+        mergedByMediaId[credit.media.id] = credit;
+        continue;
+      }
+
+      mergedByMediaId[credit.media.id] = _preferRicherCredit(existing, credit);
+    }
+    return mergedByMediaId.values.toList(growable: false);
+  }
+
+  PersonCredit _preferRicherCredit(PersonCredit a, PersonCredit b) {
+    final int scoreA = _creditRichnessScore(a);
+    final int scoreB = _creditRichnessScore(b);
+    if (scoreB > scoreA) return b;
+    if (scoreA > scoreB) return a;
+    return b.media.popularity > a.media.popularity ? b : a;
+  }
+
+  int _creditRichnessScore(PersonCredit credit) {
+    int score = 0;
+    if ((credit.role ?? '').trim().isNotEmpty) score += 4;
+    if ((credit.department ?? '').trim().isNotEmpty) score += 1;
+    if (credit.episodeCount != null && credit.episodeCount! > 0) score += 3;
+    if (credit.billingOrder != null) score += 2;
+    if ((credit.creditId ?? '').trim().isNotEmpty) score += 1;
+    if (credit.isCastCredit) score += 1;
+    return score;
   }
 }

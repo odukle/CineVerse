@@ -1,3 +1,15 @@
+class AwardDetailEntry {
+  const AwardDetailEntry({
+    required this.text,
+    this.logoUrl,
+    this.awardName,
+  });
+
+  final String text;
+  final String? logoUrl;
+  final String? awardName;
+}
+
 class MovieAwards {
   const MovieAwards({
     required this.rawAwards,
@@ -9,6 +21,7 @@ class MovieAwards {
     required this.baftaNominations,
     required this.otherWins,
     required this.otherNominations,
+    this.detailEntries = const <AwardDetailEntry>[],
   });
 
   factory MovieAwards.parse(String? raw) {
@@ -24,6 +37,7 @@ class MovieAwards {
         baftaNominations: 0,
         otherWins: 0,
         otherNominations: 0,
+        detailEntries: const <AwardDetailEntry>[],
       );
     }
 
@@ -86,6 +100,46 @@ class MovieAwards {
       baftaNominations: baftaNominations,
       otherWins: otherWins,
       otherNominations: otherNominations,
+      detailEntries: const <AwardDetailEntry>[],
+    );
+  }
+
+  factory MovieAwards.fromResolverPayload(Map<String, dynamic>? payload) {
+    final String awardsText = (payload?['awardsText'] as String? ?? '').trim();
+    final MovieAwards parsed = MovieAwards.parse(awardsText);
+
+    final List<AwardDetailEntry> detailEntries = <AwardDetailEntry>[];
+    final dynamic rawItems = payload?['detailItems'];
+    if (rawItems is List) {
+      for (final dynamic item in rawItems) {
+        if (item is! Map) continue;
+        final String text = (item['text'] as String? ?? '').trim();
+        if (text.isEmpty) continue;
+        final String? logoUrl = (item['logoUrl'] as String?)?.trim();
+        final String? awardName = (item['awardName'] as String?)?.trim();
+        detailEntries.add(
+          AwardDetailEntry(
+            text: text,
+            logoUrl: (logoUrl == null || logoUrl.isEmpty) ? null : logoUrl,
+            awardName: (awardName == null || awardName.isEmpty)
+                ? null
+                : awardName,
+          ),
+        );
+      }
+    }
+
+    return MovieAwards(
+      rawAwards: parsed.rawAwards,
+      oscarWins: parsed.oscarWins,
+      oscarNominations: parsed.oscarNominations,
+      globeWins: parsed.globeWins,
+      globeNominations: parsed.globeNominations,
+      baftaWins: parsed.baftaWins,
+      baftaNominations: parsed.baftaNominations,
+      otherWins: parsed.otherWins,
+      otherNominations: parsed.otherNominations,
+      detailEntries: detailEntries,
     );
   }
 
@@ -98,6 +152,7 @@ class MovieAwards {
   final int baftaNominations;
   final int otherWins;
   final int otherNominations;
+  final List<AwardDetailEntry> detailEntries;
 
   int get totalWins => oscarWins + globeWins + baftaWins + otherWins;
   int get totalNominations => oscarNominations + globeNominations + baftaNominations + otherNominations;
@@ -118,6 +173,9 @@ class MovieAwards {
   }
 
   List<String> get detailLines {
+    if (detailEntries.isNotEmpty) {
+      return detailEntries.map((entry) => entry.text).toList(growable: false);
+    }
     if (rawAwards.isEmpty || rawAwards.toLowerCase() == 'n/a') {
       return const <String>[];
     }

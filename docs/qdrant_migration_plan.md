@@ -2,7 +2,8 @@
 
 ## Goal
 
-Move vector retrieval for `recommendTonight` from Firestore vector search to Qdrant, with zero downtime and rollback safety.
+Move vector retrieval for `recommendTonight` from Firestore vector search to
+Qdrant `v2` embeddings, with zero downtime and rollback safety.
 
 ## Scope
 
@@ -19,6 +20,7 @@ Move vector retrieval for `recommendTonight` from Firestore vector search to Qdr
    - `QDRANT_URL`
    - `QDRANT_COLLECTION`
    - `QDRANT_TIMEOUT_MS`
+   - `QDRANT_FAILOVER_TO_FIRESTORE=true|false`
    - `QDRANT_API_KEY` (optional param if cluster is private)
 3. Dual-read mode:
    - Queries both Firestore and Qdrant.
@@ -26,20 +28,24 @@ Move vector retrieval for `recommendTonight` from Firestore vector search to Qdr
    - Uses best vector similarity per id.
 4. New ingestion script:
    - `scripts/upload_tmdb_openrouter_vectors_to_qdrant.py`
-   - Same payload fields as Firestore index.
+   - Versioned embedding profile (`movie_profile_v2`) and richer payload fields.
    - Resume mode + deterministic upsert IDs.
+5. Shadow-collection diagnostics:
+   - `QDRANT_SHADOW_COLLECTION` can run a second collection lookup for side-by-side
+     latency/coverage checks while serving primary results.
 
-## Payload schema in Qdrant
+## Payload schema in Qdrant (v2)
 
 Each point:
 - `id`: TMDB movie id (integer)
 - `vector`: OpenRouter embedding vector
 - `payload`:
-  - `id`, `mediaType`, `title`, `originalTitle`, `overview`, `tagline`
+  - `id`, `mediaType`, `schemaVersion`, `title`, `originalTitle`, `overview`, `tagline`
   - `genres`, `keywords`
-  - `originalLanguage`, `spokenLanguages`, `productionCountries`
+  - `originalLanguage`, `spokenLanguages`, `productionCountries`, `productionCompanies`
   - `releaseDate`, `releaseYear`, `runtimeMinutes`
   - `voteAverage`, `voteCount`, `popularity`
+  - `runtimeBucket`, `decade`, `qualityTier`, `franchiseHints`, `adult`
   - `posterPath`
   - `_csvRow` (ingestion bookkeeping)
 
@@ -52,9 +58,16 @@ export OPENROUTER_API_KEY=...
 export QDRANT_URL=https://<cluster>.cloud.qdrant.io
 export QDRANT_API_KEY=...
 python3 scripts/upload_tmdb_openrouter_vectors_to_qdrant.py \
-  --collection tmdb_movie_vectors_v1 \
+  --collection tmdb_movie_vectors_v2 \
+  --embedding-profile movie_profile_v2 \
   --resume \
   --log-file .local/tmdb-qdrant-upload.log
+```
+
+Or run the helper:
+
+```bash
+scripts/reembed_qdrant_v2.sh
 ```
 
 2. Configure function params/secrets
@@ -72,7 +85,8 @@ firebase deploy --only functions
 firebase functions:config:set \
   TONIGHT_VECTOR_BACKEND=dual \
   QDRANT_URL=https://<cluster>.cloud.qdrant.io \
-  QDRANT_COLLECTION=tmdb_movie_vectors_v1 \
+  QDRANT_COLLECTION=tmdb_movie_vectors_v2 \
+  QDRANT_SHADOW_COLLECTION=tmdb_movie_vectors_v1 \
   QDRANT_TIMEOUT_MS=12000
 ```
 Then redeploy functions.
@@ -84,6 +98,17 @@ Then redeploy functions.
   - Median/95th response latency
   - Quality on difficult prompts (negations, non-English)
 - Read `diagnostics.vectorBackendStats` from responses.
+- Run offline A/B script:
+
+```bash
+python3 scripts/evaluate_qdrant_collections.py \
+  --qdrant-url "$QDRANT_URL" \
+  --qdrant-api-key "$QDRANT_API_KEY" \
+  --collection-a tmdb_movie_vectors_v1 \
+  --collection-b tmdb_movie_vectors_v2 \
+  --queries-file scripts/recommendation_eval_queries.txt \
+  --output-json .local/qdrant_v1_v2_eval.json
+```
 
 6. Cut over
 ```bash

@@ -19,11 +19,16 @@ class LumiApp extends ConsumerWidget {
     final themeType = ref.watch(appThemeTypeProvider);
 
     LocalNotificationService.instance.setNotificationTapHandler((target) async {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        router.goNamed(
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        router.goNamed(AppRoute.explore.name);
+        await Future<void>.delayed(const Duration(milliseconds: 140));
+        router.pushNamed(
           AppRoute.movieDetails.name,
           pathParameters: <String, String>{'movieId': '${target.mediaId}'},
-          queryParameters: <String, String>{'isTv': '${target.isTv}'},
+          queryParameters: <String, String>{
+            'isTv': '${target.isTv}',
+            'fromNotification': 'true',
+          },
         );
       });
     });

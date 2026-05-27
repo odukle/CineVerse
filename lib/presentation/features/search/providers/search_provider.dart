@@ -4,6 +4,9 @@ import 'package:cineverse/data/providers/data_providers.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
+import 'package:cineverse/domain/entities/search_collection.dart';
+import 'package:cineverse/domain/entities/search_keyword.dart';
+import 'package:cineverse/domain/entities/search_company.dart';
 import 'package:cineverse/domain/usecases/search_multi_use_case.dart';
 import 'package:cineverse/domain/usecases/discover_media_use_case.dart';
 import 'package:cineverse/presentation/features/search/providers/search_history_provider.dart';
@@ -17,14 +20,29 @@ final discoverMediaUseCaseProvider = Provider<DiscoverMediaUseCase>((ref) {
   return DiscoverMediaUseCase(ref.watch(mediaRepositoryProvider));
 });
 
+enum SearchCategory {
+  movies('Movies'),
+  tvShows('TV Shows'),
+  persons('Persons'),
+  collections('Collections'),
+  keywords('Keywords'),
+  companies('Companies');
+
+  const SearchCategory(this.label);
+  final String label;
+}
+
 class SearchState {
   const SearchState({
     this.query = '',
     this.suggestions = const [],
-    this.results = const [], // Keep for backward compatibility or mixed results
+    this.results = const [],
     this.movieResults = const [],
     this.tvResults = const [],
     this.personResults = const [],
+    this.collectionResults = const [],
+    this.keywordResults = const [],
+    this.companyResults = const [],
     this.isLoading = false,
     this.isLoadingMore = false,
     this.hasSearched = false,
@@ -32,12 +50,19 @@ class SearchState {
     this.moviePage = 1,
     this.tvPage = 1,
     this.personPage = 1,
+    this.collectionPage = 1,
+    this.keywordPage = 1,
+    this.companyPage = 1,
     this.hasMore = false,
     this.movieHasMore = false,
     this.tvHasMore = false,
     this.personHasMore = false,
+    this.collectionHasMore = false,
+    this.keywordHasMore = false,
+    this.companyHasMore = false,
     this.error,
     this.filter = const GlobalMediaFilter(),
+    this.selectedCategory = SearchCategory.movies,
   });
 
   final String query;
@@ -46,6 +71,9 @@ class SearchState {
   final List<MediaTitle> movieResults;
   final List<MediaTitle> tvResults;
   final List<MediaTitle> personResults;
+  final List<SearchCollection> collectionResults;
+  final List<SearchKeyword> keywordResults;
+  final List<SearchCompany> companyResults;
   final bool isLoading;
   final bool isLoadingMore;
   final bool hasSearched;
@@ -53,12 +81,19 @@ class SearchState {
   final int moviePage;
   final int tvPage;
   final int personPage;
+  final int collectionPage;
+  final int keywordPage;
+  final int companyPage;
   final bool hasMore;
   final bool movieHasMore;
   final bool tvHasMore;
   final bool personHasMore;
+  final bool collectionHasMore;
+  final bool keywordHasMore;
+  final bool companyHasMore;
   final String? error;
   final GlobalMediaFilter filter;
+  final SearchCategory selectedCategory;
 
   SearchState copyWith({
     String? query,
@@ -67,6 +102,9 @@ class SearchState {
     List<MediaTitle>? movieResults,
     List<MediaTitle>? tvResults,
     List<MediaTitle>? personResults,
+    List<SearchCollection>? collectionResults,
+    List<SearchKeyword>? keywordResults,
+    List<SearchCompany>? companyResults,
     bool? isLoading,
     bool? isLoadingMore,
     bool? hasSearched,
@@ -74,12 +112,19 @@ class SearchState {
     int? moviePage,
     int? tvPage,
     int? personPage,
+    int? collectionPage,
+    int? keywordPage,
+    int? companyPage,
     bool? hasMore,
     bool? movieHasMore,
     bool? tvHasMore,
     bool? personHasMore,
+    bool? collectionHasMore,
+    bool? keywordHasMore,
+    bool? companyHasMore,
     String? error,
     GlobalMediaFilter? filter,
+    SearchCategory? selectedCategory,
   }) {
     return SearchState(
       query: query ?? this.query,
@@ -88,6 +133,9 @@ class SearchState {
       movieResults: movieResults ?? this.movieResults,
       tvResults: tvResults ?? this.tvResults,
       personResults: personResults ?? this.personResults,
+      collectionResults: collectionResults ?? this.collectionResults,
+      keywordResults: keywordResults ?? this.keywordResults,
+      companyResults: companyResults ?? this.companyResults,
       isLoading: isLoading ?? this.isLoading,
       isLoadingMore: isLoadingMore ?? this.isLoadingMore,
       hasSearched: hasSearched ?? this.hasSearched,
@@ -95,12 +143,19 @@ class SearchState {
       moviePage: moviePage ?? this.moviePage,
       tvPage: tvPage ?? this.tvPage,
       personPage: personPage ?? this.personPage,
+      collectionPage: collectionPage ?? this.collectionPage,
+      keywordPage: keywordPage ?? this.keywordPage,
+      companyPage: companyPage ?? this.companyPage,
       hasMore: hasMore ?? this.hasMore,
       movieHasMore: movieHasMore ?? this.movieHasMore,
       tvHasMore: tvHasMore ?? this.tvHasMore,
       personHasMore: personHasMore ?? this.personHasMore,
+      collectionHasMore: collectionHasMore ?? this.collectionHasMore,
+      keywordHasMore: keywordHasMore ?? this.keywordHasMore,
+      companyHasMore: companyHasMore ?? this.companyHasMore,
       error: error,
       filter: filter ?? this.filter,
+      selectedCategory: selectedCategory ?? this.selectedCategory,
     );
   }
 }
@@ -121,7 +176,6 @@ class SearchNotifier extends Notifier<SearchState> {
 
     if (query.isEmpty) {
       _debounceTimer?.cancel();
-      // If we have active filters, don't clear the whole state, just the query
       if (!state.filter.isDefault) {
         state = state.copyWith(query: query, suggestions: const []);
         return;
@@ -143,7 +197,6 @@ class SearchNotifier extends Notifier<SearchState> {
   }
 
   Future<void> _fetchSuggestions(String query) async {
-    // We only fetch suggestions for keyword search
     try {
       final useCase = ref.read(searchMultiUseCaseProvider);
       final results = await useCase(SearchMultiParams(query: query, page: 1));
@@ -171,18 +224,27 @@ class SearchNotifier extends Notifier<SearchState> {
       isLoading: true,
       hasSearched: true,
       error: null,
-      results: [],
-      movieResults: [],
-      tvResults: [],
-      personResults: [],
+      results: const [],
+      movieResults: const [],
+      tvResults: const [],
+      personResults: const [],
+      collectionResults: const [],
+      keywordResults: const [],
+      companyResults: const [],
       currentPage: 1,
       moviePage: 1,
       tvPage: 1,
       personPage: 1,
+      collectionPage: 1,
+      keywordPage: 1,
+      companyPage: 1,
       hasMore: false,
       movieHasMore: false,
       tvHasMore: false,
       personHasMore: false,
+      collectionHasMore: false,
+      keywordHasMore: false,
+      companyHasMore: false,
     );
 
     if (query.isNotEmpty) {
@@ -198,30 +260,119 @@ class SearchNotifier extends Notifier<SearchState> {
           hasMore: results.length >= 20,
         );
       } else {
-        final repo = ref.read(mediaRepositoryProvider);
-        
-        final results = await Future.wait([
-          repo.searchMovies(query, page: 1),
-          repo.searchTvShows(query, page: 1),
-          repo.searchPersons(query, page: 1),
-        ]);
-
-        state = state.copyWith(
-          movieResults: results[0],
-          tvResults: results[1],
-          personResults: results[2],
-          suggestions: const [],
-          isLoading: false,
-          movieHasMore: results[0].length >= 20,
-          tvHasMore: results[1].length >= 20,
-          personHasMore: results[2].length >= 20,
-        );
+        await _fetchCategoryResults(state.selectedCategory, 1);
       }
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
         error: 'Search failed. Please try again.',
       );
+    }
+  }
+
+  Future<void> _fetchCategoryResults(SearchCategory category, int page) async {
+    final repo = ref.read(mediaRepositoryProvider);
+    final query = state.query;
+
+    if (page == 1) {
+      state = state.copyWith(isLoading: true, error: null);
+    }
+
+    try {
+      switch (category) {
+        case SearchCategory.movies:
+          final results = await repo.searchMovies(query, page: page);
+          state = state.copyWith(
+            movieResults: page == 1 ? results : [...state.movieResults, ...results],
+            moviePage: page,
+            movieHasMore: results.length >= 20,
+            isLoading: false,
+          );
+          break;
+        case SearchCategory.tvShows:
+          final results = await repo.searchTvShows(query, page: page);
+          state = state.copyWith(
+            tvResults: page == 1 ? results : [...state.tvResults, ...results],
+            tvPage: page,
+            tvHasMore: results.length >= 20,
+            isLoading: false,
+          );
+          break;
+        case SearchCategory.persons:
+          final results = await repo.searchPersons(query, page: page);
+          state = state.copyWith(
+            personResults: page == 1 ? results : [...state.personResults, ...results],
+            personPage: page,
+            personHasMore: results.length >= 20,
+            isLoading: false,
+          );
+          break;
+        case SearchCategory.collections:
+          final results = await repo.searchCollections(query, page: page);
+          state = state.copyWith(
+            collectionResults: page == 1 ? results : [...state.collectionResults, ...results],
+            collectionPage: page,
+            collectionHasMore: results.length >= 20,
+            isLoading: false,
+          );
+          break;
+        case SearchCategory.keywords:
+          final results = await repo.searchKeywords(query, page: page);
+          state = state.copyWith(
+            keywordResults: page == 1 ? results : [...state.keywordResults, ...results],
+            keywordPage: page,
+            keywordHasMore: results.length >= 20,
+            isLoading: false,
+          );
+          break;
+        case SearchCategory.companies:
+          final results = await repo.searchCompanies(query, page: page);
+          state = state.copyWith(
+            companyResults: page == 1 ? results : [...state.companyResults, ...results],
+            companyPage: page,
+            companyHasMore: results.length >= 20,
+            isLoading: false,
+          );
+          break;
+      }
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        error: 'Search failed. Please try again.',
+      );
+    }
+  }
+
+  void setCategory(SearchCategory category) {
+    if (category == state.selectedCategory) return;
+    state = state.copyWith(selectedCategory: category);
+
+    if (state.query.isNotEmpty && !state.isLoading) {
+      bool hasNoResults = false;
+      switch (category) {
+        case SearchCategory.movies:
+          hasNoResults = state.movieResults.isEmpty;
+          break;
+        case SearchCategory.tvShows:
+          hasNoResults = state.tvResults.isEmpty;
+          break;
+        case SearchCategory.persons:
+          hasNoResults = state.personResults.isEmpty;
+          break;
+        case SearchCategory.collections:
+          hasNoResults = state.collectionResults.isEmpty;
+          break;
+        case SearchCategory.keywords:
+          hasNoResults = state.keywordResults.isEmpty;
+          break;
+        case SearchCategory.companies:
+          hasNoResults = state.companyResults.isEmpty;
+          break;
+      }
+
+      if (hasNoResults) {
+        _fetchCategoryResults(category, 1);
+      }
     }
   }
 
@@ -245,7 +396,6 @@ class SearchNotifier extends Notifier<SearchState> {
         page: page,
       ));
     } else {
-      // Both
       final movieResults = await discoverUseCase(DiscoverMediaParams(
         isTv: false,
         filter: filter,
@@ -260,7 +410,6 @@ class SearchNotifier extends Notifier<SearchState> {
       ));
 
       final combined = [...movieResults, ...tvResults];
-      // Sort combined results based on the filter's sort field
       combined.sort((a, b) {
         int comparison = 0;
         switch (state.filter.sortField) {
@@ -290,9 +439,9 @@ class SearchNotifier extends Notifier<SearchState> {
     }
   }
 
-  Future<void> loadMore([GlobalMediaType? type]) async {
+  Future<void> loadMore() async {
     final isDiscoverMode = !state.filter.isDefault;
-    
+
     if (isDiscoverMode) {
       if (state.isLoadingMore || !state.hasMore) return;
       state = state.copyWith(isLoadingMore: true);
@@ -311,74 +460,48 @@ class SearchNotifier extends Notifier<SearchState> {
       return;
     }
 
-    // Tabbed mode
-    if (type == null) return;
+    if (state.isLoadingMore) return;
 
-    final bool canLoadMore;
-    final int nextPage;
-    switch (type) {
-      case GlobalMediaType.movie:
+    final SearchCategory category = state.selectedCategory;
+    bool canLoadMore = false;
+    int nextPage = 1;
+
+    switch (category) {
+      case SearchCategory.movies:
         canLoadMore = state.movieHasMore;
         nextPage = state.moviePage + 1;
         break;
-      case GlobalMediaType.tv:
+      case SearchCategory.tvShows:
         canLoadMore = state.tvHasMore;
         nextPage = state.tvPage + 1;
         break;
-      case GlobalMediaType.person:
+      case SearchCategory.persons:
         canLoadMore = state.personHasMore;
         nextPage = state.personPage + 1;
         break;
-      default:
-        return;
+      case SearchCategory.collections:
+        canLoadMore = state.collectionHasMore;
+        nextPage = state.collectionPage + 1;
+        break;
+      case SearchCategory.keywords:
+        canLoadMore = state.keywordHasMore;
+        nextPage = state.keywordPage + 1;
+        break;
+      case SearchCategory.companies:
+        canLoadMore = state.companyHasMore;
+        nextPage = state.companyPage + 1;
+        break;
     }
 
-    if (state.isLoadingMore || !canLoadMore) return;
+    if (!canLoadMore) return;
 
     state = state.copyWith(isLoadingMore: true);
-
-    try {
-      final repo = ref.read(mediaRepositoryProvider);
-      final List<MediaTitle> newResults;
-      
-      switch (type) {
-        case GlobalMediaType.movie:
-          newResults = await repo.searchMovies(state.query, page: nextPage);
-          state = state.copyWith(
-            movieResults: [...state.movieResults, ...newResults],
-            moviePage: nextPage,
-            movieHasMore: newResults.length >= 20,
-          );
-          break;
-        case GlobalMediaType.tv:
-          newResults = await repo.searchTvShows(state.query, page: nextPage);
-          state = state.copyWith(
-            tvResults: [...state.tvResults, ...newResults],
-            tvPage: nextPage,
-            tvHasMore: newResults.length >= 20,
-          );
-          break;
-        case GlobalMediaType.person:
-          newResults = await repo.searchPersons(state.query, page: nextPage);
-          state = state.copyWith(
-            personResults: [...state.personResults, ...newResults],
-            personPage: nextPage,
-            personHasMore: newResults.length >= 20,
-          );
-          break;
-        default:
-          newResults = [];
-      }
-      
-      state = state.copyWith(isLoadingMore: false);
-    } catch (e) {
-      state = state.copyWith(isLoadingMore: false);
-    }
+    await _fetchCategoryResults(category, nextPage);
+    state = state.copyWith(isLoadingMore: false);
   }
 
   void updateFilter(GlobalMediaFilter filter) {
     state = state.copyWith(filter: filter);
-    // If we have a searched state or a query, or it's discover mode, trigger search immediately
     if (state.hasSearched || !filter.isDefault) {
       submitSearch();
     }

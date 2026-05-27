@@ -8,6 +8,7 @@ import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/config/app_config.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
+import 'package:cineverse/domain/entities/movie_genre.dart';
 import 'package:cineverse/domain/entities/movie_mood.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
@@ -15,6 +16,7 @@ import 'package:cineverse/app/router/app_router.dart' show AppRoute;
 import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/explore_provider.dart';
+import 'package:cineverse/presentation/features/movies/providers/hidden_titles_provider.dart';
 import 'package:cineverse/presentation/features/movies/models/explore_models.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:cineverse/presentation/features/movies/widgets/rating_badge.dart';
@@ -31,6 +33,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cineverse/domain/entities/library_item.dart';
+import 'package:cineverse/domain/entities/watchlist_item.dart';
+import 'package:cineverse/presentation/features/home/providers/reminders_provider.dart';
+import 'package:cineverse/presentation/widgets/animated_dialog.dart';
+import 'package:cineverse/presentation/widgets/media_actions_dialogs.dart';
+import 'package:cineverse/core/utils/toast_utils.dart';
+import 'package:cineverse/presentation/features/movie_details/movie_details_screen.dart'
+    show GeneralReminderDialog, GeneralReminderDialogResult;
 
 _DiscoverSpotlightState? _discoverSpotlightState;
 
@@ -123,7 +133,7 @@ class ExploreScreen extends ConsumerStatefulWidget {
     ExploreShelfData(
       title: 'Hidden Gems',
       filters: <ExploreFilterOption>[
-        ExploreFilterOption(label: 'See All', isHiddenGems: true),
+        ExploreFilterOption(label: 'All', isHiddenGems: true),
       ],
     ),
     ExploreShelfData(
@@ -309,6 +319,13 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 const SliverToBoxAdapter(child: SizedBox(height: 12)),
                 const SliverToBoxAdapter(child: _DiscoverSpotlightSection()),
                 const SliverToBoxAdapter(child: _SectionDivider()),
+                if (!isTv)
+                  const SliverToBoxAdapter(
+                    child: _ScrollReveal(
+                      child: _TonightWatchQuickLaunchStrip(),
+                    ),
+                  ),
+                if (!isTv) const SliverToBoxAdapter(child: _SectionDivider()),
 
                 // Optimized combined shelf list (Base sections only)
                 SliverList(
@@ -316,27 +333,30 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     BuildContext context,
                     int index,
                   ) {
-                    return _ScrollReveal(
-                      indexOffset: index,
-                      child: _MovieShelfSection(section: baseSections[index]),
+                    final bool isLast = index == baseSections.length - 1;
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        _ScrollReveal(
+                          indexOffset: index,
+                          child: _MovieShelfSection(
+                            section: baseSections[index],
+                          ),
+                        ),
+                        if (!isLast) const _SectionDivider(),
+                      ],
                     );
                   }, childCount: baseSections.length),
                 ),
-                const SliverToBoxAdapter(
-                  child: _SectionDivider(accent: Color(0xFFE6C76A)),
-                ),
+                const SliverToBoxAdapter(child: _SectionDivider()),
                 const SliverToBoxAdapter(
                   child: _ScrollReveal(child: _CuratedCollectionSection()),
                 ),
-                const SliverToBoxAdapter(
-                  child: _SectionDivider(accent: Color(0xFF7DD9FF)),
-                ),
+                const SliverToBoxAdapter(child: _SectionDivider()),
                 const SliverToBoxAdapter(
                   child: _ScrollReveal(child: _LibraryRecommendationsSection()),
                 ),
-                const SliverToBoxAdapter(
-                  child: _SectionDivider(accent: Color(0xFFB391FF)),
-                ),
+                const SliverToBoxAdapter(child: _SectionDivider()),
                 const SliverToBoxAdapter(
                   child: _ScrollReveal(
                     child: _MovieShelfSection(
@@ -344,12 +364,11 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     ),
                   ),
                 ),
-                const SliverToBoxAdapter(
-                  child: _SectionDivider(accent: Color(0xFFE2B4FF)),
-                ),
-                const SliverToBoxAdapter(
-                  child: _ScrollReveal(child: _TonightWatchLauncherSection()),
-                ),
+                if (!isTv) const SliverToBoxAdapter(child: _SectionDivider()),
+                if (!isTv)
+                  const SliverToBoxAdapter(
+                    child: _ScrollReveal(child: _TonightWatchLauncherSection()),
+                  ),
                 const SliverToBoxAdapter(child: SizedBox(height: 52)),
               ],
             ),
@@ -568,6 +587,91 @@ class _LibraryRecommendationsSection extends ConsumerWidget {
 
 class _ShelfVariant {
   static const String featured = 'featured';
+}
+
+class _TonightWatchQuickLaunchStrip extends ConsumerWidget {
+  const _TonightWatchQuickLaunchStrip();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ThemeData theme = Theme.of(context);
+    final bool isTv =
+        ref.watch(exploreMediaTypeProvider) == ExploreMediaType.tv;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 10),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            context.pushNamed(
+              AppRoute.whatShouldIWatchTonight.name,
+              queryParameters: <String, String>{'isTv': isTv.toString()},
+            );
+          },
+          child: Ink(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              color: Colors.white.withValues(alpha: 0.06),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.cinemaAccent.withValues(alpha: 0.18),
+                  ),
+                  child: const Icon(
+                    Icons.auto_awesome_rounded,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    isTv
+                        ? 'Need something to watch tonight?'
+                        : 'Need a movie for tonight?',
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(999),
+                    color: AppColors.cinemaAccent.withValues(alpha: 0.16),
+                    border: Border.all(
+                      color: AppColors.cinemaAccent.withValues(alpha: 0.36),
+                    ),
+                  ),
+                  child: Text(
+                    isTv ? 'Try AI Shows' : 'Try AI Movies',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _TonightWatchLauncherSection extends ConsumerStatefulWidget {
@@ -946,6 +1050,14 @@ class _DiscoverSpotlightSectionState
   int _animatedSwitcherKeyVersion = 0;
   int? _lastMovieId;
 
+  // Swipe gesture & backdrop loading states
+  late AnimationController _swipeAnimationController;
+  late Animation<double> _swipeAnimation;
+  double _swipeOffset = 0.0;
+  bool _isSwipeActionsRevealed = false;
+  bool _isBackdropLoading = true;
+  bool _dragThresholdCrossed = false;
+
   @override
   void initState() {
     super.initState();
@@ -988,20 +1100,69 @@ class _DiscoverSpotlightSectionState
       ),
     ]).animate(_diceController);
 
-    // Lazy load additional discover pages in the background after everything is loaded.
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      Future.delayed(const Duration(seconds: 5), () {
-        if (mounted) {
-          loadNextPages(ref, MovieSection.discover);
-          // Fetch another batch a few seconds later for even more variety
-          Future.delayed(const Duration(seconds: 3), () {
-            if (mounted) {
-              loadNextPages(ref, MovieSection.discover);
-            }
-          });
-        }
+    _swipeAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _swipeAnimation = const AlwaysStoppedAnimation<double>(0.0);
+    _swipeAnimationController.addListener(() {
+      setState(() {
+        _swipeOffset = _swipeAnimation.value;
       });
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _triggerSwipeHint();
+      }
+    });
+  }
+
+  void _animateSwipe(
+    double target, {
+    Duration? duration,
+    VoidCallback? onComplete,
+  }) {
+    final double start = _swipeOffset;
+    _swipeAnimation = Tween<double>(begin: start, end: target).animate(
+      CurvedAnimation(
+        parent: _swipeAnimationController,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+    if (duration != null) {
+      _swipeAnimationController.duration = duration;
+    } else {
+      _swipeAnimationController.duration = const Duration(milliseconds: 300);
+    }
+    _swipeAnimationController.forward(from: 0.0).then((_) {
+      if (onComplete != null) {
+        onComplete();
+      }
+    });
+  }
+
+  void _triggerSwipeHint() {
+    if (!mounted || _isSwipeActionsRevealed || _swipeOffset != 0.0) return;
+
+    // A subtle wiggle/shake animation to hint swipe capability
+    Future.delayed(const Duration(milliseconds: 2000), () {
+      if (!mounted || _isSwipeActionsRevealed || _swipeOffset != 0.0) return;
+      _animateSwipe(
+        -40.0,
+        duration: const Duration(milliseconds: 400),
+        onComplete: () {
+          if (!mounted) return;
+          _animateSwipe(
+            20.0,
+            duration: const Duration(milliseconds: 300),
+            onComplete: () {
+              if (!mounted) return;
+              _animateSwipe(0.0, duration: const Duration(milliseconds: 250));
+            },
+          );
+        },
+      );
     });
   }
 
@@ -1014,24 +1175,69 @@ class _DiscoverSpotlightSectionState
     _logoUrl = null;
     _isNextImageReady = false;
 
-    final mediaType = ref.watch(exploreMediaTypeProvider);
-    final bool isTv = mediaType == ExploreMediaType.tv;
-
-    ref.read(mediaImagesProvider((id: movieId, isTv: isTv)).future).then((
-      images,
-    ) {
+    Future.microtask(() {
       if (mounted && _lastMovieId == movieId) {
         setState(() {
-          _animatedSwitcherKeyVersion++;
-          // Prefer backdrops for the slideshow, fallback to posters if none
-          _slideshowImages = images.backdrops.isNotEmpty
-              ? images.backdrops
-              : images.posters;
-          _logoUrl = images.logos.isNotEmpty ? images.logos.first : null;
-          _preloadNextImage();
+          _isBackdropLoading = true;
         });
       }
     });
+
+    final mediaType = ref.read(exploreMediaTypeProvider);
+    final bool isTv = mediaType == ExploreMediaType.tv;
+
+    ref
+        .read(mediaImagesProvider((id: movieId, isTv: isTv)).future)
+        .then((images) {
+          if (mounted && _lastMovieId == movieId) {
+            final List<String> fetchedImages = images.backdrops.isNotEmpty
+                ? images.backdrops
+                : images.posters;
+
+            if (fetchedImages.isNotEmpty) {
+              precacheImage(
+                    CachedNetworkImageProvider(fetchedImages.first),
+                    context,
+                  )
+                  .then((_) {
+                    if (mounted && _lastMovieId == movieId) {
+                      setState(() {
+                        _animatedSwitcherKeyVersion++;
+                        _slideshowImages = fetchedImages;
+                        _logoUrl = images.logos.isNotEmpty
+                            ? images.logos.first
+                            : null;
+                        _isBackdropLoading = false;
+                        _preloadNextImage();
+                      });
+                    }
+                  })
+                  .catchError((_) {
+                    if (mounted && _lastMovieId == movieId) {
+                      setState(() {
+                        _animatedSwitcherKeyVersion++;
+                        _slideshowImages = fetchedImages;
+                        _logoUrl = images.logos.isNotEmpty
+                            ? images.logos.first
+                            : null;
+                        _isBackdropLoading = false;
+                      });
+                    }
+                  });
+            } else {
+              setState(() {
+                _isBackdropLoading = false;
+              });
+            }
+          }
+        })
+        .catchError((_) {
+          if (mounted && _lastMovieId == movieId) {
+            setState(() {
+              _isBackdropLoading = false;
+            });
+          }
+        });
 
     ref.read(mediaTaglinesProvider((id: movieId, isTv: isTv)).future).then((
       taglines,
@@ -1181,44 +1387,132 @@ class _DiscoverSpotlightSectionState
     )!;
   }
 
-  void _dismissMovie(int movieId, List<MediaTitle> movies) {
-    final _DiscoverSpotlightState? spotlightState = _discoverSpotlightState;
-    final Set<int> dismissed = Set<int>.from(
-      spotlightState?.dismissedMovieIds ?? <int>{},
-    );
-    dismissed.add(movieId);
+  Future<void> _handleHideAction(
+    MediaTitle media,
+    bool isTv,
+    List<MediaTitle> movies,
+  ) async {
+    final notifier = ref.read(hiddenTitlesProvider.notifier);
+    final bool dontAskAgain = await notifier.getDontAskAgain();
 
-    final List<int> poolMovieIds = movies
-        .map((m) => m.id)
-        .where((id) => !dismissed.contains(id))
-        .toList();
+    bool shouldHide = false;
+    bool setDontAskAgainPref = false;
 
-    List<int> remainingMovieIds = List<int>.from(
-      spotlightState?.remainingMovieIds ?? const <int>[],
-    ).where((id) => !dismissed.contains(id)).toList();
-
-    if (remainingMovieIds.isEmpty && poolMovieIds.isNotEmpty) {
-      remainingMovieIds = _shuffleMovieIds(
-        poolMovieIds,
-        excludeMovieId: movieId,
+    if (dontAskAgain) {
+      shouldHide = true;
+    } else {
+      HapticFeedback.mediumImpact();
+      if (!mounted) return;
+      final bool? result = await showAnimatedDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          bool isChecked = true;
+          return StatefulBuilder(
+            builder: (context, dialogSetState) {
+              return AlertDialog(
+                backgroundColor: AppColors.detailsCard,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                    color: Colors.white.withValues(alpha: 0.08),
+                    width: 1,
+                  ),
+                ),
+                title: Text(
+                  'Hide Title',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Hiding this title will prevent it from appearing in the Spotlight section in the future.',
+                      style: TextStyle(color: Colors.white70, fontSize: 14),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Theme(
+                          data: Theme.of(
+                            context,
+                          ).copyWith(unselectedWidgetColor: Colors.white30),
+                          child: Checkbox(
+                            value: isChecked,
+                            activeColor: AppColors.cinemaAccent,
+                            checkColor: Colors.black,
+                            onChanged: (bool? value) {
+                              dialogSetState(() {
+                                isChecked = value ?? false;
+                              });
+                            },
+                          ),
+                        ),
+                        const Text(
+                          "Don't ask again",
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, null),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.white60,
+                    ),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context, isChecked),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.redAccent,
+                    ),
+                    child: const Text(
+                      'Hide',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        },
       );
+      if (result != null) {
+        shouldHide = true;
+        setDontAskAgainPref = result;
+      }
     }
 
-    final int? nextCurrentMovieId = remainingMovieIds.isNotEmpty
-        ? remainingMovieIds.removeLast()
-        : (poolMovieIds.isNotEmpty ? poolMovieIds.first : null);
+    if (shouldHide) {
+      if (setDontAskAgainPref) {
+        await notifier.setDontAskAgain(true);
+      }
+      HapticFeedback.mediumImpact();
+      await notifier.hideTitle(media, isTv);
 
-    setState(() {
-      _animatedSwitcherKeyVersion++;
-      _discoverSpotlightState = _DiscoverSpotlightState(
-        poolMovieIds: poolMovieIds,
-        currentMovieId: nextCurrentMovieId,
-        remainingMovieIds: remainingMovieIds,
-        dismissedMovieIds: dismissed,
-      );
-    });
-
-    _checkAndLazyLoad(ref, poolMovieIds, remainingMovieIds);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('"${media.title}" has been hidden'),
+            backgroundColor: AppColors.detailsCard,
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    }
   }
 
   void _checkAndLazyLoad(WidgetRef ref, List<int> pool, List<int> remaining) {
@@ -1234,6 +1528,9 @@ class _DiscoverSpotlightSectionState
   void _resetSpotlight(List<MediaTitle> movies) {
     setState(() {
       _animatedSwitcherKeyVersion++;
+      _swipeOffset = 0.0;
+      _isSwipeActionsRevealed = false;
+      _isBackdropLoading = true;
       _discoverSpotlightState = _DiscoverSpotlightState(
         poolMovieIds: movies.map((m) => m.id).toList(),
         currentMovieId: movies.isNotEmpty ? movies.first.id : null,
@@ -1255,6 +1552,7 @@ class _DiscoverSpotlightSectionState
     _audioPlayer.dispose();
     _diceController.dispose();
     _pulseController.dispose();
+    _swipeAnimationController.dispose();
     super.dispose();
   }
 
@@ -1519,6 +1817,14 @@ class _DiscoverSpotlightSectionState
           final MediaTitle movie =
               _currentMovie(activeMovies, spotlightState) ?? activeMovies.first;
 
+          final MovieDetails details = MovieDetails(
+            id: movie.id,
+            title: movie.title,
+            posterPath: movie.posterPath,
+            releaseDate: movie.releaseDate,
+            catalogScore: movie.voteAverage,
+          );
+
           if (_lastMovieId != movie.id) {
             _lastMovieId = movie.id;
             // Use post frame callback to avoid calling setState during build if needed,
@@ -1667,287 +1973,75 @@ class _DiscoverSpotlightSectionState
                           ),
                         );
                       },
-                      child: Dismissible(
+                      child: SizedBox(
                         key: ValueKey<int>(movie.id),
-                        direction: DismissDirection.horizontal,
-                        onDismissed: (direction) {
-                          if (direction == DismissDirection.endToStart) {
-                            _rollNextMovie(movies);
-                          } else if (direction == DismissDirection.startToEnd) {
-                            _dismissMovie(movie.id, movies);
-                          }
-                        },
-                        background: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            alignment: Alignment.centerLeft,
-                            padding: const EdgeInsets.only(left: 24),
-                            color: Colors.red.withValues(alpha: 0.15),
-                            child: const Row(
-                              children: [
-                                Icon(
-                                  Icons.visibility_off_rounded,
-                                  color: Colors.redAccent,
-                                  size: 28,
-                                ),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Dismiss Pick',
-                                  style: TextStyle(
-                                    color: Colors.redAccent,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        secondaryBackground: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            alignment: Alignment.centerRight,
-                            padding: const EdgeInsets.only(right: 24),
-                            color: AppColors.cinemaSelected.withValues(
-                              alpha: 0.15,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Text(
-                                  'Roll Next',
-                                  style: TextStyle(
-                                    color: AppColors.cinemaSelected,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
-                                Icon(
-                                  Icons.casino_outlined,
-                                  color: AppColors.cinemaSelected,
-                                  size: 28,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        child: Container(
-                          width: posterWidth,
-                          height: 320,
-                          padding: const EdgeInsets.all(1.2),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            gradient: LinearGradient(
-                              colors: <Color>[
-                                spotlightTint.withValues(alpha: 0.6),
-                                Colors.white.withValues(alpha: 0.15),
-                                spotlightTint.withValues(alpha: 0.3),
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            boxShadow: <BoxShadow>[
-                              BoxShadow(
-                                color: spotlightTint.withValues(alpha: opacity),
-                                blurRadius: blurRadius,
-                                spreadRadius: -6,
-                                offset: const Offset(0, 10),
-                              ),
-                            ],
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              color: Colors.white.withValues(alpha: 0.02),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(14),
-                              child: BackdropFilter(
-                                filter: ImageFilter.blur(
-                                  sigmaX: 16,
-                                  sigmaY: 16,
-                                ),
+                        width: posterWidth,
+                        height: 320,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            // Background swipe actions layer
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(16),
                                 child: Stack(
                                   children: [
-                                    // Background image/slideshow
-                                    Positioned.fill(
-                                      child: Hero(
-                                        tag:
-                                            'movie-poster-${movie.id}-spotlight',
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            onTap: () => context.pushNamed(
-                                              AppRoute.movieDetails.name,
-                                              pathParameters: <String, String>{
-                                                'movieId': movie.id.toString(),
-                                              },
-                                              queryParameters: <String, String>{
-                                                'heroTag':
-                                                    'movie-poster-${movie.id}-spotlight',
-                                                'isTv': isTv.toString(),
-                                              },
-                                            ),
-                                            child: AnimatedSwitcher(
-                                              duration: const Duration(
-                                                milliseconds: 1000,
-                                              ),
-                                              child: currentSlideshowUrl == null
-                                                  ? ColoredBox(
-                                                      key: ValueKey<String>(
-                                                        'spotlight-placeholder-$_animatedSwitcherKeyVersion',
-                                                      ),
-                                                      color: AppColors
-                                                          .cinemaPlaceholder,
-                                                      child: const Center(
-                                                        child: Icon(
-                                                          Icons.movie_outlined,
-                                                          size: 52,
-                                                          color: Colors.white,
-                                                        ),
-                                                      ),
-                                                    )
-                                                  : _KenBurnsImage(
-                                                      key: ValueKey<String>(
-                                                        'spotlight-image-${movie.id}-$currentSlideshowUrl-$_animatedSwitcherKeyVersion',
-                                                      ),
-                                                      imageUrl:
-                                                          currentSlideshowUrl,
-                                                      width: posterWidth,
-                                                      height: 320,
-                                                    ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    // Gradient overlay (top)
-                                    Positioned(
-                                      top: 0,
-                                      left: 0,
-                                      right: 0,
-                                      height: 60,
-                                      child: IgnorePointer(
-                                        child: DecoratedBox(
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                              colors: [
-                                                Colors.black.withValues(
-                                                  alpha: 0.6,
-                                                ),
-                                                Colors.transparent,
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    // Gradient overlay (bottom)
-                                    Positioned(
-                                      bottom: 0,
-                                      left: 0,
-                                      right: 0,
-                                      height: 160,
-                                      child: IgnorePointer(
-                                        child: DecoratedBox(
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              begin: Alignment.bottomCenter,
-                                              end: Alignment.topCenter,
-                                              colors: [
-                                                Colors.black.withValues(
-                                                  alpha: 0.8,
-                                                ),
-                                                Colors.transparent,
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-
-                                    // Play / Close Preview overlay button
-                                    if (movieDetails.value?.trailerYouTubeKey !=
-                                            null &&
-                                        movieDetails
-                                            .value!
-                                            .trailerYouTubeKey!
-                                            .isNotEmpty)
+                                    // Swipe Right background (Hide)
+                                    if (_swipeOffset > 0)
                                       Positioned(
-                                        top: 12,
-                                        left: 12,
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                          child: BackdropFilter(
-                                            filter: ImageFilter.blur(
-                                              sigmaX: 8,
-                                              sigmaY: 8,
+                                        top: 0,
+                                        bottom: 0,
+                                        left: 0,
+                                        width: 76,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.45,
                                             ),
+                                            border: Border(
+                                              right: BorderSide(
+                                                color: Colors.redAccent
+                                                    .withValues(alpha: 0.25),
+                                                width: 1,
+                                              ),
+                                            ),
+                                          ),
+                                          child: Center(
                                             child: Material(
                                               color: Colors.transparent,
                                               child: InkWell(
-                                                onTap: () => _showTrailer(
-                                                  context,
-                                                  movie: movie,
-                                                  details: movieDetails.value!,
-                                                  isTv: isTv,
-                                                ),
+                                                onTap: () {
+                                                  HapticFeedback.selectionClick();
+                                                  _animateSwipe(
+                                                    0.0,
+                                                    onComplete: () {
+                                                      setState(() {
+                                                        _isSwipeActionsRevealed =
+                                                            false;
+                                                      });
+                                                    },
+                                                  );
+                                                  _handleHideAction(
+                                                    movie,
+                                                    isTv,
+                                                    movies,
+                                                  );
+                                                },
                                                 borderRadius:
                                                     BorderRadius.circular(20),
-                                                child: Ink(
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
-                                                        horizontal: 10,
-                                                        vertical: 6,
-                                                      ),
+                                                child: Container(
+                                                  width: 50,
+                                                  height: 50,
                                                   decoration: BoxDecoration(
-                                                    color: Colors.black
-                                                        .withValues(alpha: 0.5),
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                          20,
-                                                        ),
-                                                    border: Border.all(
-                                                      color: spotlightTint
-                                                          .withValues(
-                                                            alpha: 0.6,
-                                                          ),
-                                                      width: 1.0,
-                                                    ),
+                                                    color: Colors.redAccent
+                                                        .withValues(alpha: 0.2),
+                                                    shape: BoxShape.circle,
                                                   ),
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      const Icon(
-                                                        Icons
-                                                            .play_arrow_rounded,
-                                                        color: Colors.white,
-                                                        size: 14,
-                                                      ),
-                                                      const SizedBox(width: 4),
-                                                      Text(
-                                                        'Play Preview',
-                                                        style: theme
-                                                            .textTheme
-                                                            .labelSmall
-                                                            ?.copyWith(
-                                                              color:
-                                                                  Colors.white,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              fontSize: 10,
-                                                              letterSpacing:
-                                                                  0.3,
-                                                            ),
-                                                      ),
-                                                    ],
+                                                  child: const Icon(
+                                                    Icons
+                                                        .visibility_off_rounded,
+                                                    color: Colors.redAccent,
+                                                    size: 24,
                                                   ),
                                                 ),
                                               ),
@@ -1956,408 +2050,881 @@ class _DiscoverSpotlightSectionState
                                         ),
                                       ),
 
-                                    // Tagline (Slide up & Fade)
-                                    Positioned(
-                                      bottom: 104,
-                                      left: 16,
-                                      right: 16,
-                                      child: AnimatedSwitcher(
-                                        duration: const Duration(
-                                          milliseconds: 500,
-                                        ),
-                                        transitionBuilder:
-                                            (
-                                              Widget child,
-                                              Animation<double> animation,
-                                            ) {
-                                              final inAnimation =
-                                                  Tween<Offset>(
-                                                    begin: const Offset(
-                                                      0.0,
-                                                      0.4,
-                                                    ),
-                                                    end: Offset.zero,
-                                                  ).animate(
-                                                    CurvedAnimation(
-                                                      parent: animation,
-                                                      curve:
-                                                          Curves.easeOutCubic,
-                                                    ),
-                                                  );
-                                              final fadeAnimation =
-                                                  CurvedAnimation(
-                                                    parent: animation,
-                                                    curve: Curves.easeIn,
-                                                  );
-                                              return SlideTransition(
-                                                position: inAnimation,
-                                                child: FadeTransition(
-                                                  opacity: fadeAnimation,
-                                                  child: child,
+                                    // Swipe Left background (Reveal actions vertically)
+                                    if (_swipeOffset < 0)
+                                      Positioned(
+                                        top: 0,
+                                        bottom: 0,
+                                        right: 0,
+                                        width: 76,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withValues(
+                                              alpha: 0.45,
+                                            ),
+                                            border: Border(
+                                              left: BorderSide(
+                                                color: spotlightTint.withValues(
+                                                  alpha: 0.25,
                                                 ),
-                                              );
-                                            },
-                                        child:
-                                            rotatingTagline != null &&
-                                                rotatingTagline.isNotEmpty
-                                            ? Text(
-                                                rotatingTagline,
-                                                key: ValueKey<String>(
-                                                  rotatingTagline,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                style: theme
-                                                    .textTheme
-                                                    .labelSmall
-                                                    ?.copyWith(
-                                                      color: Colors.white
-                                                          .withValues(
-                                                            alpha: 0.9,
-                                                          ),
-                                                      fontStyle:
-                                                          FontStyle.italic,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      letterSpacing: 0.2,
-                                                      shadows: [
-                                                        const Shadow(
-                                                          color: Colors.black,
-                                                          blurRadius: 8,
-                                                        ),
-                                                      ],
-                                                    ),
-                                              )
-                                            : (movieDetails.value?.tagline !=
-                                                          null &&
-                                                      movieDetails
-                                                          .value!
-                                                          .tagline!
-                                                          .isNotEmpty
-                                                  ? Text(
-                                                      movieDetails
-                                                          .value!
-                                                          .tagline!,
-                                                      key: ValueKey<String>(
-                                                        movieDetails
-                                                            .value!
-                                                            .tagline!,
-                                                      ),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      style: theme
-                                                          .textTheme
-                                                          .labelSmall
-                                                          ?.copyWith(
-                                                            color: Colors.white
-                                                                .withValues(
-                                                                  alpha: 0.9,
-                                                                ),
-                                                            fontStyle: FontStyle
-                                                                .italic,
-                                                            fontWeight:
-                                                                FontWeight.w600,
-                                                            letterSpacing: 0.2,
-                                                            shadows: [
-                                                              const Shadow(
-                                                                color: Colors
-                                                                    .black,
-                                                                blurRadius: 8,
-                                                              ),
-                                                            ],
-                                                          ),
-                                                    )
-                                                  : const SizedBox.shrink(
-                                                      key: ValueKey(
-                                                        'empty-tagline',
-                                                      ),
-                                                    )),
-                                      ),
-                                    ),
-
-                                    // Floating Glassmorphic Bottom Pane
-                                    Positioned(
-                                      bottom: 12,
-                                      left: 12,
-                                      right: 12,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.black.withValues(
-                                            alpha: 0.55,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          border: Border.all(
-                                            color: spotlightTint.withValues(
-                                              alpha: 0.35,
-                                            ),
-                                            width: 1,
-                                          ),
-                                          boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.black.withValues(
-                                                alpha: 0.25,
-                                              ),
-                                              blurRadius: 10,
-                                              offset: const Offset(0, 4),
-                                            ),
-                                          ],
-                                        ),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            16,
-                                          ),
-                                          child: BackdropFilter(
-                                            filter: ImageFilter.blur(
-                                              sigmaX: 12,
-                                              sigmaY: 12,
-                                            ),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                    vertical: 12,
-                                                  ),
-                                              child: Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.center,
-                                                children: [
-                                                  Expanded(
-                                                    child: GestureDetector(
-                                                      behavior: HitTestBehavior
-                                                          .opaque,
-                                                      onTap: () => context.pushNamed(
-                                                        AppRoute
-                                                            .movieDetails
-                                                            .name,
-                                                        pathParameters:
-                                                            <String, String>{
-                                                              'movieId': movie
-                                                                  .id
-                                                                  .toString(),
-                                                            },
-                                                        queryParameters:
-                                                            <String, String>{
-                                                              'heroTag':
-                                                                  'movie-poster-${movie.id}-spotlight',
-                                                              'isTv': isTv
-                                                                  .toString(),
-                                                            },
-                                                      ),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: [
-                                                          if (_logoUrl != null)
-                                                            _logoUrl!
-                                                                    .toLowerCase()
-                                                                    .endsWith(
-                                                                      '.svg',
-                                                                    )
-                                                                ? SvgPicture.network(
-                                                                    _logoUrl!,
-                                                                    height: 28,
-                                                                    fit: BoxFit
-                                                                        .contain,
-                                                                    alignment:
-                                                                        Alignment
-                                                                            .centerLeft,
-                                                                    placeholderBuilder:
-                                                                        (
-                                                                          context,
-                                                                        ) => const SizedBox(
-                                                                          height:
-                                                                              28,
-                                                                        ),
-                                                                  )
-                                                                : CachedNetworkImage(
-                                                                    imageUrl:
-                                                                        _logoUrl!,
-                                                                    height: 28,
-                                                                    fit: BoxFit
-                                                                        .contain,
-                                                                    alignment:
-                                                                        Alignment
-                                                                            .centerLeft,
-                                                                  )
-                                                          else
-                                                            Text(
-                                                              movie.title,
-                                                              maxLines: 1,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
-                                                              style: theme
-                                                                  .textTheme
-                                                                  .titleMedium
-                                                                  ?.copyWith(
-                                                                    color: Colors
-                                                                        .white,
-                                                                    fontWeight:
-                                                                        FontWeight
-                                                                            .w900,
-                                                                  ),
-                                                            ),
-                                                          const SizedBox(
-                                                            height: 6,
-                                                          ),
-                                                          Row(
-                                                            children: [
-                                                              if (!isRatingLoading &&
-                                                                  rottenTomatoesRating !=
-                                                                      null) ...[
-                                                                const _TomatoIcon(),
-                                                                const SizedBox(
-                                                                  width: 6,
-                                                                ),
-                                                                Text(
-                                                                  scoreLabel,
-                                                                  style: theme
-                                                                      .textTheme
-                                                                      .labelSmall
-                                                                      ?.copyWith(
-                                                                        color: Colors
-                                                                            .white,
-                                                                        fontWeight:
-                                                                            FontWeight.w800,
-                                                                      ),
-                                                                ),
-                                                                const SizedBox(
-                                                                  width: 10,
-                                                                ),
-                                                                Container(
-                                                                  width: 1,
-                                                                  height: 10,
-                                                                  color: Colors
-                                                                      .white
-                                                                      .withValues(
-                                                                        alpha:
-                                                                            0.2,
-                                                                      ),
-                                                                ),
-                                                                const SizedBox(
-                                                                  width: 10,
-                                                                ),
-                                                              ] else ...[
-                                                                scoreBadge,
-                                                                const SizedBox(
-                                                                  width: 10,
-                                                                ),
-                                                              ],
-                                                              if (imdbRating !=
-                                                                  null) ...[
-                                                                const _ImdbIcon(),
-                                                                const SizedBox(
-                                                                  width: 6,
-                                                                ),
-                                                                Text(
-                                                                  imdbRating
-                                                                      .value,
-                                                                  style: theme
-                                                                      .textTheme
-                                                                      .labelSmall
-                                                                      ?.copyWith(
-                                                                        color: Colors
-                                                                            .white,
-                                                                        fontWeight:
-                                                                            FontWeight.w800,
-                                                                      ),
-                                                                ),
-                                                              ] else
-                                                                Text(
-                                                                  'IMDb NA',
-                                                                  style: theme
-                                                                      .textTheme
-                                                                      .labelSmall
-                                                                      ?.copyWith(
-                                                                        color: Colors
-                                                                            .white
-                                                                            .withValues(
-                                                                              alpha: 0.6,
-                                                                            ),
-                                                                        fontWeight:
-                                                                            FontWeight.w800,
-                                                                      ),
-                                                                ),
-                                                            ],
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 12),
-                                                  Material(
-                                                    color: Colors.transparent,
-                                                    child: InkWell(
-                                                      onTap: () =>
-                                                          _rollNextMovie(
-                                                            movies,
-                                                          ),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            12,
-                                                          ),
-                                                      child: Ink(
-                                                        width: 44,
-                                                        height: 44,
-                                                        decoration: BoxDecoration(
-                                                          color: AppColors
-                                                              .cinemaSelected
-                                                              .withValues(
-                                                                alpha: 0.1,
-                                                              ),
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                8,
-                                                              ),
-                                                          border: Border.all(
-                                                            color: AppColors
-                                                                .cinemaSelected
-                                                                .withValues(
-                                                                  alpha: 0.2,
-                                                                ),
-                                                          ),
-                                                        ),
-                                                        child: Center(
-                                                          child: ScaleTransition(
-                                                            scale:
-                                                                _scaleAnimation,
-                                                            child: RotationTransition(
-                                                              turns:
-                                                                  _diceAnimation,
-                                                              child: Icon(
-                                                                Icons
-                                                                    .casino_outlined,
-                                                                color: AppColors
-                                                                    .cinemaSelected,
-                                                                size: 24,
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
+                                                width: 1,
                                               ),
                                             ),
                                           ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              _SpotlightListButton(
+                                                details: details,
+                                                isTv: isTv,
+                                              ),
+                                              const SizedBox(height: 8),
+                                              _SpotlightFavouriteButton(
+                                                details: details,
+                                                isTv: isTv,
+                                              ),
+                                              const SizedBox(height: 8),
+                                              _SpotlightWatchlistButton(
+                                                details: details,
+                                                isTv: isTv,
+                                              ),
+                                              const SizedBox(height: 8),
+                                              _SpotlightWatchedButton(
+                                                details: details,
+                                                isTv: isTv,
+                                              ),
+                                              const SizedBox(height: 8),
+                                              _SpotlightReminderButton(
+                                                details: details,
+                                                isTv: isTv,
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
                                   ],
                                 ),
                               ),
                             ),
-                          ),
+
+                            // Foreground Card layer
+                            Positioned.fill(
+                              child: GestureDetector(
+                                onHorizontalDragStart: (DragStartDetails d) {
+                                  _swipeAnimationController.stop();
+                                  _dragThresholdCrossed = false;
+                                },
+                                onHorizontalDragUpdate: (DragUpdateDetails d) {
+                                  setState(() {
+                                    _swipeOffset += d.delta.dx;
+                                    // Clamping with spring resistance in both directions
+                                    if (_swipeOffset < -76.0) {
+                                      final double overflow =
+                                          _swipeOffset + 76.0;
+                                      _swipeOffset = -76.0 + overflow * 0.15;
+                                    } else if (_swipeOffset > 76.0) {
+                                      final double overflow =
+                                          _swipeOffset - 76.0;
+                                      _swipeOffset = 76.0 + overflow * 0.15;
+                                    }
+
+                                    // Trigger light haptic click exactly once when crossing the threshold
+                                    final double absOffset = _swipeOffset.abs();
+                                    if (absOffset > 38.0 &&
+                                        !_dragThresholdCrossed) {
+                                      _dragThresholdCrossed = true;
+                                      HapticFeedback.selectionClick();
+                                    } else if (absOffset <= 38.0 &&
+                                        _dragThresholdCrossed) {
+                                      _dragThresholdCrossed = false;
+                                    }
+                                  });
+                                },
+                                onHorizontalDragEnd: (DragEndDetails d) {
+                                  if (_swipeOffset > 0) {
+                                    // Swipe Right (Reveal Hide on Left)
+                                    if (_swipeOffset > 38.0 ||
+                                        (d.primaryVelocity ?? 0.0) > 300) {
+                                      HapticFeedback.lightImpact();
+                                      _animateSwipe(
+                                        76.0,
+                                        onComplete: () {
+                                          setState(() {
+                                            _isSwipeActionsRevealed = true;
+                                          });
+                                        },
+                                      );
+                                    } else {
+                                      _animateSwipe(
+                                        0.0,
+                                        onComplete: () {
+                                          setState(() {
+                                            _isSwipeActionsRevealed = false;
+                                          });
+                                        },
+                                      );
+                                    }
+                                  } else {
+                                    // Swipe Left (Reveal Actions on Right)
+                                    if (_swipeOffset < -38.0 ||
+                                        (d.primaryVelocity ?? 0.0) < -300) {
+                                      HapticFeedback.lightImpact();
+                                      _animateSwipe(
+                                        -76.0,
+                                        onComplete: () {
+                                          setState(() {
+                                            _isSwipeActionsRevealed = true;
+                                          });
+                                        },
+                                      );
+                                    } else {
+                                      _animateSwipe(
+                                        0.0,
+                                        onComplete: () {
+                                          setState(() {
+                                            _isSwipeActionsRevealed = false;
+                                          });
+                                        },
+                                      );
+                                    }
+                                  }
+                                },
+                                child: Transform.translate(
+                                  offset: Offset(_swipeOffset, 0),
+                                  child: Container(
+                                    width: posterWidth,
+                                    height: 320,
+                                    padding: const EdgeInsets.all(1.2),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15),
+                                      gradient: LinearGradient(
+                                        colors: <Color>[
+                                          spotlightTint.withValues(alpha: 0.6),
+                                          Colors.white.withValues(alpha: 0.15),
+                                          spotlightTint.withValues(alpha: 0.3),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      boxShadow: <BoxShadow>[
+                                        BoxShadow(
+                                          color: spotlightTint.withValues(
+                                            alpha: opacity,
+                                          ),
+                                          blurRadius: blurRadius,
+                                          spreadRadius: -6,
+                                          offset: const Offset(0, 10),
+                                        ),
+                                      ],
+                                    ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(14),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.02,
+                                        ),
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(14),
+                                        child: BackdropFilter(
+                                          filter: ImageFilter.blur(
+                                            sigmaX: 16,
+                                            sigmaY: 16,
+                                          ),
+                                          child: Stack(
+                                            children: [
+                                              // Background image/slideshow
+                                              Positioned.fill(
+                                                child: Hero(
+                                                  tag:
+                                                      'movie-poster-${movie.id}-spotlight',
+                                                  child: Material(
+                                                    color: Colors.transparent,
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        if (_isSwipeActionsRevealed ||
+                                                            _swipeOffset.abs() >
+                                                                5.0) {
+                                                          _animateSwipe(
+                                                            0.0,
+                                                            onComplete: () {
+                                                              setState(() {
+                                                                _isSwipeActionsRevealed =
+                                                                    false;
+                                                              });
+                                                            },
+                                                          );
+                                                        } else {
+                                                          context.pushNamed(
+                                                            AppRoute
+                                                                .movieDetails
+                                                                .name,
+                                                            pathParameters:
+                                                                <
+                                                                  String,
+                                                                  String
+                                                                >{
+                                                                  'movieId': movie
+                                                                      .id
+                                                                      .toString(),
+                                                                },
+                                                            queryParameters:
+                                                                <
+                                                                  String,
+                                                                  String
+                                                                >{
+                                                                  'heroTag':
+                                                                      'movie-poster-${movie.id}-spotlight',
+                                                                  'isTv': isTv
+                                                                      .toString(),
+                                                                },
+                                                          );
+                                                        }
+                                                      },
+                                                      child: AnimatedSwitcher(
+                                                        duration:
+                                                            const Duration(
+                                                              milliseconds: 600,
+                                                            ),
+                                                        child:
+                                                            _isBackdropLoading
+                                                            ? _SpotlightLoadingView(
+                                                                key:
+                                                                    ValueKey<
+                                                                      String
+                                                                    >(
+                                                                      'spotlight-loading-${movie.id}-$_animatedSwitcherKeyVersion',
+                                                                    ),
+                                                                accentColor:
+                                                                    spotlightTint,
+                                                              )
+                                                            : currentSlideshowUrl ==
+                                                                  null
+                                                            ? ColoredBox(
+                                                                key:
+                                                                    ValueKey<
+                                                                      String
+                                                                    >(
+                                                                      'spotlight-placeholder-$_animatedSwitcherKeyVersion',
+                                                                    ),
+                                                                color: AppColors
+                                                                    .cinemaPlaceholder,
+                                                                child: const Center(
+                                                                  child: Icon(
+                                                                    Icons
+                                                                        .movie_outlined,
+                                                                    size: 52,
+                                                                    color: Colors
+                                                                        .white,
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            : _KenBurnsImage(
+                                                                key:
+                                                                    ValueKey<
+                                                                      String
+                                                                    >(
+                                                                      'spotlight-image-${movie.id}-$currentSlideshowUrl-$_animatedSwitcherKeyVersion',
+                                                                    ),
+                                                                imageUrl:
+                                                                    currentSlideshowUrl,
+                                                                width:
+                                                                    posterWidth,
+                                                                height: 320,
+                                                              ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+
+                                              // Gradient overlay (top)
+                                              Positioned(
+                                                top: 0,
+                                                left: 0,
+                                                right: 0,
+                                                height: 60,
+                                                child: IgnorePointer(
+                                                  child: DecoratedBox(
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        begin:
+                                                            Alignment.topCenter,
+                                                        end: Alignment
+                                                            .bottomCenter,
+                                                        colors: [
+                                                          Colors.black
+                                                              .withValues(
+                                                                alpha: 0.6,
+                                                              ),
+                                                          Colors.transparent,
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+
+                                              // Gradient overlay (bottom)
+                                              Positioned(
+                                                bottom: 0,
+                                                left: 0,
+                                                right: 0,
+                                                height: 160,
+                                                child: IgnorePointer(
+                                                  child: DecoratedBox(
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        begin: Alignment
+                                                            .bottomCenter,
+                                                        end:
+                                                            Alignment.topCenter,
+                                                        colors: [
+                                                          Colors.black
+                                                              .withValues(
+                                                                alpha: 0.8,
+                                                              ),
+                                                          Colors.transparent,
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+
+                                              // Play / Close Preview overlay button
+                                              if (movieDetails
+                                                          .value
+                                                          ?.trailerYouTubeKey !=
+                                                      null &&
+                                                  movieDetails
+                                                      .value!
+                                                      .trailerYouTubeKey!
+                                                      .isNotEmpty)
+                                                Positioned(
+                                                  top: 12,
+                                                  left: 12,
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          20,
+                                                        ),
+                                                    child: BackdropFilter(
+                                                      filter: ImageFilter.blur(
+                                                        sigmaX: 8,
+                                                        sigmaY: 8,
+                                                      ),
+                                                      child: Material(
+                                                        color:
+                                                            Colors.transparent,
+                                                        child: InkWell(
+                                                          onTap: () =>
+                                                              _showTrailer(
+                                                                context,
+                                                                movie: movie,
+                                                                details:
+                                                                    movieDetails
+                                                                        .value!,
+                                                                isTv: isTv,
+                                                              ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                20,
+                                                              ),
+                                                          child: Ink(
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      10,
+                                                                  vertical: 6,
+                                                                ),
+                                                            decoration: BoxDecoration(
+                                                              color: Colors
+                                                                  .black
+                                                                  .withValues(
+                                                                    alpha: 0.5,
+                                                                  ),
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    20,
+                                                                  ),
+                                                              border: Border.all(
+                                                                color: spotlightTint
+                                                                    .withValues(
+                                                                      alpha:
+                                                                          0.6,
+                                                                    ),
+                                                                width: 1.0,
+                                                              ),
+                                                            ),
+                                                            child: Row(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              children: [
+                                                                const Icon(
+                                                                  Icons
+                                                                      .play_arrow_rounded,
+                                                                  color: Colors
+                                                                      .white,
+                                                                  size: 14,
+                                                                ),
+                                                                const SizedBox(
+                                                                  width: 4,
+                                                                ),
+                                                                Text(
+                                                                  'Play Preview',
+                                                                  style: theme
+                                                                      .textTheme
+                                                                      .labelSmall
+                                                                      ?.copyWith(
+                                                                        color: Colors
+                                                                            .white,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                        fontSize:
+                                                                            10,
+                                                                        letterSpacing:
+                                                                            0.3,
+                                                                      ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+
+                                              // Tagline (Slide up & Fade)
+                                              Positioned(
+                                                bottom: 104,
+                                                left: 16,
+                                                right: 16,
+                                                child: AnimatedSwitcher(
+                                                  duration: const Duration(
+                                                    milliseconds: 500,
+                                                  ),
+                                                  transitionBuilder:
+                                                      (
+                                                        Widget child,
+                                                        Animation<double>
+                                                        animation,
+                                                      ) {
+                                                        final inAnimation =
+                                                            Tween<Offset>(
+                                                              begin:
+                                                                  const Offset(
+                                                                    0.0,
+                                                                    0.4,
+                                                                  ),
+                                                              end: Offset.zero,
+                                                            ).animate(
+                                                              CurvedAnimation(
+                                                                parent:
+                                                                    animation,
+                                                                curve: Curves
+                                                                    .easeOutCubic,
+                                                              ),
+                                                            );
+                                                        final fadeAnimation =
+                                                            CurvedAnimation(
+                                                              parent: animation,
+                                                              curve:
+                                                                  Curves.easeIn,
+                                                            );
+                                                        return SlideTransition(
+                                                          position: inAnimation,
+                                                          child: FadeTransition(
+                                                            opacity:
+                                                                fadeAnimation,
+                                                            child: child,
+                                                          ),
+                                                        );
+                                                      },
+                                                  child:
+                                                      rotatingTagline != null &&
+                                                          rotatingTagline
+                                                              .isNotEmpty
+                                                      ? Text(
+                                                          rotatingTagline,
+                                                          key: ValueKey<String>(
+                                                            rotatingTagline,
+                                                          ),
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          style: theme
+                                                              .textTheme
+                                                              .labelSmall
+                                                              ?.copyWith(
+                                                                color: Colors
+                                                                    .white
+                                                                    .withValues(
+                                                                      alpha:
+                                                                          0.9,
+                                                                    ),
+                                                                fontStyle:
+                                                                    FontStyle
+                                                                        .italic,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                letterSpacing:
+                                                                    0.2,
+                                                                shadows: [
+                                                                  const Shadow(
+                                                                    color: Colors
+                                                                        .black,
+                                                                    blurRadius:
+                                                                        8,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                        )
+                                                      : (movieDetails
+                                                                        .value
+                                                                        ?.tagline !=
+                                                                    null &&
+                                                                movieDetails
+                                                                    .value!
+                                                                    .tagline!
+                                                                    .isNotEmpty
+                                                            ? Text(
+                                                                movieDetails
+                                                                    .value!
+                                                                    .tagline!,
+                                                                key: ValueKey<String>(
+                                                                  movieDetails
+                                                                      .value!
+                                                                      .tagline!,
+                                                                ),
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .center,
+                                                                maxLines: 2,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                style: theme.textTheme.labelSmall?.copyWith(
+                                                                  color: Colors
+                                                                      .white
+                                                                      .withValues(
+                                                                        alpha:
+                                                                            0.9,
+                                                                      ),
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .italic,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600,
+                                                                  letterSpacing:
+                                                                      0.2,
+                                                                  shadows: [
+                                                                    const Shadow(
+                                                                      color: Colors
+                                                                          .black,
+                                                                      blurRadius:
+                                                                          8,
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              )
+                                                            : const SizedBox.shrink(
+                                                                key: ValueKey(
+                                                                  'empty-tagline',
+                                                                ),
+                                                              )),
+                                                ),
+                                              ),
+
+                                              // Floating Glassmorphic Bottom Pane
+                                              Positioned(
+                                                bottom: 12,
+                                                left: 12,
+                                                right: 12,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.black
+                                                        .withValues(
+                                                          alpha: 0.55,
+                                                        ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          16,
+                                                        ),
+                                                    border: Border.all(
+                                                      color: spotlightTint
+                                                          .withValues(
+                                                            alpha: 0.35,
+                                                          ),
+                                                      width: 1,
+                                                    ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withValues(
+                                                              alpha: 0.25,
+                                                            ),
+                                                        blurRadius: 10,
+                                                        offset: const Offset(
+                                                          0,
+                                                          4,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          16,
+                                                        ),
+                                                    child: BackdropFilter(
+                                                      filter: ImageFilter.blur(
+                                                        sigmaX: 12,
+                                                        sigmaY: 12,
+                                                      ),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 16,
+                                                              vertical: 12,
+                                                            ),
+                                                        child: Row(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            Expanded(
+                                                              child: GestureDetector(
+                                                                behavior:
+                                                                    HitTestBehavior
+                                                                        .opaque,
+                                                                onTap: () => context.pushNamed(
+                                                                  AppRoute
+                                                                      .movieDetails
+                                                                      .name,
+                                                                  pathParameters:
+                                                                      <
+                                                                        String,
+                                                                        String
+                                                                      >{
+                                                                        'movieId': movie
+                                                                            .id
+                                                                            .toString(),
+                                                                      },
+                                                                  queryParameters:
+                                                                      <
+                                                                        String,
+                                                                        String
+                                                                      >{
+                                                                        'heroTag':
+                                                                            'movie-poster-${movie.id}-spotlight',
+                                                                        'isTv': isTv
+                                                                            .toString(),
+                                                                      },
+                                                                ),
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                      CrossAxisAlignment
+                                                                          .start,
+                                                                  mainAxisSize:
+                                                                      MainAxisSize
+                                                                          .min,
+                                                                  children: [
+                                                                    if (_logoUrl !=
+                                                                        null)
+                                                                      _logoUrl!.toLowerCase().endsWith(
+                                                                            '.svg',
+                                                                          )
+                                                                          ? SvgPicture.network(
+                                                                              _logoUrl!,
+                                                                              height: 28,
+                                                                              fit: BoxFit.contain,
+                                                                              alignment: Alignment.centerLeft,
+                                                                              placeholderBuilder:
+                                                                                  (
+                                                                                    context,
+                                                                                  ) => const SizedBox(
+                                                                                    height: 28,
+                                                                                  ),
+                                                                            )
+                                                                          : CachedNetworkImage(
+                                                                              imageUrl: _logoUrl!,
+                                                                              height: 28,
+                                                                              fit: BoxFit.contain,
+                                                                              alignment: Alignment.centerLeft,
+                                                                            )
+                                                                    else
+                                                                      Text(
+                                                                        movie
+                                                                            .title,
+                                                                        maxLines:
+                                                                            1,
+                                                                        overflow:
+                                                                            TextOverflow.ellipsis,
+                                                                        style: theme.textTheme.titleMedium?.copyWith(
+                                                                          color:
+                                                                              Colors.white,
+                                                                          fontWeight:
+                                                                              FontWeight.w900,
+                                                                        ),
+                                                                      ),
+                                                                    const SizedBox(
+                                                                      height: 6,
+                                                                    ),
+                                                                    Row(
+                                                                      children: [
+                                                                        if (!isRatingLoading &&
+                                                                            rottenTomatoesRating !=
+                                                                                null) ...[
+                                                                          const _TomatoIcon(),
+                                                                          const SizedBox(
+                                                                            width:
+                                                                                6,
+                                                                          ),
+                                                                          Text(
+                                                                            scoreLabel,
+                                                                            style: theme.textTheme.labelSmall?.copyWith(
+                                                                              color: Colors.white,
+                                                                              fontWeight: FontWeight.w800,
+                                                                            ),
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            width:
+                                                                                10,
+                                                                          ),
+                                                                          Container(
+                                                                            width:
+                                                                                1,
+                                                                            height:
+                                                                                10,
+                                                                            color: Colors.white.withValues(
+                                                                              alpha: 0.2,
+                                                                            ),
+                                                                          ),
+                                                                          const SizedBox(
+                                                                            width:
+                                                                                10,
+                                                                          ),
+                                                                        ] else ...[
+                                                                          scoreBadge,
+                                                                          const SizedBox(
+                                                                            width:
+                                                                                10,
+                                                                          ),
+                                                                        ],
+                                                                        if (imdbRating !=
+                                                                            null) ...[
+                                                                          const _ImdbIcon(),
+                                                                          const SizedBox(
+                                                                            width:
+                                                                                6,
+                                                                          ),
+                                                                          Text(
+                                                                            imdbRating.value,
+                                                                            style: theme.textTheme.labelSmall?.copyWith(
+                                                                              color: Colors.white,
+                                                                              fontWeight: FontWeight.w800,
+                                                                            ),
+                                                                          ),
+                                                                        ] else
+                                                                          Text(
+                                                                            'IMDb NA',
+                                                                            style: theme.textTheme.labelSmall?.copyWith(
+                                                                              color: Colors.white.withValues(
+                                                                                alpha: 0.6,
+                                                                              ),
+                                                                              fontWeight: FontWeight.w800,
+                                                                            ),
+                                                                          ),
+                                                                      ],
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 12,
+                                                            ),
+                                                            Material(
+                                                              color: Colors
+                                                                  .transparent,
+                                                              child: InkWell(
+                                                                onTap: () =>
+                                                                    _rollNextMovie(
+                                                                      movies,
+                                                                    ),
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      12,
+                                                                    ),
+                                                                child: Ink(
+                                                                  width: 44,
+                                                                  height: 44,
+                                                                  decoration: BoxDecoration(
+                                                                    color: AppColors
+                                                                        .cinemaSelected
+                                                                        .withValues(
+                                                                          alpha:
+                                                                              0.1,
+                                                                        ),
+                                                                    borderRadius:
+                                                                        BorderRadius.circular(
+                                                                          8,
+                                                                        ),
+                                                                    border: Border.all(
+                                                                      color: AppColors
+                                                                          .cinemaSelected
+                                                                          .withValues(
+                                                                            alpha:
+                                                                                0.2,
+                                                                          ),
+                                                                    ),
+                                                                  ),
+                                                                  child: Center(
+                                                                    child: ScaleTransition(
+                                                                      scale:
+                                                                          _scaleAnimation,
+                                                                      child: RotationTransition(
+                                                                        turns:
+                                                                            _diceAnimation,
+                                                                        child: Icon(
+                                                                          Icons
+                                                                              .casino_outlined,
+                                                                          color:
+                                                                              AppColors.cinemaSelected,
+                                                                          size:
+                                                                              24,
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     );
@@ -2437,6 +3004,11 @@ class _DiscoverSpotlightSectionState
 
     setState(() {
       _animatedSwitcherKeyVersion++;
+      if (nextCurrentMovieId != currentMovieId) {
+        _swipeOffset = 0.0;
+        _isSwipeActionsRevealed = false;
+        _isBackdropLoading = true;
+      }
       _discoverSpotlightState = _DiscoverSpotlightState(
         poolMovieIds: poolMovieIds,
         currentMovieId:
@@ -2490,6 +3062,9 @@ class _DiscoverSpotlightSectionState
 
     setState(() {
       _animatedSwitcherKeyVersion++;
+      _swipeOffset = 0.0;
+      _isSwipeActionsRevealed = false;
+      _isBackdropLoading = true;
       _discoverSpotlightState = _DiscoverSpotlightState(
         poolMovieIds: poolMovieIds,
         currentMovieId: nextCurrentMovieId,
@@ -2539,7 +3114,22 @@ class _MovieShelfSection extends ConsumerStatefulWidget {
 }
 
 class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
+  static const List<int> _hiddenGemsCuratedGenreOrder = <int>[
+    18, // Drama
+    53, // Thriller
+    80, // Crime
+    9648, // Mystery
+    35, // Comedy
+    10749, // Romance
+    27, // Horror
+    14, // Fantasy
+    878, // Sci-Fi
+    16, // Animation
+  ];
+  static const int _hiddenGemsMinTitlesPerGenre = 2;
+
   late ExploreFilterOption _selectedFilter;
+  bool _hiddenGemsPrefetchScheduled = false;
 
   @override
   void initState() {
@@ -2555,17 +3145,85 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
     }
   }
 
-  void _navigateToSection() {
+  List<ExploreFilterOption> _hiddenGemsGenreFilters(List<MovieGenre> genres) {
+    if (genres.isEmpty) {
+      return widget.section.filters;
+    }
+    final Map<int, MovieGenre> genresById = <int, MovieGenre>{
+      for (final MovieGenre genre in genres) genre.id: genre,
+    };
+    final List<MovieGenre> curatedGenres = _hiddenGemsCuratedGenreOrder
+        .map((int id) => genresById[id])
+        .whereType<MovieGenre>()
+        .toList(growable: false);
+    final List<MovieGenre> effectiveGenres = curatedGenres.isNotEmpty
+        ? curatedGenres
+        : genres.take(10).toList(growable: false);
+    final ExploreFilterOption allFilter = widget.section.filters.first;
+    return <ExploreFilterOption>[
+      allFilter,
+      ...effectiveGenres.map(
+        (MovieGenre genre) => ExploreFilterOption(
+          label: genre.name,
+          genreId: genre.id,
+          isHiddenGems: true,
+        ),
+      ),
+    ];
+  }
+
+  void _maybePrefetchHiddenGemsPages({
+    required List<MediaTitle> data,
+    required List<ExploreFilterOption> filters,
+    required bool isExhausted,
+  }) {
+    if (!mounted || isExhausted || _hiddenGemsPrefetchScheduled) {
+      return;
+    }
+    final List<int> genreIds = filters
+        .where((ExploreFilterOption filter) => filter.isHiddenGems)
+        .map((ExploreFilterOption filter) => filter.genreId)
+        .whereType<int>()
+        .toSet()
+        .toList(growable: false);
+    if (genreIds.isEmpty) {
+      return;
+    }
+    final Map<int, int> counts = <int, int>{
+      for (final int genreId in genreIds) genreId: 0,
+    };
+    for (final MediaTitle title in data) {
+      for (final int genreId in title.genreIds) {
+        final int? current = counts[genreId];
+        if (current != null) {
+          counts[genreId] = current + 1;
+        }
+      }
+    }
+    final bool needsMore = counts.values.any(
+      (int count) => count < _hiddenGemsMinTitlesPerGenre,
+    );
+    if (!needsMore) {
+      return;
+    }
+    _hiddenGemsPrefetchScheduled = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _hiddenGemsPrefetchScheduled = false;
+      if (!mounted) {
+        return;
+      }
+      loadNextHiddenGemsPages(ref);
+    });
+  }
+
+  void _navigateToSection({required List<ExploreFilterOption> filters}) {
     final mediaType = ref.read(exploreMediaTypeProvider);
-    final bool isTv = mediaType == ExploreMediaType.tv;
+    final bool routeIsTv = mediaType == ExploreMediaType.tv;
 
     context.pushNamed(
       AppRoute.exploreSection.name,
-      queryParameters: {'isTv': isTv.toString()},
-      extra: {
-        'sectionTitle': widget.section.title,
-        'filters': widget.section.filters,
-      },
+      queryParameters: {'isTv': routeIsTv.toString()},
+      extra: {'sectionTitle': widget.section.title, 'filters': filters},
     );
   }
 
@@ -2581,25 +3239,37 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
           accent: Color(0xFF7DD9FF),
           subtitle: 'Fresh picks updated continuously',
         );
+    final bool isHiddenGemsSection =
+        !isTv && widget.section.filters.any((filter) => filter.isHiddenGems);
+    final List<ExploreFilterOption> effectiveFilters = isHiddenGemsSection
+        ? _hiddenGemsGenreFilters(
+            ref.watch(movieGenresProvider).asData?.value ??
+                const <MovieGenre>[],
+          )
+        : widget.section.filters;
+    final ExploreFilterOption activeFilter =
+        effectiveFilters.any((filter) => filter.matches(_selectedFilter))
+        ? _selectedFilter
+        : effectiveFilters.first;
 
     final AsyncValue<List<MediaTitle>> movies;
-    if (_selectedFilter.isHiddenGems) {
+    if (activeFilter.isHiddenGems) {
       movies = ref.watch(hiddenGemsSectionProvider);
-    } else if (_selectedFilter.mood != null) {
+    } else if (activeFilter.mood != null) {
       movies = ref.watch(
-        moodSectionProvider((mood: _selectedFilter.mood!, isTv: isTv)),
+        moodSectionProvider((mood: activeFilter.mood!, isTv: isTv)),
       );
-    } else if (_selectedFilter.genreId != null) {
+    } else if (activeFilter.genreId != null) {
       movies = ref.watch(
-        genreSectionProvider((id: _selectedFilter.genreId!, isTv: isTv)),
+        genreSectionProvider((id: activeFilter.genreId!, isTv: isTv)),
       );
     } else {
-      movies = ref.watch(movieSectionProvider(_selectedFilter.section!));
+      movies = ref.watch(movieSectionProvider(activeFilter.section!));
     }
 
     const double horizontalPadding = 16;
     const double itemSpacing = 12;
-    const double shelfHeight = 220; // Poster(162) + Content
+    const double shelfHeight = 220;
 
     // Use a more efficient way to get width
     final double screenWidth = MediaQuery.sizeOf(context).width;
@@ -2646,32 +3316,32 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                   const SizedBox(width: 8),
                   _SectionFilterPill(
                     label: 'See All',
-                    onTap: _navigateToSection,
+                    onTap: () => _navigateToSection(filters: effectiveFilters),
                     accent: visual.accent,
                     icon: Icons.open_in_new_rounded,
                   ),
                 ],
               ),
             ),
-            if (widget.section.filters.length > 1)
+            if (effectiveFilters.length > 1)
               Container(
                 height: 38,
                 margin: const EdgeInsets.only(bottom: 12),
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: widget.section.filters.length,
+                  itemCount: effectiveFilters.length,
                   separatorBuilder: (context, index) =>
                       const SizedBox(width: 8),
                   itemBuilder: (context, index) {
-                    final filter = widget.section.filters[index];
-                    final bool isSelected = filter == _selectedFilter;
+                    final filter = effectiveFilters[index];
+                    final bool isSelected = filter.matches(activeFilter);
                     return _InlineFilterChip(
                       label: filter.label,
                       isSelected: isSelected,
                       accent: visual.accent,
                       onTap: () {
-                        if (filter != _selectedFilter) {
+                        if (!filter.matches(activeFilter)) {
                           HapticFeedback.lightImpact();
                           setState(() {
                             _selectedFilter = filter;
@@ -2688,7 +3358,7 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
               switchOutCurve: Curves.easeInOutCubic,
               child: Container(
                 key: ValueKey<String>(
-                  '${widget.section.title}_${_selectedFilter.label}',
+                  '${widget.section.title}_${activeFilter.label}',
                 ),
                 child: movies.when(
                   skipLoadingOnReload: !movies.hasError,
@@ -2703,13 +3373,13 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                       icon: Icons.wifi_tethering_error_rounded,
                       actionLabel: 'Retry',
                       onAction: () {
-                        final int? genreId = _selectedFilter.genreId;
-                        final MovieMood? mood = _selectedFilter.mood;
+                        final int? genreId = activeFilter.genreId;
+                        final MovieMood? mood = activeFilter.mood;
                         if (mood != null) {
                           ref.invalidate(
                             moodSectionProvider((mood: mood, isTv: isTv)),
                           );
-                        } else if (_selectedFilter.isHiddenGems) {
+                        } else if (activeFilter.isHiddenGems) {
                           ref.invalidate(hiddenGemsSectionProvider);
                         } else if (genreId != null) {
                           ref.invalidate(
@@ -2717,24 +3387,48 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                           );
                         } else {
                           ref.invalidate(
-                            movieSectionProvider(_selectedFilter.section!),
+                            movieSectionProvider(activeFilter.section!),
                           );
                         }
                       },
                     ),
                   ),
                   data: (List<MediaTitle> data) {
-                    if (data.isEmpty) {
+                    if (activeFilter.isHiddenGems) {
+                      _maybePrefetchHiddenGemsPages(
+                        data: data,
+                        filters: effectiveFilters,
+                        isExhausted: ref.watch(
+                          hiddenGemsSectionExhaustedProvider,
+                        ),
+                      );
+                    }
+                    final List<MediaTitle> sectionData =
+                        activeFilter.isHiddenGems &&
+                            activeFilter.genreId != null
+                        ? data
+                              .where(
+                                (MediaTitle title) => title.genreIds.contains(
+                                  activeFilter.genreId,
+                                ),
+                              )
+                              .toList(growable: false)
+                        : data;
+                    if (sectionData.isEmpty) {
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: _SectionMessageCard(
                           title: 'No titles here yet',
                           body:
-                              'Try another filter or open this section for broader discovery.',
+                              activeFilter.isHiddenGems &&
+                                  activeFilter.genreId != null
+                              ? 'No hidden gems found for this genre yet. Try another genre.'
+                              : 'Try another filter or open this section for broader discovery.',
                           accent: visual.accent,
                           icon: Icons.search_off_rounded,
                           actionLabel: 'See all filters',
-                          onAction: _navigateToSection,
+                          onAction: () =>
+                              _navigateToSection(filters: effectiveFilters),
                         ),
                       );
                     }
@@ -2749,7 +3443,7 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                         ),
                         scrollDirection: Axis.horizontal,
                         addAutomaticKeepAlives: true, // Keep posters in memory
-                        itemCount: data.length,
+                        itemCount: sectionData.length,
                         separatorBuilder: (context, index) =>
                             const SizedBox(width: itemSpacing),
                         itemBuilder: (context, index) {
@@ -2758,7 +3452,7 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                             accent: visual.accent,
                             child: RepaintBoundary(
                               child: MediaPosterGridCard(
-                                movie: data[index],
+                                movie: sectionData[index],
                                 sectionTitle: widget.section.title,
                                 width: finalCardWidth,
                                 isTvTitle: isTv,
@@ -3107,13 +3801,11 @@ class _CuratedTagChip extends StatelessWidget {
 }
 
 class _SectionDivider extends StatelessWidget {
-  const _SectionDivider({this.accent});
-
-  final Color? accent;
+  const _SectionDivider();
 
   @override
   Widget build(BuildContext context) {
-    final Color color = accent ?? AppColors.cinemaBorder;
+    final Color color = AppColors.cinemaBorder;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Container(
@@ -3794,6 +4486,325 @@ class _KenBurnsImageState extends State<_KenBurnsImage>
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _SpotlightCircleActionButton extends StatelessWidget {
+  const _SpotlightCircleActionButton({
+    required this.icon,
+    required this.onPressed,
+    this.iconColor = Colors.white,
+  });
+
+  final IconData icon;
+  final VoidCallback onPressed;
+  final Color iconColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.black.withValues(alpha: 0.5),
+      shape: const CircleBorder(),
+      elevation: 2,
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onPressed();
+        },
+        customBorder: const CircleBorder(),
+        child: Container(
+          width: 38,
+          height: 38,
+          alignment: Alignment.center,
+          child: Icon(icon, color: iconColor, size: 18),
+        ),
+      ),
+    );
+  }
+}
+
+class _SpotlightCircleActionShimmer extends StatelessWidget {
+  const _SpotlightCircleActionShimmer();
+  @override
+  Widget build(BuildContext context) {
+    return const ShimmerEffect(width: 38, height: 38, borderRadius: 19);
+  }
+}
+
+class _SpotlightListButton extends ConsumerWidget {
+  const _SpotlightListButton({required this.details, required this.isTv});
+  final MovieDetails details;
+  final bool isTv;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return _SpotlightCircleActionButton(
+      icon: Icons.list_rounded,
+      onPressed: () => showAnimatedDialog(
+        context: context,
+        builder: (context) => AddToListDialog(details: details, isTv: isTv),
+      ),
+    );
+  }
+}
+
+class _SpotlightFavouriteButton extends ConsumerWidget {
+  const _SpotlightFavouriteButton({required this.details, required this.isTv});
+  final MovieDetails details;
+  final bool isTv;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mediaType = isTv ? GlobalMediaType.tv : GlobalMediaType.movie;
+    final isFav = ref.watch(
+      isFavouriteProvider((id: details.id, type: mediaType)),
+    );
+
+    return _SpotlightCircleActionButton(
+      icon: isFav ? Icons.favorite_rounded : Icons.favorite_outline_rounded,
+      iconColor: isFav ? Colors.redAccent : Colors.white,
+      onPressed: () async {
+        final item = FavouriteItem(
+          id: details.id,
+          title: details.title,
+          posterPath: details.posterPath,
+          releaseDate: details.releaseDate,
+          mediaType: mediaType,
+          addedDate: DateTime.now(),
+          voteAverage: details.catalogScore,
+        );
+        await ref.read(favouritesProvider.notifier).toggleFavourite(item);
+        if (context.mounted) {
+          ToastUtils.showToast(
+            context,
+            isFav ? 'Removed from Favourites' : 'Added to Favourites',
+          );
+        }
+      },
+    );
+  }
+}
+
+class _SpotlightWatchlistButton extends ConsumerWidget {
+  const _SpotlightWatchlistButton({required this.details, required this.isTv});
+  final MovieDetails details;
+  final bool isTv;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isInWatchlistAsync = ref.watch(isInWatchlistProvider(details.id));
+
+    return isInWatchlistAsync.when(
+      data: (isAdded) => _SpotlightCircleActionButton(
+        icon: isAdded ? Icons.bookmark_rounded : Icons.bookmark_add_outlined,
+        iconColor: isAdded ? AppColors.cinemaAccent : Colors.white,
+        onPressed: () async {
+          final item = WatchlistItem(
+            id: details.id,
+            title: details.title,
+            posterPath: details.posterPath,
+            releaseDate: details.releaseDate,
+            mediaType: isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
+            addedDate: DateTime.now(),
+            voteAverage: details.catalogScore,
+          );
+          await ref.read(watchlistProvider.notifier).toggleItem(item);
+          if (context.mounted) {
+            ToastUtils.showToast(
+              context,
+              isAdded ? 'Removed from Watchlist' : 'Added to Watchlist',
+            );
+          }
+        },
+      ),
+      loading: () => const _SpotlightCircleActionShimmer(),
+      error: (_, _) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _SpotlightWatchedButton extends ConsumerWidget {
+  const _SpotlightWatchedButton({required this.details, required this.isTv});
+  final MovieDetails details;
+  final bool isTv;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final mediaType = isTv ? GlobalMediaType.tv : GlobalMediaType.movie;
+    final isWatchedAsync = ref.watch(
+      isWatchedProvider((id: details.id, type: mediaType)),
+    );
+    final watchedItemAsync = ref.watch(
+      watchedItemProvider((id: details.id, type: mediaType)),
+    );
+
+    return isWatchedAsync.when(
+      data: (isWatched) => _SpotlightCircleActionButton(
+        onPressed: () => showAnimatedDialog(
+          context: context,
+          builder: (context) => WatchedDialog(
+            details: details,
+            isTv: isTv,
+            existingItem: watchedItemAsync.value,
+          ),
+        ),
+        icon: isWatched
+            ? Icons.check_circle_rounded
+            : Icons.check_circle_outline_rounded,
+        iconColor: isWatched ? AppColors.cinemaAccent : Colors.white,
+      ),
+      loading: () => const _SpotlightCircleActionShimmer(),
+      error: (_, _) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _SpotlightReminderButton extends ConsumerWidget {
+  const _SpotlightReminderButton({required this.details, required this.isTv});
+  final MovieDetails details;
+  final bool isTv;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final List<AppReminder> reminders =
+        ref.watch(remindersProvider).asData?.value ?? const <AppReminder>[];
+    final DateTime now = DateTime.now();
+    final bool hasActiveReminder = reminders.any(
+      (reminder) =>
+          reminder.type == ReminderType.general &&
+          reminder.mediaId == details.id &&
+          reminder.isTv == isTv &&
+          reminder.notifyAt.isAfter(now),
+    );
+
+    return _SpotlightCircleActionButton(
+      icon: hasActiveReminder
+          ? Icons.notifications_active_rounded
+          : Icons.notifications_none_rounded,
+      iconColor: hasActiveReminder ? const Color(0xFFFFC857) : Colors.white,
+      onPressed: () => _showReminderDialog(context, ref),
+    );
+  }
+
+  Future<void> _showReminderDialog(BuildContext context, WidgetRef ref) async {
+    final GeneralReminderDialogResult? result =
+        await showAnimatedDialog<GeneralReminderDialogResult>(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => const GeneralReminderDialog(),
+        );
+
+    if (result == null || !context.mounted) {
+      return;
+    }
+
+    await ref
+        .read(remindersProvider.notifier)
+        .addReminder(
+          AppReminder(
+            id: buildReminderId(),
+            type: ReminderType.general,
+            title: details.title,
+            message: result.reminderText.trim().isEmpty
+                ? 'Reminder for ${details.title}'
+                : result.reminderText,
+            notifyAt: result.notifyAt,
+            createdAt: DateTime.now(),
+            mediaId: details.id,
+            isTv: isTv,
+          ),
+        );
+
+    if (context.mounted) {
+      ToastUtils.showToast(context, 'Reminder set successfully');
+    }
+  }
+}
+
+class _SpotlightLoadingView extends StatefulWidget {
+  const _SpotlightLoadingView({required this.accentColor, super.key});
+  final Color accentColor;
+
+  @override
+  State<_SpotlightLoadingView> createState() => _SpotlightLoadingViewState();
+}
+
+class _SpotlightLoadingViewState extends State<_SpotlightLoadingView>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _pulseAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+
+    _pulseAnimation = Tween<double>(
+      begin: 0.8,
+      end: 1.2,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      // Visually center between the top preview chip and bottom metadata pane.
+      alignment: const Alignment(0, -0.16),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          AnimatedBuilder(
+            animation: _pulseAnimation,
+            builder: (context, child) {
+              return Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: widget.accentColor.withValues(
+                        alpha: 0.25 * _pulseAnimation.value,
+                      ),
+                      blurRadius: 36 * _pulseAnimation.value,
+                      spreadRadius: 6 * _pulseAnimation.value,
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          ScaleTransition(
+            scale: _pulseAnimation,
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black.withValues(alpha: 0.4),
+                border: Border.all(
+                  color: widget.accentColor.withValues(alpha: 0.3),
+                  width: 1.5,
+                ),
+              ),
+              child: Icon(
+                Icons.movie_filter_rounded,
+                color: widget.accentColor,
+                size: 32,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -20,6 +20,8 @@ const ALLOWED_STATIC_PATHS = new Set([
   "/search/movie",
   "/search/tv",
   "/search/keyword",
+  "/search/collection",
+  "/search/company",
 ]);
 
 const TMDB_MOVIE_DETAILS_PATTERN = /^\/movie\/\d+$/;
@@ -39,10 +41,14 @@ const TMDB_TV_EPISODE_PATTERN = /^\/tv\/\d+\/season\/\d+\/episode\/\d+$/;
 const TMDB_TV_EPISODE_CREDITS_PATTERN = /^\/tv\/\d+\/season\/\d+\/episode\/\d+\/credits$/;
 const TMDB_TV_EPISODE_IMAGES_PATTERN = /^\/tv\/\d+\/season\/\d+\/episode\/\d+\/images$/;
 const TMDB_PERSON_IMAGES_PATTERN = /^\/person\/\d+\/images$/;
+const TMDB_PERSON_TAGGED_IMAGES_PATTERN = /^\/person\/\d+\/tagged_images$/;
 const TMDB_PERSON_DETAILS_PATTERN = /^\/person\/\d+$/;
 const TMDB_PERSON_COMBINED_CREDITS_PATTERN = /^\/person\/\d+\/combined_credits$/;
 const TMDB_PERSON_TV_CREDITS_PATTERN = /^\/person\/\d+\/tv_credits$/;
 const TMDB_PERSON_MOVIE_CREDITS_PATTERN = /^\/person\/\d+\/movie_credits$/;
+const TMDB_COLLECTION_PATTERN = /^\/collection\/\d+$/;
+const TMDB_COMPANY_DETAILS_PATTERN = /^\/company\/\d+$/;
+
 
 export default {
   async fetch(request, env, ctx) {
@@ -148,8 +154,11 @@ function cacheTtlSeconds(pathname) {
     TMDB_MOVIE_IMAGES_PATTERN.test(pathname) ||
     TMDB_TV_IMAGES_PATTERN.test(pathname) ||
     TMDB_PERSON_IMAGES_PATTERN.test(pathname) ||
+    TMDB_PERSON_TAGGED_IMAGES_PATTERN.test(pathname) ||
     TMDB_PERSON_DETAILS_PATTERN.test(pathname) ||
-    TMDB_PERSON_COMBINED_CREDITS_PATTERN.test(pathname)
+    TMDB_PERSON_COMBINED_CREDITS_PATTERN.test(pathname) ||
+    TMDB_COLLECTION_PATTERN.test(pathname) ||
+    TMDB_COMPANY_DETAILS_PATTERN.test(pathname)
     ? 3600
     : 600;
 }
@@ -174,10 +183,13 @@ function isAllowedPath(pathname) {
     TMDB_MOVIE_IMAGES_PATTERN.test(pathname) ||
     TMDB_TV_IMAGES_PATTERN.test(pathname) ||
     TMDB_PERSON_IMAGES_PATTERN.test(pathname) ||
+    TMDB_PERSON_TAGGED_IMAGES_PATTERN.test(pathname) ||
     TMDB_PERSON_DETAILS_PATTERN.test(pathname) ||
     TMDB_PERSON_COMBINED_CREDITS_PATTERN.test(pathname) ||
     TMDB_PERSON_TV_CREDITS_PATTERN.test(pathname) ||
-    TMDB_PERSON_MOVIE_CREDITS_PATTERN.test(pathname)
+    TMDB_PERSON_MOVIE_CREDITS_PATTERN.test(pathname) ||
+    TMDB_COLLECTION_PATTERN.test(pathname) ||
+    TMDB_COMPANY_DETAILS_PATTERN.test(pathname)
   );
 }
 

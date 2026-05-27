@@ -10,7 +10,7 @@
       "type": "dart",
       "toolArgs": [
         "--dart-define-from-file=config/api_keys.json",
-        "--dart-define=TONIGHT_RECOMMENDATIONS_API_URL=https://us-central1-cineverse-flutter-591.cloudfunctions.net/recommendTonight"
+        "--dart-define=TONIGHT_RECOMMENDATIONS_API_URL=https://us-east4-cineverse-flutter-591.cloudfunctions.net/recommendTonight"
       ]
     },
     {
@@ -20,7 +20,7 @@
       "flutterMode": "profile",
       "toolArgs": [
         "--dart-define-from-file=config/api_keys.json",
-        "--dart-define=TONIGHT_RECOMMENDATIONS_API_URL=https://us-central1-cineverse-flutter-591.cloudfunctions.net/recommendTonight"
+        "--dart-define=TONIGHT_RECOMMENDATIONS_API_URL=https://us-east4-cineverse-flutter-591.cloudfunctions.net/recommendTonight"
       ]
     },
     {
@@ -30,7 +30,7 @@
       "flutterMode": "release",
       "toolArgs": [
         "--dart-define-from-file=config/api_keys.json",
-        "--dart-define=TONIGHT_RECOMMENDATIONS_API_URL=https://us-central1-cineverse-flutter-591.cloudfunctions.net/recommendTonight"
+        "--dart-define=TONIGHT_RECOMMENDATIONS_API_URL=https://us-east4-cineverse-flutter-591.cloudfunctions.net/recommendTonight"
       ]
     }
   ]

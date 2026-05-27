@@ -1,0 +1,11 @@
+# v2 migration benchmark queries (movies only)
+I want something like Interstellar, but not sci-fi.
+Like Marvel movies but not Marvel or DC.
+Hindi thriller under 2 hours with strong ratings.
+A feel-good movie for tonight with great visuals.
+Feel-good Tamil drama with family themes.
+High-rated crime thriller from the 2010s, not horror.
+Mind-bending movies like Inception without action-heavy fights.
+A cozy romance movie under 110 minutes.
+Something similar to Forest Gump, emotional but not war.
+A gripping mystery with insane twist ending, no supernatural horror.

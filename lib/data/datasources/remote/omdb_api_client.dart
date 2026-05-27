@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cineverse/core/config/app_config.dart';
 import 'package:cineverse/core/constants/app_constants.dart';
 import 'package:cineverse/data/models/omdb_movie_ratings_dto.dart';
+import 'package:cineverse/data/models/omdb_title_details_dto.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
@@ -54,6 +55,47 @@ class OmdbApiClient {
       return OmdbMovieRatingsDto.fromJson(payload);
     } on DioException catch (error, stackTrace) {
       _logFailure('fetchMovieRatings', error, stackTrace);
+      throw OmdbApiException(_messageForDioException(error));
+    }
+  }
+
+  Future<OmdbTitleDetailsDto?> fetchTitleDetails(
+    String imdbId, {
+    bool fullPlot = true,
+  }) async {
+    if (!appConfig.hasOmdbApiKey || imdbId.trim().isEmpty) {
+      return null;
+    }
+
+    try {
+      final Response<Map<String, dynamic>> response = await client
+          .get<Map<String, dynamic>>(
+            AppConstants.omdbBaseUrl,
+            queryParameters: <String, dynamic>{
+              'apikey': appConfig.omdbApiKey,
+              'i': imdbId,
+              'plot': fullPlot ? 'full' : 'short',
+            },
+          );
+
+      final Map<String, dynamic>? payload = response.data;
+      if (payload == null) {
+        throw const OmdbApiException('OMDb returned an empty payload.');
+      }
+
+      final String responseValue = (payload['Response'] as String? ?? '')
+          .trim()
+          .toLowerCase();
+      if (responseValue == 'false') {
+        throw OmdbApiException(
+          (payload['Error'] as String?)?.trim() ??
+              'OMDb did not return details for this title.',
+        );
+      }
+
+      return OmdbTitleDetailsDto.fromJson(payload);
+    } on DioException catch (error, stackTrace) {
+      _logFailure('fetchTitleDetails', error, stackTrace);
       throw OmdbApiException(_messageForDioException(error));
     }
   }

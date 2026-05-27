@@ -67,7 +67,6 @@ class _LumiSplashScreenState extends State<LumiSplashScreen>
         animation: _controller,
         builder: (context, child) {
           final wave = _controller.value;
-          final glow = 0.4 + (wave * 0.4);
           return DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -112,40 +111,15 @@ class _LumiSplashScreenState extends State<LumiSplashScreen>
                       children: [
                         Transform.translate(
                           offset: Offset(0, math.sin(wave * math.pi * 2) * 4),
-                          child: Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(38),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(
-                                    0xFF6EC6FF,
-                                  ).withValues(alpha: glow * 0.25),
-                                  blurRadius: 42,
-                                  spreadRadius: 5,
-                                ),
-                              ],
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(30),
-                              child: Image.asset(
-                                'assets/logos/lumi_app_icon.png',
-                                width: 132,
-                                height: 132,
-                                fit: BoxFit.cover,
-                              ),
+                          child: SizedBox(
+                            width: 210,
+                            child: SvgPicture.asset(
+                              'assets/logos/logo.svg',
+                              fit: BoxFit.contain,
                             ),
                           ),
                         ),
-                        const SizedBox(height: 22),
-                        SizedBox(
-                          width: 170,
-                          child: SvgPicture.asset(
-                            'assets/logos/logo.svg',
-                            fit: BoxFit.contain,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 14),
                         Text(
                           'Movie discovery, made personal',
                           style: textTheme.bodyMedium?.copyWith(

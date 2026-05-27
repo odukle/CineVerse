@@ -1,5 +1,6 @@
 import 'package:cineverse/data/providers/data_providers.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
+import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -18,3 +19,9 @@ final movieDetailsProvider =
 
       return useCase(params);
     });
+
+final movieCollectionProvider =
+    FutureProvider.family<List<MediaTitle>, int>((ref, collectionId) async {
+  final repository = ref.watch(mediaRepositoryProvider);
+  return repository.fetchMovieCollectionParts(collectionId);
+});

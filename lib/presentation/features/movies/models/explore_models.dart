@@ -38,7 +38,9 @@ class ExploreFilterOption {
     if (isLibraryRecommendations) {
       return other.isLibraryRecommendations && recSource == other.recSource;
     }
-    if (isHiddenGems) return other.isHiddenGems;
+    if (isHiddenGems || other.isHiddenGems) {
+      return isHiddenGems == other.isHiddenGems && genreId == other.genreId;
+    }
     if (mood != null) return mood == other.mood;
     if (section != null) return section == other.section;
     if (genreId != null) return genreId == other.genreId;
@@ -55,15 +57,21 @@ class ExploreFilterOption {
     'recSource': recSource.name,
   };
 
-  factory ExploreFilterOption.fromJson(Map<String, dynamic> json) => ExploreFilterOption(
-    label: json['label'] as String,
-    section: json['section'] != null ? MovieSection.values.firstWhere((e) => e.name == json['section']) : null,
-    genreId: json['genreId'] as int?,
-    mood: json['mood'] != null ? MovieMood.values.firstWhere((e) => e.name == json['mood']) : null,
-    isHiddenGems: (json['isHiddenGems'] as bool?) ?? false,
-    isLibraryRecommendations: (json['isLibraryRecommendations'] as bool?) ?? false,
-    recSource: json['recSource'] != null 
-        ? RecSource.values.firstWhere((e) => e.name == json['recSource']) 
-        : RecSource.all,
-  );
+  factory ExploreFilterOption.fromJson(Map<String, dynamic> json) =>
+      ExploreFilterOption(
+        label: json['label'] as String,
+        section: json['section'] != null
+            ? MovieSection.values.firstWhere((e) => e.name == json['section'])
+            : null,
+        genreId: json['genreId'] as int?,
+        mood: json['mood'] != null
+            ? MovieMood.values.firstWhere((e) => e.name == json['mood'])
+            : null,
+        isHiddenGems: (json['isHiddenGems'] as bool?) ?? false,
+        isLibraryRecommendations:
+            (json['isLibraryRecommendations'] as bool?) ?? false,
+        recSource: json['recSource'] != null
+            ? RecSource.values.firstWhere((e) => e.name == json['recSource'])
+            : RecSource.all,
+      );
 }

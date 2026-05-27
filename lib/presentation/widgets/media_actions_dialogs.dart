@@ -44,9 +44,19 @@ class _AddToListDialogState extends State<AddToListDialog> {
 
         return AlertDialog(
           backgroundColor: AppColors.detailsCard,
-          title: const Text(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(
+              color: Colors.white.withValues(alpha: 0.08),
+              width: 1,
+            ),
+          ),
+          title: Text(
             'Add to List',
-            style: TextStyle(color: Colors.white),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           content: SizedBox(
             width: double.maxFinite,
@@ -133,10 +143,21 @@ class _AddToListDialogState extends State<AddToListDialog> {
                 const Divider(color: Colors.white10),
                 TextField(
                   controller: _newListNameController,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: const InputDecoration(
+                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  decoration: InputDecoration(
                     hintText: 'Create new list...',
-                    hintStyle: TextStyle(color: Colors.white38),
+                    hintStyle: const TextStyle(color: Colors.white38),
+                    filled: true,
+                    fillColor: Colors.white.withValues(alpha: 0.03),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.white10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: AppColors.cinemaAccent, width: 1.5),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -158,9 +179,12 @@ class _AddToListDialogState extends State<AddToListDialog> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white60,
+              ),
               child: const Text(
                 'Cancel',
-                style: TextStyle(color: Colors.white54),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
             ElevatedButton(
@@ -188,10 +212,16 @@ class _AddToListDialogState extends State<AddToListDialog> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.cinemaAccent,
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 0,
               ),
               child: const Text(
                 'Create',
-                style: TextStyle(color: Colors.black),
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -252,9 +282,19 @@ class _WatchedDialogState extends State<WatchedDialog> {
 
     return AlertDialog(
       backgroundColor: AppColors.detailsCard,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: Colors.white.withValues(alpha: 0.08),
+          width: 1,
+        ),
+      ),
       title: Text(
         isEditing ? 'Edit Watched Info' : 'Mark as Watched',
-        style: const TextStyle(color: Colors.white),
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -284,16 +324,8 @@ class _WatchedDialogState extends State<WatchedDialog> {
             'Watch Date',
             style: TextStyle(color: Colors.white70, fontSize: 12),
           ),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(
-              '${_watchDate.year}-${_watchDate.month.toString().padLeft(2, '0')}-${_watchDate.day.toString().padLeft(2, '0')}',
-              style: const TextStyle(color: Colors.white),
-            ),
-            trailing: const Icon(
-              Icons.calendar_today_rounded,
-              color: Colors.white70,
-            ),
+          const SizedBox(height: 8),
+          InkWell(
             onTap: () async {
               final picked = await showDatePicker(
                 context: context,
@@ -305,6 +337,30 @@ class _WatchedDialogState extends State<WatchedDialog> {
                 setState(() => _watchDate = picked);
               }
             },
+            borderRadius: BorderRadius.circular(12),
+            child: Ink(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.white10),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${_watchDate.year}-${_watchDate.month.toString().padLeft(2, '0')}-${_watchDate.day.toString().padLeft(2, '0')}',
+                      style: const TextStyle(color: Colors.white, fontSize: 14),
+                    ),
+                  ),
+                  Icon(
+                    Icons.calendar_today_rounded,
+                    color: AppColors.cinemaAccent,
+                    size: 16,
+                  ),
+                ],
+              ),
+            ),
           ),
           const SizedBox(height: 16),
           const Text(
@@ -345,15 +401,24 @@ class _WatchedDialogState extends State<WatchedDialog> {
                 Navigator.pop(context);
                 _removeWatched(context, ref);
               },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.redAccent,
+              ),
               child: const Text(
                 'Remove',
-                style: TextStyle(color: Colors.redAccent),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel', style: TextStyle(color: Colors.white70)),
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white60,
+          ),
+          child: const Text(
+            'Cancel',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
         ),
         Consumer(
           builder: (context, ref, _) => ElevatedButton(
@@ -361,8 +426,16 @@ class _WatchedDialogState extends State<WatchedDialog> {
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.cinemaAccent,
               foregroundColor: Colors.black,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              elevation: 0,
             ),
-            child: Text(isEditing ? 'Update' : 'Save'),
+            child: Text(
+              isEditing ? 'Update' : 'Save',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ),
       ],
@@ -402,20 +475,33 @@ class _WatchedDialogState extends State<WatchedDialog> {
       builder: (context) => Consumer(
         builder: (context, ref, child) => AlertDialog(
           backgroundColor: AppColors.detailsCard,
-          title: const Text(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(
+              color: Colors.white.withValues(alpha: 0.08),
+              width: 1,
+            ),
+          ),
+          title: Text(
             'Remove from Watched?',
-            style: TextStyle(color: Colors.white),
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           content: const Text(
             'Are you sure you want to remove this from your watched list?',
-            style: TextStyle(color: Colors.white70),
+            style: TextStyle(color: Colors.white70, fontSize: 14),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white60,
+              ),
               child: const Text(
                 'Cancel',
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
             TextButton(
@@ -431,9 +517,12 @@ class _WatchedDialogState extends State<WatchedDialog> {
                   Navigator.pop(context);
                 }
               },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.redAccent,
+              ),
               child: const Text(
                 'Remove',
-                style: TextStyle(color: Colors.redAccent),
+                style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -481,32 +570,50 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
     return Consumer(
       builder: (context, ref, _) => AlertDialog(
         backgroundColor: AppColors.detailsCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
         title: Text(
           isEditing ? 'Edit Note' : 'Add Note',
-          style: const TextStyle(color: Colors.white),
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         content: TextField(
           controller: _controller,
           maxLines: 3,
           autofocus: true,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white, fontSize: 14),
           decoration: InputDecoration(
             hintText: 'Enter your note here...',
             hintStyle: const TextStyle(color: Colors.white38),
-            enabledBorder: const UnderlineInputBorder(
-              borderSide: BorderSide(color: Colors.white12),
+            filled: true,
+            fillColor: Colors.white.withValues(alpha: 0.03),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.white10),
             ),
-            focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(color: AppColors.cinemaAccent),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: AppColors.cinemaAccent, width: 1.5),
             ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white60,
+            ),
             child: const Text(
               'Cancel',
-              style: TextStyle(color: Colors.white54),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           ElevatedButton(
@@ -555,6 +662,12 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                   },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.cinemaAccent,
+              foregroundColor: Colors.black,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              elevation: 0,
             ),
             child: _isSubmitting
                 ? const SizedBox(
@@ -567,7 +680,7 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                   )
                 : Text(
                     isEditing ? 'Update' : 'Save',
-                    style: const TextStyle(color: Colors.black),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
           ),
         ],

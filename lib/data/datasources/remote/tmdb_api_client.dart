@@ -14,6 +14,11 @@ import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_images.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
+import 'package:cineverse/data/models/tmdb_search_collection_dto.dart';
+import 'package:cineverse/data/models/tmdb_search_keyword_dto.dart';
+import 'package:cineverse/data/models/tmdb_search_company_dto.dart';
+import 'package:cineverse/data/models/tmdb_movie_collection_dto.dart';
+import 'package:cineverse/data/models/tmdb_company_details_dto.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -196,6 +201,8 @@ class TmdbApiClient {
     required MediaFilter filter,
     String? query,
     int page = 1,
+    String? withKeywords,
+    String? withCompanies,
   }) async {
     if (filter.personIds.isNotEmpty) {
       return _discoverWithPersonCredits(
@@ -224,6 +231,14 @@ class TmdbApiClient {
 
     if (query != null && query.isNotEmpty) {
       queryParams['with_text_query'] = query;
+    }
+
+    if (withKeywords != null && withKeywords.isNotEmpty) {
+      queryParams['with_keywords'] = withKeywords;
+    }
+
+    if (withCompanies != null && withCompanies.isNotEmpty) {
+      queryParams['with_companies'] = withCompanies;
     }
 
     if (filter.originalLanguageCode != null &&
@@ -359,8 +374,8 @@ class TmdbApiClient {
         ? '${AppConstants.tmdbTvPath}/$mediaId'
         : '${AppConstants.tmdbMoviePath}/$mediaId';
     final String appendToResponse = isTv
-        ? 'aggregate_credits,content_ratings,external_ids,recommendations,watch/providers,videos'
-        : 'credits,release_dates,external_ids,recommendations,watch/providers,videos';
+        ? 'aggregate_credits,content_ratings,external_ids,recommendations,watch/providers,videos,keywords'
+        : 'credits,release_dates,external_ids,recommendations,watch/providers,videos,keywords';
 
     final Response<Map<String, dynamic>> response = await client
         .get<Map<String, dynamic>>(
@@ -558,9 +573,8 @@ class TmdbApiClient {
       final List<dynamic> profilesPayload =
           (payload?['profiles'] as List<dynamic>?) ?? <dynamic>[];
 
-      final List<String> profiles = profilesPayload
+      final List<String> profileImages = profilesPayload
           .whereType<Map<String, dynamic>>()
-          .take(20)
           .map(
             (item) =>
                 _normalizeImagePath(item['file_path'] as String?, size: 'h632'),
@@ -568,7 +582,50 @@ class TmdbApiClient {
           .whereType<String>()
           .toList(growable: false);
 
-      return MediaImages(posters: profiles, backdrops: [], logos: []);
+      List<String> taggedImages = const <String>[];
+      try {
+        final Response<Map<String, dynamic>> taggedResponse = await client
+            .get<Map<String, dynamic>>(
+              '/person/$personId/tagged_images',
+              queryParameters: <String, dynamic>{
+                ..._detailQueryParameters(),
+                'page': 1,
+              },
+            );
+        final Map<String, dynamic>? taggedPayload = taggedResponse.data;
+        final List<dynamic> taggedResultsPayload =
+            (taggedPayload?['results'] as List<dynamic>?) ?? <dynamic>[];
+        taggedImages = taggedResultsPayload
+            .whereType<Map<String, dynamic>>()
+            .map(
+              (item) => _normalizeImagePath(
+                item['file_path'] as String?,
+                size: 'h632',
+              ),
+            )
+            .whereType<String>()
+            .toList(growable: false);
+      } on DioException catch (error, stackTrace) {
+        _logFailure('fetchPersonTaggedImages($personId)', error, stackTrace);
+      }
+
+      final List<String> dedupedProfiles = profileImages
+          .toSet()
+          .take(30)
+          .toList(growable: false);
+      final List<String> dedupedTagged = taggedImages
+          .where((image) => !dedupedProfiles.contains(image))
+          .toSet()
+          .take(30)
+          .toList(growable: false);
+
+      return MediaImages(
+        posters: dedupedProfiles,
+        backdrops: const [],
+        logos: const [],
+        profiles: dedupedProfiles,
+        taggedImages: dedupedTagged,
+      );
     } on DioException catch (error, stackTrace) {
       _logFailure('fetchPersonImages($personId)', error, stackTrace);
       return MediaImages.empty;
@@ -945,7 +1002,10 @@ class TmdbApiClient {
     try {
       final response = await client.get<Map<String, dynamic>>(
         '/person/$personId',
-        queryParameters: _detailQueryParameters(),
+        queryParameters: <String, dynamic>{
+          ..._detailQueryParameters(),
+          'append_to_response': 'external_ids',
+        },
       );
       return TmdbPersonDetailsDto.fromJson(response.data!);
     } on DioException catch (error, stackTrace) {
@@ -966,6 +1026,25 @@ class TmdbApiClient {
       return TmdbPersonCombinedCreditsDto.fromJson(response.data!);
     } on DioException catch (error, stackTrace) {
       _logFailure('fetchPersonCombinedCredits', error, stackTrace);
+      throw TmdbApiException(_messageForDioException(error));
+    }
+  }
+
+  Future<List<TmdbMovieDto>> fetchMovieCollectionParts(int collectionId) async {
+    _assertMovieApiConfigured();
+    try {
+      final response = await client.get<Map<String, dynamic>>(
+        '/collection/$collectionId',
+        queryParameters: _detailQueryParameters(),
+      );
+      final parts = response.data?['parts'] as List<dynamic>?;
+      if (parts == null) return const [];
+      return parts
+          .whereType<Map<String, dynamic>>()
+          .map(TmdbMovieDto.fromJson)
+          .toList();
+    } on DioException catch (error, stackTrace) {
+      _logFailure('fetchMovieCollectionParts', error, stackTrace);
       throw TmdbApiException(_messageForDioException(error));
     }
   }
@@ -1123,5 +1202,101 @@ class TmdbApiClient {
         );
 
     return TmdbTvEpisodeDto.fromJson(response.data!);
+  }
+
+  Future<List<TmdbSearchCollectionDto>> searchCollections(String query, {int page = 1}) async {
+    _assertMovieApiConfigured();
+    try {
+      final response = await client.get<Map<String, dynamic>>(
+        '/search/collection',
+        queryParameters: <String, dynamic>{
+          ..._pagedQueryParameters(page: page),
+          'query': query,
+        },
+      );
+      final results = response.data?['results'] as List<dynamic>?;
+      if (results == null) return const [];
+      return results
+          .whereType<Map<String, dynamic>>()
+          .map(TmdbSearchCollectionDto.fromJson)
+          .toList();
+    } on DioException catch (error, stackTrace) {
+      _logFailure('searchCollections', error, stackTrace);
+      throw TmdbApiException(_messageForDioException(error));
+    }
+  }
+
+  Future<List<TmdbSearchKeywordDto>> searchKeywords(String query, {int page = 1}) async {
+    _assertMovieApiConfigured();
+    try {
+      final response = await client.get<Map<String, dynamic>>(
+        '/search/keyword',
+        queryParameters: <String, dynamic>{
+          ..._pagedQueryParameters(page: page),
+          'query': query,
+        },
+      );
+      final results = response.data?['results'] as List<dynamic>?;
+      if (results == null) return const [];
+      return results
+          .whereType<Map<String, dynamic>>()
+          .map(TmdbSearchKeywordDto.fromJson)
+          .toList();
+    } on DioException catch (error, stackTrace) {
+      _logFailure('searchKeywords', error, stackTrace);
+      throw TmdbApiException(_messageForDioException(error));
+    }
+  }
+
+  Future<List<TmdbSearchCompanyDto>> searchCompanies(String query, {int page = 1}) async {
+    _assertMovieApiConfigured();
+    try {
+      final response = await client.get<Map<String, dynamic>>(
+        '/search/company',
+        queryParameters: <String, dynamic>{
+          ..._pagedQueryParameters(page: page),
+          'query': query,
+        },
+      );
+      final results = response.data?['results'] as List<dynamic>?;
+      if (results == null) return const [];
+      return results
+          .whereType<Map<String, dynamic>>()
+          .map(TmdbSearchCompanyDto.fromJson)
+          .toList();
+    } on DioException catch (error, stackTrace) {
+      _logFailure('searchCompanies', error, stackTrace);
+      throw TmdbApiException(_messageForDioException(error));
+    }
+  }
+
+  Future<TmdbMovieCollectionDto> fetchMovieCollection(int collectionId) async {
+    _assertMovieApiConfigured();
+    try {
+      final response = await client.get<Map<String, dynamic>>(
+        '/collection/$collectionId',
+        queryParameters: _detailQueryParameters(),
+      );
+      if (response.data == null) throw TmdbApiException('No data returned');
+      return TmdbMovieCollectionDto.fromJson(response.data!);
+    } on DioException catch (error, stackTrace) {
+      _logFailure('fetchMovieCollection', error, stackTrace);
+      throw TmdbApiException(_messageForDioException(error));
+    }
+  }
+
+  Future<TmdbCompanyDetailsDto> fetchCompanyDetails(int companyId) async {
+    _assertMovieApiConfigured();
+    try {
+      final response = await client.get<Map<String, dynamic>>(
+        '/company/$companyId',
+        queryParameters: _detailQueryParameters(),
+      );
+      if (response.data == null) throw TmdbApiException('No data returned');
+      return TmdbCompanyDetailsDto.fromJson(response.data!);
+    } on DioException catch (error, stackTrace) {
+      _logFailure('fetchCompanyDetails', error, stackTrace);
+      throw TmdbApiException(_messageForDioException(error));
+    }
   }
 }
