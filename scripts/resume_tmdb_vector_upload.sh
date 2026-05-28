@@ -9,11 +9,12 @@ set -euo pipefail
 if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
   cat <<'EOF'
 Usage:
-  scripts/resume_tmdb_vector_upload.sh [PROJECT] [COLLECTION]
+  scripts/resume_tmdb_vector_upload.sh [PROJECT] [COLLECTION] [--latest-delta] [--delta-dir <path>]
 
 Examples:
   scripts/resume_tmdb_vector_upload.sh
   scripts/resume_tmdb_vector_upload.sh cineverse-flutter-591 tmdb_movie_vectors_v1
+  scripts/resume_tmdb_vector_upload.sh --latest-delta
 EOF
   exit 0
 fi
@@ -48,10 +49,46 @@ export PATH="${PATH}:/snap/bin:${HOME}/google-cloud-sdk/bin"
 
 PROJECT="${1:-cineverse-flutter-591}"
 COLLECTION="${2:-tmdb_movie_vectors_v1}"
+USE_LATEST_DELTA=0
+DELTA_DIR="${DELTA_DIR:-.local/dataset_deltas}"
 BATCH_SIZE="${BATCH_SIZE:-8}"
 COMMIT_SIZE="${COMMIT_SIZE:-100}"
 CHECKPOINT_FILE="${CHECKPOINT_FILE:-.local/tmdb-upload-progress.json}"
 LOG_FILE="${LOG_FILE:-.local/tmdb-upload.log}"
+
+POSITIONAL_ARGS=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --latest-delta|--use-latest-delta)
+      USE_LATEST_DELTA=1
+      shift
+      ;;
+    --delta-dir)
+      DELTA_DIR="$2"
+      shift 2
+      ;;
+    -h|--help)
+      # handled above for compatibility, keep here for robustness
+      echo "Use --help for usage."
+      exit 0
+      ;;
+    -*)
+      echo "Unknown option: $1"
+      exit 1
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1")
+      shift
+      ;;
+  esac
+done
+
+if [[ "${#POSITIONAL_ARGS[@]}" -ge 1 ]]; then
+  PROJECT="${POSITIONAL_ARGS[0]}"
+fi
+if [[ "${#POSITIONAL_ARGS[@]}" -ge 2 ]]; then
+  COLLECTION="${POSITIONAL_ARGS[1]}"
+fi
 
 # If OPENROUTER_API_KEY is not exported, try loading it from config/api_keys.json.
 if [[ -z "${OPENROUTER_API_KEY:-}" ]] && [[ -f "config/api_keys.json" ]]; then
@@ -123,6 +160,15 @@ fi
 
 mkdir -p .local
 
+CSV_PATH="TMDB_movie_dataset.csv"
+if [[ "$USE_LATEST_DELTA" == "1" ]]; then
+  CSV_PATH="$(ls -1t "${DELTA_DIR}"/tmdb_new_entries_*.csv 2>/dev/null | head -n 1 || true)"
+  if [[ -z "$CSV_PATH" ]]; then
+    echo "ERROR: no delta CSV found in ${DELTA_DIR} matching tmdb_new_entries_*.csv"
+    exit 1
+  fi
+fi
+
 log "Resuming TMDB vector upload..."
 log "Repo root: ${REPO_ROOT}"
 log "Project: ${PROJECT}"
@@ -131,9 +177,11 @@ log "Batch size: ${BATCH_SIZE}"
 log "Commit size: ${COMMIT_SIZE}"
 log "Checkpoint: ${CHECKPOINT_FILE}"
 log "Log file: ${LOG_FILE}"
+log "CSV source: ${CSV_PATH}"
 log "Starting uploader..."
 
 python3 -u scripts/upload_tmdb_openrouter_vectors_to_firestore.py \
+  --csv "${CSV_PATH}" \
   --project "${PROJECT}" \
   --collection "${COLLECTION}" \
   --batch-size "${BATCH_SIZE}" \

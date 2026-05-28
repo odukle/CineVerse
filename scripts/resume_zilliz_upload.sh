@@ -16,6 +16,42 @@ MIN_VOTE_AVERAGE="${MIN_VOTE_AVERAGE:-0.0001}"
 MIN_VOTE_COUNT="${MIN_VOTE_COUNT:-0}"
 REGIONAL_MIN_VOTE_COUNT="${REGIONAL_MIN_VOTE_COUNT:-0}"
 CHECKPOINT_FILE="${CHECKPOINT_FILE:-.local/tmdb-zilliz-upload-progress-${COLLECTION}-d${VECTOR_DIM}-mva${MIN_VOTE_AVERAGE}-adult-all.json}"
+USE_LATEST_DELTA=0
+DELTA_DIR="${DELTA_DIR:-.local/dataset_deltas}"
+
+print_help() {
+  cat <<'EOF'
+Usage:
+  scripts/resume_zilliz_upload.sh [--latest-delta] [--delta-dir <path>]
+
+Options:
+  --latest-delta           Upload using latest .local/dataset_deltas/tmdb_new_entries_*.csv
+  --delta-dir <path>       Custom delta directory (default: .local/dataset_deltas)
+  -h, --help               Show help
+EOF
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --latest-delta|--use-latest-delta)
+      USE_LATEST_DELTA=1
+      shift
+      ;;
+    --delta-dir)
+      DELTA_DIR="$2"
+      shift 2
+      ;;
+    -h|--help)
+      print_help
+      exit 0
+      ;;
+    *)
+      echo "Unknown argument: $1"
+      echo "Use --help for usage."
+      exit 1
+      ;;
+  esac
+done
 
 if [[ ! -f "$API_KEYS_FILE" ]]; then
   echo "Error: $API_KEYS_FILE not found."
@@ -55,6 +91,15 @@ fi
 
 mkdir -p .local
 
+CSV_PATH="TMDB_movie_dataset.csv"
+if [[ "$USE_LATEST_DELTA" == "1" ]]; then
+  CSV_PATH="$(ls -1t "${DELTA_DIR}"/tmdb_new_entries_*.csv 2>/dev/null | head -n 1 || true)"
+  if [[ -z "$CSV_PATH" ]]; then
+    echo "Error: no delta CSV found in ${DELTA_DIR} matching tmdb_new_entries_*.csv"
+    exit 1
+  fi
+fi
+
 echo "Starting/resuming Zilliz upload..."
 echo "Endpoint: $ZILLIZ_ENDPOINT"
 echo "Collection: $COLLECTION"
@@ -67,8 +112,10 @@ echo "Exclude adult: false"
 echo "Max items this run: $MAX_ITEMS"
 echo "Checkpoint file: $CHECKPOINT_FILE"
 echo "Log file: $LOG_FILE"
+echo "CSV source: $CSV_PATH"
 
 python3 scripts/upload_tmdb_openrouter_vectors_to_zilliz.py \
+  --csv "$CSV_PATH" \
   --zilliz-endpoint "$ZILLIZ_ENDPOINT" \
   --zilliz-api-key "$ZILLIZ_API_KEY" \
   --zilliz-db-name "$ZILLIZ_DB_NAME" \
