@@ -15,6 +15,7 @@ Production flow:
 ```bash
 firebase functions:secrets:set OPENROUTER_API_KEY
 firebase functions:secrets:set GEMINI_API_KEY
+firebase functions:secrets:set OMDB_API_KEY
 ```
 
 The function uses defaults for model names. To override them locally or during

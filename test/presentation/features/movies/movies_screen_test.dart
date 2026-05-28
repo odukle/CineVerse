@@ -90,7 +90,10 @@ void main() {
       ProviderScope(
         overrides: [
           appConfigProvider.overrideWith(
-            (ref) => const AppConfig(tmdbApiKey: 'test-key', omdbApiKey: ''),
+            (ref) => const AppConfig(
+              movieProxyBaseUrl:
+                  'https://cineverse-tmdb-proxy.sodukle.workers.dev',
+            ),
           ),
           for (final MapEntry<MovieSection, List<MediaTitle>> entry
               in sections.entries)
@@ -235,7 +238,10 @@ void main() {
       ProviderScope(
         overrides: [
           appConfigProvider.overrideWith(
-            (ref) => const AppConfig(tmdbApiKey: 'test-key', omdbApiKey: ''),
+            (ref) => const AppConfig(
+              movieProxyBaseUrl:
+                  'https://cineverse-tmdb-proxy.sodukle.workers.dev',
+            ),
           ),
           for (final MapEntry<MovieSection, List<MediaTitle>> entry
               in sections.entries)
@@ -358,7 +364,10 @@ void main() {
       ProviderScope(
         overrides: [
           appConfigProvider.overrideWith(
-            (ref) => const AppConfig(tmdbApiKey: 'test-key', omdbApiKey: ''),
+            (ref) => const AppConfig(
+              movieProxyBaseUrl:
+                  'https://cineverse-tmdb-proxy.sodukle.workers.dev',
+            ),
           ),
           for (final MapEntry<MovieSection, List<MediaTitle>> entry
               in sections.entries)

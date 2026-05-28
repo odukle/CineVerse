@@ -33,7 +33,10 @@ void main() {
       ProviderScope(
         overrides: [
           appConfigProvider.overrideWith(
-            (ref) => const AppConfig(tmdbApiKey: 'test-key', omdbApiKey: ''),
+            (ref) => const AppConfig(
+              movieProxyBaseUrl:
+                  'https://cineverse-tmdb-proxy.sodukle.workers.dev',
+            ),
           ),
           tvGenresProvider.overrideWith((ref) async => genres),
           movieSectionProvider(

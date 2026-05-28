@@ -30,7 +30,7 @@ final omdbTitleDetailsProvider =
       request,
     ) async {
       final AppConfig appConfig = ref.watch(appConfigProvider);
-      if (!appConfig.hasOmdbApiKey || request.imdbId.trim().isEmpty) {
+      if (!appConfig.hasOmdbResolverApiUrl || request.imdbId.trim().isEmpty) {
         throw StateError('OMDb full plot is unavailable for this title.');
       }
 

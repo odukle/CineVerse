@@ -264,7 +264,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Add MOVIE_PROXY_BASE_URL for production, or TMDB_API_KEY for direct development access.',
+                'Add MOVIE_PROXY_BASE_URL to connect the app to the TMDB proxy.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: Colors.white.withValues(alpha: 0.8),
                 ),

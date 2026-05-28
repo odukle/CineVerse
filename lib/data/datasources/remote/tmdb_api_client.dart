@@ -462,8 +462,8 @@ class TmdbApiClient {
         if (entry is! Map<String, dynamic>) {
           continue;
         }
-        final String languageCode =
-            (entry['iso_639_1'] as String? ?? '').toLowerCase();
+        final String languageCode = (entry['iso_639_1'] as String? ?? '')
+            .toLowerCase();
         if (languageCode != 'en') {
           continue;
         }
@@ -760,9 +760,7 @@ class TmdbApiClient {
 
   void _assertMovieApiConfigured() {
     if (!appConfig.hasMovieApiAccess) {
-      throw StateError(
-        'Neither MOVIE_PROXY_BASE_URL nor TMDB_API_KEY is configured.',
-      );
+      throw StateError('MOVIE_PROXY_BASE_URL is not configured.');
     }
   }
 
@@ -785,9 +783,7 @@ class TmdbApiClient {
   }
 
   Map<String, dynamic> _authQueryParameters() {
-    return <String, dynamic>{
-      if (!appConfig.hasMovieProxyBaseUrl) 'api_key': appConfig.tmdbApiKey,
-    };
+    return const <String, dynamic>{};
   }
 
   ({String path, Map<String, dynamic> queryParameters}) _requestForSection(
@@ -946,16 +942,13 @@ class TmdbApiClient {
     if (error.type == DioExceptionType.badResponse) {
       final int? statusCode = error.response?.statusCode;
       if (statusCode == 401 || statusCode == 403) {
-        if (appConfig.hasMovieProxyBaseUrl) {
-          return 'Movie proxy authentication failed. Check the Worker deployment and TMDB_API_KEY secret.';
-        }
-        return 'TMDb authentication failed. Check TMDB_API_KEY.';
+        return 'Movie proxy authentication failed. Check Worker deployment and secret configuration.';
       }
       if (statusCode == 404) {
         return 'The requested movie or TV title could not be found.';
       }
 
-      return '${appConfig.hasMovieProxyBaseUrl ? 'Movie proxy' : 'TMDb'} returned an unexpected response (${statusCode ?? 'unknown'}).';
+      return 'Movie proxy returned an unexpected response (${statusCode ?? 'unknown'}).';
     }
 
     if (error.type == DioExceptionType.connectionError) {
@@ -964,11 +957,10 @@ class TmdbApiClient {
         if (appConfig.hasMovieProxyBaseUrl) {
           return 'Could not connect to the movie proxy. Check proxy DNS, deployment, or network access.';
         }
-        return 'Could not connect to TMDb. Check internet or DNS access.';
       }
     }
 
-    return 'Unexpected ${appConfig.hasMovieProxyBaseUrl ? 'movie proxy' : 'TMDb'} error: ${error.message ?? 'unknown error'}';
+    return 'Unexpected movie proxy error: ${error.message ?? 'unknown error'}';
   }
 
   void _logFailure(
@@ -1204,7 +1196,10 @@ class TmdbApiClient {
     return TmdbTvEpisodeDto.fromJson(response.data!);
   }
 
-  Future<List<TmdbSearchCollectionDto>> searchCollections(String query, {int page = 1}) async {
+  Future<List<TmdbSearchCollectionDto>> searchCollections(
+    String query, {
+    int page = 1,
+  }) async {
     _assertMovieApiConfigured();
     try {
       final response = await client.get<Map<String, dynamic>>(
@@ -1226,7 +1221,10 @@ class TmdbApiClient {
     }
   }
 
-  Future<List<TmdbSearchKeywordDto>> searchKeywords(String query, {int page = 1}) async {
+  Future<List<TmdbSearchKeywordDto>> searchKeywords(
+    String query, {
+    int page = 1,
+  }) async {
     _assertMovieApiConfigured();
     try {
       final response = await client.get<Map<String, dynamic>>(
@@ -1248,7 +1246,10 @@ class TmdbApiClient {
     }
   }
 
-  Future<List<TmdbSearchCompanyDto>> searchCompanies(String query, {int page = 1}) async {
+  Future<List<TmdbSearchCompanyDto>> searchCompanies(
+    String query, {
+    int page = 1,
+  }) async {
     _assertMovieApiConfigured();
     try {
       final response = await client.get<Map<String, dynamic>>(

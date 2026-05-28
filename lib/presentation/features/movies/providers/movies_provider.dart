@@ -540,6 +540,9 @@ class CuratedTonightProfile {
     required this.runtime,
     required this.scoreRange,
     required this.minUserVotes,
+    this.minGenreMatches = 2,
+    this.excludedMovieGenres = const <int>{},
+    this.excludedTvGenres = const <int>{},
   });
 
   final String id;
@@ -551,6 +554,9 @@ class CuratedTonightProfile {
   final RangeValues runtime;
   final RangeValues scoreRange;
   final int minUserVotes;
+  final int minGenreMatches;
+  final Set<int> excludedMovieGenres;
+  final Set<int> excludedTvGenres;
 }
 
 class CuratedTonightRailData {
@@ -580,6 +586,9 @@ _curatedTonightProfiles = <CuratedTonightProfile>[
     runtime: RangeValues(88, 160),
     scoreRange: RangeValues(6.4, 10.0),
     minUserVotes: 140,
+    minGenreMatches: 2,
+    excludedMovieGenres: <int>{10749, 10751, 16, 10402},
+    excludedTvGenres: <int>{10749, 10751, 10762, 10764, 10766, 10767, 10402},
   ),
   CuratedTonightProfile(
     id: 'pulse_pounding',
@@ -592,6 +601,9 @@ _curatedTonightProfiles = <CuratedTonightProfile>[
     runtime: RangeValues(82, 145),
     scoreRange: RangeValues(6.0, 10.0),
     minUserVotes: 180,
+    minGenreMatches: 2,
+    excludedMovieGenres: <int>{10749, 10751, 16, 99},
+    excludedTvGenres: <int>{10749, 10751, 10762, 10764, 10766, 10767},
   ),
   CuratedTonightProfile(
     id: 'feel_good_escape',
@@ -604,6 +616,9 @@ _curatedTonightProfiles = <CuratedTonightProfile>[
     runtime: RangeValues(78, 145),
     scoreRange: RangeValues(6.1, 10.0),
     minUserVotes: 90,
+    minGenreMatches: 2,
+    excludedMovieGenres: <int>{27, 80, 53, 9648, 10752},
+    excludedTvGenres: <int>{27, 80, 9648, 10752, 10765},
   ),
   CuratedTonightProfile(
     id: 'mind_benders',
@@ -616,6 +631,9 @@ _curatedTonightProfiles = <CuratedTonightProfile>[
     runtime: RangeValues(90, 170),
     scoreRange: RangeValues(6.3, 10.0),
     minUserVotes: 120,
+    minGenreMatches: 2,
+    excludedMovieGenres: <int>{10749, 10751, 16, 10402},
+    excludedTvGenres: <int>{10749, 10751, 10762, 10764, 10766, 10767},
   ),
   CuratedTonightProfile(
     id: 'epic_worlds',
@@ -627,6 +645,9 @@ _curatedTonightProfiles = <CuratedTonightProfile>[
     runtime: RangeValues(95, 190),
     scoreRange: RangeValues(6.1, 10.0),
     minUserVotes: 160,
+    minGenreMatches: 2,
+    excludedMovieGenres: <int>{99, 10770},
+    excludedTvGenres: <int>{99, 10764, 10767, 10762, 10766},
   ),
   CuratedTonightProfile(
     id: 'human_stories',
@@ -639,6 +660,9 @@ _curatedTonightProfiles = <CuratedTonightProfile>[
     runtime: RangeValues(85, 165),
     scoreRange: RangeValues(6.5, 10.0),
     minUserVotes: 100,
+    minGenreMatches: 1,
+    excludedMovieGenres: <int>{27, 878, 14},
+    excludedTvGenres: <int>{27, 10765, 10759},
   ),
   CuratedTonightProfile(
     id: 'dark_detective',
@@ -650,6 +674,9 @@ _curatedTonightProfiles = <CuratedTonightProfile>[
     runtime: RangeValues(88, 165),
     scoreRange: RangeValues(6.3, 10.0),
     minUserVotes: 110,
+    minGenreMatches: 2,
+    excludedMovieGenres: <int>{10749, 10751, 16, 35, 10402},
+    excludedTvGenres: <int>{10749, 10751, 10762, 10764, 10766, 10767, 35},
   ),
 ];
 
@@ -673,6 +700,85 @@ List<MediaTitle> _seededShuffle(List<MediaTitle> input, int seed) {
     shuffled[j] = temp;
   }
   return shuffled;
+}
+
+int _genreOverlapCount(Set<int> targetGenres, List<int> mediaGenres) {
+  if (targetGenres.isEmpty || mediaGenres.isEmpty) {
+    return 0;
+  }
+  return mediaGenres.where(targetGenres.contains).length;
+}
+
+double _curatedThemeScore(
+  MediaTitle media,
+  CuratedTonightProfile profile, {
+  required bool isTv,
+}) {
+  final Set<int> targetGenres = isTv ? profile.tvGenres : profile.movieGenres;
+  final int overlap = _genreOverlapCount(targetGenres, media.genreIds);
+  final double overlapRatio = targetGenres.isEmpty
+      ? 0
+      : overlap / targetGenres.length;
+  final double voteAverage = media.voteAverage ?? 0.0;
+  final double voteConfidence = math.min(
+    1.0,
+    math.log(media.voteCount + 1) / math.log(2000),
+  );
+  final double popularityComponent = math.min(1.0, media.popularity / 120.0);
+  return (overlap * 3.5) +
+      (overlapRatio * 3.0) +
+      (voteAverage * 0.65) +
+      (voteConfidence * 2.2) +
+      (popularityComponent * 0.9);
+}
+
+bool _passesCuratedGuardrails(
+  MediaTitle media,
+  CuratedTonightProfile profile, {
+  required bool isTv,
+}) {
+  final Set<int> targetGenres = isTv ? profile.tvGenres : profile.movieGenres;
+  final Set<int> excludedGenres = isTv
+      ? profile.excludedTvGenres
+      : profile.excludedMovieGenres;
+  final int overlap = _genreOverlapCount(targetGenres, media.genreIds);
+  final int requiredMatches = math.min(
+    profile.minGenreMatches,
+    math.max(1, targetGenres.length),
+  );
+  if (overlap < requiredMatches) {
+    return false;
+  }
+  final bool hasExcluded = media.genreIds.any(excludedGenres.contains);
+  if (hasExcluded) {
+    return false;
+  }
+  final double voteAverage = media.voteAverage ?? 0.0;
+  if (voteAverage < (profile.scoreRange.start - 0.2)) {
+    return false;
+  }
+  final int minVotesForGuardrail = math.max(30, profile.minUserVotes ~/ 2);
+  if (media.voteCount < minVotesForGuardrail) {
+    return false;
+  }
+  return true;
+}
+
+List<MediaTitle> _rankCuratedCandidates(
+  List<MediaTitle> candidates,
+  CuratedTonightProfile profile, {
+  required bool isTv,
+}) {
+  final List<MediaTitle> filtered = candidates
+      .where((media) => _passesCuratedGuardrails(media, profile, isTv: isTv))
+      .toList(growable: false);
+  final List<MediaTitle> ranked = List<MediaTitle>.from(filtered);
+  ranked.sort(
+    (a, b) => _curatedThemeScore(b, profile, isTv: isTv).compareTo(
+      _curatedThemeScore(a, profile, isTv: isTv),
+    ),
+  );
+  return ranked;
 }
 
 final curatedTonightDayKeyProvider = StreamProvider<int>((ref) async* {
@@ -930,8 +1036,12 @@ final curatedTonightRailProvider = FutureProvider<CuratedTonightRailData>((
   }
 
   final int seed = dayKey + profile.id.hashCode + (isTv ? 1009 : 0);
-  List<MediaTitle> source = unique;
-  if (source.isEmpty) {
+  List<MediaTitle> source = _rankCuratedCandidates(
+    unique,
+    profile,
+    isTv: isTv,
+  );
+  if (source.length < 24) {
     final List<MediaTitle> relaxedFallback = await discoverUseCase(
       DiscoverMediaParams(
         isTv: isTv,
@@ -946,10 +1056,21 @@ final curatedTonightRailProvider = FutureProvider<CuratedTonightRailData>((
         page: 1,
       ),
     );
-    source = relaxedFallback;
+    final List<MediaTitle> merged = <MediaTitle>[...source];
+    for (final MediaTitle media in relaxedFallback) {
+      if (seenIds.add(media.id)) {
+        merged.add(media);
+      }
+    }
+    source = _rankCuratedCandidates(
+      merged,
+      profile,
+      isTv: isTv,
+    );
   }
 
-  final List<MediaTitle> shuffled = _seededShuffle(source, seed);
+  final List<MediaTitle> topThematicPool = source.take(120).toList(growable: false);
+  final List<MediaTitle> shuffled = _seededShuffle(topThematicPool, seed);
   final List<MediaTitle> curated = shuffled.take(30).toList(growable: false);
 
   final CuratedTonightRailData result = CuratedTonightRailData(

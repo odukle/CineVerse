@@ -1,0 +1,25 @@
+Lumi helps you decide what to watch faster, with less scrolling.
+
+Discover movies and TV shows with rich filters, curated rails, and a cinematic browse experience. Use natural language to describe your mood, references, or constraints, and Lumi builds a recommendation plan to find strong matches.
+
+Key features:
+- AI-powered recommendation flow (natural-language prompts to search plan)
+- “What should I watch tonight?” with semantic matching
+- Hidden Gems discovery rail and genre exploration
+- Trailers, cast/crew, awards, quotes, and full-plot support
+- Watch provider links and deep-link resolution
+- Personal library: watchlist, watched, favorites, notes, custom lists
+- Watch history analytics with charts and shareable insights
+- Episode tracker with reminders and notifications
+- Beautiful modern UI, themed experience, and haptic interactions
+
+Built for people who want better picks, faster:
+- “Something like Interstellar, but less sci-fi”
+- “A feel-good movie with great visuals tonight”
+- “Underrated thrillers under 2 hours”
+
+Important:
+- Availability varies by region and provider.
+- Some metadata (such as quotes/awards) may depend on third-party sources.
+
+If you enjoy Lumi, leave a rating and share feedback from the Account screen.

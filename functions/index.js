@@ -10,6 +10,7 @@ admin.initializeApp();
 const db = admin.firestore();
 const openRouterApiKey = defineSecret("OPENROUTER_API_KEY");
 const geminiApiKey = defineSecret("GEMINI_API_KEY");
+const omdbApiKey = defineSecret("OMDB_API_KEY");
 const geminiChatModel = defineString("GEMINI_CHAT_MODEL", {
   default: "gemini-2.5-flash-lite",
 });
@@ -29,9 +30,7 @@ const embeddingModel = defineString("OPENROUTER_EMBEDDING_MODEL", {
 const movieProxyBaseUrl = defineString("MOVIE_PROXY_BASE_URL", {
   default: "__unset__",
 });
-const tmdbApiKey = defineString("TMDB_API_KEY", {
-  default: "__unset__",
-});
+const tmdbApiKey = defineSecret("TMDB_API_KEY");
 const indexCollection = defineString("TONIGHT_VECTOR_COLLECTION", {
   default: "tmdb_movie_vectors_v1",
 });
@@ -41,9 +40,7 @@ const qdrantUrl = defineString("QDRANT_URL", {
 const qdrantCollection = defineString("QDRANT_COLLECTION", {
   default: "tmdb_movie_vectors_v2",
 });
-const qdrantApiKey = defineString("QDRANT_API_KEY", {
-  default: "",
-});
+const qdrantApiKey = defineSecret("QDRANT_API_KEY");
 const qdrantTimeoutMs = defineString("QDRANT_TIMEOUT_MS", {
   default: "12000",
 });
@@ -62,9 +59,7 @@ const zillizEndpoint = defineString("ZILLIZ_ENDPOINT", {
 const zillizCollection = defineString("ZILLIZ_COLLECTION", {
   default: "tmdb_movie_vectors_v3",
 });
-const zillizApiKey = defineString("ZILLIZ_API_KEY", {
-  default: "",
-});
+const zillizApiKey = defineSecret("ZILLIZ_API_KEY");
 const zillizDbName = defineString("ZILLIZ_DB_NAME", {
   default: "default",
 });
@@ -234,11 +229,92 @@ const OFF_TOPIC_HINTS = [
   "cv",
 ];
 
+exports.resolveOmdbTitleDetails = onRequest(
+  {
+    region: "us-east4",
+    cors: true,
+    secrets: [omdbApiKey],
+    timeoutSeconds: 20,
+    memory: "256MiB",
+    invoker: "public",
+  },
+  async (request, response) => {
+    if (request.method === "OPTIONS") {
+      response.status(204).send("");
+      return;
+    }
+    if (request.method !== "GET" && request.method !== "POST") {
+      response.status(405).json({ error: "Use GET or POST." });
+      return;
+    }
+
+    const payload = request.method === "POST" ? request.body || {} : {};
+    const query = request.query || {};
+    const imdbId = String(payload.imdbId || query.imdbId || "").trim();
+    const mode = String(payload.mode || query.mode || "details")
+      .trim()
+      .toLowerCase();
+    const plot = String(payload.plot || query.plot || "full")
+      .trim()
+      .toLowerCase();
+
+    if (!imdbId) {
+      response.status(400).json({ error: "imdbId is required." });
+      return;
+    }
+
+    const apiKey = String(omdbApiKey.value() || "").trim();
+    if (!apiKey) {
+      response.status(500).json({ error: "OMDB secret is not configured." });
+      return;
+    }
+
+    const params = new URLSearchParams({
+      apikey: apiKey,
+      i: imdbId,
+    });
+    if (mode === "details") {
+      params.set("plot", plot === "short" ? "short" : "full");
+    }
+
+    try {
+      const upstream = await fetch(`https://www.omdbapi.com/?${params.toString()}`, {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          "User-Agent": "cineverse-omdb-resolver/1.0",
+        },
+      });
+      const data = await upstream.json().catch(() => ({}));
+      if (!upstream.ok) {
+        response.status(upstream.status).json({
+          error: `OMDb upstream failed (${upstream.status}).`,
+        });
+        return;
+      }
+
+      response.status(200).json({
+        source: "omdb",
+        mode,
+        data,
+      });
+    } catch (error) {
+      console.error("resolveOmdbTitleDetails failed", error);
+      response.status(502).json({
+        error:
+          error instanceof Error
+            ? error.message
+            : "OMDb resolver failed.",
+      });
+    }
+  }
+);
+
 exports.recommendTonight = onRequest(
   {
     region: "us-east4",
     cors: true,
-    secrets: [openRouterApiKey, geminiApiKey],
+    secrets: [openRouterApiKey, geminiApiKey, tmdbApiKey, qdrantApiKey, zillizApiKey],
     timeoutSeconds: 60,
     memory: "512MiB",
     invoker: "public",
@@ -1914,7 +1990,7 @@ function isTmdbLookupConfigured() {
     return true;
   }
   const key = String(tmdbApiKey.value() || "").trim().toLowerCase();
-  return Boolean(key) && !["__unset__", "unset", "none", "null"].includes(key);
+  return Boolean(key);
 }
 
 async function fetchTmdbSeedMetadata(seedTitle, { signal }) {
@@ -1980,11 +2056,7 @@ async function tmdbLookup(path, queryParams = {}, signal) {
     ? ""
     : proxyRaw.replace(/\/+$/, "");
   const apiKeyRaw = String(tmdbApiKey.value() || "").trim();
-  const apiKey = ["__unset__", "unset", "none", "null"].includes(
-    apiKeyRaw.toLowerCase()
-  )
-    ? ""
-    : apiKeyRaw;
+  const apiKey = apiKeyRaw;
   const url = new URL(
     `${proxy || TMDB_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`
   );

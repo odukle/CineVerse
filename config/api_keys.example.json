@@ -1,9 +1,7 @@
 {
   "MOVIE_PROXY_BASE_URL": "https://your-worker-subdomain.workers.dev",
-  "TMDB_API_KEY": "your_tmdb_api_key",
-  "OMDB_API_KEY": "your_omdb_api_key",
-  "GEMINI_API_KEY": "your_gemini_api_key",
-  "OPENROUTER_API_KEY": "your_openrouter_api_key",
-  "KAGGLE_USERNAME": "your_kaggle_username",
-  "KAGGLE_API_KEY": "your_kaggle_api_key"
+  "TONIGHT_RECOMMENDATIONS_API_URL": "https://<region>-<project>.cloudfunctions.net/recommendTonight",
+  "WATCH_PROVIDER_RESOLVER_API_URL": "https://<region>-<project>.cloudfunctions.net/resolveProviderLink",
+  "MOVIE_AWARDS_RESOLVER_API_URL": "https://<region>-<project>.cloudfunctions.net/resolveMovieAwards",
+  "OMDB_RESOLVER_API_URL": "https://<region>-<project>.cloudfunctions.net/resolveOmdbTitleDetails"
 }

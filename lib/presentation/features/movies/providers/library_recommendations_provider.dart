@@ -129,13 +129,27 @@ final libraryRecommendationsProvider =
   );
 
   for (int p = loadedPage + 1; p <= targetPage; p++) {
+    final Set<int> invalidSeedIds = <int>{};
+
     // Fetch recommendations for each sampled ID in parallel for the specific page
     final List<Future<List<MediaTitle>>> futures =
         seeds
             .map(
-              (id) => mediaRepo.fetchMovieRecommendations(id, isTv: isTv, page: p).then(
-                (recs) => recs.map((r) => r.toMediaTitle()).toList(),
-              ),
+              (id) async {
+                try {
+                  final recs = await mediaRepo.fetchMovieRecommendations(
+                    id,
+                    isTv: isTv,
+                    page: p,
+                  );
+                  return recs.map((r) => r.toMediaTitle()).toList();
+                } catch (_) {
+                  // Skip invalid/unavailable seed IDs (for example deleted TMDB titles)
+                  // so one bad library item doesn't fail the entire recommendations rail.
+                  invalidSeedIds.add(id);
+                  return const <MediaTitle>[];
+                }
+              },
             )
             .toList();
 
@@ -152,6 +166,12 @@ final libraryRecommendationsProvider =
     }
 
     _libraryRecsLoadedPages[cacheKey] = p;
+    if (invalidSeedIds.isNotEmpty) {
+      final List<int> filteredSeeds = _libraryRecsSampledIds[cacheKey]!
+          .where((id) => !invalidSeedIds.contains(id))
+          .toList();
+      _libraryRecsSampledIds[cacheKey] = filteredSeeds;
+    }
     if (!anyNewItemsOnThisPage) {
       _libraryRecsExhausted[cacheKey] = true;
       break;

@@ -137,6 +137,7 @@ config/api_keys.json
 *.pem
 *.crt
 *.cer
+play_store_assets/release/keystore_credentials.txt
 
 # Kaggle/Firebase recommendation index artifacts
 .tmp/

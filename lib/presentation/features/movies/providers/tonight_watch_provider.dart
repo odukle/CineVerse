@@ -1,3 +1,5 @@
+// ignore_for_file: unused_element
+
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:cineverse/core/config/app_config.dart';
@@ -32,116 +34,18 @@ final tonightPromptRecommendationsProvider = FutureProvider.autoDispose
       }
 
       final MediaRepository repository = ref.watch(mediaRepositoryProvider);
-      final DiscoverMediaUseCase discoverUseCase = DiscoverMediaUseCase(
-        repository,
-      );
       final AppConfig appConfig = ref.watch(appConfigProvider);
       _progressReset();
       _progressAdd('Setting up your request');
 
-      if (appConfig.hasTonightRecommendationsApiUrl) {
-        _progressAdd('Connecting to the recommendation engine');
-        return _recommendWithFirebaseRecommendationService(
-          request: request,
-          repository: repository,
-          appConfig: appConfig,
-        );
+      if (!appConfig.hasTonightRecommendationsApiUrl) {
+        throw StateError('TONIGHT_RECOMMENDATIONS_API_URL is missing.');
       }
-
-      if (!appConfig.hasOpenRouterApiKey) {
-        throw StateError(
-          'OPENROUTER_API_KEY is missing. Add it in your dart-define config.',
-        );
-      }
-
-      _progressAdd('Understanding your taste and mood');
-      final _PromptPlan plan = await _planPromptWithOpenRouter(
-        prompt: prompt,
-        isTv: request.isTv,
-        apiKey: appConfig.openRouterApiKey,
-      );
-      todayRecommendationPlanNotifier.value = <String>[
-        if (plan.includeGenres.isNotEmpty)
-          'Include genres: ${plan.includeGenres.take(3).join(', ')}',
-        if (plan.excludeGenres.isNotEmpty)
-          'Exclude genres: ${plan.excludeGenres.take(3).join(', ')}',
-        if ((plan.originalLanguage ?? '').isNotEmpty)
-          'Language: ${plan.originalLanguage}',
-        if (plan.keywords.isNotEmpty)
-          'Keywords: ${plan.keywords.take(4).join(', ')}',
-        if (plan.similarTitles.isNotEmpty)
-          'Similar to: ${plan.similarTitles.take(2).join(', ')}',
-      ];
-      _progressAdd('Built your search plan');
-      _progressAdd('Scanning TMDB for strong matches');
-
-      final List<MovieGenre> genres = request.isTv
-          ? await repository.fetchTvGenres()
-          : await repository.fetchMovieGenres();
-      final _GenreResolution genreResolution = _resolveGenres(
-        genres: genres,
-        includeNames: plan.includeGenres,
-        excludeNames: plan.excludeGenres,
-      );
-
-      final List<MediaTitle> rawCandidates = await _collectCandidates(
+      _progressAdd('Connecting to the recommendation engine');
+      return _recommendWithFirebaseRecommendationService(
         request: request,
-        plan: plan,
-        discoverUseCase: discoverUseCase,
         repository: repository,
-        availableGenreIds: genreResolution.includedGenreIds,
-      );
-
-      if (rawCandidates.isEmpty) {
-        final String mediaType = request.isTv ? 'shows' : 'movies';
-        throw StateError(
-          'Could not find enough TMDB $mediaType for that request.',
-        );
-      }
-
-      final List<_ScoredTonightItem> scored = await _rankCandidates(
-        request: request,
-        plan: plan,
-        repository: repository,
-        rawCandidates: rawCandidates,
-        excludedGenres: genreResolution.excludedGenreNames,
-      );
-
-      if (scored.isEmpty) {
-        throw StateError(
-          'We found candidates, but none survived the final quality filters.',
-        );
-      }
-
-      final List<TonightRecommendationItem> recommendations = scored
-          .take(12)
-          .map(
-            (_ScoredTonightItem item) => TonightRecommendationItem(
-              title: item.title,
-              details: item.details,
-              matchReason: item.matchReason,
-              score: item.score,
-            ),
-          )
-          .toList(growable: false);
-
-      return TonightPromptResult(
-        interpretedIntent: plan.intentSummary.isNotEmpty
-            ? plan.intentSummary
-            : _fallbackIntentSummary(plan: plan, prompt: prompt),
-        recommendations: recommendations,
-        queryPlanChips: <String>[
-          if (plan.includeGenres.isNotEmpty)
-            'Include genres: ${plan.includeGenres.take(3).join(', ')}',
-          if (plan.excludeGenres.isNotEmpty)
-            'Exclude genres: ${plan.excludeGenres.take(3).join(', ')}',
-          if ((plan.originalLanguage ?? '').isNotEmpty)
-            'Language: ${plan.originalLanguage}',
-          if (plan.keywords.isNotEmpty)
-            'Keywords: ${plan.keywords.take(4).join(', ')}',
-          if (plan.similarTitles.isNotEmpty)
-            'Similar to: ${plan.similarTitles.take(2).join(', ')}',
-        ],
+        appConfig: appConfig,
       );
     });
 
