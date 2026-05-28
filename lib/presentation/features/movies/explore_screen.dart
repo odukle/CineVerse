@@ -1283,7 +1283,7 @@ class _DiscoverSpotlightSectionState
       return;
     }
     _pauseSpotlightForTrailer();
-    await Navigator.of(context).push(
+    await Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) => TrailerPlayerScreen(
           data: TrailerPlaybackData(
@@ -4413,40 +4413,17 @@ class _KenBurnsImageState extends State<_KenBurnsImage>
 
   void _initAnimations() {
     final int hash = widget.imageUrl.hashCode;
-    final int direction = hash % 4;
     final bool zoomIn = hash.isEven;
+    final bool driftDown = (hash % 3) != 0;
 
     _scaleAnimation = Tween<double>(
-      begin: zoomIn ? 1.06 : 1.16,
-      end: zoomIn ? 1.16 : 1.06,
+      begin: zoomIn ? 1.02 : 1.12,
+      end: zoomIn ? 1.12 : 1.02,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
 
-    Offset startOffset;
-    Offset endOffset;
-
-    switch (direction) {
-      case 0: // Top-Left to Bottom-Right
-        startOffset = const Offset(-0.02, -0.02);
-        endOffset = const Offset(0.02, 0.02);
-        break;
-      case 1: // Top-Right to Bottom-Left
-        startOffset = const Offset(0.02, -0.02);
-        endOffset = const Offset(-0.02, 0.02);
-        break;
-      case 2: // Bottom-Left to Top-Right
-        startOffset = const Offset(-0.02, 0.02);
-        endOffset = const Offset(0.02, -0.02);
-        break;
-      case 3: // Bottom-Right to Top-Left
-      default:
-        startOffset = const Offset(0.02, 0.02);
-        endOffset = const Offset(-0.02, -0.02);
-        break;
-    }
-
     _panAnimation = Tween<Offset>(
-      begin: startOffset,
-      end: endOffset,
+      begin: driftDown ? const Offset(0, -0.02) : const Offset(0, 0.02),
+      end: driftDown ? const Offset(0, 0.02) : const Offset(0, -0.02),
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
   }
 
@@ -4467,26 +4444,76 @@ class _KenBurnsImageState extends State<_KenBurnsImage>
 
   @override
   Widget build(BuildContext context) {
-    return SlideTransition(
-      position: _panAnimation,
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: CachedNetworkImage(
-          imageUrl: widget.imageUrl,
-          fit: BoxFit.cover,
-          width: widget.width,
-          height: widget.height,
-          placeholder: (context, url) =>
-              const Center(child: CircularProgressIndicator()),
-          errorWidget: (context, url, error) => const Center(
-            child: Icon(
-              Icons.broken_image_outlined,
-              size: 52,
-              color: Colors.white,
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (BuildContext context, Widget? child) {
+        final double panY = _panAnimation.value.dy * 14;
+        const double assumedBackdropAspectRatio = 16 / 9;
+        final double renderedImageHeight =
+            math.min(widget.height, widget.width / assumedBackdropAspectRatio);
+        final double effectiveImageBottom =
+            renderedImageHeight * _scaleAnimation.value + panY;
+        final bool hasBottomGap = effectiveImageBottom < widget.height - 1;
+        final Color baseColor = Theme.of(context).scaffoldBackgroundColor;
+        return Stack(
+          fit: StackFit.expand,
+          children: <Widget>[
+            // Top-anchored full-width backdrop.
+            Transform.translate(
+              offset: Offset(0, panY),
+              child: Transform(
+                alignment: Alignment.topCenter,
+                transform: Matrix4.diagonal3Values(
+                  _scaleAnimation.value,
+                  _scaleAnimation.value,
+                  1.0,
+                ),
+                child: CachedNetworkImage(
+                  imageUrl: widget.imageUrl,
+                  fit: BoxFit.fitWidth,
+                  alignment: Alignment.topCenter,
+                  width: widget.width,
+                  height: widget.height,
+                  placeholder: (context, url) =>
+                      const Center(child: CircularProgressIndicator()),
+                  errorWidget: (context, url, error) => const Center(
+                    child: Icon(
+                      Icons.broken_image_outlined,
+                      size: 52,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      ),
+            if (hasBottomGap) ...<Widget>[
+              // Clean seam mask without blur/cut lines.
+              Positioned(
+                left: 0,
+                right: 0,
+                top: math.max(0, effectiveImageBottom - widget.height * 0.1),
+                bottom: 0,
+                child: IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: <Color>[
+                          Colors.transparent,
+                          baseColor.withValues(alpha: 0.75),
+                          baseColor,
+                        ],
+                        stops: const <double>[0.0, 0.45, 1.0],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        );
+      },
     );
   }
 }

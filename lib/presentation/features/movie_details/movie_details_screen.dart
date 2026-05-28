@@ -350,17 +350,32 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
           SliverToBoxAdapter(
             child: AspectRatio(
               aspectRatio: 16 / 9,
-              child: Stack(
-                children: [
-                  // Backdrop Slideshow
-                  Positioned.fill(
-                    child: ClipRect(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 1000),
-                        child: backdropUrl == null
-                            ? ColoredBox(
-                                key: const ValueKey('placeholder'),
-                                color: AppColors.detailsBackdropPlaceholder,
+            child: Stack(
+              clipBehavior: Clip.hardEdge,
+              children: [
+                // Backdrop Slideshow
+                Positioned.fill(
+                  child: ClipRect(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 1000),
+                      layoutBuilder:
+                          (Widget? currentChild, List<Widget> previousChildren) {
+                            return ClipRect(
+                              child: Stack(
+                                fit: StackFit.expand,
+                                clipBehavior: Clip.hardEdge,
+                                children: <Widget>[
+                                  ...previousChildren,
+                                  // ignore: use_null_aware_elements
+                                  if (currentChild case final child?) child,
+                                ],
+                              ),
+                            );
+                          },
+                      child: backdropUrl == null
+                          ? ColoredBox(
+                              key: const ValueKey('placeholder'),
+                              color: AppColors.detailsBackdropPlaceholder,
                               )
                             : _MovieDetailsKenBurnsImage(
                                 key: ValueKey(backdropUrl),
@@ -378,9 +393,11 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.black.withValues(alpha: 0.15),
-                            Colors.black.withValues(alpha: 0.5),
+                            Colors.black.withValues(alpha: 0.42),
+                            Colors.black.withValues(alpha: 0.72),
                             AppColors.cinemaBackground,
                           ],
+                          stops: const <double>[0.0, 0.7, 0.9, 1.0],
                         ),
                       ),
                     ),
@@ -1071,7 +1088,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
       return;
     }
 
-    Navigator.of(context).push(
+    Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute<void>(
         builder: (BuildContext context) => TrailerPlayerScreen(
           data: TrailerPlaybackData(
@@ -2280,19 +2297,21 @@ class _MovieDetailsKenBurnsImageState extends State<_MovieDetailsKenBurnsImage>
 
   @override
   Widget build(BuildContext context) {
-    return SlideTransition(
-      position: _panAnimation,
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: CachedNetworkImage(
-          imageUrl: widget.imageUrl,
-          fit: BoxFit.cover,
-          width: double.infinity,
-          height: double.infinity,
-          placeholder: (context, url) =>
-              ColoredBox(color: AppColors.detailsBackdropPlaceholder),
-          errorWidget: (context, url, error) =>
-              ColoredBox(color: AppColors.detailsBackdropPlaceholder),
+    return ClipRect(
+      child: SlideTransition(
+        position: _panAnimation,
+        child: ScaleTransition(
+          scale: _scaleAnimation,
+          child: CachedNetworkImage(
+            imageUrl: widget.imageUrl,
+            fit: BoxFit.cover,
+            width: double.infinity,
+            height: double.infinity,
+            placeholder: (context, url) =>
+                ColoredBox(color: AppColors.detailsBackdropPlaceholder),
+            errorWidget: (context, url, error) =>
+                ColoredBox(color: AppColors.detailsBackdropPlaceholder),
+          ),
         ),
       ),
     );
@@ -5612,7 +5631,7 @@ class _TrailersClipsSectionState extends State<_TrailersClipsSection> {
                 return GestureDetector(
                   onTap: () {
                     HapticFeedback.selectionClick();
-                    Navigator.of(context).push(
+                    Navigator.of(context, rootNavigator: true).push(
                       MaterialPageRoute<void>(
                         builder: (BuildContext context) => TrailerPlayerScreen(
                           data: TrailerPlaybackData(

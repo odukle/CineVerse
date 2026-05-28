@@ -8,6 +8,8 @@ import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class TrailerPlaybackData {
@@ -66,8 +68,13 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
   late final YoutubePlayerController _controller;
   late TrailerPlaybackData _currentData;
   final ScrollController _scrollController = ScrollController();
+  final Set<int> _seenRecommendationIds = <int>{};
   bool _wasFullScreen = false;
-  bool _isLoadingFeed = true;
+  bool _isLoadingFeed = false;
+  bool _isLoadingMoreFeed = false;
+  bool _hasMoreFeed = true;
+  int _nextRecommendationPage = 1;
+  int _consecutiveEmptyFeedPages = 0;
   List<_TrailerFeedItem> _feedItems = const <_TrailerFeedItem>[];
 
   @override
@@ -83,9 +90,11 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
         enableCaption: true,
         isLive: false,
         forceHD: false,
+        useHybridComposition: true,
       ),
     )..addListener(_onPlayerStateChange);
-    unawaited(_loadRecommendationFeed());
+    _scrollController.addListener(_onFeedScroll);
+    unawaited(_loadRecommendationFeed(reset: true));
   }
 
   @override
@@ -125,88 +134,154 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
     WidgetsBinding.instance.removeObserver(this);
     _controller.removeListener(_onPlayerStateChange);
     _controller.dispose();
+    _scrollController.removeListener(_onFeedScroll);
     _scrollController.dispose();
     unawaited(_restorePortraitMode());
     super.dispose();
   }
 
-  Future<void> _loadRecommendationFeed() async {
+  void _onFeedScroll() {
+    if (!_scrollController.hasClients ||
+        _isLoadingFeed ||
+        _isLoadingMoreFeed ||
+        !_hasMoreFeed) {
+      return;
+    }
+    if (_scrollController.position.extentAfter < 420) {
+      unawaited(_loadRecommendationFeed());
+    }
+  }
+
+  Future<void> _loadRecommendationFeed({bool reset = false}) async {
+    if (reset) {
+      _nextRecommendationPage = 1;
+      _hasMoreFeed = true;
+      _consecutiveEmptyFeedPages = 0;
+      _isLoadingFeed = false;
+      _isLoadingMoreFeed = false;
+      _seenRecommendationIds.clear();
+      setState(() {
+        _feedItems = const <_TrailerFeedItem>[];
+      });
+    }
+
+    if (_isLoadingFeed || _isLoadingMoreFeed || !_hasMoreFeed) {
+      return;
+    }
+
+    final bool initialLoad = _feedItems.isEmpty;
     setState(() {
-      _isLoadingFeed = true;
+      if (initialLoad) {
+        _isLoadingFeed = true;
+      } else {
+        _isLoadingMoreFeed = true;
+      }
     });
+
     try {
-      final List<MovieRecommendation> seed = widget.data.recommendations;
-      List<MovieRecommendation> candidates = seed;
-      if (candidates.isEmpty && widget.data.sourceMediaId != null) {
-        final fetched = await ref
+      List<MovieRecommendation> candidates = const <MovieRecommendation>[];
+      final bool useSeed =
+          _nextRecommendationPage == 1 && widget.data.recommendations.isNotEmpty;
+
+      if (useSeed) {
+        candidates = widget.data.recommendations;
+        _nextRecommendationPage = 2;
+      } else if (widget.data.sourceMediaId != null) {
+        candidates = await ref
             .read(mediaRepositoryProvider)
             .fetchMovieRecommendations(
               widget.data.sourceMediaId!,
+              page: _nextRecommendationPage,
               isTv: widget.data.isTv,
             );
-        candidates = fetched;
+        _nextRecommendationPage += 1;
+        if (candidates.length < 20) {
+          _hasMoreFeed = false;
+        }
+      } else {
+        _hasMoreFeed = false;
       }
 
-      final List<MovieRecommendation> trimmed = candidates
-          .where(
-            (MovieRecommendation rec) => rec.id != widget.data.sourceMediaId,
-          )
-          .take(10)
+      if (candidates.isEmpty && !useSeed) {
+        _hasMoreFeed = false;
+      }
+
+      final List<MovieRecommendation> uniqueCandidates = candidates
+          .where((MovieRecommendation rec) => rec.id != widget.data.sourceMediaId)
+          .where((MovieRecommendation rec) => _seenRecommendationIds.add(rec.id))
+          .take(12)
           .toList(growable: false);
 
-      final List<Future<_TrailerFeedItem?>> jobs = trimmed
-          .map((MovieRecommendation rec) async {
-            try {
-              final MovieDetails details = await ref
-                  .read(mediaRepositoryProvider)
-                  .fetchMovieDetails(rec.id, isTv: widget.data.isTv);
-              final String? trailerKey = details.trailerYouTubeKey;
-              if (trailerKey == null || trailerKey.isEmpty) {
+      final List<Future<_TrailerFeedItem?>> jobs = uniqueCandidates
+          .map((MovieRecommendation rec) {
+            return (() async {
+              try {
+                final MovieDetails details = await ref
+                    .read(mediaRepositoryProvider)
+                    .fetchMovieDetails(rec.id, isTv: widget.data.isTv);
+                final String? trailerKey = details.trailerYouTubeKey;
+                if (trailerKey == null || trailerKey.isEmpty) {
+                  return null;
+                }
+                return _TrailerFeedItem(
+                  mediaId: rec.id,
+                  data: TrailerPlaybackData(
+                    videoKey: trailerKey,
+                    title: details.title,
+                    tagline: details.tagline,
+                    overview: details.overview,
+                    posterPath: details.posterPath ?? rec.posterPath,
+                    backdropPath: details.backdropPath,
+                    releaseDate: details.releaseDate ?? rec.releaseDate,
+                    runtimeMinutes: details.runtimeMinutes,
+                    voteAverage: details.catalogScore ?? rec.voteAverage,
+                    voteCount: details.voteCount,
+                    categoryLabel: widget.data.isTv
+                        ? 'Recommended Series'
+                        : 'Recommended Movie',
+                    sourceMediaId: rec.id,
+                    isTv: widget.data.isTv,
+                  ),
+                );
+              } catch (_) {
                 return null;
               }
-              return _TrailerFeedItem(
-                mediaId: rec.id,
-                data: TrailerPlaybackData(
-                  videoKey: trailerKey,
-                  title: details.title,
-                  tagline: details.tagline,
-                  overview: details.overview,
-                  posterPath: details.posterPath ?? rec.posterPath,
-                  backdropPath: details.backdropPath,
-                  releaseDate: details.releaseDate ?? rec.releaseDate,
-                  runtimeMinutes: details.runtimeMinutes,
-                  voteAverage: details.catalogScore ?? rec.voteAverage,
-                  voteCount: details.voteCount,
-                  categoryLabel: widget.data.isTv
-                      ? 'Recommended Series'
-                      : 'Recommended Movie',
-                  sourceMediaId: rec.id,
-                  isTv: widget.data.isTv,
-                ),
-              );
-            } catch (_) {
-              return null;
-            }
+            })().timeout(const Duration(seconds: 10), onTimeout: () => null);
           })
           .toList(growable: false);
 
       final List<_TrailerFeedItem> loaded = (await Future.wait(
         jobs,
       )).whereType<_TrailerFeedItem>().toList(growable: false);
+
+      if (loaded.isEmpty) {
+        _consecutiveEmptyFeedPages += 1;
+        if (_consecutiveEmptyFeedPages >= 3) {
+          _hasMoreFeed = false;
+        }
+      } else {
+        _consecutiveEmptyFeedPages = 0;
+      }
+
       if (!mounted) {
         return;
       }
       setState(() {
-        _feedItems = loaded;
+        _feedItems = <_TrailerFeedItem>[..._feedItems, ...loaded];
         _isLoadingFeed = false;
+        _isLoadingMoreFeed = false;
       });
+
+      if (loaded.isEmpty && _hasMoreFeed && mounted) {
+        unawaited(_loadRecommendationFeed());
+      }
     } catch (_) {
       if (!mounted) {
         return;
       }
       setState(() {
-        _feedItems = const <_TrailerFeedItem>[];
         _isLoadingFeed = false;
+        _isLoadingMoreFeed = false;
       });
     }
   }
@@ -225,6 +300,19 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
         curve: Curves.easeOutCubic,
       );
     }
+  }
+
+  Uri get _currentYouTubeUri =>
+      Uri.parse('https://www.youtube.com/watch?v=${_currentData.videoKey}');
+
+  Future<void> _openCurrentOnYouTube() async {
+    await launchUrl(_currentYouTubeUri, mode: LaunchMode.externalApplication);
+  }
+
+  Future<void> _shareCurrentTrailer() async {
+    await Share.share(
+      'Watch "${_currentData.title}" trailer: ${_currentYouTubeUri.toString()}',
+    );
   }
 
   @override
@@ -249,15 +337,88 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
       builder: (BuildContext context, Widget player) {
         return Scaffold(
           backgroundColor: Colors.black,
-          appBar: AppBar(
-            backgroundColor: Colors.black,
-            elevation: 0,
-            titleSpacing: 0,
-            title: const Text('Trailer'),
-          ),
           body: Column(
             children: <Widget>[
+              SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(6, 6, 12, 6),
+                  child: Row(
+                    children: <Widget>[
+                      IconButton(
+                        tooltip: 'Close trailer',
+                        icon: const Icon(
+                          Icons.arrow_back_rounded,
+                          color: Colors.white,
+                        ),
+                        onPressed: () => Navigator.of(context).maybePop(),
+                      ),
+                      Expanded(
+                        child: Text(
+                          data.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               player,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.white.withValues(alpha: 0.08),
+                          side: BorderSide(
+                            color: AppColors.cinemaBorder.withValues(alpha: 0.45),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                        ),
+                        onPressed: () => unawaited(_openCurrentOnYouTube()),
+                        icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                        label: const Text('Open in YouTube'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.white.withValues(alpha: 0.08),
+                          side: BorderSide(
+                            color: AppColors.cinemaBorder.withValues(alpha: 0.45),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                        ),
+                        onPressed: () => unawaited(_shareCurrentTrailer()),
+                        icon: const Icon(Icons.share_rounded, size: 18),
+                        label: const Text('Share'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Expanded(
                 child: ListView(
                   controller: _scrollController,
@@ -406,94 +567,114 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
                         ),
                       )
                     else
-                      ListView.separated(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-                        itemCount: _feedItems.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 10),
-                        itemBuilder: (BuildContext context, int index) {
-                          final _TrailerFeedItem item = _feedItems[index];
-                          final bool isActive =
-                              item.data.videoKey == _currentData.videoKey;
-                          return Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              onTap: () => _playFromFeed(item),
-                              child: Ink(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(
-                                    alpha: isActive ? 0.14 : 0.07,
-                                  ),
+                      Column(
+                        children: <Widget>[
+                          ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                            itemCount: _feedItems.length,
+                            separatorBuilder: (_, _) =>
+                                const SizedBox(height: 10),
+                            itemBuilder: (BuildContext context, int index) {
+                              final _TrailerFeedItem item = _feedItems[index];
+                              final bool isActive =
+                                  item.data.videoKey == _currentData.videoKey;
+                              return Material(
+                                color: Colors.transparent,
+                                child: InkWell(
                                   borderRadius: BorderRadius.circular(12),
-                                  border: Border.all(
-                                    color: isActive
-                                        ? AppColors.cinemaAccent.withValues(
-                                            alpha: 0.7,
-                                          )
-                                        : Colors.white.withValues(alpha: 0.1),
+                                  onTap: () => _playFromFeed(item),
+                                  child: Ink(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(
+                                        alpha: isActive ? 0.14 : 0.07,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: isActive
+                                            ? AppColors.cinemaAccent.withValues(
+                                                alpha: 0.7,
+                                              )
+                                            : Colors.white.withValues(
+                                                alpha: 0.1,
+                                              ),
+                                      ),
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: <Widget>[
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(8),
+                                          child: SizedBox(
+                                            width: 120,
+                                            height: 68,
+                                            child: _FeedThumbnail(data: item.data),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: <Widget>[
+                                              Text(
+                                                item.data.title,
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: theme
+                                                    .textTheme.bodyMedium
+                                                    ?.copyWith(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                _buildMetaLine(item.data),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: theme
+                                                    .textTheme.bodySmall
+                                                    ?.copyWith(
+                                                      color: Colors.white
+                                                          .withValues(
+                                                            alpha: 0.72,
+                                                          ),
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Icon(
+                                          isActive
+                                              ? Icons.equalizer_rounded
+                                              : Icons.play_arrow_rounded,
+                                          color: isActive
+                                              ? AppColors.cinemaAccent
+                                              : Colors.white.withValues(
+                                                  alpha: 0.85,
+                                                ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    ClipRRect(
-                                      borderRadius: BorderRadius.circular(8),
-                                      child: SizedBox(
-                                        width: 120,
-                                        height: 68,
-                                        child: _FeedThumbnail(data: item.data),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Text(
-                                            item.data.title,
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: theme.textTheme.bodyMedium
-                                                ?.copyWith(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            _buildMetaLine(item.data),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: theme.textTheme.bodySmall
-                                                ?.copyWith(
-                                                  color: Colors.white
-                                                      .withValues(alpha: 0.72),
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Icon(
-                                      isActive
-                                          ? Icons.equalizer_rounded
-                                          : Icons.play_arrow_rounded,
-                                      color: isActive
-                                          ? AppColors.cinemaAccent
-                                          : Colors.white.withValues(
-                                              alpha: 0.85,
-                                            ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        },
+                              );
+                            },
+                          ),
+                          if (_isLoadingMoreFeed)
+                            const Padding(
+                              padding: EdgeInsets.fromLTRB(16, 8, 16, 24),
+                              child: LinearProgressIndicator(minHeight: 2),
+                            )
+                          else
+                            const SizedBox(height: 24),
+                        ],
                       ),
                   ],
                 ),
