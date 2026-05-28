@@ -13,6 +13,7 @@ import 'package:cineverse/domain/usecases/discover_media_use_case.dart';
 import 'package:cineverse/presentation/features/movies/models/tonight_watch_models.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -54,6 +55,7 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
   required MediaRepository repository,
   required AppConfig appConfig,
 }) async {
+  final bool showDiagnostics = kDebugMode || appConfig.showTonightDiagnostics;
   final String? idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
   final Dio recommendationDio = Dio(
     BaseOptions(
@@ -109,13 +111,19 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
     }
     final Map<String, dynamic>? payload = response.data;
     final String? backendProgressMessage =
-        _recommendationBackendProgressMessage(payload);
+        _recommendationBackendProgressMessage(
+          payload,
+          showDiagnostics: showDiagnostics,
+        );
     if (backendProgressMessage != null) {
       _progressAdd(backendProgressMessage);
     }
     _progressAdd('Search plan is ready');
     todayRecommendationPlanNotifier.value =
-        _recommendationServiceQueryPlanChips(payload);
+        _recommendationServiceQueryPlanChips(
+          payload,
+          showDiagnostics: showDiagnostics,
+        );
     final List<dynamic> rawResults =
         payload?['results'] as List<dynamic>? ?? <dynamic>[];
     if (rawResults.isEmpty) {
@@ -152,9 +160,13 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
       interpretedIntent: _recommendationServiceIntentSummary(
         payload,
         request.prompt,
+        showDiagnostics: showDiagnostics,
       ),
       recommendations: recommendations,
-      queryPlanChips: _recommendationServiceQueryPlanChips(payload),
+      queryPlanChips: _recommendationServiceQueryPlanChips(
+        payload,
+        showDiagnostics: showDiagnostics,
+      ),
     );
   } on DioException catch (error) {
     final dynamic responseData = error.response?.data;
@@ -270,8 +282,8 @@ Future<TonightRecommendationItem?> _buildRecommendationServiceItem({
 String _recommendationServiceIntentSummary(
   Map<String, dynamic>? payload,
   String fallbackPrompt,
+  {required bool showDiagnostics}
 ) {
-  final String backendLabel = _recommendationBackendLabel(payload);
   final Map<String, dynamic> criteria =
       payload?['criteria'] as Map<String, dynamic>? ?? <String, dynamic>{};
   final List<String> chips = <String>[];
@@ -292,13 +304,22 @@ String _recommendationServiceIntentSummary(
     chips.add('under $maxRuntime min');
   }
   if (chips.isEmpty) {
-    return '$backendLabel for "$fallbackPrompt"';
+    if (showDiagnostics) {
+      final String backendLabel = _recommendationBackendLabel(payload);
+      return '$backendLabel for "$fallbackPrompt"';
+    }
+    return 'Personalized picks for "$fallbackPrompt"';
   }
-  return '$backendLabel using ${chips.join(' • ')}.';
+  if (showDiagnostics) {
+    final String backendLabel = _recommendationBackendLabel(payload);
+    return '$backendLabel using ${chips.join(' • ')}.';
+  }
+  return 'Using ${chips.join(' • ')}.';
 }
 
 List<String> _recommendationServiceQueryPlanChips(
   Map<String, dynamic>? payload,
+  {required bool showDiagnostics}
 ) {
   final Map<String, dynamic> criteria =
       payload?['criteria'] as Map<String, dynamic>? ?? <String, dynamic>{};
@@ -306,7 +327,9 @@ List<String> _recommendationServiceQueryPlanChips(
       payload?['diagnostics'] as Map<String, dynamic>? ?? <String, dynamic>{};
 
   final List<String> chips = <String>[];
-  chips.add('Backend: ${_recommendationBackendChipLabel(payload)}');
+  if (showDiagnostics) {
+    chips.add('Backend: ${_recommendationBackendChipLabel(payload)}');
+  }
   final String language = _readString(criteria['language']);
   final List<String> includeGenres = _readStringList(criteria['includeGenres']);
   final List<String> excludeGenres = _readStringList(criteria['excludeGenres']);
@@ -396,7 +419,10 @@ String _recommendationBackendChipLabel(Map<String, dynamic>? payload) {
   return 'Unknown';
 }
 
-String? _recommendationBackendProgressMessage(Map<String, dynamic>? payload) {
+String? _recommendationBackendProgressMessage(
+  Map<String, dynamic>? payload, {
+  required bool showDiagnostics,
+}) {
   final Map<String, dynamic>? diagnostics =
       payload?['diagnostics'] as Map<String, dynamic>?;
   final String resolved = _readString(
@@ -407,13 +433,19 @@ String? _recommendationBackendProgressMessage(Map<String, dynamic>? payload) {
   ).toLowerCase();
 
   if (resolved.contains('qdrant') && requested.contains('zilliz')) {
-    return 'Zilliz took too long, switched to Qdrant to keep things moving';
+    return showDiagnostics
+        ? 'Zilliz took too long, switched to Qdrant to keep things moving'
+        : 'That path was slow, rerouting to keep results coming';
   }
   if (resolved.contains('firestore') && requested.contains('zilliz')) {
-    return 'Zilliz and Qdrant were unavailable, switched to Firebase fallback';
+    return showDiagnostics
+        ? 'Zilliz and Qdrant were unavailable, switched to Firebase fallback'
+        : 'Primary route was unavailable, trying a backup path';
   }
   if (resolved.contains('firestore') && requested.contains('qdrant')) {
-    return 'Qdrant was unavailable, switched to Firebase fallback';
+    return showDiagnostics
+        ? 'Qdrant was unavailable, switched to Firebase fallback'
+        : 'Current route was unavailable, trying a backup path';
   }
   return null;
 }

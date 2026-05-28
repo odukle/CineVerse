@@ -101,6 +101,7 @@ class _WhatShouldIWatchTonightScreenState
         _submittedRequest == null
         ? null
         : ref.watch(tonightPromptRecommendationsProvider(_submittedRequest!));
+    final bool isFetching = recommendations?.isLoading ?? false;
 
     return _AmbientGlowingBackdrop(
       child: Scaffold(
@@ -147,6 +148,7 @@ class _WhatShouldIWatchTonightScreenState
                   speechAvailable: _speechAvailable,
                   speechError: _speechError,
                   onMicTap: _toggleVoiceInput,
+                  isFetching: isFetching,
                 ),
                 const SizedBox(height: 20),
                 _buildResultState(recommendations),
@@ -174,6 +176,16 @@ class _WhatShouldIWatchTonightScreenState
   }
 
   void _runSearch() {
+    final TonightPromptRequest? activeRequest = _submittedRequest;
+    if (activeRequest != null) {
+      final AsyncValue<TonightPromptResult> activeState = ref.read(
+        tonightPromptRecommendationsProvider(activeRequest),
+      );
+      if (activeState.isLoading) {
+        return;
+      }
+    }
+
     final String prompt = _promptController.text.trim();
     if (prompt.length < 4) {
       _promptFocusNode.requestFocus();
@@ -343,6 +355,7 @@ class _PromptPanel extends StatelessWidget {
     required this.speechAvailable,
     required this.speechError,
     required this.onMicTap,
+    required this.isFetching,
   });
 
   final bool isTv;
@@ -360,6 +373,7 @@ class _PromptPanel extends StatelessWidget {
   final bool speechAvailable;
   final String? speechError;
   final VoidCallback onMicTap;
+  final bool isFetching;
 
   @override
   Widget build(BuildContext context) {
@@ -510,10 +524,12 @@ class _PromptPanel extends StatelessWidget {
             children: <Widget>[
               Expanded(
                 child: ElevatedButton.icon(
-                  onPressed: onSubmit,
+                  onPressed: isFetching ? null : onSubmit,
                   icon: const Icon(Icons.auto_awesome_rounded),
                   label: Text(
-                    isTv ? 'Find Shows' : 'Find Movies',
+                    isFetching
+                        ? (isTv ? 'Finding Shows...' : 'Finding Movies...')
+                        : (isTv ? 'Find Shows' : 'Find Movies'),
                     style: const TextStyle(fontWeight: FontWeight.w800),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -530,7 +546,7 @@ class _PromptPanel extends StatelessWidget {
               Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: onDiceTap,
+                  onTap: isFetching ? null : onDiceTap,
                   borderRadius: BorderRadius.circular(12),
                   child: Ink(
                     width: 52,

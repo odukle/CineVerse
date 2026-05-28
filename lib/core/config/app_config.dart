@@ -7,6 +7,7 @@ class AppConfig {
     this.watchProviderResolverApiUrl = '',
     this.movieAwardsResolverApiUrl = '',
     this.omdbResolverApiUrl = '',
+    this.showTonightDiagnostics = false,
   });
 
   factory AppConfig.fromEnvironment() {
@@ -35,6 +36,10 @@ class AppConfig {
         defaultValue:
             'https://us-east4-cineverse-flutter-591.cloudfunctions.net/resolveOmdbTitleDetails',
       ),
+      showTonightDiagnostics: bool.fromEnvironment(
+        'TONIGHT_SHOW_DIAGNOSTICS',
+        defaultValue: false,
+      ),
     );
   }
 
@@ -43,6 +48,7 @@ class AppConfig {
   final String watchProviderResolverApiUrl;
   final String movieAwardsResolverApiUrl;
   final String omdbResolverApiUrl;
+  final bool showTonightDiagnostics;
 
   bool get hasMovieProxyBaseUrl => movieProxyBaseUrl.trim().isNotEmpty;
 

@@ -1,6 +1,8 @@
 # Miscellaneous
 *.class
 *.log
+*.csv
+*.tsv
 *.pyc
 *.swp
 .DS_Store
@@ -85,6 +87,8 @@ android/local.properties
 *.exe
 *.msi
 *.dll
+*.sqlite
+*.db
 
 # iOS specific
 ios/.symlinks/
@@ -138,6 +142,7 @@ config/api_keys.json
 *.crt
 *.cer
 play_store_assets/release/keystore_credentials.txt
+play_store_assets/release/
 
 # Kaggle/Firebase recommendation index artifacts
 .tmp/
