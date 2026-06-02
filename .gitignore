@@ -22,6 +22,7 @@ test_wikiquote.json
 *.jpeg
 *.gif
 !assets/**
+!android/app/src/main/res/**/*.png
 !web/favicon.png
 !web/icons/
 !web/icons/*.png
