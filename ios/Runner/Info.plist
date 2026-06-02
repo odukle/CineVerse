@@ -70,6 +70,15 @@
 			<string>https</string>
 			<string>http</string>
 		</array>
+		<key>CFBundleURLTypes</key>
+		<array>
+			<dict>
+				<key>CFBundleURLSchemes</key>
+				<array>
+					<string>com.googleusercontent.apps.1061595926768-edk1j3hfo28t06sek0mqs7lasonltsnj</string>
+				</array>
+			</dict>
+		</array>
 		<key>NSMicrophoneUsageDescription</key>
 		<string>Voice input is used to capture your movie request.</string>
 		<key>NSSpeechRecognitionUsageDescription</key>
