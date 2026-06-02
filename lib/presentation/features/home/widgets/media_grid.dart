@@ -104,7 +104,7 @@ class MediaGrid extends ConsumerWidget {
             return false;
           },
           child: CustomScrollView(
-            cacheExtent: 1000,
+            scrollCacheExtent: 1000,
             slivers: [
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
