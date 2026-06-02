@@ -14,6 +14,51 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  Future<void> settleExploreScreen(WidgetTester tester) async {
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+  }
+
+  String topmostText(WidgetTester tester, Finder finder) {
+    final int matchCount = finder.evaluate().length;
+    assert(matchCount > 0, 'Expected at least one text match.');
+
+    String? topmostLabel;
+    double? topmostDy;
+
+    for (int index = 0; index < matchCount; index++) {
+      final Finder candidate = finder.at(index);
+      final Text textWidget = tester.widget<Text>(candidate);
+      final double candidateDy = tester.getTopLeft(candidate).dy;
+      if (topmostDy == null || candidateDy < topmostDy) {
+        topmostDy = candidateDy;
+        topmostLabel = textWidget.data;
+      }
+    }
+
+    return topmostLabel!;
+  }
+
+  CuratedTonightRailData buildCuratedRailData(List<MediaTitle> titles) {
+    return CuratedTonightRailData(
+      profile: const CuratedTonightProfile(
+        id: 'test_profile',
+        title: 'Curated Tonight',
+        description: 'Test curated rail.',
+        tags: <String>['Test'],
+        movieGenres: <int>{28, 18},
+        tvGenres: <int>{18},
+        runtime: RangeValues(80, 140),
+        scoreRange: RangeValues(6.0, 10.0),
+        minUserVotes: 50,
+      ),
+      dayKey: 1,
+      isTv: false,
+      titles: titles.take(4).toList(growable: false),
+    );
+  }
+
   testWidgets('movie screen renders curated shelves and mood section', (
     WidgetTester tester,
   ) async {
@@ -111,6 +156,12 @@ void main() {
               mood: entry.key,
               isTv: false,
             )).overrideWith((ref) async => entry.value),
+          hiddenGemsSectionProvider.overrideWith(
+            (ref) async => discoverPool,
+          ),
+          curatedTonightRailProvider.overrideWith(
+            (ref) async => buildCuratedRailData(discoverPool),
+          ),
           discoverPoolProvider.overrideWith((ref) async => discoverPool),
           for (final int id in allIds)
             movieDetailsProvider(
@@ -121,22 +172,27 @@ void main() {
               id: id,
               isTv: false,
             )).overrideWith((ref) async => MediaImages.empty),
+          for (final int id in allIds)
+            mediaTaglinesProvider((
+              id: id,
+              isTv: false,
+            )).overrideWith((ref) async => const <String>[]),
         ],
         child: const MaterialApp(home: Scaffold(body: ExploreScreen())),
       ),
     );
 
-    await tester.pumpAndSettle();
+    await settleExploreScreen(tester);
 
-    expect(find.text('Discover'), findsOneWidget);
-    expect(find.byIcon(Icons.casino_outlined), findsOneWidget);
+    expect(find.text('Discover Spotlight'), findsOneWidget);
+    expect(find.byIcon(Icons.casino_outlined), findsAtLeastNWidgets(1));
 
     await tester.scrollUntilVisible(
       find.text('Trending'),
       300,
       scrollable: verticalScrollable,
     );
-    await tester.pumpAndSettle();
+    await settleExploreScreen(tester);
     expect(find.text('Trending'), findsAtLeastNWidgets(1));
 
     await tester.scrollUntilVisible(
@@ -144,7 +200,7 @@ void main() {
       400,
       scrollable: verticalScrollable,
     );
-    await tester.pumpAndSettle();
+    await settleExploreScreen(tester);
     expect(find.text("What's Popular"), findsOneWidget);
 
     await tester.scrollUntilVisible(
@@ -152,7 +208,7 @@ void main() {
       400,
       scrollable: verticalScrollable,
     );
-    await tester.pumpAndSettle();
+    await settleExploreScreen(tester);
     expect(find.text('Now Playing'), findsOneWidget);
 
     await tester.scrollUntilVisible(
@@ -160,7 +216,7 @@ void main() {
       400,
       scrollable: verticalScrollable,
     );
-    await tester.pumpAndSettle();
+    await settleExploreScreen(tester);
     expect(find.text('Discover by Mood'), findsOneWidget);
     expect(find.text('Mind-bending'), findsOneWidget);
     expect(find.byType(ListView), findsWidgets);
@@ -268,6 +324,12 @@ void main() {
               mood: entry.key,
               isTv: false,
             )).overrideWith((ref) async => entry.value),
+          hiddenGemsSectionProvider.overrideWith(
+            (ref) async => discoverPool,
+          ),
+          curatedTonightRailProvider.overrideWith(
+            (ref) async => buildCuratedRailData(discoverPool),
+          ),
           discoverPoolProvider.overrideWith((ref) async => discoverPool),
           for (final int id in allIds)
             movieDetailsProvider(
@@ -278,23 +340,29 @@ void main() {
               id: id,
               isTv: false,
             )).overrideWith((ref) async => MediaImages.empty),
+          for (final int id in allIds)
+            mediaTaglinesProvider((
+              id: id,
+              isTv: false,
+            )).overrideWith((ref) async => const <String>[]),
         ],
         child: const MaterialApp(home: Scaffold(body: ExploreScreen())),
       ),
     );
 
-    await tester.pumpAndSettle();
+    await settleExploreScreen(tester);
 
     await tester.scrollUntilVisible(
       find.text('Trending'),
       300,
       scrollable: verticalScrollable,
     );
-    await tester.pumpAndSettle();
+    await settleExploreScreen(tester);
 
     expect(find.text('Day Movie 1'), findsOneWidget);
+    expect(find.text('Week Movie 1'), findsNothing);
     expect(find.text('Today'), findsOneWidget);
-    expect(find.text('This Week'), findsNothing);
+    expect(find.text('This Week'), findsOneWidget);
     expect(tester.takeException(), isNull);
 
     await tester.pump(const Duration(seconds: 8));
@@ -394,6 +462,12 @@ void main() {
               mood: entry.key,
               isTv: false,
             )).overrideWith((ref) async => entry.value),
+          hiddenGemsSectionProvider.overrideWith(
+            (ref) async => discoverPool,
+          ),
+          curatedTonightRailProvider.overrideWith(
+            (ref) async => buildCuratedRailData(discoverPool),
+          ),
           discoverPoolProvider.overrideWith((ref) async => discoverPool),
           for (final int id in allIds)
             movieDetailsProvider(
@@ -404,27 +478,33 @@ void main() {
               id: id,
               isTv: false,
             )).overrideWith((ref) async => MediaImages.empty),
+          for (final int id in allIds)
+            mediaTaglinesProvider((
+              id: id,
+              isTv: false,
+            )).overrideWith((ref) async => const <String>[]),
         ],
         child: const MaterialApp(home: Scaffold(body: ExploreScreen())),
       ),
     );
 
-    await tester.pumpAndSettle();
+    await settleExploreScreen(tester);
 
     final Finder discoverTitleFinder = find.textContaining(
-      'Discover Spotlight',
+      'Discover Spotlight ',
     );
-    expect(discoverTitleFinder, findsOneWidget);
-    final String initialTitle = tester.widget<Text>(discoverTitleFinder).data!;
+    expect(discoverTitleFinder, findsAtLeastNWidgets(1));
+    final String initialTitle = topmostText(tester, discoverTitleFinder);
 
-    await tester.ensureVisible(find.byIcon(Icons.casino_outlined));
-    await tester.pumpAndSettle();
-    await tester.tap(find.byIcon(Icons.casino_outlined));
-    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byIcon(Icons.casino_outlined).first);
+    await settleExploreScreen(tester);
+    await tester.tap(find.byIcon(Icons.casino_outlined).first);
+    await settleExploreScreen(tester);
 
-    final String updatedTitle = tester
-        .widget<Text>(find.textContaining('Discover Spotlight'))
-        .data!;
+    final String updatedTitle = topmostText(
+      tester,
+      find.textContaining('Discover Spotlight '),
+    );
     expect(updatedTitle, isNot(initialTitle));
 
     await tester.pump(const Duration(seconds: 8));
