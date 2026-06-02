@@ -1,9 +1,5 @@
 class AwardDetailEntry {
-  const AwardDetailEntry({
-    required this.text,
-    this.logoUrl,
-    this.awardName,
-  });
+  const AwardDetailEntry({required this.text, this.logoUrl, this.awardName});
 
   final String text;
   final String? logoUrl;
@@ -37,7 +33,7 @@ class MovieAwards {
         baftaNominations: 0,
         otherWins: 0,
         otherNominations: 0,
-        detailEntries: const <AwardDetailEntry>[],
+        detailEntries: <AwardDetailEntry>[],
       );
     }
 
@@ -57,7 +53,8 @@ class MovieAwards {
       if (trimmed.isEmpty) continue;
 
       final String lower = trimmed.toLowerCase();
-      final bool isNominated = lower.contains('nominated') || lower.contains('nomination');
+      final bool isNominated =
+          lower.contains('nominated') || lower.contains('nomination');
 
       if (lower.contains('oscar')) {
         final int count = _extractNumber(trimmed);
@@ -155,7 +152,8 @@ class MovieAwards {
   final List<AwardDetailEntry> detailEntries;
 
   int get totalWins => oscarWins + globeWins + baftaWins + otherWins;
-  int get totalNominations => oscarNominations + globeNominations + baftaNominations + otherNominations;
+  int get totalNominations =>
+      oscarNominations + globeNominations + baftaNominations + otherNominations;
 
   bool get hasAwards => totalWins > 0 || totalNominations > 0;
 
@@ -167,7 +165,11 @@ class MovieAwards {
       parts.add(totalWins == 1 ? '1 win' : '$totalWins wins');
     }
     if (totalNominations > 0) {
-      parts.add(totalNominations == 1 ? '1 nomination' : '$totalNominations nominations');
+      parts.add(
+        totalNominations == 1
+            ? '1 nomination'
+            : '$totalNominations nominations',
+      );
     }
     return parts.join(' & ');
   }

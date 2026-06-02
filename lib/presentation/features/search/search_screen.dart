@@ -36,8 +36,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     super.initState();
     _controller = TextEditingController();
     _focusNode = FocusNode();
-    _scrollController = ScrollController()
-      ..addListener(_onScroll);
+    _scrollController = ScrollController()..addListener(_onScroll);
 
     _focusNode.requestFocus();
 
@@ -175,7 +174,8 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     itemCount: SearchCategory.values.length,
                     itemBuilder: (context, index) {
                       final category = SearchCategory.values[index];
-                      final isSelected = searchState.selectedCategory == category;
+                      final isSelected =
+                          searchState.selectedCategory == category;
                       return Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: ChoiceChip(
@@ -184,15 +184,23 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           onSelected: (selected) {
                             if (selected) {
                               HapticFeedback.selectionClick();
-                              ref.read(searchProvider.notifier).setCategory(category);
+                              ref
+                                  .read(searchProvider.notifier)
+                                  .setCategory(category);
                             }
                           },
-                          backgroundColor: AppColors.cinemaSurface.withValues(alpha: 0.5),
+                          backgroundColor: AppColors.cinemaSurface.withValues(
+                            alpha: 0.5,
+                          ),
                           selectedColor: AppColors.cinemaAccent,
                           labelStyle: TextStyle(
-                            color: isSelected ? Colors.black : Colors.white.withValues(alpha: 0.7),
+                            color: isSelected
+                                ? Colors.black
+                                : Colors.white.withValues(alpha: 0.7),
                             fontSize: 12,
-                            fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                            fontWeight: isSelected
+                                ? FontWeight.w800
+                                : FontWeight.w600,
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(16),
@@ -518,26 +526,35 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           ? CachedNetworkImage(
                               imageUrl: collection.posterPath!,
                               fit: BoxFit.cover,
-                              placeholder: (_, __) => Container(
+                              placeholder: (_, _) => Container(
                                 color: AppColors.cinemaPlaceholder,
                                 child: const Center(
                                   child: CircularProgressIndicator(),
                                 ),
                               ),
-                              errorWidget: (_, __, ___) => Container(
+                              errorWidget: (_, _, _) => Container(
                                 color: AppColors.cinemaPlaceholder,
-                                child: const Icon(Icons.movie_outlined, color: Colors.white30),
+                                child: const Icon(
+                                  Icons.movie_outlined,
+                                  color: Colors.white30,
+                                ),
                               ),
                             )
                           : Container(
                               color: AppColors.cinemaPlaceholder,
-                              child: const Icon(Icons.movie_outlined, color: Colors.white30),
+                              child: const Icon(
+                                Icons.movie_outlined,
+                                color: Colors.white30,
+                              ),
                             ),
                     ),
                   ),
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 12,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -570,7 +587,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   ),
                   const Padding(
                     padding: EdgeInsets.only(right: 12),
-                    child: Icon(Icons.chevron_right_rounded, color: Colors.white54),
+                    child: Icon(
+                      Icons.chevron_right_rounded,
+                      color: Colors.white54,
+                    ),
                   ),
                 ],
               ),
@@ -652,7 +672,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.tag_rounded, color: AppColors.cinemaAccent, size: 20),
+                  Icon(
+                    Icons.tag_rounded,
+                    color: AppColors.cinemaAccent,
+                    size: 20,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
@@ -664,7 +688,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       ),
                     ),
                   ),
-                  const Icon(Icons.chevron_right_rounded, color: Colors.white30, size: 20),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: Colors.white30,
+                    size: 20,
+                  ),
                 ],
               ),
             ),
@@ -756,14 +784,16 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                         ? CachedNetworkImage(
                             imageUrl: company.logoPath!,
                             fit: BoxFit.contain,
-                            placeholder: (_, __) => const Center(
+                            placeholder: (_, _) => const Center(
                               child: SizedBox(
                                 width: 16,
                                 height: 16,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
                               ),
                             ),
-                            errorWidget: (_, __, ___) => const Icon(
+                            errorWidget: (_, _, _) => const Icon(
                               Icons.business_rounded,
                               color: Colors.black45,
                             ),
@@ -784,7 +814,11 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                       ),
                     ),
                   ),
-                  const Icon(Icons.chevron_right_rounded, color: Colors.white54, size: 20),
+                  const Icon(
+                    Icons.chevron_right_rounded,
+                    color: Colors.white54,
+                    size: 20,
+                  ),
                 ],
               ),
             ),
@@ -965,4 +999,3 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 }
-

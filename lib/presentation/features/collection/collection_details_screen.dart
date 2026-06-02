@@ -11,16 +11,16 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-final collectionDetailsProvider = FutureProvider.family<MovieCollection, int>((ref, collectionId) async {
+final collectionDetailsProvider = FutureProvider.family<MovieCollection, int>((
+  ref,
+  collectionId,
+) async {
   final repository = ref.watch(mediaRepositoryProvider);
   return await repository.fetchMovieCollectionDetails(collectionId);
 });
 
 class CollectionDetailsScreen extends ConsumerWidget {
-  const CollectionDetailsScreen({
-    super.key,
-    required this.collectionId,
-  });
+  const CollectionDetailsScreen({super.key, required this.collectionId});
 
   final int collectionId;
 
@@ -41,17 +41,30 @@ class CollectionDetailsScreen extends ConsumerWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline_rounded, color: Colors.white30, size: 64),
+                const Icon(
+                  Icons.error_outline_rounded,
+                  color: Colors.white30,
+                  size: 64,
+                ),
                 const SizedBox(height: 16),
                 Text(
                   'Failed to load collection details',
-                  style: TextStyle(color: Colors.white.withValues(alpha: 0.72), fontSize: 16),
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.72),
+                    fontSize: 16,
+                  ),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton(
-                  onPressed: () => ref.invalidate(collectionDetailsProvider(collectionId)),
-                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.cinemaAccent),
-                  child: const Text('Retry', style: TextStyle(color: Colors.black)),
+                  onPressed: () =>
+                      ref.invalidate(collectionDetailsProvider(collectionId)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.cinemaAccent,
+                  ),
+                  child: const Text(
+                    'Retry',
+                    style: TextStyle(color: Colors.black),
+                  ),
                 ),
               ],
             ),
@@ -75,9 +88,16 @@ class _CollectionDetailsContent extends ConsumerWidget {
     // Calculate watch progress
     int watchedCount = 0;
     for (final part in collection.parts) {
-      final isWatched = ref.watch(
-        isWatchedProvider((id: part.id, type: part.mediaType ?? GlobalMediaType.movie)),
-      ).value ?? false;
+      final isWatched =
+          ref
+              .watch(
+                isWatchedProvider((
+                  id: part.id,
+                  type: part.mediaType ?? GlobalMediaType.movie,
+                )),
+              )
+              .value ??
+          false;
       if (isWatched) watchedCount++;
     }
 
@@ -93,7 +113,10 @@ class _CollectionDetailsContent extends ConsumerWidget {
           backgroundColor: AppColors.cinemaBackground,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+            icon: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
+            ),
             onPressed: () {
               HapticFeedback.selectionClick();
               context.pop();
@@ -107,8 +130,10 @@ class _CollectionDetailsContent extends ConsumerWidget {
                   CachedNetworkImage(
                     imageUrl: collection.backdropPath!,
                     fit: BoxFit.cover,
-                    placeholder: (_, __) => Container(color: AppColors.cinemaPlaceholder),
-                    errorWidget: (_, __, ___) => Container(color: AppColors.cinemaPlaceholder),
+                    placeholder: (_, _) =>
+                        Container(color: AppColors.cinemaPlaceholder),
+                    errorWidget: (_, _, _) =>
+                        Container(color: AppColors.cinemaPlaceholder),
                   )
                 else
                   Container(color: AppColors.cinemaPlaceholder),
@@ -148,7 +173,8 @@ class _CollectionDetailsContent extends ConsumerWidget {
                 const SizedBox(height: 12),
 
                 // Overview
-                if (collection.overview != null && collection.overview!.isNotEmpty) ...[
+                if (collection.overview != null &&
+                    collection.overview!.isNotEmpty) ...[
                   Text(
                     collection.overview!,
                     style: TextStyle(
@@ -168,7 +194,9 @@ class _CollectionDetailsContent extends ConsumerWidget {
                     gradient: LinearGradient(
                       colors: AppColors.cinemaPanelGradient,
                     ),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.08),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,146 +253,182 @@ class _CollectionDetailsContent extends ConsumerWidget {
         SliverPadding(
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
           sliver: SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final part = collection.parts[index];
-                final isWatched = ref.watch(
-                  isWatchedProvider((id: part.id, type: part.mediaType ?? GlobalMediaType.movie)),
-                ).value ?? false;
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final part = collection.parts[index];
+              final isWatched =
+                  ref
+                      .watch(
+                        isWatchedProvider((
+                          id: part.id,
+                          type: part.mediaType ?? GlobalMediaType.movie,
+                        )),
+                      )
+                      .value ??
+                  false;
 
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () {
-                      HapticFeedback.selectionClick();
-                      context.pushNamed(
-                        AppRoute.movieDetails.name,
-                        pathParameters: {'movieId': part.id.toString()},
-                        queryParameters: {
-                          'isTv': (part.mediaType == GlobalMediaType.tv).toString(),
-                        },
-                      );
-                    },
-                    child: Container(
-                      height: 110,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(16),
-                        color: AppColors.detailsCard,
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    context.pushNamed(
+                      AppRoute.movieDetails.name,
+                      pathParameters: {'movieId': part.id.toString()},
+                      queryParameters: {
+                        'isTv': (part.mediaType == GlobalMediaType.tv)
+                            .toString(),
+                      },
+                    );
+                  },
+                  child: Container(
+                    height: 110,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      color: AppColors.detailsCard,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.08),
                       ),
-                      child: Row(
-                        children: [
-                          ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(15),
-                              bottomLeft: Radius.circular(15),
+                    ),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(15),
+                            bottomLeft: Radius.circular(15),
+                          ),
+                          child: SizedBox(
+                            width: 74,
+                            height: 110,
+                            child: part.posterPath != null
+                                ? CachedNetworkImage(
+                                    imageUrl: part.posterPath!,
+                                    fit: BoxFit.cover,
+                                    placeholder: (_, _) => Container(
+                                      color: AppColors.cinemaPlaceholder,
+                                      child: const Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    ),
+                                    errorWidget: (_, _, _) => Container(
+                                      color: AppColors.cinemaPlaceholder,
+                                      child: const Icon(
+                                        Icons.movie_outlined,
+                                        color: Colors.white30,
+                                      ),
+                                    ),
+                                  )
+                                : Container(
+                                    color: AppColors.cinemaPlaceholder,
+                                    child: const Icon(
+                                      Icons.movie_outlined,
+                                      color: Colors.white30,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
                             ),
-                            child: SizedBox(
-                              width: 74,
-                              height: 110,
-                              child: part.posterPath != null
-                                  ? CachedNetworkImage(
-                                      imageUrl: part.posterPath!,
-                                      fit: BoxFit.cover,
-                                      placeholder: (_, __) => Container(
-                                        color: AppColors.cinemaPlaceholder,
-                                        child: const Center(
-                                          child: CircularProgressIndicator(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  part.title,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                const SizedBox(height: 6),
+                                Row(
+                                  children: [
+                                    if (part.releaseDate != null &&
+                                        part.releaseDate!.length >= 4) ...[
+                                      Text(
+                                        part.releaseDate!.substring(0, 4),
+                                        style: TextStyle(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.6,
+                                          ),
+                                          fontSize: 13,
                                         ),
                                       ),
-                                      errorWidget: (_, __, ___) => Container(
-                                        color: AppColors.cinemaPlaceholder,
-                                        child: const Icon(Icons.movie_outlined, color: Colors.white30),
+                                      const SizedBox(width: 8),
+                                    ],
+                                    if (part.voteAverage != null &&
+                                        part.voteAverage! > 0)
+                                      RatingBadge.tmdb(
+                                        catalogScore: part.voteAverage,
+                                        size: 16,
                                       ),
-                                    )
-                                  : Container(
-                                      color: AppColors.cinemaPlaceholder,
-                                      child: const Icon(Icons.movie_outlined, color: Colors.white30),
-                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
+                        ),
+                        if (isWatched)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 16),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.cinemaAccent.withValues(
+                                  alpha: 0.2,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: AppColors.cinemaAccent.withValues(
+                                    alpha: 0.4,
+                                  ),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  Icon(
+                                    Icons.check_rounded,
+                                    color: AppColors.cinemaAccent,
+                                    size: 14,
+                                  ),
+                                  const SizedBox(width: 4),
                                   Text(
-                                    part.title,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 15,
+                                    'Watched',
+                                    style: TextStyle(
+                                      color: AppColors.cinemaAccent,
+                                      fontSize: 10,
                                       fontWeight: FontWeight.bold,
                                     ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      if (part.releaseDate != null && part.releaseDate!.length >= 4) ...[
-                                        Text(
-                                          part.releaseDate!.substring(0, 4),
-                                          style: TextStyle(
-                                            color: Colors.white.withValues(alpha: 0.6),
-                                            fontSize: 13,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                      ],
-                                      if (part.voteAverage != null && part.voteAverage! > 0)
-                                        RatingBadge.tmdb(
-                                          catalogScore: part.voteAverage,
-                                          size: 16,
-                                        ),
-                                    ],
                                   ),
                                 ],
                               ),
                             ),
-                          ),
-                          if (isWatched)
-                            Padding(
-                              padding: const EdgeInsets.only(right: 16),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: AppColors.cinemaAccent.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: AppColors.cinemaAccent.withValues(alpha: 0.4)),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.check_rounded, color: AppColors.cinemaAccent, size: 14),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      'Watched',
-                                      style: TextStyle(
-                                        color: AppColors.cinemaAccent,
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
-                          else
-                            const Padding(
-                              padding: EdgeInsets.only(right: 16),
-                              child: Icon(Icons.chevron_right_rounded, color: Colors.white30),
+                          )
+                        else
+                          const Padding(
+                            padding: EdgeInsets.only(right: 16),
+                            child: Icon(
+                              Icons.chevron_right_rounded,
+                              color: Colors.white30,
                             ),
-                        ],
-                      ),
+                          ),
+                      ],
                     ),
                   ),
-                );
-              },
-              childCount: collection.parts.length,
-            ),
+                ),
+              );
+            }, childCount: collection.parts.length),
           ),
         ),
       ],

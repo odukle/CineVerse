@@ -1,4 +1,5 @@
 import 'package:cineverse/data/models/tmdb_person_details_dto.dart';
+import 'package:flutter/foundation.dart';
 
 void main() {
   final payloads = [
@@ -8,11 +9,11 @@ void main() {
       'id': 1,
       'name': 'A',
       'also_known_as': ['x', null, 2],
-      'external_ids': {}
+      'external_ids': {},
     },
   ];
   for (final p in payloads) {
     final dto = TmdbPersonDetailsDto.fromJson(Map<String, dynamic>.from(p));
-    print(dto.alsoKnownAs);
+    debugPrint('${dto.alsoKnownAs}');
   }
 }

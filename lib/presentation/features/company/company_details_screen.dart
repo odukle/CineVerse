@@ -89,7 +89,10 @@ class CompanyDetailsNotifier extends Notifier<CompanyDetailsState> {
       final details = await repo.fetchCompanyDetails(companyId);
       state = state.copyWith(company: details, isCompanyLoading: false);
     } catch (e) {
-      state = state.copyWith(isCompanyLoading: false, companyError: 'Failed to load company info');
+      state = state.copyWith(
+        isCompanyLoading: false,
+        companyError: 'Failed to load company info',
+      );
     }
   }
 
@@ -155,7 +158,9 @@ class CompanyDetailsNotifier extends Notifier<CompanyDetailsState> {
       }
 
       state = state.copyWith(
-        results: page == 1 ? fetchedResults : [...state.results, ...fetchedResults],
+        results: page == 1
+            ? fetchedResults
+            : [...state.results, ...fetchedResults],
         page: page,
         isProductionsLoading: false,
         isLoadingMore: false,
@@ -214,20 +219,19 @@ class CompanyDetailsNotifier extends Notifier<CompanyDetailsState> {
   }
 }
 
-final companyDetailsNotifierProvider = NotifierProvider.family<CompanyDetailsNotifier, CompanyDetailsState, int>(
-  CompanyDetailsNotifier.new,
-);
+final companyDetailsNotifierProvider =
+    NotifierProvider.family<CompanyDetailsNotifier, CompanyDetailsState, int>(
+      CompanyDetailsNotifier.new,
+    );
 
 class CompanyDetailsScreen extends ConsumerStatefulWidget {
-  const CompanyDetailsScreen({
-    super.key,
-    required this.companyId,
-  });
+  const CompanyDetailsScreen({super.key, required this.companyId});
 
   final int companyId;
 
   @override
-  ConsumerState<CompanyDetailsScreen> createState() => _CompanyDetailsScreenState();
+  ConsumerState<CompanyDetailsScreen> createState() =>
+      _CompanyDetailsScreenState();
 }
 
 class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
@@ -236,8 +240,7 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController()
-      ..addListener(_onScroll);
+    _scrollController = ScrollController()..addListener(_onScroll);
   }
 
   @override
@@ -249,7 +252,9 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
   void _onScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 400) {
-      ref.read(companyDetailsNotifierProvider(widget.companyId).notifier).loadMoreProductions();
+      ref
+          .read(companyDetailsNotifierProvider(widget.companyId).notifier)
+          .loadMoreProductions();
     }
   }
 
@@ -262,13 +267,20 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
       appBar: AppBar(
         title: Text(
           state.company?.name ?? 'Production Company',
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
         centerTitle: true,
         backgroundColor: AppColors.cinemaGradientTop,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+          ),
           onPressed: () {
             HapticFeedback.selectionClick();
             context.pop();
@@ -281,27 +293,27 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
                 child: CircularProgressIndicator(color: AppColors.cinemaAccent),
               )
             : state.companyError != null
-                ? _buildErrorScreen(state.companyError!, isCompany: true)
-                : CustomScrollView(
-                    controller: _scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    slivers: [
-                      SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildCompanyHeader(state.company!),
-                              const SizedBox(height: 24),
-                              _buildProductionsSectionHeader(state),
-                            ],
-                          ),
-                        ),
+            ? _buildErrorScreen(state.companyError!, isCompany: true)
+            : CustomScrollView(
+                controller: _scrollController,
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildCompanyHeader(state.company!),
+                          const SizedBox(height: 24),
+                          _buildProductionsSectionHeader(state),
+                        ],
                       ),
-                      _buildProductionsContent(state),
-                    ],
+                    ),
                   ),
+                  _buildProductionsContent(state),
+                ],
+              ),
       ),
     );
   }
@@ -329,7 +341,7 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
                   color: AppColors.cinemaGlow.withValues(alpha: 0.1),
                   blurRadius: 10,
                   spreadRadius: 2,
-                )
+                ),
               ],
             ),
             padding: const EdgeInsets.all(8),
@@ -337,10 +349,10 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
                 ? CachedNetworkImage(
                     imageUrl: company.logoPath!,
                     fit: BoxFit.contain,
-                    placeholder: (_, __) => const Center(
+                    placeholder: (_, _) => const Center(
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
-                    errorWidget: (_, __, ___) => const Icon(
+                    errorWidget: (_, _, _) => const Icon(
                       Icons.business_rounded,
                       color: Colors.black45,
                       size: 32,
@@ -366,39 +378,64 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                if (company.headquarters != null && company.headquarters!.isNotEmpty) ...[
-                  _buildHeaderDetailRow(Icons.location_on_rounded, company.headquarters!),
+                if (company.headquarters != null &&
+                    company.headquarters!.isNotEmpty) ...[
+                  _buildHeaderDetailRow(
+                    Icons.location_on_rounded,
+                    company.headquarters!,
+                  ),
                   const SizedBox(height: 4),
                 ],
-                if (company.parentCompany != null && company.parentCompany!.isNotEmpty) ...[
-                  _buildHeaderDetailRow(Icons.corporate_fare_rounded, 'Parent: ${company.parentCompany!}'),
+                if (company.parentCompany != null &&
+                    company.parentCompany!.isNotEmpty) ...[
+                  _buildHeaderDetailRow(
+                    Icons.corporate_fare_rounded,
+                    'Parent: ${company.parentCompany!}',
+                  ),
                   const SizedBox(height: 4),
                 ],
-                if (company.originCountry != null && company.originCountry!.isNotEmpty) ...[
-                  _buildHeaderDetailRow(Icons.flag_rounded, 'Country: ${company.originCountry!}'),
+                if (company.originCountry != null &&
+                    company.originCountry!.isNotEmpty) ...[
+                  _buildHeaderDetailRow(
+                    Icons.flag_rounded,
+                    'Country: ${company.originCountry!}',
+                  ),
                   const SizedBox(height: 4),
                 ],
-                if (company.homepage != null && company.homepage!.isNotEmpty) ...[
+                if (company.homepage != null &&
+                    company.homepage!.isNotEmpty) ...[
                   const SizedBox(height: 8),
                   InkWell(
                     onTap: () async {
                       HapticFeedback.selectionClick();
                       final url = Uri.parse(company.homepage!);
                       if (await canLaunchUrl(url)) {
-                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                        await launchUrl(
+                          url,
+                          mode: LaunchMode.externalApplication,
+                        );
                       }
                     },
                     borderRadius: BorderRadius.circular(8),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
-                        border: Border.all(color: AppColors.cinemaAccent.withValues(alpha: 0.5)),
+                        border: Border.all(
+                          color: AppColors.cinemaAccent.withValues(alpha: 0.5),
+                        ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.link_rounded, color: AppColors.cinemaAccent, size: 14),
+                          Icon(
+                            Icons.link_rounded,
+                            color: AppColors.cinemaAccent,
+                            size: 14,
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             'Official Site',
@@ -460,34 +497,49 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
               icon: const Icon(Icons.sort_rounded, color: Colors.white70),
               onSelected: (sortField) {
                 HapticFeedback.selectionClick();
-                ref.read(companyDetailsNotifierProvider(widget.companyId).notifier).setSortField(sortField);
+                ref
+                    .read(
+                      companyDetailsNotifierProvider(widget.companyId).notifier,
+                    )
+                    .setSortField(sortField);
               },
-              itemBuilder: (context) => [
-                SortField.popularity,
-                SortField.voteAverage,
-                SortField.releaseDate,
-                SortField.voteCount,
-              ]
-                  .map((f) => PopupMenuItem(
-                        value: f,
-                        child: Row(
-                          children: [
-                            if (state.selectedSort == f)
-                              Icon(Icons.check_rounded, color: AppColors.cinemaAccent, size: 18)
-                            else
-                              const SizedBox(width: 18),
-                            const SizedBox(width: 8),
-                            Text(
-                              f.label,
-                              style: TextStyle(
-                                color: state.selectedSort == f ? Colors.white : Colors.white70,
-                                fontWeight: state.selectedSort == f ? FontWeight.bold : FontWeight.normal,
+              itemBuilder: (context) =>
+                  [
+                        SortField.popularity,
+                        SortField.voteAverage,
+                        SortField.releaseDate,
+                        SortField.voteCount,
+                      ]
+                      .map(
+                        (f) => PopupMenuItem(
+                          value: f,
+                          child: Row(
+                            children: [
+                              if (state.selectedSort == f)
+                                Icon(
+                                  Icons.check_rounded,
+                                  color: AppColors.cinemaAccent,
+                                  size: 18,
+                                )
+                              else
+                                const SizedBox(width: 18),
+                              const SizedBox(width: 8),
+                              Text(
+                                f.label,
+                                style: TextStyle(
+                                  color: state.selectedSort == f
+                                      ? Colors.white
+                                      : Colors.white70,
+                                  fontWeight: state.selectedSort == f
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ))
-                  .toList(),
+                      )
+                      .toList(),
             ),
           ],
         ),
@@ -510,13 +562,23 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
                   onSelected: (selected) {
                     if (selected) {
                       HapticFeedback.selectionClick();
-                      ref.read(companyDetailsNotifierProvider(widget.companyId).notifier).setMediaType(type);
+                      ref
+                          .read(
+                            companyDetailsNotifierProvider(
+                              widget.companyId,
+                            ).notifier,
+                          )
+                          .setMediaType(type);
                     }
                   },
-                  backgroundColor: AppColors.cinemaSurface.withValues(alpha: 0.5),
+                  backgroundColor: AppColors.cinemaSurface.withValues(
+                    alpha: 0.5,
+                  ),
                   selectedColor: AppColors.cinemaAccent,
                   labelStyle: TextStyle(
-                    color: isSelected ? Colors.black : Colors.white.withValues(alpha: 0.7),
+                    color: isSelected
+                        ? Colors.black
+                        : Colors.white.withValues(alpha: 0.7),
                     fontSize: 12,
                     fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                   ),
@@ -541,9 +603,7 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
   Widget _buildProductionsContent(CompanyDetailsState state) {
     if (state.isProductionsLoading && state.results.isEmpty) {
       return const SliverFillRemaining(
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
+        child: Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -561,7 +621,10 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
         child: Center(
           child: Text(
             'No productions found.',
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 15),
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.6),
+              fontSize: 15,
+            ),
           ),
         ),
       );
@@ -600,7 +663,9 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
-                  child: CircularProgressIndicator(color: AppColors.cinemaAccent),
+                  child: CircularProgressIndicator(
+                    color: AppColors.cinemaAccent,
+                  ),
                 ),
               ),
             )
@@ -611,7 +676,13 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
                 child: Center(
                   child: TextButton(
                     onPressed: () {
-                      ref.read(companyDetailsNotifierProvider(widget.companyId).notifier).loadMoreProductions();
+                      ref
+                          .read(
+                            companyDetailsNotifierProvider(
+                              widget.companyId,
+                            ).notifier,
+                          )
+                          .loadMoreProductions();
                     },
                     child: Text(
                       'Load More',
@@ -649,22 +720,43 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline_rounded, color: Colors.white30, size: 64),
+            const Icon(
+              Icons.error_outline_rounded,
+              color: Colors.white30,
+              size: 64,
+            ),
             const SizedBox(height: 16),
             Text(
               message,
-              style: TextStyle(color: Colors.white.withValues(alpha: 0.72), fontSize: 16),
+              style: TextStyle(
+                color: Colors.white.withValues(alpha: 0.72),
+                fontSize: 16,
+              ),
             ),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 if (isCompany) {
-                  ref.read(companyDetailsNotifierProvider(widget.companyId).notifier).fetchCompanyInfo();
+                  ref
+                      .read(
+                        companyDetailsNotifierProvider(
+                          widget.companyId,
+                        ).notifier,
+                      )
+                      .fetchCompanyInfo();
                 } else {
-                  ref.read(companyDetailsNotifierProvider(widget.companyId).notifier).loadInitialProductions();
+                  ref
+                      .read(
+                        companyDetailsNotifierProvider(
+                          widget.companyId,
+                        ).notifier,
+                      )
+                      .loadInitialProductions();
                 }
               },
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.cinemaAccent),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.cinemaAccent,
+              ),
               child: const Text('Retry', style: TextStyle(color: Colors.black)),
             ),
           ],
