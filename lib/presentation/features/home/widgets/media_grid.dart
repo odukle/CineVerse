@@ -112,6 +112,7 @@ class MediaGrid extends ConsumerWidget {
             return false;
           },
           child: CustomScrollView(
+            // ignore: deprecated_member_use
             cacheExtent: 1000,
             slivers: [
               SliverPadding(

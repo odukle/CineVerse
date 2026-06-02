@@ -313,6 +313,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               key: ValueKey(mediaType), // Force refresh when switching type
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
+              // ignore: deprecated_member_use
               cacheExtent:
                   1500, // Pre-build shelves in the background to eliminate stutter
               slivers: [
@@ -3522,6 +3523,7 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                     return SizedBox(
                       height: shelfHeight,
                       child: ListView.separated(
+                        // ignore: deprecated_member_use
                         cacheExtent:
                             500, // Pre-render slightly more items for smoothness
                         padding: const EdgeInsets.symmetric(
