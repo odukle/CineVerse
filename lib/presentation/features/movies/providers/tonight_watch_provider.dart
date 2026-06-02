@@ -8,9 +8,11 @@ import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/movie_genre.dart';
+import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/repositories/media_repository.dart';
 import 'package:cineverse/domain/usecases/discover_media_use_case.dart';
 import 'package:cineverse/presentation/features/movies/models/tonight_watch_models.dart';
+import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -36,8 +38,21 @@ final tonightPromptRecommendationsProvider = FutureProvider.autoDispose
 
       final MediaRepository repository = ref.watch(mediaRepositoryProvider);
       final AppConfig appConfig = ref.watch(appConfigProvider);
+      final GlobalMediaType targetMediaType = request.isTv
+          ? GlobalMediaType.tv
+          : GlobalMediaType.movie;
+      final Set<int> excludedWatchedIds =
+          (await ref.watch(watchedItemsProvider.future))
+              .where((item) => item.mediaType == targetMediaType)
+              .map((item) => item.id)
+              .toSet();
       _progressReset();
       _progressAdd('Setting up your request');
+      if (excludedWatchedIds.isNotEmpty) {
+        _progressAdd(
+          'Excluding ${excludedWatchedIds.length} already watched title(s)',
+        );
+      }
 
       if (!appConfig.hasTonightRecommendationsApiUrl) {
         throw StateError('TONIGHT_RECOMMENDATIONS_API_URL is missing.');
@@ -47,6 +62,7 @@ final tonightPromptRecommendationsProvider = FutureProvider.autoDispose
         request: request,
         repository: repository,
         appConfig: appConfig,
+        excludedWatchedIds: excludedWatchedIds,
       );
     });
 
@@ -54,6 +70,7 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
   required TonightPromptRequest request,
   required MediaRepository repository,
   required AppConfig appConfig,
+  required Set<int> excludedWatchedIds,
 }) async {
   final bool showDiagnostics = kDebugMode || appConfig.showTonightDiagnostics;
   final String? idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
@@ -82,7 +99,7 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
           data: <String, dynamic>{
             'prompt': request.prompt,
             'isTv': request.isTv,
-            'topK': 12,
+            'topK': 24,
           },
         );
         break;
@@ -131,9 +148,28 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
         'The recommendation service returned no matches. Try a broader request.',
       );
     }
+    final List<dynamic> unseenRawResults = rawResults
+        .where((dynamic raw) {
+          if (raw is! Map<String, dynamic>) {
+            return false;
+          }
+          final int? id = _readInt(raw['id']);
+          if (id == null || id <= 0) {
+            return false;
+          }
+          return !excludedWatchedIds.contains(id);
+        })
+        .toList(growable: false);
+    if (unseenRawResults.isEmpty) {
+      throw StateError(
+        'All close matches are already in your watched list. Try a broader request.',
+      );
+    }
     _progressAdd('Collecting details for top matches');
 
-    final List<dynamic> shortlist = rawResults.take(12).toList(growable: false);
+    final List<dynamic> shortlist = unseenRawResults
+        .take(12)
+        .toList(growable: false);
     final List<TonightRecommendationItem> recommendations =
         <TonightRecommendationItem>[];
     for (int i = 0; i < shortlist.length; i++) {
@@ -281,9 +317,9 @@ Future<TonightRecommendationItem?> _buildRecommendationServiceItem({
 
 String _recommendationServiceIntentSummary(
   Map<String, dynamic>? payload,
-  String fallbackPrompt,
-  {required bool showDiagnostics}
-) {
+  String fallbackPrompt, {
+  required bool showDiagnostics,
+}) {
   final Map<String, dynamic> criteria =
       payload?['criteria'] as Map<String, dynamic>? ?? <String, dynamic>{};
   final List<String> chips = <String>[];
@@ -318,9 +354,9 @@ String _recommendationServiceIntentSummary(
 }
 
 List<String> _recommendationServiceQueryPlanChips(
-  Map<String, dynamic>? payload,
-  {required bool showDiagnostics}
-) {
+  Map<String, dynamic>? payload, {
+  required bool showDiagnostics,
+}) {
   final Map<String, dynamic> criteria =
       payload?['criteria'] as Map<String, dynamic>? ?? <String, dynamic>{};
   final Map<String, dynamic> diagnostics =

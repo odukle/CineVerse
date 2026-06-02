@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyD3iXDFwyNinTIszgXfFOlSZZo4h9QUISE',
-    appId: '1:1061595926768:android:aa890c2efc013d7ffc7235',
+    appId: '1:1061595926768:android:c029d9c81f394632fc7235',
     messagingSenderId: '1061595926768',
     projectId: 'cineverse-flutter-591',
     storageBucket: 'cineverse-flutter-591.firebasestorage.app',
@@ -59,11 +59,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBLXUiZ76pi9xx70Fz5nH2lJFRKcwXi3fg',
-    appId: '1:1061595926768:ios:1e3929bf24b9eb21fc7235',
+    appId: '1:1061595926768:ios:df4a58676e60533dfc7235',
     messagingSenderId: '1061595926768',
     projectId: 'cineverse-flutter-591',
     storageBucket: 'cineverse-flutter-591.firebasestorage.app',
-    iosBundleId: 'com.cineverse.cineverse',
+    iosBundleId: 'com.odukle.cineverse',
   );
 
 }

@@ -211,7 +211,9 @@ void main() {
           mediaImagesProvider((id: 231, isTv: false)).overrideWith(
             (ref) async => MediaImages.empty,
           ),
-          movieAwardsProvider('tt0120338').overrideWith(
+          movieAwardsProvider(
+            const MovieAwardsRequest(movieId: 231, imdbId: 'tt0120338'),
+          ).overrideWith(
             (ref) async => const MovieAwards(
               rawAwards: 'Won 11 Oscars. Another 116 wins & 83 nominations.',
               oscarWins: 11,

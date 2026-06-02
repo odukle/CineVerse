@@ -1032,6 +1032,7 @@ class _DiscoverSpotlightSection extends ConsumerStatefulWidget {
 class _DiscoverSpotlightSectionState
     extends ConsumerState<_DiscoverSpotlightSection>
     with TickerProviderStateMixin {
+  static const int _recentSpotlightMemory = 10;
   final math.Random _random = math.Random();
 
   late AnimationController _diceController;
@@ -1526,6 +1527,7 @@ class _DiscoverSpotlightSectionState
   }
 
   void _resetSpotlight(List<MediaTitle> movies) {
+    final int? currentMovieId = movies.isNotEmpty ? movies.first.id : null;
     setState(() {
       _animatedSwitcherKeyVersion++;
       _swipeOffset = 0.0;
@@ -1533,11 +1535,17 @@ class _DiscoverSpotlightSectionState
       _isBackdropLoading = true;
       _discoverSpotlightState = _DiscoverSpotlightState(
         poolMovieIds: movies.map((m) => m.id).toList(),
-        currentMovieId: movies.isNotEmpty ? movies.first.id : null,
-        remainingMovieIds: _shuffleMovieIds(
+        currentMovieId: currentMovieId,
+        remainingMovieIds: _buildRotationQueue(
           movies.map((m) => m.id).toList(),
-          excludeMovieId: movies.isNotEmpty ? movies.first.id : null,
+          excludeMovieId: currentMovieId,
+          recentMovieIds: currentMovieId == null
+              ? const <int>[]
+              : <int>[currentMovieId],
         ),
+        recentMovieIds: currentMovieId == null
+            ? const <int>[]
+            : <int>[currentMovieId],
         dismissedMovieIds: const <int>{},
       );
     });
@@ -2990,12 +2998,47 @@ class _DiscoverSpotlightSectionState
     }
 
     final int? currentMovieId = spotlightState?.currentMovieId;
+    final List<int> recentMovieIds =
+        (spotlightState?.recentMovieIds ?? const <int>[])
+            .where(poolMovieIds.contains)
+            .toList(growable: false);
     final bool canKeepCurrentMovie =
         currentMovieId != null && poolMovieIds.contains(currentMovieId);
-    final int? nextCurrentMovieId = canKeepCurrentMovie ? currentMovieId : null;
-    final List<int> nextRemainingMovieIds = _shuffleMovieIds(
+
+    List<int> nextRemainingMovieIds = <int>[
+      ...(spotlightState?.remainingMovieIds ?? const <int>[])
+          .where(poolMovieIds.contains)
+          .where((int id) => !recentMovieIds.contains(id))
+          .toSet(),
+    ];
+    nextRemainingMovieIds.removeWhere(
+      (int id) => id == currentMovieId || dismissed.contains(id),
+    );
+
+    final Set<int> queuedIds = nextRemainingMovieIds.toSet();
+    for (final int id in _buildRotationQueue(
       poolMovieIds,
-      excludeMovieId: nextCurrentMovieId,
+      excludeMovieId: currentMovieId,
+      recentMovieIds: recentMovieIds,
+    )) {
+      if (queuedIds.add(id)) {
+        nextRemainingMovieIds.add(id);
+      }
+    }
+
+    int? nextCurrentMovieId = canKeepCurrentMovie ? currentMovieId : null;
+    if (nextCurrentMovieId == null && nextRemainingMovieIds.isNotEmpty) {
+      nextCurrentMovieId = nextRemainingMovieIds.removeLast();
+    }
+    if (nextCurrentMovieId == null && poolMovieIds.isNotEmpty) {
+      nextCurrentMovieId = poolMovieIds.first;
+    }
+
+    List<int> nextRecentMovieIds = List<int>.from(recentMovieIds);
+    nextRecentMovieIds = _appendRecentMovie(nextRecentMovieIds, currentMovieId);
+    nextRecentMovieIds = _appendRecentMovie(
+      nextRecentMovieIds,
+      nextCurrentMovieId,
     );
 
     if (!mounted) {
@@ -3011,12 +3054,9 @@ class _DiscoverSpotlightSectionState
       }
       _discoverSpotlightState = _DiscoverSpotlightState(
         poolMovieIds: poolMovieIds,
-        currentMovieId:
-            nextCurrentMovieId ??
-            (nextRemainingMovieIds.isNotEmpty
-                ? nextRemainingMovieIds.removeLast()
-                : (poolMovieIds.isEmpty ? null : poolMovieIds.first)),
+        currentMovieId: nextCurrentMovieId,
         remainingMovieIds: nextRemainingMovieIds,
+        recentMovieIds: nextRecentMovieIds,
         dismissedMovieIds: dismissed,
       );
     });
@@ -3042,11 +3082,18 @@ class _DiscoverSpotlightSectionState
     List<int> remainingMovieIds = List<int>.from(
       spotlightState?.remainingMovieIds ?? const <int>[],
     ).where((id) => !dismissed.contains(id)).toList();
+    final List<int> recentMovieIds = List<int>.from(
+      spotlightState?.recentMovieIds ?? const <int>[],
+    ).where(poolMovieIds.contains).toList();
+    final int? currentMovieId = spotlightState?.currentMovieId;
+
+    remainingMovieIds.removeWhere((int id) => recentMovieIds.contains(id));
 
     if (remainingMovieIds.isEmpty) {
-      remainingMovieIds = _shuffleMovieIds(
+      remainingMovieIds = _buildRotationQueue(
         poolMovieIds,
-        excludeMovieId: spotlightState?.currentMovieId,
+        excludeMovieId: currentMovieId,
+        recentMovieIds: recentMovieIds,
       );
     }
 
@@ -3059,6 +3106,12 @@ class _DiscoverSpotlightSectionState
     }
 
     final int nextCurrentMovieId = remainingMovieIds.removeLast();
+    List<int> nextRecentMovieIds = List<int>.from(recentMovieIds);
+    nextRecentMovieIds = _appendRecentMovie(nextRecentMovieIds, currentMovieId);
+    nextRecentMovieIds = _appendRecentMovie(
+      nextRecentMovieIds,
+      nextCurrentMovieId,
+    );
 
     setState(() {
       _animatedSwitcherKeyVersion++;
@@ -3069,6 +3122,7 @@ class _DiscoverSpotlightSectionState
         poolMovieIds: poolMovieIds,
         currentMovieId: nextCurrentMovieId,
         remainingMovieIds: remainingMovieIds,
+        recentMovieIds: nextRecentMovieIds,
         dismissedMovieIds: dismissed,
       );
     });
@@ -3088,6 +3142,37 @@ class _DiscoverSpotlightSectionState
     shuffledMovieIds.shuffle(_random);
     return shuffledMovieIds;
   }
+
+  List<int> _buildRotationQueue(
+    List<int> movieIds, {
+    int? excludeMovieId,
+    List<int> recentMovieIds = const <int>[],
+  }) {
+    final Set<int> recentSet = recentMovieIds.toSet();
+    final List<int> preferred = movieIds
+        .where((int movieId) => movieId != excludeMovieId)
+        .where((int movieId) => !recentSet.contains(movieId))
+        .toList(growable: true);
+    preferred.shuffle(_random);
+    if (preferred.isNotEmpty) {
+      return preferred;
+    }
+    return _shuffleMovieIds(movieIds, excludeMovieId: excludeMovieId);
+  }
+
+  List<int> _appendRecentMovie(List<int> recentMovieIds, int? movieId) {
+    if (movieId == null) {
+      return recentMovieIds;
+    }
+    final List<int> next = recentMovieIds
+        .where((int id) => id != movieId)
+        .toList(growable: true)
+      ..add(movieId);
+    if (next.length > _recentSpotlightMemory) {
+      next.removeRange(0, next.length - _recentSpotlightMemory);
+    }
+    return next;
+  }
 }
 
 class _DiscoverSpotlightState {
@@ -3095,12 +3180,14 @@ class _DiscoverSpotlightState {
     required this.poolMovieIds,
     required this.currentMovieId,
     required this.remainingMovieIds,
+    this.recentMovieIds = const <int>[],
     this.dismissedMovieIds = const <int>{},
   });
 
   final List<int> poolMovieIds;
   final int? currentMovieId;
   final List<int> remainingMovieIds;
+  final List<int> recentMovieIds;
   final Set<int> dismissedMovieIds;
 }
 

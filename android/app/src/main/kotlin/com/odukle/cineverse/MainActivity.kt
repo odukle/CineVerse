@@ -1,4 +1,4 @@
-package com.cineverse.cineverse
+package com.odukle.cineverse
 
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
@@ -132,6 +132,6 @@ class MainActivity : FlutterActivity() {
 	): Boolean = capabilities?.hasTransport(transport) == true
 
 	private companion object {
-		const val CHANNEL_NAME = "cineverse/network_diagnostics"
+		const val CHANNEL_NAME = "com.odukle.cineverse/network_diagnostics"
 	}
 }

@@ -4,7 +4,7 @@
       "android": {
         "default": {
           "projectId": "cineverse-flutter-591",
-          "appId": "1:1061595926768:android:aa890c2efc013d7ffc7235",
+          "appId": "1:1061595926768:android:c029d9c81f394632fc7235",
           "fileOutput": "android/app/google-services.json"
         }
       },
@@ -12,8 +12,8 @@
         "lib/firebase_options.dart": {
           "projectId": "cineverse-flutter-591",
           "configurations": {
-            "android": "1:1061595926768:android:aa890c2efc013d7ffc7235",
-            "ios": "1:1061595926768:ios:1e3929bf24b9eb21fc7235"
+            "android": "1:1061595926768:android:c029d9c81f394632fc7235",
+            "ios": "1:1061595926768:ios:df4a58676e60533dfc7235"
           }
         }
       }

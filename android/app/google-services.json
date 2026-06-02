@@ -56,6 +56,58 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1061595926768:android:c029d9c81f394632fc7235",
+        "android_client_info": {
+          "package_name": "com.odukle.cineverse"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1061595926768-9l86197h8dc6eevj4m9gjth6al2mpfsi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.odukle.cineverse",
+            "certificate_hash": "e5b1c2e34ae37712c70677803ac76edd5d18503d"
+          }
+        },
+        {
+          "client_id": "1061595926768-s382tnbbv3ls6j0ha1rh0f42jtg5r4ri.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.odukle.cineverse",
+            "certificate_hash": "f75b4b95230f0751cee998004ce44c287709ebef"
+          }
+        },
+        {
+          "client_id": "1061595926768-jiaebeqc5nv7b418b5j3pp2q5pm66kjk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD3iXDFwyNinTIszgXfFOlSZZo4h9QUISE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1061595926768-jiaebeqc5nv7b418b5j3pp2q5pm66kjk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1061595926768-9jv4ib2ikihharfvgac6uo5ialem64ra.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.cineverse.cineverse"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

@@ -208,7 +208,7 @@ class AutoReleaseNotificationScheduler {
         notificationKey:
             'auto-movie-${movie.id}-${day.year.toString().padLeft(4, '0')}${day.month.toString().padLeft(2, '0')}${day.day.toString().padLeft(2, '0')}',
         title: '$title releases today',
-        body: 'Your watchlist movie is releasing on $localDate.',
+        body: 'A movie in your library is releasing on $localDate.',
         scheduledAt: scheduledAt,
         mediaId: movie.id,
         isTv: false,
