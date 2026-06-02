@@ -313,7 +313,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               key: ValueKey(mediaType), // Force refresh when switching type
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
-              scrollCacheExtent:
+              cacheExtent:
                   1500, // Pre-build shelves in the background to eliminate stutter
               slivers: [
                 const SliverToBoxAdapter(child: SizedBox(height: 12)),
@@ -3164,10 +3164,9 @@ class _DiscoverSpotlightSectionState
     if (movieId == null) {
       return recentMovieIds;
     }
-    final List<int> next = recentMovieIds
-        .where((int id) => id != movieId)
-        .toList(growable: true)
-      ..add(movieId);
+    final List<int> next =
+        recentMovieIds.where((int id) => id != movieId).toList(growable: true)
+          ..add(movieId);
     if (next.length > _recentSpotlightMemory) {
       next.removeRange(0, next.length - _recentSpotlightMemory);
     }
@@ -3523,7 +3522,7 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                     return SizedBox(
                       height: shelfHeight,
                       child: ListView.separated(
-                        scrollCacheExtent:
+                        cacheExtent:
                             500, // Pre-render slightly more items for smoothness
                         padding: const EdgeInsets.symmetric(
                           horizontal: horizontalPadding,
@@ -4536,8 +4535,10 @@ class _KenBurnsImageState extends State<_KenBurnsImage>
       builder: (BuildContext context, Widget? child) {
         final double panY = _panAnimation.value.dy * 14;
         const double assumedBackdropAspectRatio = 16 / 9;
-        final double renderedImageHeight =
-            math.min(widget.height, widget.width / assumedBackdropAspectRatio);
+        final double renderedImageHeight = math.min(
+          widget.height,
+          widget.width / assumedBackdropAspectRatio,
+        );
         final double effectiveImageBottom =
             renderedImageHeight * _scaleAnimation.value + panY;
         final bool hasBottomGap = effectiveImageBottom < widget.height - 1;

@@ -8,11 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MediaGrid extends ConsumerWidget {
-  const MediaGrid({
-    required this.isTv,
-    this.genreId,
-    super.key,
-  });
+  const MediaGrid({required this.isTv, this.genreId, super.key});
 
   final bool isTv;
   final int? genreId;
@@ -20,22 +16,28 @@ class MediaGrid extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
-    final customFilter = ref.watch(isTv ? tvFilterProvider : movieFilterProvider);
+    final customFilter = ref.watch(
+      isTv ? tvFilterProvider : movieFilterProvider,
+    );
 
     // Determine which data provider to use
     final provider = !customFilter.isDefault
-        ? movieSectionProvider(isTv ? MovieSection.tvDiscover : MovieSection.discover)
+        ? movieSectionProvider(
+            isTv ? MovieSection.tvDiscover : MovieSection.discover,
+          )
         : genreId != null
-            ? genreSectionProvider((id: genreId!, isTv: isTv))
-            : movieSectionProvider(isTv ? MovieSection.tvPopular : MovieSection.popular);
+        ? genreSectionProvider((id: genreId!, isTv: isTv))
+        : movieSectionProvider(
+            isTv ? MovieSection.tvPopular : MovieSection.popular,
+          );
 
     final mediaAsync = ref.watch(provider);
 
     final String sectionTitle = !customFilter.isDefault
         ? 'Filtered Results'
         : genreId != null
-            ? 'Genre Results'
-            : 'Popular';
+        ? 'Genre Results'
+        : 'Popular';
 
     return mediaAsync.when(
       loading: () => const _ShimmerGrid(),
@@ -83,9 +85,9 @@ class MediaGrid extends ConsumerWidget {
         const int crossAxisCount = 3;
         final double cardWidth =
             (MediaQuery.sizeOf(context).width -
-                    (horizontalPadding * 2) -
-                    (crossAxisSpacing * 2)) /
-                crossAxisCount;
+                (horizontalPadding * 2) -
+                (crossAxisSpacing * 2)) /
+            crossAxisCount;
 
         final bool isFetchingMore = mediaAsync.isLoading && data.isNotEmpty;
 
@@ -94,17 +96,23 @@ class MediaGrid extends ConsumerWidget {
             if (scrollInfo.metrics.pixels >=
                 scrollInfo.metrics.maxScrollExtent - 200) {
               if (!customFilter.isDefault) {
-                loadNextPages(ref, isTv ? MovieSection.tvDiscover : MovieSection.discover);
+                loadNextPages(
+                  ref,
+                  isTv ? MovieSection.tvDiscover : MovieSection.discover,
+                );
               } else if (genreId != null) {
                 loadNextGenrePages(ref, genreId!, isTv: isTv);
               } else {
-                loadNextPages(ref, isTv ? MovieSection.tvPopular : MovieSection.popular);
+                loadNextPages(
+                  ref,
+                  isTv ? MovieSection.tvPopular : MovieSection.popular,
+                );
               }
             }
             return false;
           },
           child: CustomScrollView(
-            scrollCacheExtent: 1000,
+            cacheExtent: 1000,
             slivers: [
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
@@ -115,20 +123,17 @@ class MediaGrid extends ConsumerWidget {
                     mainAxisSpacing: mainAxisSpacing,
                     childAspectRatio: 0.55,
                   ),
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final item = data[index];
-                      return Center(
-                        child: MediaPosterGridCard(
-                          movie: item,
-                          sectionTitle: sectionTitle,
-                          width: cardWidth,
-                          isTvTitle: isTv,
-                        ),
-                      );
-                    },
-                    childCount: data.length,
-                  ),
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final item = data[index];
+                    return Center(
+                      child: MediaPosterGridCard(
+                        movie: item,
+                        sectionTitle: sectionTitle,
+                        width: cardWidth,
+                        isTvTitle: isTv,
+                      ),
+                    );
+                  }, childCount: data.length),
                 ),
               ),
               if (isFetchingMore)
@@ -143,9 +148,7 @@ class MediaGrid extends ConsumerWidget {
                     ),
                   ),
                 ),
-              const SliverToBoxAdapter(
-                child: SizedBox(height: 28),
-              ),
+              const SliverToBoxAdapter(child: SizedBox(height: 28)),
             ],
           ),
         );
