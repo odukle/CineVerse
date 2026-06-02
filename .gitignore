@@ -149,3 +149,5 @@ play_store_assets/release/
 .local/
 TMDB_movie_dataset.csv
 assets/data/tonight_kaggle_index.json
+android/app/google-services.json.bak
+android/app/google-services.json.pre-sha
