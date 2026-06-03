@@ -3,6 +3,8 @@ workflows:
     name: iOS TestFlight
     max_build_duration: 60
     instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: odukle_appstore
 
     environment:
       groups:
@@ -27,15 +29,6 @@ workflows:
       - name: Get Flutter packages
         script: |
           flutter pub get
-
-      - name: Materialize App Store Connect private key
-        script: |
-          if [ -z "$APP_STORE_CONNECT_PRIVATE_KEY_BASE64" ]; then
-            echo "APP_STORE_CONNECT_PRIVATE_KEY_BASE64 is not set"
-            exit 1
-          fi
-          echo "$APP_STORE_CONNECT_PRIVATE_KEY_BASE64" | base64 --decode > /tmp/app_store_connect_key.p8
-          chmod 600 /tmp/app_store_connect_key.p8
 
       - name: Install CocoaPods dependencies
         script: |
@@ -64,8 +57,6 @@ workflows:
 
     publishing:
       app_store_connect:
-        api_key: "@file:/tmp/app_store_connect_key.p8"
-        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
-        issuer_id: $APP_STORE_CONNECT_ISSUER_ID
+        auth: integration
         submit_to_testflight: true
         submit_to_app_store: false
