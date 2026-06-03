@@ -28,6 +28,15 @@ workflows:
         script: |
           flutter pub get
 
+      - name: Materialize App Store Connect private key
+        script: |
+          if [ -z "$APP_STORE_CONNECT_PRIVATE_KEY_BASE64" ]; then
+            echo "APP_STORE_CONNECT_PRIVATE_KEY_BASE64 is not set"
+            exit 1
+          fi
+          echo "$APP_STORE_CONNECT_PRIVATE_KEY_BASE64" | base64 --decode > /tmp/app_store_connect_key.p8
+          chmod 600 /tmp/app_store_connect_key.p8
+
       - name: Install CocoaPods dependencies
         script: |
           find . -name "Podfile" -execdir pod install \;
@@ -55,7 +64,7 @@ workflows:
 
     publishing:
       app_store_connect:
-        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        api_key: "@file:/tmp/app_store_connect_key.p8"
         key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
         issuer_id: $APP_STORE_CONNECT_ISSUER_ID
         submit_to_testflight: true
