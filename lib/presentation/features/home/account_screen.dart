@@ -10,6 +10,7 @@ import 'package:cineverse/presentation/features/watchlist/providers/watched_prov
 import 'package:cineverse/presentation/providers/auth_provider.dart';
 import 'package:cineverse/domain/entities/user_entity.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,6 +19,82 @@ import 'package:url_launcher/url_launcher.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
+
+  Future<void> _showErrorSnackBar(BuildContext context, Object error) async {
+    if (!context.mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(error.toString())));
+  }
+
+  Future<void> _confirmAndDeleteAccount(
+    BuildContext context,
+    WidgetRef ref,
+  ) async {
+    final bool? confirm = await showAnimatedDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.detailsCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
+        title: Text(
+          'Delete Account',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: const Text(
+          'This permanently deletes your Lumi account and synced cloud data. Local data on this device will remain unless you remove the app data separately.',
+          style: TextStyle(color: Colors.white70, fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            style: TextButton.styleFrom(foregroundColor: Colors.white60),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+            child: const Text(
+              'Delete',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) {
+      return;
+    }
+
+    try {
+      await ref.read(authRepositoryProvider).deleteAccount();
+      if (!context.mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Account deleted successfully.')),
+      );
+    } catch (error) {
+      if (!context.mounted) {
+        return;
+      }
+      await _showErrorSnackBar(context, error);
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -135,105 +212,168 @@ class AccountScreen extends ConsumerWidget {
                     ),
                     if (user == null) ...[
                       const SizedBox(height: 10),
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          HapticFeedback.selectionClick();
-                          try {
-                            await ref
-                                .read(authRepositoryProvider)
-                                .signInWithGoogle();
-                          } catch (e) {
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text(e.toString())),
-                              );
-                            }
-                          }
-                        },
-                        icon: const Icon(Icons.login_rounded, size: 18),
-                        label: const Text('Sign in with Google'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.cinemaSelected,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              HapticFeedback.selectionClick();
+                              try {
+                                await ref
+                                    .read(authRepositoryProvider)
+                                    .signInWithGoogle();
+                              } catch (error) {
+                                if (!context.mounted) {
+                                  return;
+                                }
+                                await _showErrorSnackBar(context, error);
+                              }
+                            },
+                            icon: const Icon(Icons.login_rounded, size: 18),
+                            label: const Text('Sign in with Google'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.cinemaSelected,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
                           ),
-                        ),
+                          if (!kIsWeb &&
+                              defaultTargetPlatform == TargetPlatform.iOS)
+                            ElevatedButton.icon(
+                              onPressed: () async {
+                                HapticFeedback.selectionClick();
+                                try {
+                                  await ref
+                                      .read(authRepositoryProvider)
+                                      .signInWithApple();
+                                } catch (error) {
+                                  if (!context.mounted) {
+                                    return;
+                                  }
+                                  await _showErrorSnackBar(context, error);
+                                }
+                              },
+                              icon: const Icon(Icons.apple_rounded, size: 18),
+                              label: const Text('Sign in with Apple'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ] else ...[
                       const SizedBox(height: 10),
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          HapticFeedback.selectionClick();
-                          final bool? confirm = await showAnimatedDialog<bool>(
-                            context: context,
-                            builder: (context) => AlertDialog(
-                              backgroundColor: AppColors.detailsCard,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                                side: BorderSide(
-                                  color: Colors.white.withValues(alpha: 0.08),
-                                  width: 1,
-                                ),
-                              ),
-                              title: Text(
-                                'Sign Out',
-                                style: Theme.of(context).textTheme.titleMedium
-                                    ?.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                              ),
-                              content: const Text(
-                                'Are you sure you want to sign out? Your local data will remain, but cloud syncing will stop.',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () =>
-                                      Navigator.pop(context, false),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.white60,
-                                  ),
-                                  child: const Text(
-                                    'Cancel',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
+                      Wrap(
+                        spacing: 10,
+                        runSpacing: 10,
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              HapticFeedback.selectionClick();
+                              final bool?
+                              confirm = await showAnimatedDialog<bool>(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  backgroundColor: AppColors.detailsCard,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                    side: BorderSide(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.08,
+                                      ),
+                                      width: 1,
                                     ),
                                   ),
-                                ),
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context, true),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.redAccent,
-                                  ),
-                                  child: const Text(
+                                  title: Text(
                                     'Sign Out',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                  ),
+                                  content: const Text(
+                                    'Are you sure you want to sign out? Your local data will remain, but cloud syncing will stop.',
                                     style: TextStyle(
-                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white70,
+                                      fontSize: 14,
                                     ),
                                   ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, false),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.white60,
+                                      ),
+                                      child: const Text(
+                                        'Cancel',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () =>
+                                          Navigator.pop(context, true),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.redAccent,
+                                      ),
+                                      child: const Text(
+                                        'Sign Out',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
-                          );
+                              );
 
-                          if (confirm == true) {
-                            ref.read(authRepositoryProvider).signOut();
-                          }
-                        },
-                        icon: const Icon(Icons.logout_rounded, size: 18),
-                        label: const Text('Sign Out'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white24,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                              if (confirm == true) {
+                                ref.read(authRepositoryProvider).signOut();
+                              }
+                            },
+                            icon: const Icon(Icons.logout_rounded, size: 18),
+                            label: const Text('Sign Out'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white24,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
                           ),
-                        ),
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              HapticFeedback.mediumImpact();
+                              await _confirmAndDeleteAccount(context, ref);
+                            },
+                            icon: const Icon(
+                              Icons.delete_outline_rounded,
+                              size: 18,
+                            ),
+                            label: const Text('Delete Account'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.redAccent.withValues(
+                                alpha: 0.16,
+                              ),
+                              foregroundColor: Colors.redAccent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ],

@@ -64,20 +64,20 @@ class _MovieDetailsShareBottomSheetState
     final file = await File('${tempDir.path}/cineverse_share.png').create();
     await file.writeAsBytes(imageBytes);
 
-    await Share.shareXFiles(
-      [XFile(file.path)],
-      text: 'Recommended on Lumi: ${widget.details.title}',
-    );
+    await Share.shareXFiles([
+      XFile(file.path),
+    ], text: 'Recommended on Lumi: ${widget.details.title}');
   }
 
   Future<void> _shareDeepLink() async {
     final mediaType = widget.isTv ? 'tv' : 'movie';
     final deepLink = 'cineverse://$mediaType/${widget.details.id}';
     final storeLink = Platform.isAndroid
-        ? 'https://play.google.com/store/apps/details?id=com.cineverse.app'
-        : 'https://apps.apple.com/app/cineverse/id123456789';
+        ? 'https://play.google.com/store/apps/details?id=com.odukle.cineverse'
+        : 'https://apps.apple.com/app/id6775792556';
 
-    final shareText = 'Check out "${widget.details.title}" on Lumi!\n\n'
+    final shareText =
+        'Check out "${widget.details.title}" on Lumi!\n\n'
         'Open in App: $deepLink\n\n'
         'Get Lumi: $storeLink';
 
@@ -85,7 +85,8 @@ class _MovieDetailsShareBottomSheetState
   }
 
   Future<void> _shareDirectLink() async {
-    final tmdbLink = 'https://www.themoviedb.org/${widget.isTv ? 'tv' : 'movie'}/${widget.details.id}';
+    final tmdbLink =
+        'https://www.themoviedb.org/${widget.isTv ? 'tv' : 'movie'}/${widget.details.id}';
     await Share.share('Check out "${widget.details.title}" on TMDB: $tmdbLink');
   }
 
@@ -217,10 +218,7 @@ class _ShareOptionItem extends StatelessWidget {
           fontSize: 12,
         ),
       ),
-      trailing: const Icon(
-        Icons.chevron_right_rounded,
-        color: Colors.white24,
-      ),
+      trailing: const Icon(Icons.chevron_right_rounded, color: Colors.white24),
     );
   }
 }
@@ -253,7 +251,7 @@ class _ShareableCard extends StatelessWidget {
                 ),
               ),
             ),
-          
+
           // Gradient Overlay
           Positioned.fill(
             child: Container(
@@ -292,7 +290,7 @@ class _ShareableCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 32),
-                
+
                 // Poster
                 Container(
                   decoration: BoxDecoration(
@@ -318,12 +316,16 @@ class _ShareableCard extends StatelessWidget {
                             width: 160,
                             height: 240,
                             color: Colors.white10,
-                            child: const Icon(Icons.movie, color: Colors.white24, size: 48),
+                            child: const Icon(
+                              Icons.movie,
+                              color: Colors.white24,
+                              size: 48,
+                            ),
                           ),
                   ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Title
                 Text(
                   details.title,
@@ -336,21 +338,30 @@ class _ShareableCard extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 // Mood/Rating
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.cinemaAccent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.cinemaAccent.withValues(alpha: 0.2)),
+                    border: Border.all(
+                      color: AppColors.cinemaAccent.withValues(alpha: 0.2),
+                    ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.star_rounded, color: AppColors.cinemaAccent, size: 16),
+                      Icon(
+                        Icons.star_rounded,
+                        color: AppColors.cinemaAccent,
+                        size: 16,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '${details.catalogScore?.toStringAsFixed(1) ?? 'N/A'}/10',
@@ -363,9 +374,9 @@ class _ShareableCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                
+
                 const Spacer(),
-                
+
                 const Text(
                   'DISCOVER ON LUMI',
                   style: TextStyle(
