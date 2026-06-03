@@ -83,6 +83,10 @@
 		</array>
 		<key>NSMicrophoneUsageDescription</key>
 		<string>Voice input is used to capture your movie request.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>Lumi saves quote images to your photo library when you choose Save to Gallery.</string>
+		<key>NSPhotoLibraryAddUsageDescription</key>
+		<string>Lumi saves quote images to your photo library when you choose Save to Gallery.</string>
 		<key>NSSpeechRecognitionUsageDescription</key>
 		<string>Speech recognition is used to convert your voice request into text.</string>
 		<key>UIStatusBarHidden</key>
