@@ -272,6 +272,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       if (!searchState.filter.isDefault) {
         return _buildResults(
           searchState.results,
+          searchState.isLoading,
           searchState.isLoadingMore,
           searchState.hasMore,
           _scrollController,
@@ -283,6 +284,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         case SearchCategory.movies:
           return _buildResults(
             searchState.movieResults,
+            searchState.isLoading,
             searchState.isLoadingMore,
             searchState.movieHasMore,
             _scrollController,
@@ -291,6 +293,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         case SearchCategory.tvShows:
           return _buildResults(
             searchState.tvResults,
+            searchState.isLoading,
             searchState.isLoadingMore,
             searchState.tvHasMore,
             _scrollController,
@@ -299,6 +302,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         case SearchCategory.persons:
           return _buildResults(
             searchState.personResults,
+            searchState.isLoading,
             searchState.isLoadingMore,
             searchState.personHasMore,
             _scrollController,
@@ -307,6 +311,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         case SearchCategory.collections:
           return _buildCollectionsResults(
             searchState.collectionResults,
+            searchState.isLoading,
             searchState.isLoadingMore,
             searchState.collectionHasMore,
             _scrollController,
@@ -314,6 +319,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         case SearchCategory.keywords:
           return _buildKeywordsResults(
             searchState.keywordResults,
+            searchState.isLoading,
             searchState.isLoadingMore,
             searchState.keywordHasMore,
             _scrollController,
@@ -321,6 +327,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         case SearchCategory.companies:
           return _buildCompaniesResults(
             searchState.companyResults,
+            searchState.isLoading,
             searchState.isLoadingMore,
             searchState.companyHasMore,
             _scrollController,
@@ -352,11 +359,18 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   Widget _buildResults(
     List<MediaTitle> results,
+    bool isLoading,
     bool isLoadingMore,
     bool hasMore,
     ScrollController controller,
     GlobalMediaType? type,
   ) {
+    if (results.isEmpty && isLoading) {
+      return Center(
+        child: CircularProgressIndicator(color: AppColors.cinemaAccent),
+      );
+    }
+
     if (results.isEmpty && !isLoadingMore) {
       return Center(
         child: Text(
@@ -446,10 +460,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   Widget _buildCollectionsResults(
     List<SearchCollection> results,
+    bool isLoading,
     bool isLoadingMore,
     bool hasMore,
     ScrollController controller,
   ) {
+    if (results.isEmpty && isLoading) {
+      return Center(
+        child: CircularProgressIndicator(color: AppColors.cinemaAccent),
+      );
+    }
+
     if (results.isEmpty && !isLoadingMore) {
       return const Center(
         child: Text(
@@ -603,10 +624,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   Widget _buildKeywordsResults(
     List<SearchKeyword> results,
+    bool isLoading,
     bool isLoadingMore,
     bool hasMore,
     ScrollController controller,
   ) {
+    if (results.isEmpty && isLoading) {
+      return Center(
+        child: CircularProgressIndicator(color: AppColors.cinemaAccent),
+      );
+    }
+
     if (results.isEmpty && !isLoadingMore) {
       return const Center(
         child: Text(
@@ -704,10 +732,17 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   Widget _buildCompaniesResults(
     List<SearchCompany> results,
+    bool isLoading,
     bool isLoadingMore,
     bool hasMore,
     ScrollController controller,
   ) {
+    if (results.isEmpty && isLoading) {
+      return Center(
+        child: CircularProgressIndicator(color: AppColors.cinemaAccent),
+      );
+    }
+
     if (results.isEmpty && !isLoadingMore) {
       return const Center(
         child: Text(

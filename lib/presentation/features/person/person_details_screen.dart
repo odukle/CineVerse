@@ -273,6 +273,7 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                           SliverToBoxAdapter(
                             child: _KnownForCarousel(
                               creditsByDepartment: details.creditsByDepartment,
+                              knownForDepartment: details.knownForDepartment,
                             ),
                           ),
 
@@ -1466,34 +1467,31 @@ class _ExpandableBiographyCardState extends State<_ExpandableBiographyCard> {
 }
 
 class _KnownForCarousel extends StatelessWidget {
-  const _KnownForCarousel({required this.creditsByDepartment});
+  const _KnownForCarousel({
+    required this.creditsByDepartment,
+    this.knownForDepartment,
+  });
 
   final Map<String, List<PersonCredit>> creditsByDepartment;
+  final String? knownForDepartment;
 
   @override
   Widget build(BuildContext context) {
-    // 1. Merge credits across departments
-    final allCredits = creditsByDepartment.values
-        .expand((list) => list)
-        .toList();
+    final String? preferredDepartment = _resolvePreferredDepartment();
+    final bool actingPrimary =
+        preferredDepartment?.trim().toLowerCase() == 'acting';
+    final List<PersonCredit> sourceCredits =
+        preferredDepartment != null &&
+            creditsByDepartment[preferredDepartment]?.isNotEmpty == true
+        ? creditsByDepartment[preferredDepartment]!
+        : creditsByDepartment.values.expand((list) => list).toList();
 
-    // 2. De-duplicate by media ID
-    final seenIds = <int>{};
-    final uniqueCredits = <PersonCredit>[];
-    for (final credit in allCredits) {
-      if (!seenIds.contains(credit.media.id)) {
-        seenIds.add(credit.media.id);
-        uniqueCredits.add(credit);
-      }
-    }
-
-    // 3. Sort by popularity descending
-    uniqueCredits.sort(
-      (a, b) => b.media.popularity.compareTo(a.media.popularity),
-    );
-
-    // 4. Take top 12
-    final topCredits = uniqueCredits.take(12).toList();
+    final List<PersonCredit> topCredits = actingPrimary
+        ? _buildActingKnownForCredits(sourceCredits, preferredDepartment)
+        : _rankKnownForCredits(
+            sourceCredits,
+            preferredDepartment,
+          ).take(12).toList();
 
     if (topCredits.isEmpty) return const SizedBox.shrink();
 
@@ -1531,6 +1529,96 @@ class _KnownForCarousel extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  List<PersonCredit> _buildActingKnownForCredits(
+    List<PersonCredit> sourceCredits,
+    String? preferredDepartment,
+  ) {
+    final List<PersonCredit> movieCredits = sourceCredits
+        .where((credit) => credit.media.mediaType == GlobalMediaType.movie)
+        .toList();
+    final List<PersonCredit> tvCredits = sourceCredits
+        .where((credit) => credit.media.mediaType == GlobalMediaType.tv)
+        .toList();
+
+    final List<PersonCredit> rankedMovies = _rankKnownForCredits(
+      movieCredits,
+      preferredDepartment,
+    );
+    if (rankedMovies.length >= 8) {
+      return rankedMovies.take(12).toList();
+    }
+
+    final List<PersonCredit> rankedTv = _rankKnownForCredits(
+      tvCredits,
+      preferredDepartment,
+    );
+    return <PersonCredit>[...rankedMovies, ...rankedTv].take(12).toList();
+  }
+
+  String? _resolvePreferredDepartment() {
+    final String normalized = (knownForDepartment ?? '').trim().toLowerCase();
+    if (normalized.isEmpty) {
+      return null;
+    }
+    for (final String department in creditsByDepartment.keys) {
+      if (department.trim().toLowerCase() == normalized) {
+        return department;
+      }
+    }
+    return null;
+  }
+
+  List<PersonCredit> _rankKnownForCredits(
+    List<PersonCredit> credits,
+    String? preferredDepartment,
+  ) {
+    final Map<int, PersonCredit> bestCreditById = <int, PersonCredit>{};
+    for (final credit in credits) {
+      final PersonCredit? existing = bestCreditById[credit.media.id];
+      if (existing == null ||
+          _knownForScore(credit, preferredDepartment) >
+              _knownForScore(existing, preferredDepartment)) {
+        bestCreditById[credit.media.id] = credit;
+      }
+    }
+
+    final List<PersonCredit> uniqueCredits = bestCreditById.values.toList()
+      ..sort(
+        (a, b) => _knownForScore(
+          b,
+          preferredDepartment,
+        ).compareTo(_knownForScore(a, preferredDepartment)),
+      );
+    return uniqueCredits;
+  }
+
+  double _knownForScore(PersonCredit credit, String? preferredDepartment) {
+    final double popularity = credit.media.popularity;
+    final double voteAverage = credit.media.voteAverage ?? 0;
+    final int voteCount = credit.media.voteCount;
+    final double ratingScore = voteAverage * 8;
+    final double voteConfidence = math.log(voteCount + 1) * 2.2;
+    final double castBonus = credit.isCastCredit ? 18 : 0;
+    final double billingBonus = credit.billingOrder != null
+        ? math.max(0, 12 - credit.billingOrder!.toDouble())
+        : 0;
+    final bool actingPrimary =
+        preferredDepartment?.trim().toLowerCase() == 'acting';
+    final double movieBias =
+        actingPrimary && credit.media.mediaType == GlobalMediaType.movie
+        ? 6
+        : 0;
+    final double tvBias = 0;
+
+    return popularity +
+        ratingScore +
+        voteConfidence +
+        castBonus +
+        billingBonus +
+        movieBias +
+        tvBias;
   }
 }
 
