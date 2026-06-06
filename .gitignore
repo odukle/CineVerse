@@ -163,3 +163,6 @@ blueprint.md
 store_mockups/
 tools/
 docs/codemagic_ios_release_checklist.md
+
+# Android signing credentials
+android/key.properties
