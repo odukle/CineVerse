@@ -152,3 +152,9 @@ TMDB_movie_dataset.csv
 assets/data/tonight_kaggle_index.json
 android/app/google-services.json.bak
 android/app/google-services.json.pre-sha
+
+# Local agent instructions
+.agents/
+GEMINI.md
+lib/GEMINI.md
+blueprint.md
