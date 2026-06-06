@@ -158,3 +158,8 @@ android/app/google-services.json.pre-sha
 GEMINI.md
 lib/GEMINI.md
 blueprint.md
+
+# Local release prep artifacts
+store_mockups/
+tools/
+docs/codemagic_ios_release_checklist.md
