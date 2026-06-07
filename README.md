@@ -1,6 +1,17 @@
 # Lumi Cinema
 
-Lumi Cinema is a Flutter app for discovering movies and shows, tracking personal watch history, exploring memorable quotes, and creating shareable quote cards.
+Lumi Cinema is a Flutter app for cinephiles who want better movie and TV discovery, richer personal tracking, and more expressive ways to save and share the moments they love.
+
+It combines recommendation-driven browsing, personal library tools, watch analytics, memorable quote exploration, and cinematic quote-card creation in one experience.
+
+## Highlights
+
+- Discover movies and shows through curated rails and collections
+- Organize a personal library with watchlist, favourites, lists, notes, and watched history
+- Use AI-assisted prompts to answer the classic "what should I watch tonight?" question
+- Explore watch analytics such as genre trends and viewing patterns
+- Browse memorable quotes and scenes
+- Create portrait and landscape quote cards designed for sharing
 
 ## Features
 
@@ -11,13 +22,17 @@ Lumi Cinema is a Flutter app for discovering movies and shows, tracking personal
 - Browse memorable quotes and scenes
 - Create portrait and landscape quote cards for sharing
 
-## Tech Stack
+## Built With
 
 - Flutter
 - Firebase Authentication
 - Cloud Firestore
 - Firebase Functions
 - TMDB-backed content data
+
+## Tech Stack
+
+The app is built with Flutter and uses Firebase for authentication, data storage, and backend workflows.
 
 ## Getting Started
 
@@ -27,16 +42,16 @@ Lumi Cinema is a Flutter app for discovering movies and shows, tracking personal
 - Android Studio or Xcode
 - Firebase project configured for this app
 
-### Run locally
+### Run Locally
 
 ```bash
 flutter pub get
 flutter run
 ```
 
-## Firebase Notes
+You will also need to provide your own Firebase and platform configuration if you are setting up the project from scratch.
 
-This repo includes client-side Firebase configuration files used by the mobile app. These are standard public client config values, not server secrets. Sensitive keys, service accounts, signing files, and deployment secrets are intentionally not tracked in Git.
+## Firebase Notes
 
 Before using this app with your own backend setup, make sure to:
 
@@ -46,10 +61,15 @@ Before using this app with your own backend setup, make sure to:
 
 ## Support
 
-- Support page: `docs/support/index.html`
-- Privacy policy: `docs/support/privacy.html`
+- Support page: [docs/support/index.html](docs/support/index.html)
+- Privacy policy: [docs/support/privacy.html](docs/support/privacy.html)
 
-## Flutter Resources
+## Development Notes
+
+- Android release signing is configured through local key files that are intentionally not tracked in Git
+- Store listing assets and release-prep utilities are kept as local-only artifacts unless explicitly added
+
+## Learn More
 
 - [Flutter documentation](https://docs.flutter.dev/)
 - [Flutter codelabs](https://docs.flutter.dev/get-started/codelab)
