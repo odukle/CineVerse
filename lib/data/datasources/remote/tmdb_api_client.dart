@@ -224,7 +224,7 @@ class TmdbApiClient {
           : filter.sortByValue,
       'vote_average.gte': filter.userScore.start,
       'vote_average.lte': filter.userScore.end,
-      'vote_count.gte': filter.includeNotRated ? 0 : filter.minUserVotes,
+      'vote_count.gte': filter.minUserVotes,
       'with_runtime.gte': filter.runtime.start.toInt(),
       'with_runtime.lte': filter.runtime.end.toInt(),
     };
@@ -1121,7 +1121,7 @@ class TmdbApiClient {
       }
 
       // Votes filter
-      if (movie.voteCount < filter.minUserVotes && !filter.includeNotRated) {
+      if (movie.voteCount < filter.minUserVotes) {
         return false;
       }
 

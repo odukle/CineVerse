@@ -9,6 +9,7 @@ import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/watchlist_item.dart';
 import 'package:cineverse/presentation/features/movies/models/tonight_watch_models.dart';
+import 'package:cineverse/presentation/features/movies/providers/tonight_query_history_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/tonight_watch_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
 import 'package:flutter/material.dart';
@@ -101,6 +102,9 @@ class _WhatShouldIWatchTonightScreenState
         _submittedRequest == null
         ? null
         : ref.watch(tonightPromptRecommendationsProvider(_submittedRequest!));
+    final List<String> historyQueries =
+        ref.watch(tonightQueryHistoryProvider).asData?.value ??
+        const <String>[];
     final bool isFetching = recommendations?.isLoading ?? false;
 
     return _AmbientGlowingBackdrop(
@@ -108,6 +112,7 @@ class _WhatShouldIWatchTonightScreenState
         backgroundColor: Colors.transparent,
         body: SafeArea(
           child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 30),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -149,6 +154,11 @@ class _WhatShouldIWatchTonightScreenState
                   speechError: _speechError,
                   onMicTap: _toggleVoiceInput,
                   isFetching: isFetching,
+                  historyQueries: historyQueries,
+                  onHistoryTap: _useHistoryPrompt,
+                  onClearHistory: () => unawaited(
+                    ref.read(tonightQueryHistoryProvider.notifier).clear(),
+                  ),
                 ),
                 const SizedBox(height: 20),
                 _buildResultState(recommendations),
@@ -197,6 +207,7 @@ class _WhatShouldIWatchTonightScreenState
       prompt: prompt,
       requestNonce: ++_requestNonce,
     );
+    unawaited(ref.read(tonightQueryHistoryProvider.notifier).addEntry(prompt));
     ref.invalidate(tonightPromptRecommendationsProvider(request));
     setState(() {
       _submittedRequest = request;
@@ -208,11 +219,19 @@ class _WhatShouldIWatchTonightScreenState
     _runSearch();
   }
 
+  void _useHistoryPrompt(String prompt) {
+    _promptController.text = prompt;
+    _promptController.selection = TextSelection.fromPosition(
+      TextPosition(offset: _promptController.text.length),
+    );
+    _runSearch();
+  }
+
   List<String> _buildRotatingExamples() {
     final List<String> pool = List<String>.from(
       widget.isTv ? tonightTvPromptExamples : tonightMoviePromptExamples,
     )..shuffle(_random);
-    return pool.take(6).toList(growable: false);
+    return pool.take(2).toList(growable: false);
   }
 
   Future<void> _useRandomSuggestion() async {
@@ -356,6 +375,9 @@ class _PromptPanel extends StatelessWidget {
     required this.speechError,
     required this.onMicTap,
     required this.isFetching,
+    required this.historyQueries,
+    required this.onHistoryTap,
+    required this.onClearHistory,
   });
 
   final bool isTv;
@@ -374,6 +396,9 @@ class _PromptPanel extends StatelessWidget {
   final String? speechError;
   final VoidCallback onMicTap;
   final bool isFetching;
+  final List<String> historyQueries;
+  final ValueChanged<String> onHistoryTap;
+  final VoidCallback onClearHistory;
 
   @override
   Widget build(BuildContext context) {
@@ -413,6 +438,7 @@ class _PromptPanel extends StatelessWidget {
                 child: TextField(
                   controller: controller,
                   focusNode: focusNode,
+                  onTapOutside: (_) => focusNode.unfocus(),
                   maxLines: 4,
                   minLines: 3,
                   textInputAction: TextInputAction.search,
@@ -451,10 +477,7 @@ class _PromptPanel extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              _AudioWavePulse(
-                isListening: isListening,
-                onTap: onMicTap,
-              ),
+              _AudioWavePulse(isListening: isListening, onTap: onMicTap),
             ],
           ),
           const SizedBox(height: 8),
@@ -481,7 +504,10 @@ class _PromptPanel extends StatelessWidget {
               return FadeTransition(
                 opacity: animation,
                 child: ScaleTransition(
-                  scale: Tween<double>(begin: 0.85, end: 1.0).animate(animation),
+                  scale: Tween<double>(
+                    begin: 0.85,
+                    end: 1.0,
+                  ).animate(animation),
                   child: child,
                 ),
               );
@@ -519,6 +545,85 @@ class _PromptPanel extends StatelessWidget {
                   .toList(growable: false),
             ),
           ),
+          if (historyQueries.isNotEmpty) ...<Widget>[
+            const SizedBox(height: 14),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: Text(
+                    'Recent queries',
+                    style: theme.textTheme.labelLarge?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.86),
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: onClearHistory,
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.white.withValues(alpha: 0.74),
+                    minimumSize: Size.zero,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
+                  child: const Text('Clear'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 40,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: historyQueries.length,
+                separatorBuilder: (context, index) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final String query = historyQueries[index];
+                  return InkWell(
+                    onTap: () => onHistoryTap(query),
+                    borderRadius: BorderRadius.circular(999),
+                    child: Container(
+                      constraints: const BoxConstraints(maxWidth: 280),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(999),
+                        color: Colors.white.withValues(alpha: 0.06),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Icon(
+                            Icons.history_rounded,
+                            size: 14,
+                            color: Colors.white.withValues(alpha: 0.6),
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              query,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.82),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
           const SizedBox(height: 14),
           Row(
             children: <Widget>[
@@ -659,16 +764,16 @@ class _ResultList extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 14),
-        ...result.recommendations.asMap().entries.map(
-          (MapEntry<int, TonightRecommendationItem> entry) {
-            final int index = entry.key;
-            final TonightRecommendationItem item = entry.value;
-            return _StaggeredEntrance(
-              index: index,
-              child: _RecommendationCard(isTv: isTv, item: item),
-            );
-          },
-        ),
+        ...result.recommendations.asMap().entries.map((
+          MapEntry<int, TonightRecommendationItem> entry,
+        ) {
+          final int index = entry.key;
+          final TonightRecommendationItem item = entry.value;
+          return _StaggeredEntrance(
+            index: index,
+            child: _RecommendationCard(isTv: isTv, item: item),
+          );
+        }),
       ],
     );
   }
@@ -687,12 +792,14 @@ class _RecommendationCard extends ConsumerWidget {
         'tonight-llm-${isTv ? 'tv' : 'movie'}-${item.title.id}';
     final String? poster = item.details.posterPath ?? item.title.posterPath;
 
-    final AsyncValue<bool> isInWatchlistAsync =
-        ref.watch(isInWatchlistProvider(item.title.id));
+    final AsyncValue<bool> isInWatchlistAsync = ref.watch(
+      isInWatchlistProvider(item.title.id),
+    );
     final bool isInWatchlist = isInWatchlistAsync.value ?? false;
 
-    final int matchPct =
-        (item.score <= 1.0 ? item.score * 100 : item.score).round().clamp(1, 100);
+    final int matchPct = (item.score <= 1.0 ? item.score * 100 : item.score)
+        .round()
+        .clamp(1, 100);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -766,11 +873,16 @@ class _RecommendationCard extends ConsumerWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           gradient: const LinearGradient(
-                            colors: <Color>[Color(0xFF00E5FF), Color(0xFF6E6BFF)],
+                            colors: <Color>[
+                              Color(0xFF00E5FF),
+                              Color(0xFF6E6BFF),
+                            ],
                           ),
                           boxShadow: <BoxShadow>[
                             BoxShadow(
-                              color: const Color(0xFF00E5FF).withValues(alpha: 0.3),
+                              color: const Color(
+                                0xFF00E5FF,
+                              ).withValues(alpha: 0.3),
                               blurRadius: 6,
                               spreadRadius: 1,
                             ),
@@ -817,10 +929,11 @@ class _RecommendationCard extends ConsumerWidget {
                           _IconMetadataBadge(
                             icon: Icons.star_rounded,
                             iconColor: const Color(0xFFFFD54F),
-                            label: (item.details.catalogScore ??
-                                    item.title.voteAverage ??
-                                    0)
-                                .toStringAsFixed(1),
+                            label:
+                                (item.details.catalogScore ??
+                                        item.title.voteAverage ??
+                                        0)
+                                    .toStringAsFixed(1),
                           ),
                           if (item.details.runtimeMinutes != null)
                             _IconMetadataBadge(
@@ -832,7 +945,8 @@ class _RecommendationCard extends ConsumerWidget {
                             _IconMetadataBadge(
                               icon: Icons.translate_rounded,
                               iconColor: const Color(0xFFB39DDB),
-                              label: item.details.originalLanguage!.toUpperCase(),
+                              label: item.details.originalLanguage!
+                                  .toUpperCase(),
                             ),
                         ],
                       ),
@@ -918,11 +1032,16 @@ class _RecommendationCard extends ConsumerWidget {
                       title: item.title.title,
                       posterPath: poster,
                       releaseDate: item.title.releaseDate,
-                      mediaType: isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
+                      mediaType: isTv
+                          ? GlobalMediaType.tv
+                          : GlobalMediaType.movie,
                       addedDate: DateTime.now(),
-                      voteAverage: item.title.voteAverage ?? item.details.catalogScore,
+                      voteAverage:
+                          item.title.voteAverage ?? item.details.catalogScore,
                     );
-                    ref.read(watchlistProvider.notifier).toggleItem(watchlistItem);
+                    ref
+                        .read(watchlistProvider.notifier)
+                        .toggleItem(watchlistItem);
                   },
                   borderRadius: BorderRadius.circular(50),
                   child: Ink(
@@ -981,9 +1100,9 @@ class _IconMetadataBadge extends StatelessWidget {
         Text(
           label,
           style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                color: Colors.white.withValues(alpha: 0.85),
-                fontWeight: FontWeight.w700,
-              ),
+            color: Colors.white.withValues(alpha: 0.85),
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ],
     );
@@ -1064,9 +1183,7 @@ class _LoadingState extends ConsumerWidget {
         children: <Widget>[
           const _GeneratingQueryHeader(),
           const SizedBox(height: 24),
-          const Center(
-            child: _AiScanScanner(),
-          ),
+          const Center(child: _AiScanScanner()),
           const SizedBox(height: 24),
           ValueListenableBuilder<TonightRecommendationProgressState>(
             valueListenable: todayRecommendationProgressNotifier,
@@ -1814,7 +1931,8 @@ class _AmbientGlowingBackdrop extends StatefulWidget {
   final Widget child;
 
   @override
-  State<_AmbientGlowingBackdrop> createState() => _AmbientGlowingBackdropState();
+  State<_AmbientGlowingBackdrop> createState() =>
+      _AmbientGlowingBackdropState();
 }
 
 class _AmbientGlowingBackdropState extends State<_AmbientGlowingBackdrop>
@@ -1845,7 +1963,9 @@ class _AmbientGlowingBackdropState extends State<_AmbientGlowingBackdrop>
             animation: _controller,
             builder: (context, _) {
               return CustomPaint(
-                painter: _GlowingBlobsPainter(animationValue: _controller.value),
+                painter: _GlowingBlobsPainter(
+                  animationValue: _controller.value,
+                ),
               );
             },
           ),
@@ -1853,9 +1973,7 @@ class _AmbientGlowingBackdropState extends State<_AmbientGlowingBackdrop>
         Positioned.fill(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 75, sigmaY: 75),
-            child: Container(
-              color: Colors.black.withValues(alpha: 0.55),
-            ),
+            child: Container(color: Colors.black.withValues(alpha: 0.55)),
           ),
         ),
         widget.child,
@@ -1918,10 +2036,7 @@ class _GlowingBlobsPainter extends CustomPainter {
 }
 
 class _AudioWavePulse extends StatefulWidget {
-  const _AudioWavePulse({
-    required this.isListening,
-    required this.onTap,
-  });
+  const _AudioWavePulse({required this.isListening, required this.onTap});
 
   final bool isListening;
   final VoidCallback onTap;
@@ -1990,9 +2105,13 @@ class _AudioWavePulseState extends State<_AudioWavePulse>
                       height: 48,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: const Color(0xFFEF5350).withValues(alpha: opacity * 0.45),
+                        color: const Color(
+                          0xFFEF5350,
+                        ).withValues(alpha: opacity * 0.45),
                         border: Border.all(
-                          color: const Color(0xFFEF5350).withValues(alpha: opacity * 0.6),
+                          color: const Color(
+                            0xFFEF5350,
+                          ).withValues(alpha: opacity * 0.6),
                           width: 1.5,
                         ),
                       ),
@@ -2007,7 +2126,9 @@ class _AudioWavePulseState extends State<_AudioWavePulse>
             height: 48,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(14),
-              color: widget.isListening ? const Color(0xFFEF5350) : const Color(0xFF3A425A),
+              color: widget.isListening
+                  ? const Color(0xFFEF5350)
+                  : const Color(0xFF3A425A),
               boxShadow: widget.isListening
                   ? <BoxShadow>[
                       BoxShadow(
@@ -2030,10 +2151,7 @@ class _AudioWavePulseState extends State<_AudioWavePulse>
 }
 
 class _StaggeredEntrance extends StatefulWidget {
-  const _StaggeredEntrance({
-    required this.index,
-    required this.child,
-  });
+  const _StaggeredEntrance({required this.index, required this.child});
 
   final int index;
   final Widget child;
@@ -2056,12 +2174,14 @@ class _StaggeredEntranceState extends State<_StaggeredEntrance>
       vsync: this,
       duration: const Duration(milliseconds: 500),
     );
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-    _slideAnimation = Tween<double>(begin: 30.0, end: 0.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _slideAnimation = Tween<double>(
+      begin: 30.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
 
     _timer = Timer(Duration(milliseconds: 100 * widget.index), () {
       if (mounted) {
@@ -2179,10 +2299,7 @@ class _AiScanScannerState extends State<_AiScanScanner>
               duration: const Duration(milliseconds: 1000),
               curve: Curves.easeInOutSine,
               builder: (context, scale, child) {
-                return Transform.scale(
-                  scale: scale,
-                  child: child,
-                );
+                return Transform.scale(scale: scale, child: child);
               },
               child: Container(
                 width: 54,

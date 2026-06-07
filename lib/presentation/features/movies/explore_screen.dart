@@ -571,6 +571,7 @@ class _LibraryRecommendationsSection extends ConsumerWidget {
                         sectionTitle: 'Recommended for You',
                         width: finalCardWidth,
                         isTvTitle: isTv,
+                        disableSortBasedSubtitle: true,
                       ),
                     ),
                   );
@@ -984,35 +985,42 @@ class _TonightLauncherFeatureChip extends StatelessWidget {
   }
 }
 
-class _MoodBadge extends StatelessWidget {
-  const _MoodBadge({
-    required this.icon,
+class _InfoBadge extends StatelessWidget {
+  const _InfoBadge({
     required this.label,
     required this.color,
+    this.icon,
+    this.accent,
   });
 
-  final IconData icon;
   final String label;
   final Color color;
+  final IconData? icon;
+  final Color? accent;
 
   @override
   Widget build(BuildContext context) {
+    final Color resolvedAccent = accent ?? color;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(999),
-        color: color.withValues(alpha: 0.18),
-        border: Border.all(color: color.withValues(alpha: 0.46)),
+        color: Colors.white.withValues(alpha: 0.05),
+        border: Border.all(color: resolvedAccent.withValues(alpha: 0.22)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Icon(icon, size: 14, color: Colors.white.withValues(alpha: 0.92)),
+          Icon(
+            icon ?? Icons.info_outline_rounded,
+            size: 13,
+            color: Colors.white.withValues(alpha: 0.74),
+          ),
           const SizedBox(width: 6),
           Text(
             label,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-              color: Colors.white.withValues(alpha: 0.94),
+              color: Colors.white.withValues(alpha: 0.78),
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -1523,7 +1531,7 @@ class _DiscoverSpotlightSectionState
       final section = mediaType == ExploreMediaType.tv
           ? MovieSection.tvDiscover
           : MovieSection.discover;
-      loadNextPages(ref, section);
+      loadNextExplorePages(ref, section);
     }
   }
 
@@ -1930,23 +1938,6 @@ class _DiscoverSpotlightSectionState
                         fontSize: 14,
                         height: 1.35,
                       ),
-                    ),
-                    const SizedBox(height: 9),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: <Widget>[
-                        _MoodBadge(
-                          icon: Icons.movie_filter_rounded,
-                          label: 'Editorial Spotlight',
-                          color: spotlightTint,
-                        ),
-                        _MoodBadge(
-                          icon: Icons.shuffle_rounded,
-                          label: 'Roll for next feature',
-                          color: AppColors.cinemaSelected,
-                        ),
-                      ],
                     ),
                   ],
                 ),
@@ -3348,10 +3339,10 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
       );
     } else if (activeFilter.genreId != null) {
       movies = ref.watch(
-        genreSectionProvider((id: activeFilter.genreId!, isTv: isTv)),
+        exploreGenreSectionProvider((id: activeFilter.genreId!, isTv: isTv)),
       );
     } else {
-      movies = ref.watch(movieSectionProvider(activeFilter.section!));
+      movies = ref.watch(exploreMovieSectionProvider(activeFilter.section!));
     }
 
     const double horizontalPadding = 16;
@@ -3470,11 +3461,14 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                           ref.invalidate(hiddenGemsSectionProvider);
                         } else if (genreId != null) {
                           ref.invalidate(
-                            genreSectionProvider((id: genreId, isTv: isTv)),
+                            exploreGenreSectionProvider((
+                              id: genreId,
+                              isTv: isTv,
+                            )),
                           );
                         } else {
                           ref.invalidate(
-                            movieSectionProvider(activeFilter.section!),
+                            exploreMovieSectionProvider(activeFilter.section!),
                           );
                         }
                       },
@@ -3544,6 +3538,7 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                                 sectionTitle: widget.section.title,
                                 width: finalCardWidth,
                                 isTvTitle: isTv,
+                                disableSortBasedSubtitle: true,
                               ),
                             ),
                           );
@@ -3795,10 +3790,11 @@ class _CuratedCollectionSection extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 8),
-                      _SectionFilterPill(
+                      _InfoBadge(
                         label: 'Today',
-                        onTap: () => ref.invalidate(curatedTonightRailProvider),
+                        color: accent,
                         accent: accent,
+                        icon: Icons.today_rounded,
                       ),
                     ],
                   ),
@@ -3850,6 +3846,7 @@ class _CuratedCollectionSection extends ConsumerWidget {
                         sectionTitle: 'Curated Tonight',
                         width: finalCardWidth,
                         isTvTitle: isTv,
+                        disableSortBasedSubtitle: true,
                       ),
                     );
                   },

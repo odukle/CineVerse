@@ -1,6 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 enum HomeTab { explore, movies, tvShows, watchlist, account }
 
@@ -129,7 +128,6 @@ class _BottomNavItem extends StatelessWidget {
         onTap: selected
             ? null
             : () {
-                HapticFeedback.lightImpact();
                 (context
                         .findAncestorWidgetOfExactType<
                           AppBottomNavigationBar
@@ -144,9 +142,7 @@ class _BottomNavItem extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeOutCubic,
+              Container(
                 padding: EdgeInsets.symmetric(
                   horizontal: selected ? 16 : 12,
                   vertical: selected ? 7 : 5,
@@ -173,10 +169,8 @@ class _BottomNavItem extends StatelessWidget {
                         ]
                       : null,
                 ),
-                child: AnimatedScale(
-                  duration: const Duration(milliseconds: 300),
-                  scale: selected ? 1.1 : 1.0,
-                  curve: Curves.easeOutCubic,
+                child: Transform.scale(
+                  scale: selected ? 1.08 : 1.0,
                   child: Icon(
                     selected ? tab.selectedIcon : tab.icon,
                     color: selected ? Colors.white : Colors.white70,
@@ -185,8 +179,7 @@ class _BottomNavItem extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 2),
-              AnimatedDefaultTextStyle(
-                duration: const Duration(milliseconds: 200),
+              DefaultTextStyle(
                 style: TextStyle(
                   fontSize: 9,
                   fontWeight: selected ? FontWeight.w800 : FontWeight.w500,

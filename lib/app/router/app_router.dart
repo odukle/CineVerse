@@ -55,22 +55,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         },
         navigatorContainerBuilder: (context, navigationShell, children) {
           return AnimatedSwitcher(
-            duration: const Duration(milliseconds: 400),
-            switchInCurve: Curves.easeOutCubic,
-            switchOutCurve: Curves.easeInCubic,
+            duration: const Duration(milliseconds: 160),
+            switchInCurve: Curves.easeOut,
+            switchOutCurve: Curves.easeOut,
             transitionBuilder: (child, animation) {
-              return FadeTransition(
-                opacity: animation,
-                child: SlideTransition(
-                  position: Tween<Offset>(
-                    begin: const Offset(0, 0.01),
-                    end: Offset.zero,
-                  ).animate(animation),
-                  child: child,
-                ),
-              );
+              return FadeTransition(opacity: animation, child: child);
             },
-            child: children[navigationShell.currentIndex],
+            child: KeyedSubtree(
+              key: ValueKey<int>(navigationShell.currentIndex),
+              child: children[navigationShell.currentIndex],
+            ),
           );
         },
         branches: [

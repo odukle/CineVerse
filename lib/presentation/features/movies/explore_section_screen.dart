@@ -236,12 +236,14 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
                 )
               : (widget.filter.genreId != null
                     ? ref.read(
-                        genreSectionProvider((
+                        exploreGenreSectionProvider((
                           id: widget.filter.genreId!,
                           isTv: widget.isTv,
                         )),
                       )
-                    : ref.read(movieSectionProvider(widget.filter.section!))));
+                    : ref.read(
+                        exploreMovieSectionProvider(widget.filter.section!),
+                      )));
 
     if (movies.isLoading) return;
 
@@ -258,13 +260,15 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
                   )
                 : (widget.filter.genreId != null
                       ? ref.read(
-                          genreSectionExhaustedProvider((
+                          exploreGenreSectionExhaustedProvider((
                             id: widget.filter.genreId!,
                             isTv: widget.isTv,
                           )),
                         )
                       : ref.read(
-                          movieSectionExhaustedProvider(widget.filter.section!),
+                          exploreMovieSectionExhaustedProvider(
+                            widget.filter.section!,
+                          ),
                         )));
 
       if (isExhausted) return;
@@ -274,9 +278,13 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
       } else if (widget.filter.mood != null) {
         loadNextMoodPages(ref, widget.filter.mood!, isTv: widget.isTv);
       } else if (widget.filter.genreId != null) {
-        loadNextGenrePages(ref, widget.filter.genreId!, isTv: widget.isTv);
+        loadNextExploreGenrePages(
+          ref,
+          widget.filter.genreId!,
+          isTv: widget.isTv,
+        );
       } else if (widget.filter.section != null) {
-        loadNextPages(ref, widget.filter.section!);
+        loadNextExplorePages(ref, widget.filter.section!);
       }
     }
   }
@@ -297,13 +305,15 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
                       )
                     : (widget.filter.genreId != null
                           ? ref.watch(
-                              genreSectionProvider((
+                              exploreGenreSectionProvider((
                                 id: widget.filter.genreId!,
                                 isTv: widget.isTv,
                               )),
                             )
                           : ref.watch(
-                              movieSectionProvider(widget.filter.section!),
+                              exploreMovieSectionProvider(
+                                widget.filter.section!,
+                              ),
                             ))));
 
     final bool isExhausted = widget.filter.isLibraryRecommendations
@@ -321,13 +331,13 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
                       )
                     : (widget.filter.genreId != null
                           ? ref.watch(
-                              genreSectionExhaustedProvider((
+                              exploreGenreSectionExhaustedProvider((
                                 id: widget.filter.genreId!,
                                 isTv: widget.isTv,
                               )),
                             )
                           : ref.watch(
-                              movieSectionExhaustedProvider(
+                              exploreMovieSectionExhaustedProvider(
                                 widget.filter.section!,
                               ),
                             ))));
@@ -347,7 +357,7 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
                   ref.invalidate(hiddenGemsSectionProvider);
                 } else if (widget.filter.genreId != null) {
                   ref.invalidate(
-                    genreSectionProvider((
+                    exploreGenreSectionProvider((
                       id: widget.filter.genreId!,
                       isTv: widget.isTv,
                     )),
@@ -360,7 +370,9 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
                     )),
                   );
                 } else {
-                  ref.invalidate(movieSectionProvider(widget.filter.section!));
+                  ref.invalidate(
+                    exploreMovieSectionProvider(widget.filter.section!),
+                  );
                 }
               },
               child: const Text('Retry'),
@@ -452,6 +464,7 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
               sectionTitle: widget.sectionTitle,
               width: cardWidth,
               isTvTitle: widget.isTv,
+              disableSortBasedSubtitle: true,
             );
           },
         );
