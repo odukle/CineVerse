@@ -350,32 +350,35 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
           SliverToBoxAdapter(
             child: AspectRatio(
               aspectRatio: 16 / 9,
-            child: Stack(
-              clipBehavior: Clip.hardEdge,
-              children: [
-                // Backdrop Slideshow
-                Positioned.fill(
-                  child: ClipRect(
-                    child: AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 1000),
-                      layoutBuilder:
-                          (Widget? currentChild, List<Widget> previousChildren) {
-                            return ClipRect(
-                              child: Stack(
-                                fit: StackFit.expand,
-                                clipBehavior: Clip.hardEdge,
-                                children: <Widget>[
-                                  ...previousChildren,
-                                  // ignore: use_null_aware_elements
-                                  if (currentChild case final child?) child,
-                                ],
-                              ),
-                            );
-                          },
-                      child: backdropUrl == null
-                          ? ColoredBox(
-                              key: const ValueKey('placeholder'),
-                              color: AppColors.detailsBackdropPlaceholder,
+              child: Stack(
+                clipBehavior: Clip.hardEdge,
+                children: [
+                  // Backdrop Slideshow
+                  Positioned.fill(
+                    child: ClipRect(
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 1000),
+                        layoutBuilder:
+                            (
+                              Widget? currentChild,
+                              List<Widget> previousChildren,
+                            ) {
+                              return ClipRect(
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  clipBehavior: Clip.hardEdge,
+                                  children: <Widget>[
+                                    ...previousChildren,
+                                    // ignore: use_null_aware_elements
+                                    if (currentChild case final child?) child,
+                                  ],
+                                ),
+                              );
+                            },
+                        child: backdropUrl == null
+                            ? ColoredBox(
+                                key: const ValueKey('placeholder'),
+                                color: AppColors.detailsBackdropPlaceholder,
                               )
                             : _MovieDetailsKenBurnsImage(
                                 key: ValueKey(backdropUrl),
@@ -472,31 +475,38 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                             height: 150, // Match poster height
                             alignment: Alignment.bottomLeft,
                             padding: const EdgeInsets.only(bottom: 8),
-                            child: Wrap(
-                              spacing: 12,
-                              runSpacing: 12,
-                              children: [
-                                _LibraryListButton(
-                                  details: widget.details,
-                                  isTv: widget.isTv,
-                                ),
-                                _LibraryFavouriteButton(
-                                  details: widget.details,
-                                  isTv: widget.isTv,
-                                ),
-                                _LibraryWatchlistButton(
-                                  details: widget.details,
-                                  isTv: widget.isTv,
-                                ),
-                                _WatchedButton(
-                                  details: widget.details,
-                                  isTv: widget.isTv,
-                                ),
-                                _GeneralReminderButton(
-                                  details: widget.details,
-                                  isTv: widget.isTv,
-                                ),
-                              ],
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              physics: const BouncingScrollPhysics(),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  _LibraryListButton(
+                                    details: widget.details,
+                                    isTv: widget.isTv,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  _LibraryFavouriteButton(
+                                    details: widget.details,
+                                    isTv: widget.isTv,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  _LibraryWatchlistButton(
+                                    details: widget.details,
+                                    isTv: widget.isTv,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  _WatchedButton(
+                                    details: widget.details,
+                                    isTv: widget.isTv,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  _GeneralReminderButton(
+                                    details: widget.details,
+                                    isTv: widget.isTv,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
