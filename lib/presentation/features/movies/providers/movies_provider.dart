@@ -177,22 +177,30 @@ int _ratingSortMinVotes({
   );
 }
 
+bool _needsSortGuardrail(MediaFilter sortFilter) =>
+    sortFilter.sortField == SortField.voteAverage;
+
 List<MediaTitle> _applySortGuardrails(
   List<MediaTitle> results, {
   required bool isTv,
   required MediaFilter sortFilter,
 }) {
-  if (sortFilter.sortField != SortField.voteAverage) {
-    return results;
+  switch (sortFilter.sortField) {
+    case SortField.voteAverage:
+      final int minVotes = _ratingSortMinVotes(
+        isTv: isTv,
+        sortFilter: sortFilter,
+        baseMinVotes: 0,
+      );
+      return results
+          .where((movie) => movie.voteCount >= minVotes)
+          .toList(growable: false);
+    case SortField.popularity:
+    case SortField.voteCount:
+    case SortField.releaseDate:
+    case SortField.revenue:
+      return results;
   }
-  final int minVotes = _ratingSortMinVotes(
-    isTv: isTv,
-    sortFilter: sortFilter,
-    baseMinVotes: 0,
-  );
-  return results
-      .where((movie) => movie.voteCount >= minVotes)
-      .toList(growable: false);
 }
 
 final movieGenresProvider = FutureProvider<List<MovieGenre>>((ref) async {
@@ -391,7 +399,7 @@ Future<List<MediaTitle>> _fetchMovieSection(
 
   int startPage = (_loadedPagesCache[cacheKey] ?? 0) + 1;
   final bool isTvSection = section.name.startsWith('tv');
-  final int maxPage = sortFilter.sortField == SortField.voteAverage
+  final int maxPage = _needsSortGuardrail(sortFilter)
       ? targetPage + 6
       : targetPage;
 
@@ -498,11 +506,11 @@ Future<List<MediaTitle>> _fetchMovieSection(
           _exhaustedCache[cacheKey] = true;
           break;
         }
-        if (i >= targetPage && sortFilter.sortField != SortField.voteAverage) {
+        if (i >= targetPage && !_needsSortGuardrail(sortFilter)) {
           break;
         }
         if (i >= targetPage &&
-            sortFilter.sortField == SortField.voteAverage &&
+            _needsSortGuardrail(sortFilter) &&
             results.length >= targetPage * 20) {
           break;
         }
@@ -574,7 +582,7 @@ Future<List<MediaTitle>> _fetchGenreSection(
   );
 
   int startPage = (_genreLoadedPagesCache[cacheKey] ?? 0) + 1;
-  final int maxPage = sortFilter.sortField == SortField.voteAverage
+  final int maxPage = _needsSortGuardrail(sortFilter)
       ? targetPage + 6
       : targetPage;
 
@@ -609,11 +617,11 @@ Future<List<MediaTitle>> _fetchGenreSection(
           _genreExhaustedCache[cacheKey] = true;
           break;
         }
-        if (i >= targetPage && sortFilter.sortField != SortField.voteAverage) {
+        if (i >= targetPage && !_needsSortGuardrail(sortFilter)) {
           break;
         }
         if (i >= targetPage &&
-            sortFilter.sortField == SortField.voteAverage &&
+            _needsSortGuardrail(sortFilter) &&
             results.length >= targetPage * 20) {
           break;
         }

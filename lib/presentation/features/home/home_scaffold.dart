@@ -76,9 +76,7 @@ class HomeScaffold extends ConsumerWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.white60,
-                ),
+                style: TextButton.styleFrom(foregroundColor: Colors.white60),
                 child: const Text(
                   'Cancel',
                   style: TextStyle(fontWeight: FontWeight.w600),
@@ -180,181 +178,206 @@ class HomeScaffold extends ConsumerWidget {
         return Consumer(
           builder: (context, ref, _) {
             final currentSort = ref.watch(genreSortProvider);
-            final bool isDescending =
-                currentSort.sortOrder == SortOrder.descending;
-            final List<SortField> options = [
+            final effectiveCurrentSort =
+                isTv && currentSort.sortField == SortField.revenue
+                ? currentSort.copyWith(sortField: SortField.popularity)
+                : currentSort;
+            final List<SortField> options = <SortField>[
               SortField.popularity,
               SortField.voteAverage,
               SortField.releaseDate,
-              SortField.revenue,
               SortField.voteCount,
+              if (!isTv) SortField.revenue,
             ];
+            SortField selectedField = effectiveCurrentSort.sortField;
+            SortOrder selectedOrder = effectiveCurrentSort.sortOrder;
 
-            return Container(
-              padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: AppColors.cinemaPanelGradient,
-                ),
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(30),
-                ),
-                border: Border.all(
-                  color: AppColors.cinemaBorder.withValues(alpha: 0.3),
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 48,
-                    height: 4,
+            return StatefulBuilder(
+              builder: (context, setModalState) {
+                final bool isDescending = selectedOrder == SortOrder.descending;
+
+                return SafeArea(
+                  top: false,
+                  child: Container(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.82,
+                    ),
+                    padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.18),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Sort By',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Change ranking without changing what titles are available.',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.64),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(22),
-                      color: Colors.white.withValues(alpha: 0.04),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: AppColors.cinemaPanelGradient,
+                      ),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(30),
+                      ),
                       border: Border.all(
-                        color: AppColors.cinemaBorder.withValues(alpha: 0.2),
+                        color: AppColors.cinemaBorder.withValues(alpha: 0.3),
                       ),
                     ),
-                    child: SwitchListTile(
-                      title: const Text(
-                        'Descending Order',
-                        style: TextStyle(color: Colors.white70, fontSize: 14),
-                      ),
-                      value: isDescending,
-                      activeThumbColor: AppColors.cinemaAccent,
-                      onChanged: (value) {
-                        HapticFeedback.selectionClick();
-                        final newOrder = value
-                            ? SortOrder.descending
-                            : SortOrder.ascending;
-                        ref
-                            .read(genreSortProvider.notifier)
-                            .updateSort(currentSort.sortField, newOrder);
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.18),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Sort By',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(22),
+                              color: Colors.white.withValues(alpha: 0.04),
+                              border: Border.all(
+                                color: AppColors.cinemaBorder.withValues(
+                                  alpha: 0.2,
+                                ),
+                              ),
+                            ),
+                            child: SwitchListTile(
+                              title: const Text(
+                                'Descending Order',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              value: isDescending,
+                              activeThumbColor: AppColors.cinemaAccent,
+                              onChanged: (value) {
+                                HapticFeedback.selectionClick();
+                                setModalState(() {
+                                  selectedOrder = value
+                                      ? SortOrder.descending
+                                      : SortOrder.ascending;
+                                });
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          ...options.map((field) {
+                            final isSelected = selectedField == field;
+                            IconData fieldIcon;
+                            switch (field) {
+                              case SortField.popularity:
+                                fieldIcon = Icons.trending_up_rounded;
+                                break;
+                              case SortField.voteAverage:
+                                fieldIcon = Icons.star_rounded;
+                                break;
+                              case SortField.releaseDate:
+                                fieldIcon = Icons.calendar_today_rounded;
+                                break;
+                              case SortField.revenue:
+                                fieldIcon = Icons.attach_money_rounded;
+                                break;
+                              case SortField.voteCount:
+                                fieldIcon = Icons.people_rounded;
+                                break;
+                            }
 
-                        final genreId = isTv
-                            ? ref.read(selectedTvGenreIdProvider)
-                            : ref.read(selectedMovieGenreIdProvider);
-                        if (genreId != null) {
-                          resetGenreSection(ref, genreId, isTv: isTv);
-                        } else {
-                          final section = isTv
-                              ? MovieSection.tvPopular
-                              : MovieSection.popular;
-                          resetMovieSection(ref, section);
-                        }
-                      },
+                            return ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              tileColor: isSelected
+                                  ? Colors.white.withValues(alpha: 0.08)
+                                  : Colors.transparent,
+                              leading: Icon(
+                                fieldIcon,
+                                color: isSelected
+                                    ? AppColors.cinemaAccent
+                                    : Colors.white70,
+                                size: 20,
+                              ),
+                              title: Text(
+                                field.label,
+                                style: TextStyle(
+                                  color: isSelected
+                                      ? AppColors.cinemaAccent
+                                      : Colors.white,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                ),
+                              ),
+                              trailing: isSelected
+                                  ? Icon(
+                                      selectedOrder == SortOrder.descending
+                                          ? Icons.arrow_downward_rounded
+                                          : Icons.arrow_upward_rounded,
+                                      color: AppColors.cinemaAccent,
+                                      size: 18,
+                                    )
+                                  : null,
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                setModalState(() {
+                                  selectedField = field;
+                                });
+                              },
+                            );
+                          }),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                ref
+                                    .read(genreSortProvider.notifier)
+                                    .updateSort(selectedField, selectedOrder);
+
+                                final genreId = isTv
+                                    ? ref.read(selectedTvGenreIdProvider)
+                                    : ref.read(selectedMovieGenreIdProvider);
+                                if (genreId != null) {
+                                  resetGenreSection(ref, genreId, isTv: isTv);
+                                } else {
+                                  final section = isTv
+                                      ? MovieSection.tvPopular
+                                      : MovieSection.popular;
+                                  resetMovieSection(ref, section);
+                                }
+
+                                Navigator.pop(context);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.cinemaAccent,
+                                foregroundColor: Colors.black,
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 14,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18),
+                                ),
+                              ),
+                              child: const Text(
+                                'Apply',
+                                style: TextStyle(fontWeight: FontWeight.w800),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 6),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  ...options.map((field) {
-                    final isSelected = currentSort.sortField == field;
-                    IconData fieldIcon;
-                    switch (field) {
-                      case SortField.popularity:
-                        fieldIcon = Icons.trending_up_rounded;
-                        break;
-                      case SortField.voteAverage:
-                        fieldIcon = Icons.star_rounded;
-                        break;
-                      case SortField.releaseDate:
-                        fieldIcon = Icons.calendar_today_rounded;
-                        break;
-                      case SortField.revenue:
-                        fieldIcon = Icons.attach_money_rounded;
-                        break;
-                      case SortField.voteCount:
-                        fieldIcon = Icons.people_rounded;
-                        break;
-                    }
-
-                    return ListTile(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      tileColor: isSelected
-                          ? Colors.white.withValues(alpha: 0.08)
-                          : Colors.transparent,
-                      leading: Icon(
-                        fieldIcon,
-                        color: isSelected
-                            ? AppColors.cinemaAccent
-                            : Colors.white70,
-                        size: 20,
-                      ),
-                      title: Text(
-                        field.label,
-                        style: TextStyle(
-                          color: isSelected
-                              ? AppColors.cinemaAccent
-                              : Colors.white,
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                        ),
-                      ),
-                      trailing: isSelected
-                          ? Icon(
-                              currentSort.sortOrder == SortOrder.descending
-                                  ? Icons.arrow_downward_rounded
-                                  : Icons.arrow_upward_rounded,
-                              color: AppColors.cinemaAccent,
-                              size: 18,
-                            )
-                          : null,
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        // Use current switch state for the new field
-                        ref
-                            .read(genreSortProvider.notifier)
-                            .updateSort(field, currentSort.sortOrder);
-
-                        // Reset current genre/section to trigger re-fetch with new sort
-                        final genreId = isTv
-                            ? ref.read(selectedTvGenreIdProvider)
-                            : ref.read(selectedMovieGenreIdProvider);
-
-                        if (genreId != null) {
-                          resetGenreSection(ref, genreId, isTv: isTv);
-                        } else {
-                          final section = isTv
-                              ? MovieSection.tvPopular
-                              : MovieSection.popular;
-                          resetMovieSection(ref, section);
-                        }
-
-                        Navigator.pop(context);
-                      },
-                    );
-                  }),
-                  const SizedBox(height: 6),
-                ],
-              ),
+                );
+              },
             );
           },
         );

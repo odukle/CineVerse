@@ -297,6 +297,13 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
       mediaNotesProvider((id: widget.details.id, type: mediaType)),
     );
     final latestNote = notesAsync.value?.lastOrNull?.text;
+    final mediaImagesAsync = ref.watch(
+      mediaImagesProvider((id: widget.details.id, isTv: widget.isTv)),
+    );
+    final String? titleLogoUrl =
+        mediaImagesAsync.asData?.value.logos.firstOrNull;
+    final bool isSvgTitleLogo =
+        titleLogoUrl?.toLowerCase().endsWith('.svg') ?? false;
 
     return PopScope(
       canPop: !widget.fromNotification,
@@ -319,13 +326,38 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
               icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
             ),
             title: SizedBox(
-              height: 24,
-              child: SvgPicture.asset(
-                'assets/logos/logo.svg',
-                fit: BoxFit.contain,
-                alignment: Alignment.center,
-                semanticsLabel: AppConstants.appName,
-              ),
+              height: 28,
+              child: titleLogoUrl != null
+                  ? (isSvgTitleLogo
+                        ? SvgPicture.network(
+                            titleLogoUrl,
+                            fit: BoxFit.contain,
+                            alignment: Alignment.center,
+                            placeholderBuilder: (context) => SvgPicture.asset(
+                              'assets/logos/logo.svg',
+                              fit: BoxFit.contain,
+                              alignment: Alignment.center,
+                              semanticsLabel: AppConstants.appName,
+                            ),
+                          )
+                        : CachedNetworkImage(
+                            imageUrl: titleLogoUrl,
+                            fit: BoxFit.contain,
+                            alignment: Alignment.center,
+                            fadeInDuration: const Duration(milliseconds: 200),
+                            errorWidget: (_, _, _) => SvgPicture.asset(
+                              'assets/logos/logo.svg',
+                              fit: BoxFit.contain,
+                              alignment: Alignment.center,
+                              semanticsLabel: AppConstants.appName,
+                            ),
+                          ))
+                  : SvgPicture.asset(
+                      'assets/logos/logo.svg',
+                      fit: BoxFit.contain,
+                      alignment: Alignment.center,
+                      semanticsLabel: AppConstants.appName,
+                    ),
             ),
             centerTitle: true,
             actions: [
