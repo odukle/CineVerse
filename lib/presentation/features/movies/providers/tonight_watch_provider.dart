@@ -12,6 +12,8 @@ import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/repositories/media_repository.dart';
 import 'package:cineverse/domain/usecases/discover_media_use_case.dart';
 import 'package:cineverse/presentation/features/movies/models/tonight_watch_models.dart';
+import 'package:cineverse/presentation/features/movies/providers/hidden_titles_provider.dart';
+import 'package:cineverse/presentation/features/movies/providers/tonight_feedback_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -36,14 +38,22 @@ final tonightPromptRecommendationsProvider = FutureProvider.autoDispose
         );
       }
 
-      final MediaRepository repository = ref.watch(mediaRepositoryProvider);
-      final AppConfig appConfig = ref.watch(appConfigProvider);
+      final MediaRepository repository = ref.read(mediaRepositoryProvider);
+      final AppConfig appConfig = ref.read(appConfigProvider);
       final GlobalMediaType targetMediaType = request.isTv
           ? GlobalMediaType.tv
           : GlobalMediaType.movie;
+      final TonightPreferenceProfile preferenceProfile = ref.read(
+        tonightPreferenceProfileProvider(request.isTv),
+      );
       final Set<int> excludedWatchedIds =
-          (await ref.watch(watchedItemsProvider.future))
+          (await ref.read(watchedItemsProvider.future))
               .where((item) => item.mediaType == targetMediaType)
+              .map((item) => item.id)
+              .toSet();
+      final Set<int> excludedHiddenIds =
+          (await ref.read(hiddenTitlesProvider.future))
+              .where((item) => item.isTv == request.isTv)
               .map((item) => item.id)
               .toSet();
       _progressReset();
@@ -52,6 +62,13 @@ final tonightPromptRecommendationsProvider = FutureProvider.autoDispose
         _progressAdd(
           'Excluding ${excludedWatchedIds.length} already watched title(s)',
         );
+      }
+      if (excludedHiddenIds.isNotEmpty) {
+        _progressAdd('Excluding ${excludedHiddenIds.length} hidden title(s)');
+      }
+      if (preferenceProfile.preferredGenres.isNotEmpty ||
+          preferenceProfile.mainstreamPenaltyStrength > 0) {
+        _progressAdd('Applying your feedback preferences');
       }
 
       if (!appConfig.hasTonightRecommendationsApiUrl) {
@@ -63,6 +80,8 @@ final tonightPromptRecommendationsProvider = FutureProvider.autoDispose
         repository: repository,
         appConfig: appConfig,
         excludedWatchedIds: excludedWatchedIds,
+        excludedHiddenIds: excludedHiddenIds,
+        preferenceProfile: preferenceProfile,
       );
     });
 
@@ -71,6 +90,8 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
   required MediaRepository repository,
   required AppConfig appConfig,
   required Set<int> excludedWatchedIds,
+  required Set<int> excludedHiddenIds,
+  required TonightPreferenceProfile preferenceProfile,
 }) async {
   final bool showDiagnostics = kDebugMode || appConfig.showTonightDiagnostics;
   final String? idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
@@ -157,7 +178,8 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
           if (id == null || id <= 0) {
             return false;
           }
-          return !excludedWatchedIds.contains(id);
+          return !excludedWatchedIds.contains(id) &&
+              !excludedHiddenIds.contains(id);
         })
         .toList(growable: false);
     if (unseenRawResults.isEmpty) {
@@ -191,6 +213,12 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
         'Check TMDB proxy/API access.',
       );
     }
+    recommendations.sort(
+      (TonightRecommendationItem a, TonightRecommendationItem b) =>
+          _feedbackAdjustedScore(item: b, profile: preferenceProfile).compareTo(
+            _feedbackAdjustedScore(item: a, profile: preferenceProfile),
+          ),
+    );
     _progressAdd('Finalizing your watchlist for tonight');
     return TonightPromptResult(
       interpretedIntent: _recommendationServiceIntentSummary(
@@ -224,6 +252,31 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
   } catch (_) {
     throw StateError('The recommendation service failed unexpectedly.');
   }
+}
+
+double _feedbackAdjustedScore({
+  required TonightRecommendationItem item,
+  required TonightPreferenceProfile profile,
+}) {
+  double score = item.score;
+  final Set<String> genres = item.details.genres
+      .map(_canonicalGenreToken)
+      .where((String genre) => genre.isNotEmpty)
+      .toSet();
+  for (final String genre in genres) {
+    score += (profile.preferredGenres[genre] ?? 0) * 7.5;
+  }
+  final String? language = item.details.originalLanguage?.trim().toLowerCase();
+  if (language != null && language.isNotEmpty) {
+    score += (profile.preferredLanguages[language] ?? 0) * 2.5;
+  }
+  if (profile.mainstreamPenaltyStrength > 0) {
+    final double popularity = item.title.popularity;
+    final double penalty =
+        math.max(0, popularity - 35) * 0.06 * profile.mainstreamPenaltyStrength;
+    score -= penalty;
+  }
+  return score;
 }
 
 @immutable

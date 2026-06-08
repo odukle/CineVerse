@@ -15,7 +15,7 @@ import 'package:cineverse/presentation/features/watchlist/providers/watched_prov
 import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:cineverse/presentation/widgets/animated_dialog.dart';
-import 'package:cineverse/presentation/widgets/background_gradient.dart';
+import 'package:cineverse/presentation/widgets/tab_content_reveal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -34,158 +34,154 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BackgroundGradient(
+    return TabContentReveal(
       child: DefaultTabController(
         length: 5,
-        child: Scaffold(
-          backgroundColor: Colors.transparent,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            toolbarHeight: 0,
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(84),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: Container(
+                padding: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(999),
+                  gradient: LinearGradient(
+                    colors: AppColors.cinemaPanelGradient,
+                  ),
+                  border: Border.all(
+                    color: AppColors.cinemaBorder.withValues(alpha: 0.28),
+                  ),
+                ),
+                child: TabBar(
+                  onTap: (_) => HapticFeedback.selectionClick(),
+                  isScrollable: true,
+                  tabAlignment: TabAlignment.start,
+                  dividerColor: Colors.transparent,
+                  indicatorSize: TabBarIndicatorSize.label,
+                  indicator: BoxDecoration(
+                    color: AppColors.cinemaAccent.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(999),
-                    gradient: LinearGradient(
-                      colors: AppColors.cinemaPanelGradient,
-                    ),
                     border: Border.all(
-                      color: AppColors.cinemaBorder.withValues(alpha: 0.28),
+                      color: AppColors.cinemaAccent.withValues(alpha: 0.4),
                     ),
                   ),
-                  child: TabBar(
-                    onTap: (_) => HapticFeedback.selectionClick(),
-                    isScrollable: true,
-                    tabAlignment: TabAlignment.start,
-                    dividerColor: Colors.transparent,
-                    indicatorSize: TabBarIndicatorSize.label,
-                    indicator: BoxDecoration(
-                      color: AppColors.cinemaAccent.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(
-                        color: AppColors.cinemaAccent.withValues(alpha: 0.4),
-                      ),
-                    ),
-                    indicatorPadding: const EdgeInsets.symmetric(
-                      vertical: 3,
-                      horizontal: 0,
-                    ),
-                    splashBorderRadius: BorderRadius.circular(999),
-                    labelColor: Colors.white,
-                    unselectedLabelColor: Colors.white.withValues(alpha: 0.7),
-                    labelStyle: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                    ),
-                    unselectedLabelStyle: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    labelPadding: const EdgeInsets.symmetric(horizontal: 2),
-                    tabs: const <Tab>[
-                      Tab(
-                        child: SizedBox(
-                          height: 28,
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Text(
-                                'Watchlist',
-                                maxLines: 1,
-                                overflow: TextOverflow.fade,
-                                softWrap: false,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Tab(
-                        child: SizedBox(
-                          height: 28,
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Text(
-                                'Favourites',
-                                maxLines: 1,
-                                overflow: TextOverflow.fade,
-                                softWrap: false,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Tab(
-                        child: SizedBox(
-                          height: 28,
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Text(
-                                'Lists',
-                                maxLines: 1,
-                                overflow: TextOverflow.fade,
-                                softWrap: false,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Tab(
-                        child: SizedBox(
-                          height: 28,
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Text(
-                                'Notes',
-                                maxLines: 1,
-                                overflow: TextOverflow.fade,
-                                softWrap: false,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Tab(
-                        child: SizedBox(
-                          height: 28,
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 10),
-                              child: Text(
-                                'Watched',
-                                maxLines: 1,
-                                overflow: TextOverflow.fade,
-                                softWrap: false,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                  indicatorPadding: const EdgeInsets.symmetric(
+                    vertical: 3,
+                    horizontal: 0,
                   ),
+                  splashBorderRadius: BorderRadius.circular(999),
+                  labelColor: Colors.white,
+                  unselectedLabelColor: Colors.white.withValues(alpha: 0.7),
+                  labelStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  unselectedLabelStyle: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  labelPadding: const EdgeInsets.symmetric(horizontal: 2),
+                  tabs: const <Tab>[
+                    Tab(
+                      child: SizedBox(
+                        height: 28,
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              'Watchlist',
+                              maxLines: 1,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Tab(
+                      child: SizedBox(
+                        height: 28,
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              'Favourites',
+                              maxLines: 1,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Tab(
+                      child: SizedBox(
+                        height: 28,
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              'Lists',
+                              maxLines: 1,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Tab(
+                      child: SizedBox(
+                        height: 28,
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              'Notes',
+                              maxLines: 1,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    Tab(
+                      child: SizedBox(
+                        height: 28,
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              'Watched',
+                              maxLines: 1,
+                              overflow: TextOverflow.fade,
+                              softWrap: false,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-          body: TabBarView(
-            children: [
-              const _WatchlistTab(),
-              const _FavouritesTab(),
-              _ListsTab(
-                selectedListId: _selectedListId,
-                onListSelected: (id) => setState(() => _selectedListId = id),
+            Expanded(
+              child: TabBarView(
+                children: [
+                  const _WatchlistTab(),
+                  const _FavouritesTab(),
+                  _ListsTab(
+                    selectedListId: _selectedListId,
+                    onListSelected: (id) =>
+                        setState(() => _selectedListId = id),
+                  ),
+                  const _NotesTab(),
+                  const _WatchedTab(),
+                ],
               ),
-              const _NotesTab(),
-              const _WatchedTab(),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -365,9 +361,7 @@ class _WatchHistoryAnalyticsCard extends StatelessWidget {
       width: double.infinity,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
-        gradient: LinearGradient(
-          colors: AppColors.cinemaPanelGradient,
-        ),
+        gradient: LinearGradient(colors: AppColors.cinemaPanelGradient),
         border: Border.all(
           color: AppColors.cinemaBorder.withValues(alpha: 0.2),
         ),
@@ -389,23 +383,16 @@ class _WatchHistoryAnalyticsCard extends StatelessWidget {
             context.pushNamed(AppRoute.watchAnalytics.name);
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppColors.cinemaAccent.withValues(
-                      alpha: 0.15,
-                    ),
+                    color: AppColors.cinemaAccent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: AppColors.cinemaAccent.withValues(
-                        alpha: 0.3,
-                      ),
+                      color: AppColors.cinemaAccent.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Icon(
@@ -721,15 +708,16 @@ class _ListsTab extends ConsumerWidget {
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: AppColors.cinemaAccent, width: 1.5),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white60,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.white60),
             child: const Text(
               'Cancel',
               style: TextStyle(fontWeight: FontWeight.w600),
@@ -759,7 +747,10 @@ class _ListsTab extends ConsumerWidget {
               ),
               elevation: 0,
             ),
-            child: const Text('Rename', style: TextStyle(fontWeight: FontWeight.bold)),
+            child: const Text(
+              'Rename',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -792,9 +783,7 @@ class _ListsTab extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white60,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.white60),
             child: const Text(
               'Cancel',
               style: TextStyle(fontWeight: FontWeight.w600),
@@ -808,9 +797,7 @@ class _ListsTab extends ConsumerWidget {
                 ToastUtils.showToast(context, 'List "${list.name}" deleted');
               }
             },
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.redAccent,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
             child: const Text(
               'Delete',
               style: TextStyle(fontWeight: FontWeight.bold),

@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 import 'dart:ui';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -7,14 +10,23 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
+import 'package:cineverse/domain/entities/movie_details.dart';
+import 'package:cineverse/domain/entities/watched_item.dart';
 import 'package:cineverse/domain/entities/watchlist_item.dart';
 import 'package:cineverse/presentation/features/movies/models/tonight_watch_models.dart';
 import 'package:cineverse/presentation/features/movies/providers/tonight_query_history_provider.dart';
+import 'package:cineverse/presentation/features/movies/providers/tonight_feedback_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/tonight_watch_provider.dart';
+import 'package:cineverse/presentation/features/movies/providers/hidden_titles_provider.dart';
+import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
+import 'package:cineverse/presentation/widgets/media_actions_dialogs.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -180,8 +192,11 @@ class _WhatShouldIWatchTonightScreenState
         message: error.toString().replaceFirst('Bad state: ', ''),
         onRetry: _runSearch,
       ),
-      data: (TonightPromptResult result) =>
-          _ResultList(isTv: widget.isTv, result: result),
+      data: (TonightPromptResult result) => _ResultList(
+        isTv: widget.isTv,
+        result: result,
+        prompt: _submittedRequest!.prompt,
+      ),
     );
   }
 
@@ -703,16 +718,63 @@ class _PromptPanel extends StatelessWidget {
   }
 }
 
-class _ResultList extends StatelessWidget {
-  const _ResultList({required this.isTv, required this.result});
+class _ResultList extends ConsumerStatefulWidget {
+  const _ResultList({
+    required this.isTv,
+    required this.result,
+    required this.prompt,
+  });
 
   final bool isTv;
   final TonightPromptResult result;
+  final String prompt;
+
+  @override
+  ConsumerState<_ResultList> createState() => _ResultListState();
+}
+
+class _ResultListState extends ConsumerState<_ResultList> {
+  final GlobalKey _shareBoardKey = GlobalKey();
+
+  Future<void> _shareBoard() async {
+    try {
+      final RenderObject? renderObject = _shareBoardKey.currentContext
+          ?.findRenderObject();
+      if (renderObject is! RenderRepaintBoundary) {
+        return;
+      }
+      final ui.Image image = await renderObject.toImage(pixelRatio: 3);
+      final ByteData? bytes = await image.toByteData(
+        format: ui.ImageByteFormat.png,
+      );
+      if (bytes == null) {
+        return;
+      }
+      final Directory tempDir = await getTemporaryDirectory();
+      final File file = File(
+        '${tempDir.path}/lumi_tonight_board_${DateTime.now().microsecondsSinceEpoch}.png',
+      );
+      await file.writeAsBytes(bytes.buffer.asUint8List());
+      await Share.shareXFiles(<XFile>[
+        XFile(file.path),
+      ], text: 'Tonight\'s Lumi picks for: ${widget.prompt}');
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not share recommendation board.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final List<String> queryPlanChips = result.queryPlanChips ?? <String>[];
+    final List<String> queryPlanChips =
+        widget.result.queryPlanChips ?? <String>[];
+    final List<TonightRecommendationItem> visibleRecommendations =
+        widget.result.recommendations;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -724,15 +786,37 @@ class _ResultList extends StatelessWidget {
             border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
           ),
           child: Text(
-            result.interpretedIntent,
+            widget.result.interpretedIntent,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: Colors.white.withValues(alpha: 0.86),
               height: 1.4,
             ),
           ),
         ),
+        const SizedBox(height: 10),
+        RepaintBoundary(
+          key: _shareBoardKey,
+          child: _RecommendationBoardCard(
+            prompt: widget.prompt,
+            isTv: widget.isTv,
+            recommendations: visibleRecommendations.take(4).toList(),
+          ),
+        ),
+        const SizedBox(height: 10),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: TextButton.icon(
+            onPressed: visibleRecommendations.isEmpty ? null : _shareBoard,
+            icon: const Icon(Icons.ios_share_rounded, size: 18),
+            label: const Text('Share board'),
+            style: TextButton.styleFrom(
+              foregroundColor: const Color(0xFF9FE7FF),
+              padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+            ),
+          ),
+        ),
         if (queryPlanChips.isNotEmpty) ...<Widget>[
-          const SizedBox(height: 10),
+          const SizedBox(height: 4),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(12),
@@ -764,17 +848,128 @@ class _ResultList extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 14),
-        ...result.recommendations.asMap().entries.map((
+        ...visibleRecommendations.asMap().entries.map((
           MapEntry<int, TonightRecommendationItem> entry,
         ) {
           final int index = entry.key;
           final TonightRecommendationItem item = entry.value;
           return _StaggeredEntrance(
             index: index,
-            child: _RecommendationCard(isTv: isTv, item: item),
+            child: _RecommendationCard(isTv: widget.isTv, item: item),
           );
         }),
       ],
+    );
+  }
+}
+
+class _RecommendationBoardCard extends StatelessWidget {
+  const _RecommendationBoardCard({
+    required this.prompt,
+    required this.isTv,
+    required this.recommendations,
+  });
+
+  final String prompt;
+  final bool isTv;
+  final List<TonightRecommendationItem> recommendations;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(22),
+        gradient: const LinearGradient(
+          colors: <Color>[Color(0xFF101824), Color(0xFF091019)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            'Tonight\'s Picks',
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            prompt,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: Colors.white.withValues(alpha: 0.78),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: recommendations
+                .take(4)
+                .map((TonightRecommendationItem item) {
+                  final String? poster =
+                      item.details.posterPath ?? item.title.posterPath;
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          AspectRatio(
+                            aspectRatio: 2 / 3,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(14),
+                              child: poster == null
+                                  ? Container(
+                                      color: Colors.white.withValues(
+                                        alpha: 0.08,
+                                      ),
+                                      child: Icon(
+                                        isTv
+                                            ? Icons.live_tv_rounded
+                                            : Icons.movie_creation_outlined,
+                                        color: Colors.white54,
+                                      ),
+                                    )
+                                  : CachedNetworkImage(
+                                      imageUrl: poster,
+                                      fit: BoxFit.cover,
+                                    ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            item.title.title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                })
+                .toList(growable: false),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            'Shared from Lumi',
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: Colors.white.withValues(alpha: 0.6),
+              letterSpacing: 0.3,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -796,6 +991,16 @@ class _RecommendationCard extends ConsumerWidget {
       isInWatchlistProvider(item.title.id),
     );
     final bool isInWatchlist = isInWatchlistAsync.value ?? false;
+    final AsyncValue<WatchedItem?> watchedItemAsync = ref.watch(
+      watchedItemProvider((
+        id: item.title.id,
+        type: isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
+      )),
+    );
+    final bool isWatched = watchedItemAsync.value != null;
+    final Set<TonightFeedbackSignal> activeSignals = ref.watch(
+      tonightFeedbackSignalsProvider((mediaId: item.title.id, isTv: isTv)),
+    );
 
     final int matchPct = (item.score <= 1.0 ? item.score * 100 : item.score)
         .round()
@@ -962,6 +1167,153 @@ class _RecommendationCard extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: <Widget>[
+                          _FeedbackChip(
+                            label: 'Watched',
+                            icon: Icons.visibility_rounded,
+                            selected: isWatched,
+                            onTap: () async {
+                              final ({int id, GlobalMediaType type})
+                              watchedParams = (
+                                id: item.title.id,
+                                type: isTv
+                                    ? GlobalMediaType.tv
+                                    : GlobalMediaType.movie,
+                              );
+                              await showDialog<void>(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    WatchedDialog(
+                                      details: item.details,
+                                      isTv: isTv,
+                                      existingItem: watchedItemAsync.value,
+                                    ),
+                              );
+                              ref.invalidate(watchedItemsProvider);
+                              ref.invalidate(
+                                watchedItemProvider(watchedParams),
+                              );
+                              final WatchedItem? refreshed = await ref.read(
+                                watchedItemProvider(watchedParams).future,
+                              );
+                              final TonightFeedbackStore notifier = ref.read(
+                                tonightFeedbackProvider.notifier,
+                              );
+                              await notifier.setSignal(
+                                mediaId: item.title.id,
+                                isTv: isTv,
+                                signal: TonightFeedbackSignal.watchedAlready,
+                                enabled: refreshed != null,
+                                title: item.title.title,
+                                posterPath: poster,
+                                genres: _feedbackGenresFromDetails(
+                                  item.details,
+                                ),
+                                originalLanguage: item.details.originalLanguage,
+                                popularity: item.title.popularity,
+                              );
+                            },
+                          ),
+                          _FeedbackChip(
+                            label: 'Not for me',
+                            icon: Icons.block_rounded,
+                            selected: activeSignals.contains(
+                              TonightFeedbackSignal.notInterested,
+                            ),
+                            onTap: () async {
+                              final bool enabled = activeSignals.contains(
+                                TonightFeedbackSignal.notInterested,
+                              );
+                              final HiddenTitlesNotifier hiddenTitlesNotifier =
+                                  ref.read(hiddenTitlesProvider.notifier);
+                              if (enabled) {
+                                await hiddenTitlesNotifier.unhideTitle(
+                                  item.title.id,
+                                  isTv,
+                                );
+                              } else {
+                                await hiddenTitlesNotifier.hideHiddenTitle(
+                                  HiddenTitle(
+                                    id: item.title.id,
+                                    title: item.title.title,
+                                    posterPath: poster,
+                                    releaseDate: item.title.releaseDate,
+                                    isTv: isTv,
+                                    voteAverage:
+                                        item.title.voteAverage ??
+                                        item.details.catalogScore,
+                                    hiddenAt: DateTime.now(),
+                                  ),
+                                );
+                              }
+                              await ref
+                                  .read(tonightFeedbackProvider.notifier)
+                                  .setSignal(
+                                    mediaId: item.title.id,
+                                    isTv: isTv,
+                                    signal: TonightFeedbackSignal.notInterested,
+                                    enabled: !enabled,
+                                    title: item.title.title,
+                                    posterPath: poster,
+                                    genres: _feedbackGenresFromDetails(
+                                      item.details,
+                                    ),
+                                    originalLanguage:
+                                        item.details.originalLanguage,
+                                    popularity: item.title.popularity,
+                                  );
+                            },
+                          ),
+                          _FeedbackChip(
+                            label: 'More like this',
+                            icon: Icons.auto_awesome_rounded,
+                            selected: activeSignals.contains(
+                              TonightFeedbackSignal.moreLikeThis,
+                            ),
+                            onTap: () => ref
+                                .read(tonightFeedbackProvider.notifier)
+                                .toggleSignal(
+                                  mediaId: item.title.id,
+                                  isTv: isTv,
+                                  signal: TonightFeedbackSignal.moreLikeThis,
+                                  title: item.title.title,
+                                  posterPath: poster,
+                                  genres: _feedbackGenresFromDetails(
+                                    item.details,
+                                  ),
+                                  originalLanguage:
+                                      item.details.originalLanguage,
+                                  popularity: item.title.popularity,
+                                ),
+                          ),
+                          _FeedbackChip(
+                            label: 'Too mainstream',
+                            icon: Icons.trending_up_rounded,
+                            selected: activeSignals.contains(
+                              TonightFeedbackSignal.tooMainstream,
+                            ),
+                            onTap: () => ref
+                                .read(tonightFeedbackProvider.notifier)
+                                .toggleSignal(
+                                  mediaId: item.title.id,
+                                  isTv: isTv,
+                                  signal: TonightFeedbackSignal.tooMainstream,
+                                  title: item.title.title,
+                                  posterPath: poster,
+                                  genres: _feedbackGenresFromDetails(
+                                    item.details,
+                                  ),
+                                  originalLanguage:
+                                      item.details.originalLanguage,
+                                  popularity: item.title.popularity,
+                                ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
                       InkWell(
                         onTap: () {
                           context.pushNamed(
@@ -1077,6 +1429,92 @@ class _RecommendationCard extends ConsumerWidget {
       ),
     );
   }
+}
+
+class _FeedbackChip extends StatelessWidget {
+  const _FeedbackChip({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(999),
+      child: Ink(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(999),
+          gradient: selected
+              ? const LinearGradient(
+                  colors: <Color>[Color(0xFF1FA2FF), Color(0xFF7B61FF)],
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                )
+              : null,
+          color: selected ? null : Colors.white.withValues(alpha: 0.06),
+          border: Border.all(
+            color: selected
+                ? const Color(0xFFB7F0FF).withValues(alpha: 0.9)
+                : Colors.white.withValues(alpha: 0.08),
+          ),
+          boxShadow: selected
+              ? <BoxShadow>[
+                  BoxShadow(
+                    color: const Color(0xFF6CB9FF).withValues(alpha: 0.28),
+                    blurRadius: 14,
+                    spreadRadius: 1,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Icon(
+              icon,
+              size: 13,
+              color: selected
+                  ? Colors.white
+                  : Colors.white.withValues(alpha: 0.72),
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: Colors.white.withValues(alpha: selected ? 1 : 0.82),
+                fontWeight: selected ? FontWeight.w800 : FontWeight.w700,
+                letterSpacing: selected ? 0.15 : 0,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+List<String> _feedbackGenresFromDetails(MovieDetails details) {
+  return details.genres
+      .map(
+        (String genre) => genre
+            .trim()
+            .toLowerCase()
+            .replaceAll(RegExp(r'[^a-z0-9\\s]'), ' ')
+            .replaceAll(RegExp(r'\\s+'), ' ')
+            .trim(),
+      )
+      .where((String genre) => genre.isNotEmpty)
+      .toList(growable: false);
 }
 
 class _IconMetadataBadge extends StatelessWidget {

@@ -5,9 +5,11 @@ import 'package:cineverse/core/config/region_preferences.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/watched_item.dart';
 import 'package:cineverse/presentation/features/home/providers/watch_history_insights_provider.dart';
+import 'package:cineverse/presentation/features/home/providers/library_retention_provider.dart';
 import 'package:cineverse/presentation/features/home/providers/reminders_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
 import 'package:cineverse/presentation/providers/auth_provider.dart';
+import 'package:cineverse/presentation/widgets/tab_content_reveal.dart';
 import 'package:cineverse/domain/entities/user_entity.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:flutter/foundation.dart';
@@ -102,153 +104,135 @@ class AccountScreen extends ConsumerWidget {
     final userAsync = ref.watch(authStateProvider);
     final UserEntity? user = userAsync.value;
     final int remindersCount = ref.watch(remindersCountProvider);
+    final AsyncValue<LibraryRetentionBundle> retentionAsync = ref.watch(
+      libraryRetentionBundleProvider,
+    );
+    final int upcomingCount = retentionAsync.maybeWhen(
+      data: (LibraryRetentionBundle value) => value.health.upcomingCount,
+      orElse: () => 0,
+    );
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
-      children: [
-        Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(28),
-            gradient: LinearGradient(colors: AppColors.cinemaPanelGradient),
-            border: Border.all(
-              color: AppColors.cinemaBorder.withValues(alpha: 0.28),
-            ),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: AppColors.cinemaGlow.withValues(alpha: 0.12),
-                blurRadius: 22,
-                spreadRadius: -12,
-                offset: const Offset(0, 16),
+    return TabContentReveal(
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 18, 16, 28),
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(28),
+              gradient: LinearGradient(colors: AppColors.cinemaPanelGradient),
+              border: Border.all(
+                color: AppColors.cinemaBorder.withValues(alpha: 0.28),
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Account',
-                style: theme.textTheme.headlineMedium?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 23,
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                  color: AppColors.cinemaGlow.withValues(alpha: 0.12),
+                  blurRadius: 22,
+                  spreadRadius: -12,
+                  offset: const Offset(0, 16),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Your profile, sync state, region, and visual preferences all live here.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withValues(alpha: 0.76),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 18),
-        Text(
-          'Profile',
-          style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
-        ),
-        const SizedBox(height: 12),
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(colors: AppColors.cinemaPanelGradient),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(
-              color: AppColors.cinemaBorder.withValues(alpha: 0.28),
+              ],
             ),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: <Color>[
-                      AppColors.cinemaGlow,
-                      AppColors.cinemaWarmGlow,
-                    ],
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Account',
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 23,
                   ),
-                  borderRadius: BorderRadius.circular(20),
                 ),
-                child: user?.photoUrl != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Image.network(
-                          user!.photoUrl!,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    : const Icon(
-                        Icons.person_outline_rounded,
-                        color: Colors.white,
-                        size: 34,
-                      ),
+                const SizedBox(height: 8),
+                Text(
+                  'Your profile, sync state, region, and visual preferences all live here.',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: Colors.white.withValues(alpha: 0.76),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            'Profile',
+            style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(colors: AppColors.cinemaPanelGradient),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                color: AppColors.cinemaBorder.withValues(alpha: 0.28),
               ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      user?.displayName ?? user?.email ?? 'Guest Viewer',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 18,
-                      ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  width: 64,
+                  height: 64,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: <Color>[
+                        AppColors.cinemaGlow,
+                        AppColors.cinemaWarmGlow,
+                      ],
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      user == null
-                          ? 'Sign in to sync your watchlist, ratings, and preferences.'
-                          : 'Signed in and syncing to the cloud.',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.72),
-                        height: 1.4,
-                      ),
-                    ),
-                    if (user == null) ...[
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              HapticFeedback.selectionClick();
-                              try {
-                                await ref
-                                    .read(authRepositoryProvider)
-                                    .signInWithGoogle();
-                              } catch (error) {
-                                if (!context.mounted) {
-                                  return;
-                                }
-                                await _showErrorSnackBar(context, error);
-                              }
-                            },
-                            icon: const Icon(Icons.login_rounded, size: 18),
-                            label: const Text('Sign in with Google'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.cinemaSelected,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: user?.photoUrl != null
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.network(
+                            user!.photoUrl!,
+                            fit: BoxFit.cover,
                           ),
-                          if (!kIsWeb &&
-                              defaultTargetPlatform == TargetPlatform.iOS)
+                        )
+                      : const Icon(
+                          Icons.person_outline_rounded,
+                          color: Colors.white,
+                          size: 34,
+                        ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user?.displayName ?? user?.email ?? 'Guest Viewer',
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        user == null
+                            ? 'Sign in to sync your watchlist, ratings, and preferences.'
+                            : 'Signed in and syncing to the cloud.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: Colors.white.withValues(alpha: 0.72),
+                          height: 1.4,
+                        ),
+                      ),
+                      if (user == null) ...[
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
                             ElevatedButton.icon(
                               onPressed: () async {
                                 HapticFeedback.selectionClick();
                                 try {
                                   await ref
                                       .read(authRepositoryProvider)
-                                      .signInWithApple();
+                                      .signInWithGoogle();
                                 } catch (error) {
                                   if (!context.mounted) {
                                     return;
@@ -256,163 +240,199 @@ class AccountScreen extends ConsumerWidget {
                                   await _showErrorSnackBar(context, error);
                                 }
                               },
-                              icon: const Icon(Icons.apple_rounded, size: 18),
-                              label: const Text('Sign in with Apple'),
+                              icon: const Icon(Icons.login_rounded, size: 18),
+                              label: const Text('Sign in with Google'),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.black,
+                                backgroundColor: AppColors.cinemaSelected,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
                             ),
-                        ],
-                      ),
-                    ] else ...[
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              HapticFeedback.selectionClick();
-                              final bool?
-                              confirm = await showAnimatedDialog<bool>(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  backgroundColor: AppColors.detailsCard,
+                            if (!kIsWeb &&
+                                defaultTargetPlatform == TargetPlatform.iOS)
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  HapticFeedback.selectionClick();
+                                  try {
+                                    await ref
+                                        .read(authRepositoryProvider)
+                                        .signInWithApple();
+                                  } catch (error) {
+                                    if (!context.mounted) {
+                                      return;
+                                    }
+                                    await _showErrorSnackBar(context, error);
+                                  }
+                                },
+                                icon: const Icon(Icons.apple_rounded, size: 18),
+                                label: const Text('Sign in with Apple'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.black,
+                                  foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                    side: BorderSide(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.08,
-                                      ),
-                                      width: 1,
-                                    ),
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
-                                  title: Text(
-                                    'Sign Out',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                  ),
-                                  content: const Text(
-                                    'Are you sure you want to sign out? Your local data will remain, but cloud syncing will stop.',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, false),
-                                      style: TextButton.styleFrom(
-                                        foregroundColor: Colors.white60,
-                                      ),
-                                      child: const Text(
-                                        'Cancel',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: () =>
-                                          Navigator.pop(context, true),
-                                      style: TextButton.styleFrom(
-                                        foregroundColor: Colors.redAccent,
-                                      ),
-                                      child: const Text(
-                                        'Sign Out',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
                                 ),
-                              );
+                              ),
+                          ],
+                        ),
+                      ] else ...[
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: () async {
+                                HapticFeedback.selectionClick();
+                                final bool?
+                                confirm = await showAnimatedDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    backgroundColor: AppColors.detailsCard,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                      side: BorderSide(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.08,
+                                        ),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    title: Text(
+                                      'Sign Out',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleMedium
+                                          ?.copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                    ),
+                                    content: const Text(
+                                      'Are you sure you want to sign out? Your local data will remain, but cloud syncing will stop.',
+                                      style: TextStyle(
+                                        color: Colors.white70,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, false),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.white60,
+                                        ),
+                                        child: const Text(
+                                          'Cancel',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, true),
+                                        style: TextButton.styleFrom(
+                                          foregroundColor: Colors.redAccent,
+                                        ),
+                                        child: const Text(
+                                          'Sign Out',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
 
-                              if (confirm == true) {
-                                ref.read(authRepositoryProvider).signOut();
-                              }
-                            },
-                            icon: const Icon(Icons.logout_rounded, size: 18),
-                            label: const Text('Sign Out'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.white24,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                                if (confirm == true) {
+                                  ref.read(authRepositoryProvider).signOut();
+                                }
+                              },
+                              icon: const Icon(Icons.logout_rounded, size: 18),
+                              label: const Text('Sign Out'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white24,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                             ),
-                          ),
-                          ElevatedButton.icon(
-                            onPressed: () async {
-                              HapticFeedback.mediumImpact();
-                              await _confirmAndDeleteAccount(context, ref);
-                            },
-                            icon: const Icon(
-                              Icons.delete_outline_rounded,
-                              size: 18,
-                            ),
-                            label: const Text('Delete Account'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.redAccent.withValues(
-                                alpha: 0.16,
+                            ElevatedButton.icon(
+                              onPressed: () async {
+                                HapticFeedback.mediumImpact();
+                                await _confirmAndDeleteAccount(context, ref);
+                              },
+                              icon: const Icon(
+                                Icons.delete_outline_rounded,
+                                size: 18,
                               ),
-                              foregroundColor: Colors.redAccent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
+                              label: const Text('Delete Account'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent.withValues(
+                                  alpha: 0.16,
+                                ),
+                                foregroundColor: Colors.redAccent,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 18),
-        const _RegionPreferenceCard(),
-        const SizedBox(height: 14),
-        const _WatchHistoryInsightsCard(),
-        const SizedBox(height: 14),
-        _AccountActionCard(
-          icon: Icons.notifications_none_rounded,
-          title: 'Notifications',
-          subtitle: remindersCount == 0
-              ? 'Control premiere alerts and release reminders.'
-              : '$remindersCount reminder${remindersCount == 1 ? '' : 's'} scheduled.',
-          onTap: () => context.pushNamed(AppRoute.notifications.name),
-        ),
-        const SizedBox(height: 14),
-        _AccountActionCard(
-          icon: Icons.palette_outlined,
-          title: 'Appearance',
-          subtitle: 'Choose your theme and customize the app look.',
-          onTap: () => context.pushNamed('appearance'),
-        ),
-        const SizedBox(height: 14),
-        _AccountActionCard(
-          icon: Icons.visibility_off_outlined,
-          title: 'Hidden Titles',
-          subtitle:
-              'Manage the titles you have hidden from the Spotlight section.',
-          onTap: () => context.pushNamed(AppRoute.hiddenTitles.name),
-        ),
-        const SizedBox(height: 18),
-        const _DeveloperFooter(),
-      ],
+          const SizedBox(height: 18),
+          const _RegionPreferenceCard(),
+          const SizedBox(height: 14),
+          const _WatchHistoryInsightsCard(),
+          const SizedBox(height: 14),
+          _AccountActionCard(
+            icon: Icons.event_note_rounded,
+            title: 'Release Calendar',
+            subtitle: upcomingCount == 0
+                ? 'Track upcoming releases and get quick reminder shortcuts.'
+                : '$upcomingCount upcoming release${upcomingCount == 1 ? '' : 's'} across your library.',
+            onTap: () => context.pushNamed(AppRoute.releaseCalendar.name),
+          ),
+          const SizedBox(height: 14),
+          _AccountActionCard(
+            icon: Icons.notifications_none_rounded,
+            title: 'Notifications',
+            subtitle: remindersCount == 0
+                ? 'Control premiere alerts and release reminders.'
+                : '$remindersCount reminder${remindersCount == 1 ? '' : 's'} scheduled.',
+            onTap: () => context.pushNamed(AppRoute.notifications.name),
+          ),
+          const SizedBox(height: 14),
+          _AccountActionCard(
+            icon: Icons.palette_outlined,
+            title: 'Appearance',
+            subtitle: 'Choose your theme and customize the app look.',
+            onTap: () => context.pushNamed('appearance'),
+          ),
+          const SizedBox(height: 14),
+          _AccountActionCard(
+            icon: Icons.visibility_off_outlined,
+            title: 'Hidden Titles',
+            subtitle:
+                'Manage the titles you have hidden from the Spotlight section.',
+            onTap: () => context.pushNamed(AppRoute.hiddenTitles.name),
+          ),
+          const SizedBox(height: 18),
+          const _DeveloperFooter(),
+        ],
+      ),
     );
   }
 }

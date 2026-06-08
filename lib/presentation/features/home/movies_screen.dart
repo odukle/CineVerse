@@ -3,6 +3,7 @@ import 'package:cineverse/presentation/features/home/widgets/filter_chips_list.d
 import 'package:cineverse/presentation/features/home/widgets/media_grid.dart';
 import 'package:cineverse/presentation/features/movies/providers/filter_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
+import 'package:cineverse/presentation/widgets/tab_content_reveal.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,7 +16,7 @@ class MoviesScreen extends ConsumerWidget {
     final genresAsync = ref.watch(movieGenresProvider);
     final isFiltered = ref.watch(isMovieFilteredProvider);
 
-    return isFiltered
+    final Widget content = isFiltered
         ? Column(
             children: [
               const FilterChipsList(isTv: false),
@@ -156,5 +157,6 @@ class MoviesScreen extends ConsumerWidget {
             error: (error, _) =>
                 Center(child: Text('Error loading genres: $error')),
           );
+    return TabContentReveal(child: content);
   }
 }

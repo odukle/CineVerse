@@ -139,55 +139,78 @@ class _BottomNavItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(18),
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 1),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: selected ? 16 : 12,
-                  vertical: selected ? 7 : 5,
-                ),
-                decoration: BoxDecoration(
-                  gradient: selected
-                      ? LinearGradient(
-                          colors: <Color>[
-                            AppColors.cinemaGlow.withValues(alpha: 0.92),
-                            AppColors.cinemaWarmGlow.withValues(alpha: 0.92),
-                          ],
-                        )
-                      : null,
-                  color: selected ? null : Colors.transparent,
-                  borderRadius: BorderRadius.circular(18),
-                  boxShadow: selected
-                      ? <BoxShadow>[
-                          BoxShadow(
-                            color: AppColors.cinemaGlow.withValues(alpha: 0.24),
-                            blurRadius: 16,
-                            spreadRadius: -6,
-                            offset: const Offset(0, 8),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Transform.scale(
-                  scale: selected ? 1.08 : 1.0,
-                  child: Icon(
-                    selected ? tab.selectedIcon : tab.icon,
-                    color: selected ? Colors.white : Colors.white70,
-                    size: 20,
+          child: TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: selected ? 1 : 0),
+            duration: const Duration(milliseconds: 220),
+            curve: Curves.easeOutCubic,
+            builder: (BuildContext context, double t, Widget? child) {
+              final Color labelColor = Color.lerp(
+                Colors.white70,
+                Colors.white,
+                t,
+              )!;
+              final Color iconColor = Color.lerp(
+                Colors.white70,
+                Colors.white,
+                t,
+              )!;
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Container(
+                    width: 52,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      gradient: t > 0
+                          ? LinearGradient(
+                              colors: <Color>[
+                                AppColors.cinemaGlow.withValues(
+                                  alpha: 0.18 + (0.74 * t),
+                                ),
+                                AppColors.cinemaWarmGlow.withValues(
+                                  alpha: 0.18 + (0.74 * t),
+                                ),
+                              ],
+                            )
+                          : null,
+                      color: t == 0 ? Colors.transparent : null,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: t > 0
+                          ? <BoxShadow>[
+                              BoxShadow(
+                                color: AppColors.cinemaGlow.withValues(
+                                  alpha: 0.06 + (0.22 * t),
+                                ),
+                                blurRadius: 10 + (8 * t),
+                                spreadRadius: -6,
+                                offset: const Offset(0, 8),
+                              ),
+                            ]
+                          : null,
+                    ),
+                    child: Center(
+                      child: Transform.scale(
+                        scale: 1 + (0.08 * t),
+                        child: Icon(
+                          selected ? tab.selectedIcon : tab.icon,
+                          color: iconColor,
+                          size: 20,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 2),
-              DefaultTextStyle(
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
-                  color: selected ? Colors.white : Colors.white70,
-                ),
-                child: Text(tab.label),
-              ),
-            ],
+                  const SizedBox(height: 2),
+                  Text(
+                    tab.label,
+                    style: TextStyle(
+                      fontSize: 9,
+                      fontWeight: t > 0.5 ? FontWeight.w800 : FontWeight.w500,
+                      color: labelColor,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ),
       ),

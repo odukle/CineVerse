@@ -108,8 +108,25 @@ class HomeScaffold extends ConsumerWidget {
             toolbarHeight: 68,
             backgroundColor: Colors.transparent,
             elevation: 0,
+            surfaceTintColor: Colors.transparent,
+            scrolledUnderElevation: 0,
             automaticallyImplyLeading: false,
             centerTitle: true,
+            flexibleSpace: IgnorePointer(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: <Color>[
+                      AppColors.cinemaGradientTop.withValues(alpha: 0.92),
+                      AppColors.cinemaBackground.withValues(alpha: 0.78),
+                      AppColors.cinemaBackground.withValues(alpha: 0.0),
+                    ],
+                  ),
+                ),
+              ),
+            ),
             leadingWidth: leadingWidth,
             leading: leadingContent == null
                 ? null

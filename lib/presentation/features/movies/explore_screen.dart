@@ -317,7 +317,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               cacheExtent:
                   1500, // Pre-build shelves in the background to eliminate stutter
               slivers: [
-                const SliverToBoxAdapter(child: SizedBox(height: 12)),
+                const SliverToBoxAdapter(child: SizedBox(height: 4)),
                 const SliverToBoxAdapter(child: _DiscoverSpotlightSection()),
                 const SliverToBoxAdapter(child: _SectionDivider()),
                 if (!isTv)
@@ -4391,7 +4391,20 @@ class _AmbientGlowingBackdropState extends State<_AmbientGlowingBackdrop>
         Positioned.fill(
           child: BackdropFilter(
             filter: ImageFilter.blur(sigmaX: 75, sigmaY: 75),
-            child: Container(color: Colors.black.withValues(alpha: 0.55)),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: <Color>[
+                    Colors.black.withValues(alpha: 0.0),
+                    Colors.black.withValues(alpha: 0.28),
+                    Colors.black.withValues(alpha: 0.55),
+                  ],
+                  stops: const <double>[0.0, 0.12, 0.32],
+                ),
+              ),
+            ),
           ),
         ),
         widget.child,
