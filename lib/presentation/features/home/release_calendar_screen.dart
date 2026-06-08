@@ -339,6 +339,21 @@ class _ReleaseCalendarCard extends ConsumerWidget {
     final String dateLabel = DateFormat(
       'EEE, d MMM • hh:mm a',
     ).format(item.date);
+    final List<AppReminder> mediaReminders = ref.watch(
+      mediaRemindersProvider((mediaId: item.mediaId, isTv: item.isTv)),
+    );
+    final AppReminder? activeReminder =
+        item.kind == ReleaseCalendarEntryKind.movieRelease
+        ? (mediaReminders.isEmpty ? null : mediaReminders.first)
+        : ref.watch(
+            activeEpisodeReminderProvider((
+              mediaId: item.mediaId,
+              seasonNumber: item.seasonNumber ?? 0,
+              episodeNumber: item.episodeNumber ?? 0,
+              airDate: item.date,
+            )),
+          );
+    final bool hasActiveReminder = activeReminder != null;
 
     return InkWell(
       borderRadius: BorderRadius.circular(22),
@@ -412,56 +427,87 @@ class _ReleaseCalendarCard extends ConsumerWidget {
             ),
             const SizedBox(width: 10),
             IconButton(
-              tooltip: 'Remind me',
+              tooltip: hasActiveReminder ? 'Remove reminder' : 'Remind me',
               onPressed: () async {
-                final DateTime notifyAt =
-                    item.kind == ReleaseCalendarEntryKind.movieRelease
-                    ? DateTime(
-                        item.date.year,
-                        item.date.month,
-                        item.date.day,
-                        9,
-                      )
-                    : item.date.subtract(const Duration(hours: 1));
-                final AppReminder reminder = AppReminder(
-                  id: buildReminderId(),
-                  type: item.kind == ReleaseCalendarEntryKind.movieRelease
-                      ? ReminderType.general
-                      : ReminderType.episodeAiring,
-                  title: item.title,
-                  message: item.kind == ReleaseCalendarEntryKind.movieRelease
-                      ? '${item.title} releases today.'
-                      : '${item.title} ${item.subtitle.toLowerCase()} airs soon.',
-                  notifyAt: notifyAt.isAfter(DateTime.now())
-                      ? notifyAt
-                      : DateTime.now().add(const Duration(minutes: 1)),
-                  createdAt: DateTime.now(),
-                  mediaId: item.mediaId,
-                  isTv: item.isTv,
-                  backdropPath: item.backdropPath,
-                  seasonNumber: item.seasonNumber,
-                  episodeNumber: item.episodeNumber,
-                  airDate: item.date,
-                );
-                await ref
-                    .read(remindersProvider.notifier)
-                    .addReminder(reminder);
+                if (hasActiveReminder) {
+                  if (item.kind == ReleaseCalendarEntryKind.movieRelease) {
+                    await ref
+                        .read(remindersProvider.notifier)
+                        .dismissRemindersForMedia(
+                          mediaId: item.mediaId,
+                          isTv: item.isTv,
+                        );
+                  } else {
+                    await ref
+                        .read(remindersProvider.notifier)
+                        .dismissReminder(activeReminder.id);
+                  }
+                } else {
+                  final DateTime notifyAt =
+                      item.kind == ReleaseCalendarEntryKind.movieRelease
+                      ? DateTime(
+                          item.date.year,
+                          item.date.month,
+                          item.date.day,
+                          9,
+                        )
+                      : item.date.subtract(const Duration(hours: 1));
+                  final AppReminder reminder = AppReminder(
+                    id: item.kind == ReleaseCalendarEntryKind.movieRelease
+                        ? buildReleaseReminderId(
+                            mediaId: item.mediaId,
+                            isTv: item.isTv,
+                          )
+                        : buildEpisodeReminderId(
+                            mediaId: item.mediaId,
+                            seasonNumber: item.seasonNumber ?? 0,
+                            episodeNumber: item.episodeNumber ?? 0,
+                            airDate: item.date,
+                          ),
+                    type: item.kind == ReleaseCalendarEntryKind.movieRelease
+                        ? ReminderType.general
+                        : ReminderType.episodeAiring,
+                    title: item.title,
+                    message: item.kind == ReleaseCalendarEntryKind.movieRelease
+                        ? '${item.title} releases today.'
+                        : '${item.title} ${item.subtitle.toLowerCase()} airs soon.',
+                    notifyAt: notifyAt.isAfter(DateTime.now())
+                        ? notifyAt
+                        : DateTime.now().add(const Duration(minutes: 1)),
+                    createdAt: DateTime.now(),
+                    mediaId: item.mediaId,
+                    isTv: item.isTv,
+                    backdropPath: item.backdropPath,
+                    seasonNumber: item.seasonNumber,
+                    episodeNumber: item.episodeNumber,
+                    airDate: item.date,
+                  );
+                  await ref
+                      .read(remindersProvider.notifier)
+                      .addReminder(reminder);
+                }
                 if (!context.mounted) {
                   return;
                 }
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
-                      item.kind == ReleaseCalendarEntryKind.movieRelease
+                      hasActiveReminder
+                          ? 'Reminder removed for ${item.title}.'
+                          : item.kind == ReleaseCalendarEntryKind.movieRelease
                           ? 'Release reminder set for ${item.title}.'
                           : 'Episode reminder set for ${item.title}.',
                     ),
                   ),
                 );
               },
-              icon: const Icon(
-                Icons.notifications_active_outlined,
-                color: Colors.white70,
+              icon: Icon(
+                hasActiveReminder
+                    ? Icons.notifications_active_rounded
+                    : Icons.notifications_none_rounded,
+                color: hasActiveReminder
+                    ? AppColors.cinemaWarmGlow
+                    : Colors.white70,
               ),
             ),
           ],

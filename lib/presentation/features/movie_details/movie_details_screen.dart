@@ -41,7 +41,6 @@ import 'package:cineverse/app/router/app_router.dart' show AppRoute;
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:cineverse/presentation/features/watchlist/providers/library_provider.dart';
 import 'package:cineverse/domain/entities/library_item.dart';
@@ -2664,16 +2663,10 @@ class _GeneralReminderButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final List<AppReminder> reminders =
-        ref.watch(remindersProvider).asData?.value ?? const <AppReminder>[];
-    final DateTime now = DateTime.now();
-    final bool hasActiveReminder = reminders.any(
-      (reminder) =>
-          reminder.type == ReminderType.general &&
-          reminder.mediaId == details.id &&
-          reminder.isTv == isTv &&
-          reminder.notifyAt.isAfter(now),
+    final List<AppReminder> activeReminders = ref.watch(
+      mediaRemindersProvider((mediaId: details.id, isTv: isTv)),
     );
+    final bool hasActiveReminder = activeReminders.isNotEmpty;
 
     return _CircleActionButton(
       icon: hasActiveReminder
@@ -2687,6 +2680,18 @@ class _GeneralReminderButton extends ConsumerWidget {
   }
 
   Future<void> _showReminderDialog(BuildContext context, WidgetRef ref) async {
+    if (ref
+        .read(mediaRemindersProvider((mediaId: details.id, isTv: isTv)))
+        .isNotEmpty) {
+      await ref
+          .read(remindersProvider.notifier)
+          .dismissRemindersForMedia(mediaId: details.id, isTv: isTv);
+      if (context.mounted) {
+        ToastUtils.showToast(context, 'Reminder removed');
+      }
+      return;
+    }
+
     final GeneralReminderDialogResult? result =
         await showAnimatedDialog<GeneralReminderDialogResult>(
           context: context,
@@ -2702,7 +2707,7 @@ class _GeneralReminderButton extends ConsumerWidget {
         .read(remindersProvider.notifier)
         .addReminder(
           AppReminder(
-            id: buildReminderId(),
+            id: buildGeneralMediaReminderId(mediaId: details.id, isTv: isTv),
             type: ReminderType.general,
             title: details.title,
             message: result.reminderText.trim().isEmpty
@@ -4380,7 +4385,12 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
           .read(remindersProvider.notifier)
           .addReminder(
             AppReminder(
-              id: buildReminderId(),
+              id: buildEpisodeReminderId(
+                mediaId: widget.showId,
+                seasonNumber: episode.seasonNumber,
+                episodeNumber: episode.episodeNumber,
+                airDate: nextAirDate,
+              ),
               type: ReminderType.episodeAiring,
               title: widget.showTitle,
               message:
@@ -4969,43 +4979,9 @@ class _ReleaseAlertTimeline extends ConsumerStatefulWidget {
 }
 
 class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
-  bool _isSubscribed = false;
-  bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadSubscriptionState();
-  }
-
-  Future<void> _loadSubscriptionState() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final key =
-          'notify_release_${widget.isTv ? "tv" : "movie"}_${widget.movieId}';
-      if (mounted) {
-        setState(() {
-          _isSubscribed = prefs.getBool(key) ?? false;
-          _isLoading = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
-  }
-
   Future<void> _toggleSubscription(bool value) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
       final key = _releaseReminderId;
-      await prefs.setBool(key, value);
-      setState(() {
-        _isSubscribed = value;
-      });
 
       if (value) {
         final DateTime notifyAt = _resolveReleaseNotifyAt();
@@ -5028,7 +5004,12 @@ class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
               ),
             );
       } else {
-        await ref.read(remindersProvider.notifier).dismissReminder(key);
+        await ref
+            .read(remindersProvider.notifier)
+            .dismissRemindersForMedia(
+              mediaId: widget.movieId,
+              isTv: widget.isTv,
+            );
       }
 
       if (value && mounted) {
@@ -5038,7 +5019,7 @@ class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
   }
 
   String get _releaseReminderId =>
-      'notify_release_${widget.isTv ? "tv" : "movie"}_${widget.movieId}';
+      buildReleaseReminderId(mediaId: widget.movieId, isTv: widget.isTv);
 
   DateTime _resolveReleaseNotifyAt() {
     final DateTime now = DateTime.now();
@@ -5175,7 +5156,7 @@ class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                if (hasFutureRelease && !_isLoading)
+                if (hasFutureRelease)
                   Row(
                     children: [
                       Text(
@@ -5187,7 +5168,14 @@ class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
                       ),
                       const SizedBox(width: 8),
                       Switch.adaptive(
-                        value: _isSubscribed,
+                        value: ref
+                            .watch(
+                              mediaRemindersProvider((
+                                mediaId: widget.movieId,
+                                isTv: widget.isTv,
+                              )),
+                            )
+                            .isNotEmpty,
                         onChanged: _toggleSubscription,
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         activeThumbColor: AppColors.cinemaAccent,

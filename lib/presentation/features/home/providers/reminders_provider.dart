@@ -105,8 +105,10 @@ class RemindersNotifier extends AsyncNotifier<List<AppReminder>> {
 
   Future<void> addReminder(AppReminder reminder) async {
     final List<AppReminder> current = state.asData?.value ?? <AppReminder>[];
-    final List<AppReminder> updated = <AppReminder>[reminder, ...current]
-      ..sort((a, b) => a.notifyAt.compareTo(b.notifyAt));
+    final List<AppReminder> updated = <AppReminder>[
+      reminder,
+      ...current.where((AppReminder item) => item.id != reminder.id),
+    ]..sort((a, b) => a.notifyAt.compareTo(b.notifyAt));
     state = AsyncData(updated);
     await _persist(updated);
     await LocalNotificationService.instance.scheduleReminder(
@@ -136,6 +138,33 @@ class RemindersNotifier extends AsyncNotifier<List<AppReminder>> {
     await _persist(updated);
     if (removed != null) {
       await LocalNotificationService.instance.cancelReminder(removed.id);
+    }
+  }
+
+  Future<void> dismissRemindersForMedia({
+    required int mediaId,
+    required bool isTv,
+  }) async {
+    final List<AppReminder> current = state.asData?.value ?? <AppReminder>[];
+    final List<AppReminder> removed = current
+        .where(
+          (AppReminder reminder) =>
+              reminder.mediaId == mediaId && reminder.isTv == isTv,
+        )
+        .toList(growable: false);
+    if (removed.isEmpty) {
+      return;
+    }
+    final List<AppReminder> updated = current
+        .where(
+          (AppReminder reminder) =>
+              !(reminder.mediaId == mediaId && reminder.isTv == isTv),
+        )
+        .toList(growable: false);
+    state = AsyncData(updated);
+    await _persist(updated);
+    for (final AppReminder reminder in removed) {
+      await LocalNotificationService.instance.cancelReminder(reminder.id);
     }
   }
 
@@ -199,17 +228,21 @@ class RemindersNotifier extends AsyncNotifier<List<AppReminder>> {
     if (reminders.isEmpty) {
       return reminders;
     }
-    final Set<String> pendingReminderIds =
-        await LocalNotificationService.instance.pendingManagedReminderIds();
+    final Set<String> pendingReminderIds = await LocalNotificationService
+        .instance
+        .pendingManagedReminderIds();
     final DateTime now = DateTime.now();
 
-    final List<AppReminder> updated = reminders.where((reminder) {
-      if (reminder.notifyAt.isAfter(now)) {
-        return true;
-      }
-      return pendingReminderIds.contains(reminder.id);
-    }).toList(growable: false)
-      ..sort((a, b) => a.notifyAt.compareTo(b.notifyAt));
+    final List<AppReminder> updated =
+        reminders
+            .where((reminder) {
+              if (reminder.notifyAt.isAfter(now)) {
+                return true;
+              }
+              return pendingReminderIds.contains(reminder.id);
+            })
+            .toList(growable: false)
+          ..sort((a, b) => a.notifyAt.compareTo(b.notifyAt));
 
     if (updated.length != reminders.length) {
       await _persist(updated);
@@ -234,3 +267,74 @@ String buildReminderId() {
   final int randomPart = Random().nextInt(1 << 20);
   return '$now-$randomPart';
 }
+
+String buildReleaseReminderId({required int mediaId, required bool isTv}) =>
+    'release_${isTv ? "tv" : "movie"}_$mediaId';
+
+String buildGeneralMediaReminderId({
+  required int mediaId,
+  required bool isTv,
+}) => 'general_${isTv ? "tv" : "movie"}_$mediaId';
+
+String buildEpisodeReminderId({
+  required int mediaId,
+  required int seasonNumber,
+  required int episodeNumber,
+  required DateTime airDate,
+}) =>
+    'episode_tv_${mediaId}_s${seasonNumber}_e${episodeNumber}_${airDate.toUtc().toIso8601String()}';
+
+final mediaRemindersProvider =
+    Provider.family<List<AppReminder>, ({int mediaId, bool isTv})>((ref, args) {
+      final List<AppReminder> reminders =
+          ref.watch(remindersProvider).asData?.value ?? const <AppReminder>[];
+      final DateTime now = DateTime.now();
+      return reminders
+          .where(
+            (AppReminder reminder) =>
+                reminder.mediaId == args.mediaId &&
+                reminder.isTv == args.isTv &&
+                reminder.notifyAt.isAfter(now),
+          )
+          .toList(growable: false)
+        ..sort((a, b) => a.notifyAt.compareTo(b.notifyAt));
+    });
+
+final activeReleaseReminderProvider =
+    Provider.family<AppReminder?, ({int mediaId, bool isTv})>((ref, args) {
+      final String id = buildReleaseReminderId(
+        mediaId: args.mediaId,
+        isTv: args.isTv,
+      );
+      final List<AppReminder> reminders =
+          ref.watch(remindersProvider).asData?.value ?? const <AppReminder>[];
+      final DateTime now = DateTime.now();
+      for (final AppReminder reminder in reminders) {
+        if (reminder.id == id && reminder.notifyAt.isAfter(now)) {
+          return reminder;
+        }
+      }
+      return null;
+    });
+
+final activeEpisodeReminderProvider =
+    Provider.family<
+      AppReminder?,
+      ({int mediaId, int seasonNumber, int episodeNumber, DateTime airDate})
+    >((ref, args) {
+      final String id = buildEpisodeReminderId(
+        mediaId: args.mediaId,
+        seasonNumber: args.seasonNumber,
+        episodeNumber: args.episodeNumber,
+        airDate: args.airDate,
+      );
+      final List<AppReminder> reminders =
+          ref.watch(remindersProvider).asData?.value ?? const <AppReminder>[];
+      final DateTime now = DateTime.now();
+      for (final AppReminder reminder in reminders) {
+        if (reminder.id == id && reminder.notifyAt.isAfter(now)) {
+          return reminder;
+        }
+      }
+      return null;
+    });
