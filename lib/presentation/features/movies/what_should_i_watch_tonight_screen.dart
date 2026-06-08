@@ -50,6 +50,7 @@ class _WhatShouldIWatchTonightScreenState
   final AudioPlayer _audioPlayer = AudioPlayer();
   TonightPromptRequest? _submittedRequest;
   int _requestNonce = 0;
+  bool _hasPendingFeedbackRefresh = false;
   bool _isListening = false;
   bool _speechAvailable = false;
   String? _speechError;
@@ -117,11 +118,15 @@ class _WhatShouldIWatchTonightScreenState
     final List<String> historyQueries =
         ref.watch(tonightQueryHistoryProvider).asData?.value ??
         const <String>[];
+    final bool hasClearablePreferences = ref.watch(
+      tonightHasClearablePreferencesProvider(widget.isTv),
+    );
     final bool isFetching = recommendations?.isLoading ?? false;
 
     return _AmbientGlowingBackdrop(
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        floatingActionButton: _buildFeedbackRefreshButton(isFetching),
         body: SafeArea(
           child: SingleChildScrollView(
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -168,9 +173,12 @@ class _WhatShouldIWatchTonightScreenState
                   isFetching: isFetching,
                   historyQueries: historyQueries,
                   onHistoryTap: _useHistoryPrompt,
+                  hasClearablePreferences: hasClearablePreferences,
                   onClearHistory: () => unawaited(
                     ref.read(tonightQueryHistoryProvider.notifier).clear(),
                   ),
+                  onClearPreferences: () =>
+                      unawaited(_clearTonightPreferences()),
                 ),
                 const SizedBox(height: 20),
                 _buildResultState(recommendations),
@@ -196,6 +204,7 @@ class _WhatShouldIWatchTonightScreenState
         isTv: widget.isTv,
         result: result,
         prompt: _submittedRequest!.prompt,
+        onFeedbackRefreshStateChanged: _setFeedbackRefreshPending,
       ),
     );
   }
@@ -221,12 +230,80 @@ class _WhatShouldIWatchTonightScreenState
       isTv: widget.isTv,
       prompt: prompt,
       requestNonce: ++_requestNonce,
+      useTmdbSeedRefreshOnly: false,
     );
     unawaited(ref.read(tonightQueryHistoryProvider.notifier).addEntry(prompt));
     ref.invalidate(tonightPromptRecommendationsProvider(request));
     setState(() {
       _submittedRequest = request;
+      _hasPendingFeedbackRefresh = false;
     });
+  }
+
+  void _rerunSubmittedQuery() {
+    final TonightPromptRequest? activeRequest = _submittedRequest;
+    if (activeRequest == null) {
+      return;
+    }
+    final TonightPromptRequest request = TonightPromptRequest(
+      isTv: activeRequest.isTv,
+      prompt: activeRequest.prompt,
+      requestNonce: ++_requestNonce,
+      useTmdbSeedRefreshOnly: true,
+    );
+    ref.invalidate(tonightPromptRecommendationsProvider(request));
+    setState(() {
+      _submittedRequest = request;
+      _hasPendingFeedbackRefresh = false;
+    });
+  }
+
+  void _setFeedbackRefreshPending(bool pending) {
+    if (_submittedRequest == null || _hasPendingFeedbackRefresh == pending) {
+      return;
+    }
+    setState(() {
+      _hasPendingFeedbackRefresh = pending;
+    });
+  }
+
+  Widget? _buildFeedbackRefreshButton(bool isFetching) {
+    final bool visible =
+        _hasPendingFeedbackRefresh && !isFetching && _submittedRequest != null;
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 260),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        final Animation<double> curved = CurvedAnimation(
+          parent: animation,
+          curve: Curves.easeOutBack,
+        );
+        return FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.82, end: 1.0).animate(curved),
+            child: child,
+          ),
+        );
+      },
+      child: !visible
+          ? const SizedBox.shrink()
+          : FloatingActionButton.extended(
+              key: const ValueKey<String>('feedback-refresh-fab'),
+              onPressed: _rerunSubmittedQuery,
+              backgroundColor: const Color(0xFF6E6BFF),
+              foregroundColor: Colors.white,
+              elevation: 10,
+              icon: const Icon(Icons.auto_awesome_rounded),
+              label: const Text('Refresh picks'),
+            ),
+    );
+  }
+
+  Future<void> _clearTonightPreferences() async {
+    await ref
+        .read(tonightFeedbackProvider.notifier)
+        .clearPreferenceSignalsForMediaType(widget.isTv);
+    _setFeedbackRefreshPending(_submittedRequest != null);
   }
 
   void _useExamplePrompt(String prompt) {
@@ -392,7 +469,9 @@ class _PromptPanel extends StatelessWidget {
     required this.isFetching,
     required this.historyQueries,
     required this.onHistoryTap,
+    required this.hasClearablePreferences,
     required this.onClearHistory,
+    required this.onClearPreferences,
   });
 
   final bool isTv;
@@ -413,7 +492,9 @@ class _PromptPanel extends StatelessWidget {
   final bool isFetching;
   final List<String> historyQueries;
   final ValueChanged<String> onHistoryTap;
+  final bool hasClearablePreferences;
   final VoidCallback onClearHistory;
+  final VoidCallback onClearPreferences;
 
   @override
   Widget build(BuildContext context) {
@@ -639,6 +720,28 @@ class _PromptPanel extends StatelessWidget {
               ),
             ),
           ],
+          if (hasClearablePreferences) ...<Widget>[
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: OutlinedButton.icon(
+                onPressed: onClearPreferences,
+                icon: const Icon(Icons.restart_alt_rounded, size: 18),
+                label: const Text('Clear preferences'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Colors.white.withValues(alpha: 0.9),
+                  side: BorderSide(color: Colors.white.withValues(alpha: 0.16)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                ),
+              ),
+            ),
+          ],
           const SizedBox(height: 14),
           Row(
             children: <Widget>[
@@ -718,16 +821,28 @@ class _PromptPanel extends StatelessWidget {
   }
 }
 
+enum _FeedbackSelectionType {
+  watched,
+  notInterested,
+  moreLikeThis,
+  tooMainstream,
+}
+
+String _selectionKey(int mediaId, _FeedbackSelectionType type) =>
+    '$mediaId:${type.name}';
+
 class _ResultList extends ConsumerStatefulWidget {
   const _ResultList({
     required this.isTv,
     required this.result,
     required this.prompt,
+    required this.onFeedbackRefreshStateChanged,
   });
 
   final bool isTv;
   final TonightPromptResult result;
   final String prompt;
+  final ValueChanged<bool> onFeedbackRefreshStateChanged;
 
   @override
   ConsumerState<_ResultList> createState() => _ResultListState();
@@ -735,6 +850,83 @@ class _ResultList extends ConsumerStatefulWidget {
 
 class _ResultListState extends ConsumerState<_ResultList> {
   final GlobalKey _shareBoardKey = GlobalKey();
+  String? _baselineSignatureKey;
+  Map<String, bool> _baselineSelections = <String, bool>{};
+  Map<String, bool> _currentSelections = <String, bool>{};
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _captureBaselineIfNeeded();
+  }
+
+  @override
+  void didUpdateWidget(covariant _ResultList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _captureBaselineIfNeeded();
+  }
+
+  void _captureBaselineIfNeeded() {
+    final String nextKey =
+        '${normalizeTonightPromptScope(widget.prompt)}::${widget.result.recommendations.map((item) => item.title.id).join(',')}';
+    if (_baselineSignatureKey == nextKey) {
+      return;
+    }
+    final Map<String, bool> snapshot = <String, bool>{};
+    for (final TonightRecommendationItem item
+        in widget.result.recommendations) {
+      final int mediaId = item.title.id;
+      final Set<TonightFeedbackSignal> activeSignals = ref.read(
+        tonightFeedbackSignalsProvider((
+          mediaId: mediaId,
+          isTv: widget.isTv,
+          promptContext: widget.prompt,
+        )),
+      );
+      final bool isWatched =
+          ref
+              .read(
+                watchedItemProvider((
+                  id: mediaId,
+                  type: widget.isTv
+                      ? GlobalMediaType.tv
+                      : GlobalMediaType.movie,
+                )),
+              )
+              .value !=
+          null;
+      snapshot[_selectionKey(mediaId, _FeedbackSelectionType.watched)] =
+          isWatched;
+      snapshot[_selectionKey(mediaId, _FeedbackSelectionType.notInterested)] =
+          activeSignals.contains(TonightFeedbackSignal.notInterested);
+      snapshot[_selectionKey(mediaId, _FeedbackSelectionType.moreLikeThis)] =
+          activeSignals.contains(TonightFeedbackSignal.moreLikeThis);
+      snapshot[_selectionKey(mediaId, _FeedbackSelectionType.tooMainstream)] =
+          activeSignals.contains(TonightFeedbackSignal.tooMainstream);
+    }
+    _baselineSignatureKey = nextKey;
+    _baselineSelections = snapshot;
+    _currentSelections = Map<String, bool>.from(snapshot);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      widget.onFeedbackRefreshStateChanged(false);
+    });
+  }
+
+  void _handleSelectionChanged({
+    required int mediaId,
+    required _FeedbackSelectionType type,
+    required bool selected,
+  }) {
+    final String key = _selectionKey(mediaId, type);
+    _currentSelections[key] = selected;
+    final bool hasDiff = _currentSelections.entries.any(
+      (entry) => _baselineSelections[entry.key] != entry.value,
+    );
+    widget.onFeedbackRefreshStateChanged(hasDiff);
+  }
 
   Future<void> _shareBoard() async {
     try {
@@ -855,7 +1047,12 @@ class _ResultListState extends ConsumerState<_ResultList> {
           final TonightRecommendationItem item = entry.value;
           return _StaggeredEntrance(
             index: index,
-            child: _RecommendationCard(isTv: widget.isTv, item: item),
+            child: _RecommendationCard(
+              isTv: widget.isTv,
+              item: item,
+              prompt: widget.prompt,
+              onFeedbackSelectionChanged: _handleSelectionChanged,
+            ),
           );
         }),
       ],
@@ -975,10 +1172,22 @@ class _RecommendationBoardCard extends StatelessWidget {
 }
 
 class _RecommendationCard extends ConsumerWidget {
-  const _RecommendationCard({required this.isTv, required this.item});
+  const _RecommendationCard({
+    required this.isTv,
+    required this.item,
+    required this.prompt,
+    required this.onFeedbackSelectionChanged,
+  });
 
   final bool isTv;
   final TonightRecommendationItem item;
+  final String prompt;
+  final void Function({
+    required int mediaId,
+    required _FeedbackSelectionType type,
+    required bool selected,
+  })
+  onFeedbackSelectionChanged;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -999,7 +1208,11 @@ class _RecommendationCard extends ConsumerWidget {
     );
     final bool isWatched = watchedItemAsync.value != null;
     final Set<TonightFeedbackSignal> activeSignals = ref.watch(
-      tonightFeedbackSignalsProvider((mediaId: item.title.id, isTv: isTv)),
+      tonightFeedbackSignalsProvider((
+        mediaId: item.title.id,
+        isTv: isTv,
+        promptContext: prompt,
+      )),
     );
 
     final int matchPct = (item.score <= 1.0 ? item.score * 100 : item.score)
@@ -1215,6 +1428,11 @@ class _RecommendationCard extends ConsumerWidget {
                                 originalLanguage: item.details.originalLanguage,
                                 popularity: item.title.popularity,
                               );
+                              onFeedbackSelectionChanged(
+                                mediaId: item.title.id,
+                                type: _FeedbackSelectionType.watched,
+                                selected: refreshed != null,
+                              );
                             },
                           ),
                           _FeedbackChip(
@@ -1227,28 +1445,6 @@ class _RecommendationCard extends ConsumerWidget {
                               final bool enabled = activeSignals.contains(
                                 TonightFeedbackSignal.notInterested,
                               );
-                              final HiddenTitlesNotifier hiddenTitlesNotifier =
-                                  ref.read(hiddenTitlesProvider.notifier);
-                              if (enabled) {
-                                await hiddenTitlesNotifier.unhideTitle(
-                                  item.title.id,
-                                  isTv,
-                                );
-                              } else {
-                                await hiddenTitlesNotifier.hideHiddenTitle(
-                                  HiddenTitle(
-                                    id: item.title.id,
-                                    title: item.title.title,
-                                    posterPath: poster,
-                                    releaseDate: item.title.releaseDate,
-                                    isTv: isTv,
-                                    voteAverage:
-                                        item.title.voteAverage ??
-                                        item.details.catalogScore,
-                                    hiddenAt: DateTime.now(),
-                                  ),
-                                );
-                              }
                               await ref
                                   .read(tonightFeedbackProvider.notifier)
                                   .setSignal(
@@ -1265,6 +1461,37 @@ class _RecommendationCard extends ConsumerWidget {
                                         item.details.originalLanguage,
                                     popularity: item.title.popularity,
                                   );
+                              onFeedbackSelectionChanged(
+                                mediaId: item.title.id,
+                                type: _FeedbackSelectionType.notInterested,
+                                selected: !enabled,
+                              );
+                              final HiddenTitlesNotifier hiddenTitlesNotifier =
+                                  ref.read(hiddenTitlesProvider.notifier);
+                              if (enabled) {
+                                unawaited(
+                                  hiddenTitlesNotifier.unhideTitle(
+                                    item.title.id,
+                                    isTv,
+                                  ),
+                                );
+                              } else {
+                                unawaited(
+                                  hiddenTitlesNotifier.hideHiddenTitle(
+                                    HiddenTitle(
+                                      id: item.title.id,
+                                      title: item.title.title,
+                                      posterPath: poster,
+                                      releaseDate: item.title.releaseDate,
+                                      isTv: isTv,
+                                      voteAverage:
+                                          item.title.voteAverage ??
+                                          item.details.catalogScore,
+                                      hiddenAt: DateTime.now(),
+                                    ),
+                                  ),
+                                );
+                              }
                             },
                           ),
                           _FeedbackChip(
@@ -1279,6 +1506,7 @@ class _RecommendationCard extends ConsumerWidget {
                                   mediaId: item.title.id,
                                   isTv: isTv,
                                   signal: TonightFeedbackSignal.moreLikeThis,
+                                  promptContext: prompt,
                                   title: item.title.title,
                                   posterPath: poster,
                                   genres: _feedbackGenresFromDetails(
@@ -1287,6 +1515,15 @@ class _RecommendationCard extends ConsumerWidget {
                                   originalLanguage:
                                       item.details.originalLanguage,
                                   popularity: item.title.popularity,
+                                )
+                                .then(
+                                  (_) => onFeedbackSelectionChanged(
+                                    mediaId: item.title.id,
+                                    type: _FeedbackSelectionType.moreLikeThis,
+                                    selected: !activeSignals.contains(
+                                      TonightFeedbackSignal.moreLikeThis,
+                                    ),
+                                  ),
                                 ),
                           ),
                           _FeedbackChip(
@@ -1309,6 +1546,15 @@ class _RecommendationCard extends ConsumerWidget {
                                   originalLanguage:
                                       item.details.originalLanguage,
                                   popularity: item.title.popularity,
+                                )
+                                .then(
+                                  (_) => onFeedbackSelectionChanged(
+                                    mediaId: item.title.id,
+                                    type: _FeedbackSelectionType.tooMainstream,
+                                    selected: !activeSignals.contains(
+                                      TonightFeedbackSignal.tooMainstream,
+                                    ),
+                                  ),
                                 ),
                           ),
                         ],

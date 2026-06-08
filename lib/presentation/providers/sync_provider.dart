@@ -51,6 +51,9 @@ final syncServiceProvider = Provider<SyncService>((ref) {
     final user = next.value;
     service.updateUserId(user?.id);
     if (user != null && previous?.value?.id != user.id) {
+      if (service.consumeSuspendedAutomaticPull()) {
+        return;
+      }
       service.syncAllFromRemote();
     }
   });

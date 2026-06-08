@@ -24,6 +24,7 @@ class TonightFeedbackEntry {
     this.genres = const <String>[],
     this.originalLanguage,
     this.popularity,
+    this.moreLikeThisPromptKeys = const <String>[],
     this.updatedAt,
   });
 
@@ -35,6 +36,7 @@ class TonightFeedbackEntry {
   final List<String> genres;
   final String? originalLanguage;
   final double? popularity;
+  final List<String> moreLikeThisPromptKeys;
   final DateTime? updatedAt;
 
   TonightFeedbackEntry copyWith({
@@ -44,6 +46,7 @@ class TonightFeedbackEntry {
     List<String>? genres,
     String? originalLanguage,
     double? popularity,
+    List<String>? moreLikeThisPromptKeys,
     DateTime? updatedAt,
   }) {
     return TonightFeedbackEntry(
@@ -55,6 +58,8 @@ class TonightFeedbackEntry {
       genres: genres ?? this.genres,
       originalLanguage: originalLanguage ?? this.originalLanguage,
       popularity: popularity ?? this.popularity,
+      moreLikeThisPromptKeys:
+          moreLikeThisPromptKeys ?? this.moreLikeThisPromptKeys,
       updatedAt: updatedAt ?? this.updatedAt,
     );
   }
@@ -71,6 +76,7 @@ class TonightFeedbackEntry {
       'genres': genres,
       'originalLanguage': originalLanguage,
       'popularity': popularity,
+      'moreLikeThisPromptKeys': moreLikeThisPromptKeys,
       'updatedAt': updatedAt?.toIso8601String(),
     };
   }
@@ -98,6 +104,11 @@ class TonightFeedbackEntry {
           .toList(growable: false),
       originalLanguage: json['originalLanguage'] as String?,
       popularity: (json['popularity'] as num?)?.toDouble(),
+      moreLikeThisPromptKeys:
+          ((json['moreLikeThisPromptKeys'] as List<dynamic>?) ??
+                  const <dynamic>[])
+              .whereType<String>()
+              .toList(growable: false),
       updatedAt: json['updatedAt'] == null
           ? null
           : DateTime.tryParse(json['updatedAt'] as String),
@@ -129,11 +140,17 @@ class TonightPreferenceProfile {
     required this.preferredGenres,
     required this.preferredLanguages,
     required this.mainstreamPenaltyStrength,
+    required this.moreLikeThisSeedIds,
+    required this.tooMainstreamTitleIds,
+    required this.rejectedMainstreamPopularities,
   });
 
   final Map<String, int> preferredGenres;
   final Map<String, int> preferredLanguages;
   final double mainstreamPenaltyStrength;
+  final List<int> moreLikeThisSeedIds;
+  final List<int> tooMainstreamTitleIds;
+  final List<double> rejectedMainstreamPopularities;
 }
 
 class TonightFeedbackStore
@@ -141,11 +158,15 @@ class TonightFeedbackStore
   @override
   Future<Map<String, TonightFeedbackEntry>> build() async {
     final String? userId = ref.watch(authStateProvider).value?.id;
-    final Map<String, TonightFeedbackEntry> local = await _loadLocal();
+    final Map<String, TonightFeedbackEntry> local = _sanitizePersistedEntries(
+      await _loadLocal(),
+    );
     if (userId == null) {
       return local;
     }
-    final Map<String, TonightFeedbackEntry> remote = await _loadRemote(userId);
+    final Map<String, TonightFeedbackEntry> remote = _sanitizePersistedEntries(
+      await _loadRemote(userId),
+    );
     final Map<String, TonightFeedbackEntry> merged = _mergeEntries(
       local,
       remote,
@@ -159,6 +180,7 @@ class TonightFeedbackStore
     required int mediaId,
     required bool isTv,
     required TonightFeedbackSignal signal,
+    String? promptContext,
     String? title,
     String? posterPath,
     List<String>? genres,
@@ -173,6 +195,7 @@ class TonightFeedbackStore
       isTv: isTv,
       signal: signal,
       enabled: nextValue,
+      promptContext: promptContext,
       title: title,
       posterPath: posterPath,
       genres: genres,
@@ -186,6 +209,7 @@ class TonightFeedbackStore
     required bool isTv,
     required TonightFeedbackSignal signal,
     required bool enabled,
+    String? promptContext,
     String? title,
     String? posterPath,
     List<String>? genres,
@@ -201,16 +225,39 @@ class TonightFeedbackStore
           isTv: isTv,
           signals: const <TonightFeedbackSignal>{},
         );
+    final Set<String> nextMoreLikeThisPromptKeys = <String>{
+      ...base.moreLikeThisPromptKeys,
+    };
+    final String? normalizedPromptKey = promptContext == null
+        ? null
+        : normalizeTonightPromptScope(promptContext);
     final Set<TonightFeedbackSignal> nextSignals = <TonightFeedbackSignal>{
       ...base.signals,
     };
     if (!enabled) {
-      nextSignals.remove(signal);
+      if (signal == TonightFeedbackSignal.moreLikeThis &&
+          normalizedPromptKey != null) {
+        nextMoreLikeThisPromptKeys.remove(normalizedPromptKey);
+        if (nextMoreLikeThisPromptKeys.isEmpty) {
+          nextSignals.remove(signal);
+        }
+      } else {
+        nextSignals.remove(signal);
+        if (signal == TonightFeedbackSignal.moreLikeThis) {
+          nextMoreLikeThisPromptKeys.clear();
+        }
+      }
     } else {
       nextSignals.add(signal);
+      if (signal == TonightFeedbackSignal.moreLikeThis &&
+          normalizedPromptKey != null &&
+          normalizedPromptKey.isNotEmpty) {
+        nextMoreLikeThisPromptKeys.add(normalizedPromptKey);
+      }
       if (signal == TonightFeedbackSignal.notInterested ||
           signal == TonightFeedbackSignal.watchedAlready) {
         nextSignals.remove(TonightFeedbackSignal.moreLikeThis);
+        nextMoreLikeThisPromptKeys.clear();
       }
     }
     if (nextSignals.isEmpty) {
@@ -223,9 +270,44 @@ class TonightFeedbackStore
         genres: genres == null || genres.isEmpty ? base.genres : genres,
         originalLanguage: originalLanguage ?? base.originalLanguage,
         popularity: popularity ?? base.popularity,
+        moreLikeThisPromptKeys: nextMoreLikeThisPromptKeys.toList(
+          growable: false,
+        ),
         updatedAt: DateTime.now(),
       );
     }
+    state = AsyncData(current);
+    await _persistLocal(current);
+    final String? userId = ref.read(authStateProvider).value?.id;
+    if (userId != null) {
+      await _syncRemote(userId, current);
+    }
+  }
+
+  Future<void> clearPreferenceSignalsForMediaType(bool isTv) async {
+    final Map<String, TonightFeedbackEntry> current = {...?state.value};
+
+    for (final MapEntry<String, TonightFeedbackEntry> entry
+        in current.entries.toList()) {
+      final TonightFeedbackEntry value = entry.value;
+      if (value.isTv != isTv) {
+        continue;
+      }
+      final Set<TonightFeedbackSignal> nextSignals =
+          <TonightFeedbackSignal>{...value.signals}
+            ..remove(TonightFeedbackSignal.moreLikeThis)
+            ..remove(TonightFeedbackSignal.tooMainstream);
+      if (nextSignals.isEmpty) {
+        current.remove(entry.key);
+      } else {
+        current[entry.key] = value.copyWith(
+          signals: nextSignals,
+          moreLikeThisPromptKeys: const <String>[],
+          updatedAt: DateTime.now(),
+        );
+      }
+    }
+
     state = AsyncData(current);
     await _persistLocal(current);
     final String? userId = ref.read(authStateProvider).value?.id;
@@ -323,7 +405,9 @@ class TonightFeedbackStore
 
   Future<void> _persistLocal(Map<String, TonightFeedbackEntry> value) async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final Map<String, Map<String, dynamic>> payload = value.map(
+    final Map<String, TonightFeedbackEntry> persisted =
+        _sanitizePersistedEntries(value);
+    final Map<String, Map<String, dynamic>> payload = persisted.map(
       (String key, TonightFeedbackEntry entry) =>
           MapEntry<String, Map<String, dynamic>>(key, entry.toJson()),
     );
@@ -334,7 +418,9 @@ class TonightFeedbackStore
     String userId,
     Map<String, TonightFeedbackEntry> value,
   ) async {
-    final Map<String, Map<String, dynamic>> payload = value.map(
+    final Map<String, TonightFeedbackEntry> persisted =
+        _sanitizePersistedEntries(value);
+    final Map<String, Map<String, dynamic>> payload = persisted.map(
       (String key, TonightFeedbackEntry entry) =>
           MapEntry<String, Map<String, dynamic>>(key, entry.toJson()),
     );
@@ -348,6 +434,29 @@ class TonightFeedbackStore
           'entries': payload,
           'updatedAt': FieldValue.serverTimestamp(),
         });
+  }
+
+  Map<String, TonightFeedbackEntry> _sanitizePersistedEntries(
+    Map<String, TonightFeedbackEntry> entries,
+  ) {
+    final Map<String, TonightFeedbackEntry> sanitized =
+        <String, TonightFeedbackEntry>{};
+    for (final MapEntry<String, TonightFeedbackEntry> entry
+        in entries.entries) {
+      final Set<TonightFeedbackSignal> persistedSignals = entry.value.signals
+          .where((TonightFeedbackSignal signal) {
+            return signal != TonightFeedbackSignal.moreLikeThis;
+          })
+          .toSet();
+      if (persistedSignals.isEmpty) {
+        continue;
+      }
+      sanitized[entry.key] = entry.value.copyWith(
+        signals: persistedSignals,
+        moreLikeThisPromptKeys: const <String>[],
+      );
+    }
+    return sanitized;
   }
 }
 
@@ -369,28 +478,55 @@ final tonightFeedbackEntryProvider =
     });
 
 final tonightFeedbackSignalsProvider =
-    Provider.family<Set<TonightFeedbackSignal>, ({int mediaId, bool isTv})>((
-      ref,
-      args,
-    ) {
-      return ref.watch(tonightFeedbackEntryProvider(args))?.signals ??
-          const <TonightFeedbackSignal>{};
+    Provider.family<
+      Set<TonightFeedbackSignal>,
+      ({int mediaId, bool isTv, String? promptContext})
+    >((ref, args) {
+      final TonightFeedbackEntry? entry = ref.watch(
+        tonightFeedbackEntryProvider((mediaId: args.mediaId, isTv: args.isTv)),
+      );
+      if (entry == null) {
+        return const <TonightFeedbackSignal>{};
+      }
+      final Set<TonightFeedbackSignal> signals = <TonightFeedbackSignal>{
+        ...entry.signals,
+      };
+      if (signals.contains(TonightFeedbackSignal.moreLikeThis)) {
+        final String promptKey = args.promptContext == null
+            ? ''
+            : normalizeTonightPromptScope(args.promptContext!);
+        if (promptKey.isEmpty ||
+            !entry.moreLikeThisPromptKeys.contains(promptKey)) {
+          signals.remove(TonightFeedbackSignal.moreLikeThis);
+        }
+      }
+      return signals;
     });
 
 final tonightPreferenceProfileProvider =
-    Provider.family<TonightPreferenceProfile, bool>((ref, isTv) {
+    Provider.family<
+      TonightPreferenceProfile,
+      ({bool isTv, String promptContext})
+    >((ref, args) {
       final Map<String, TonightFeedbackEntry> state =
           ref.watch(tonightFeedbackProvider).value ??
           const <String, TonightFeedbackEntry>{};
       final Map<String, int> preferredGenres = <String, int>{};
       final Map<String, int> preferredLanguages = <String, int>{};
       double mainstreamPenaltyStrength = 0;
+      final Set<int> moreLikeThisSeedIds = <int>{};
+      final Set<int> tooMainstreamTitleIds = <int>{};
+      final List<double> rejectedMainstreamPopularities = <double>[];
+      final String promptKey = normalizeTonightPromptScope(args.promptContext);
 
       for (final TonightFeedbackEntry entry in state.values) {
-        if (entry.isTv != isTv) {
+        if (entry.isTv != args.isTv) {
           continue;
         }
-        if (entry.signals.contains(TonightFeedbackSignal.moreLikeThis)) {
+        if (entry.signals.contains(TonightFeedbackSignal.moreLikeThis) &&
+            promptKey.isNotEmpty &&
+            entry.moreLikeThisPromptKeys.contains(promptKey)) {
+          moreLikeThisSeedIds.add(entry.mediaId);
           for (final String genre in entry.genres) {
             preferredGenres[genre] = (preferredGenres[genre] ?? 0) + 1;
           }
@@ -402,6 +538,10 @@ final tonightPreferenceProfileProvider =
         }
         if (entry.signals.contains(TonightFeedbackSignal.tooMainstream)) {
           mainstreamPenaltyStrength += 1;
+          tooMainstreamTitleIds.add(entry.mediaId);
+          if (entry.popularity != null && entry.popularity! > 0) {
+            rejectedMainstreamPopularities.add(entry.popularity!);
+          }
         }
       }
 
@@ -409,8 +549,33 @@ final tonightPreferenceProfileProvider =
         preferredGenres: preferredGenres,
         preferredLanguages: preferredLanguages,
         mainstreamPenaltyStrength: mainstreamPenaltyStrength,
+        moreLikeThisSeedIds: moreLikeThisSeedIds.toList(growable: false),
+        tooMainstreamTitleIds: tooMainstreamTitleIds.toList(growable: false),
+        rejectedMainstreamPopularities: rejectedMainstreamPopularities,
       );
     });
 
+final tonightHasClearablePreferencesProvider = Provider.family<bool, bool>((
+  ref,
+  isTv,
+) {
+  final Map<String, TonightFeedbackEntry> state =
+      ref.watch(tonightFeedbackProvider).value ??
+      const <String, TonightFeedbackEntry>{};
+  for (final TonightFeedbackEntry entry in state.values) {
+    if (entry.isTv != isTv) {
+      continue;
+    }
+    if (entry.signals.contains(TonightFeedbackSignal.moreLikeThis) ||
+        entry.signals.contains(TonightFeedbackSignal.tooMainstream)) {
+      return true;
+    }
+  }
+  return false;
+});
+
 String _feedbackKey(int mediaId, bool isTv) =>
     '${isTv ? 'tv' : 'movie'}:$mediaId';
+
+String normalizeTonightPromptScope(String prompt) =>
+    prompt.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');

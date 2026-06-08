@@ -124,11 +124,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           final bool isTv = state.uri.queryParameters['isTv'] == 'true';
           final bool fromNotification =
               state.uri.queryParameters['fromNotification'] == 'true';
+          final bool fromSmartLink =
+              state.uri.host == 'cineverse-tmdb-proxy.sodukle.workers.dev';
           final String? heroTag = state.uri.queryParameters['heroTag'];
           return MovieDetailsScreen(
             movieId: int.parse(movieIdValue),
             isTv: isTv,
             fromNotification: fromNotification,
+            fromSmartLink: fromSmartLink,
             heroTag: heroTag,
           );
         },

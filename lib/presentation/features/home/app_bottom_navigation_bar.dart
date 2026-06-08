@@ -189,12 +189,26 @@ class _BottomNavItem extends StatelessWidget {
                           : null,
                     ),
                     child: Center(
-                      child: Transform.scale(
-                        scale: 1 + (0.08 * t),
-                        child: Icon(
-                          selected ? tab.selectedIcon : tab.icon,
-                          color: iconColor,
-                          size: 20,
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 220),
+                        transitionBuilder:
+                            (Widget child, Animation<double> animation) {
+                              return ScaleTransition(
+                                scale: Tween<double>(
+                                  begin: 0.86,
+                                  end: 1.0,
+                                ).animate(animation),
+                                child: child,
+                              );
+                            },
+                        child: Transform.scale(
+                          key: ValueKey<bool>(selected),
+                          scale: 1 + (0.08 * t),
+                          child: Icon(
+                            selected ? tab.selectedIcon : tab.icon,
+                            color: iconColor,
+                            size: 20,
+                          ),
                         ),
                       ),
                     ),

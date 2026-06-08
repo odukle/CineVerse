@@ -1,5 +1,6 @@
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/data/services/sync_service.dart';
 import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:cineverse/core/config/region_preferences.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
@@ -7,8 +8,12 @@ import 'package:cineverse/domain/entities/watched_item.dart';
 import 'package:cineverse/presentation/features/home/providers/watch_history_insights_provider.dart';
 import 'package:cineverse/presentation/features/home/providers/library_retention_provider.dart';
 import 'package:cineverse/presentation/features/home/providers/reminders_provider.dart';
+import 'package:cineverse/presentation/features/movie_details/providers/notes_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
+import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
+import 'package:cineverse/presentation/features/watchlist/providers/library_provider.dart';
 import 'package:cineverse/presentation/providers/auth_provider.dart';
+import 'package:cineverse/presentation/providers/sync_provider.dart';
 import 'package:cineverse/presentation/widgets/tab_content_reveal.dart';
 import 'package:cineverse/domain/entities/user_entity.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -21,6 +26,23 @@ import 'package:url_launcher/url_launcher.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
+
+  void _invalidateLocalLibraryProviders(WidgetRef ref) {
+    ref.invalidate(watchlistProvider);
+    ref.invalidate(watchedItemsProvider);
+    ref.invalidate(favouritesProvider);
+    ref.invalidate(namedListsProvider);
+    ref.invalidate(allNotesProvider);
+  }
+
+  Future<void> _showInfoSnackBar(BuildContext context, String message) async {
+    if (!context.mounted) {
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
 
   Future<void> _showErrorSnackBar(BuildContext context, Object error) async {
     if (!context.mounted) {
@@ -96,6 +118,149 @@ class AccountScreen extends ConsumerWidget {
       }
       await _showErrorSnackBar(context, error);
     }
+  }
+
+  Future<bool?> _promptIncludeLocalLibraryOnSignIn(BuildContext context) async {
+    return showAnimatedDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.detailsCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
+        title: Text(
+          'Use local library for sync?',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: const Text(
+          'This device already has local library titles. Include them in your signed-in library, or replace local library data with your cloud library.',
+          style: TextStyle(color: Colors.white70, fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            style: TextButton.styleFrom(foregroundColor: Colors.white60),
+            child: const Text(
+              'Use Cloud Only',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.cinemaSelected,
+            ),
+            child: const Text(
+              'Include Local Library',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<_SignOutChoice?> _promptSignOutChoice(BuildContext context) async {
+    return showAnimatedDialog<_SignOutChoice>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.detailsCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
+        title: Text(
+          'Sign Out',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: const Text(
+          'Choose whether to keep the local library on this device after signing out.',
+          style: TextStyle(color: Colors.white70, fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, null),
+            style: TextButton.styleFrom(foregroundColor: Colors.white60),
+            child: const Text(
+              'Cancel',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, _SignOutChoice.signOutOnly),
+            style: TextButton.styleFrom(foregroundColor: Colors.white70),
+            child: const Text(
+              'Keep Local Library',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          TextButton(
+            onPressed: () =>
+                Navigator.pop(context, _SignOutChoice.signOutAndClearLocal),
+            style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
+            child: const Text(
+              'Clear Local Library',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleSignInResult(BuildContext context, WidgetRef ref) async {
+    final SyncService syncService = ref.read(syncServiceProvider);
+    final bool hasLocalLibrary = await syncService.hasLocalLibraryContent();
+
+    if (!context.mounted) {
+      return;
+    }
+
+    if (!hasLocalLibrary) {
+      await syncService.syncAllFromRemote();
+      return;
+    }
+
+    final bool includeLocal =
+        await _promptIncludeLocalLibraryOnSignIn(context) ?? false;
+
+    if (includeLocal) {
+      await syncService.syncAllFromRemote();
+      await syncService.syncAllToRemote();
+      if (!context.mounted) {
+        return;
+      }
+      await _showInfoSnackBar(
+        context,
+        'Merged local titles into your signed-in library.',
+      );
+      return;
+    }
+
+    await syncService.clearLocalLibrary();
+    _invalidateLocalLibraryProviders(ref);
+    await syncService.syncAllFromRemote();
+    if (!context.mounted) {
+      return;
+    }
+    await _showInfoSnackBar(
+      context,
+      'Replaced local library data with your cloud library.',
+    );
   }
 
   @override
@@ -226,39 +391,22 @@ class AccountScreen extends ConsumerWidget {
                           spacing: 10,
                           runSpacing: 10,
                           children: [
-                            ElevatedButton.icon(
-                              onPressed: () async {
-                                HapticFeedback.selectionClick();
-                                try {
-                                  await ref
-                                      .read(authRepositoryProvider)
-                                      .signInWithGoogle();
-                                } catch (error) {
-                                  if (!context.mounted) {
-                                    return;
-                                  }
-                                  await _showErrorSnackBar(context, error);
-                                }
-                              },
-                              icon: const Icon(Icons.login_rounded, size: 18),
-                              label: const Text('Sign in with Google'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.cinemaSelected,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                            if (!kIsWeb &&
-                                defaultTargetPlatform == TargetPlatform.iOS)
-                              ElevatedButton.icon(
+                            SizedBox(
+                              height: 48,
+                              child: OutlinedButton.icon(
                                 onPressed: () async {
                                   HapticFeedback.selectionClick();
                                   try {
+                                    ref
+                                        .read(syncServiceProvider)
+                                        .suspendNextAutomaticPull();
                                     await ref
                                         .read(authRepositoryProvider)
-                                        .signInWithApple();
+                                        .signInWithGoogle();
+                                    if (!context.mounted) {
+                                      return;
+                                    }
+                                    await _handleSignInResult(context, ref);
                                   } catch (error) {
                                     if (!context.mounted) {
                                       return;
@@ -266,13 +414,66 @@ class AccountScreen extends ConsumerWidget {
                                     await _showErrorSnackBar(context, error);
                                   }
                                 },
-                                icon: const Icon(Icons.apple_rounded, size: 18),
-                                label: const Text('Sign in with Apple'),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black,
+                                icon: const FaIcon(
+                                  FontAwesomeIcons.google,
+                                  size: 16,
+                                  color: Colors.white,
+                                ),
+                                label: const Text('Sign in with Google'),
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFDB4437),
                                   foregroundColor: Colors.white,
+                                  side: const BorderSide(
+                                    color: Color(0xFFDB4437),
+                                    width: 1,
+                                  ),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            if (!kIsWeb)
+                              SizedBox(
+                                height: 48,
+                                child: ElevatedButton.icon(
+                                  onPressed: () async {
+                                    HapticFeedback.selectionClick();
+                                    try {
+                                      ref
+                                          .read(syncServiceProvider)
+                                          .suspendNextAutomaticPull();
+                                      await ref
+                                          .read(authRepositoryProvider)
+                                          .signInWithApple();
+                                      if (!context.mounted) {
+                                        return;
+                                      }
+                                      await _handleSignInResult(context, ref);
+                                    } catch (error) {
+                                      if (!context.mounted) {
+                                        return;
+                                      }
+                                      await _showErrorSnackBar(context, error);
+                                    }
+                                  },
+                                  icon: const Icon(
+                                    Icons.apple_rounded,
+                                    size: 18,
+                                  ),
+                                  label: const Text('Sign in with Apple'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.black,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -287,70 +488,27 @@ class AccountScreen extends ConsumerWidget {
                             ElevatedButton.icon(
                               onPressed: () async {
                                 HapticFeedback.selectionClick();
-                                final bool?
-                                confirm = await showAnimatedDialog<bool>(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    backgroundColor: AppColors.detailsCard,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                      side: BorderSide(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.08,
-                                        ),
-                                        width: 1,
-                                      ),
-                                    ),
-                                    title: Text(
-                                      'Sign Out',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleMedium
-                                          ?.copyWith(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                    content: const Text(
-                                      'Are you sure you want to sign out? Your local data will remain, but cloud syncing will stop.',
-                                      style: TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, false),
-                                        style: TextButton.styleFrom(
-                                          foregroundColor: Colors.white60,
-                                        ),
-                                        child: const Text(
-                                          'Cancel',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                      TextButton(
-                                        onPressed: () =>
-                                            Navigator.pop(context, true),
-                                        style: TextButton.styleFrom(
-                                          foregroundColor: Colors.redAccent,
-                                        ),
-                                        child: const Text(
-                                          'Sign Out',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-
-                                if (confirm == true) {
-                                  ref.read(authRepositoryProvider).signOut();
+                                final _SignOutChoice? choice =
+                                    await _promptSignOutChoice(context);
+                                if (choice == null) {
+                                  return;
+                                }
+                                await ref
+                                    .read(authRepositoryProvider)
+                                    .signOut();
+                                if (choice ==
+                                    _SignOutChoice.signOutAndClearLocal) {
+                                  await ref
+                                      .read(syncServiceProvider)
+                                      .clearLocalLibrary();
+                                  _invalidateLocalLibraryProviders(ref);
+                                  if (!context.mounted) {
+                                    return;
+                                  }
+                                  await _showInfoSnackBar(
+                                    context,
+                                    'Signed out and cleared the local library on this device.',
+                                  );
                                 }
                               },
                               icon: const Icon(Icons.logout_rounded, size: 18),
@@ -436,6 +594,8 @@ class AccountScreen extends ConsumerWidget {
     );
   }
 }
+
+enum _SignOutChoice { signOutOnly, signOutAndClearLocal }
 
 class _DeveloperFooter extends StatelessWidget {
   const _DeveloperFooter();

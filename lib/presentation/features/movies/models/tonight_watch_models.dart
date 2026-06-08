@@ -6,11 +6,13 @@ class TonightPromptRequest {
     required this.isTv,
     required this.prompt,
     this.requestNonce = 0,
+    this.useTmdbSeedRefreshOnly = false,
   });
 
   final bool isTv;
   final String prompt;
   final int requestNonce;
+  final bool useTmdbSeedRefreshOnly;
 
   @override
   bool operator ==(Object other) {
@@ -19,12 +21,17 @@ class TonightPromptRequest {
             runtimeType == other.runtimeType &&
             isTv == other.isTv &&
             prompt.trim().toLowerCase() == other.prompt.trim().toLowerCase() &&
-            requestNonce == other.requestNonce;
+            requestNonce == other.requestNonce &&
+            useTmdbSeedRefreshOnly == other.useTmdbSeedRefreshOnly;
   }
 
   @override
-  int get hashCode =>
-      Object.hash(isTv, prompt.trim().toLowerCase(), requestNonce);
+  int get hashCode => Object.hash(
+    isTv,
+    prompt.trim().toLowerCase(),
+    requestNonce,
+    useTmdbSeedRefreshOnly,
+  );
 }
 
 class TonightRecommendationItem {

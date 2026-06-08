@@ -47,6 +47,7 @@ import 'package:cineverse/domain/entities/library_item.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:cineverse/presentation/widgets/media_actions_dialogs.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
+import 'package:cineverse/presentation/widgets/animated_icon_action.dart';
 import 'package:cineverse/presentation/features/movie_details/widgets/quotes_carousel.dart';
 import 'package:cineverse/presentation/features/movie_details/widgets/full_cast_crew_chip.dart';
 import 'package:cineverse/presentation/features/movie_details/widgets/movie_details_share_bottom_sheet.dart';
@@ -57,12 +58,14 @@ class MovieDetailsScreen extends ConsumerWidget {
     required this.movieId,
     this.isTv = false,
     this.fromNotification = false,
+    this.fromSmartLink = false,
     this.heroTag,
   });
 
   final int movieId;
   final bool isTv;
   final bool fromNotification;
+  final bool fromSmartLink;
   final String? heroTag;
 
   @override
@@ -170,6 +173,7 @@ class MovieDetailsScreen extends ConsumerWidget {
             details: details,
             isTv: isTv,
             fromNotification: fromNotification,
+            fromSmartLink: fromSmartLink,
             heroTag: heroTag,
           ),
         ),
@@ -183,12 +187,14 @@ class _MovieDetailsView extends ConsumerStatefulWidget {
     required this.details,
     required this.isTv,
     required this.fromNotification,
+    required this.fromSmartLink,
     this.heroTag,
   });
 
   final MovieDetails details;
   final bool isTv;
   final bool fromNotification;
+  final bool fromSmartLink;
   final String? heroTag;
 
   @override
@@ -305,7 +311,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
         titleLogoUrl?.toLowerCase().endsWith('.svg') ?? false;
 
     return PopScope(
-      canPop: !widget.fromNotification,
+      canPop: !(widget.fromNotification || widget.fromSmartLink),
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) {
           return;
@@ -3572,7 +3578,7 @@ class _CircleActionButton extends StatelessWidget {
       shape: const CircleBorder(),
       shadowColor: AppColors.detailsCardShadow.withValues(alpha: 0.55),
       elevation: isActive ? 8 : 4,
-      child: InkWell(
+      child: AnimatedIconAction(
         onTap: onPressed,
         customBorder: const CircleBorder(),
         child: DecoratedBox(

@@ -2,6 +2,7 @@ import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/presentation/features/home/providers/library_retention_provider.dart';
 import 'package:cineverse/presentation/features/home/providers/reminders_provider.dart';
+import 'package:cineverse/presentation/widgets/animated_icon_action.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -426,88 +427,109 @@ class _ReleaseCalendarCard extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 10),
-            IconButton(
-              tooltip: hasActiveReminder ? 'Remove reminder' : 'Remind me',
-              onPressed: () async {
-                if (hasActiveReminder) {
-                  if (item.kind == ReleaseCalendarEntryKind.movieRelease) {
-                    await ref
-                        .read(remindersProvider.notifier)
-                        .dismissRemindersForMedia(
-                          mediaId: item.mediaId,
-                          isTv: item.isTv,
-                        );
-                  } else {
-                    await ref
-                        .read(remindersProvider.notifier)
-                        .dismissReminder(activeReminder.id);
-                  }
-                } else {
-                  final DateTime notifyAt =
-                      item.kind == ReleaseCalendarEntryKind.movieRelease
-                      ? DateTime(
-                          item.date.year,
-                          item.date.month,
-                          item.date.day,
-                          9,
-                        )
-                      : item.date.subtract(const Duration(hours: 1));
-                  final AppReminder reminder = AppReminder(
-                    id: item.kind == ReleaseCalendarEntryKind.movieRelease
-                        ? buildReleaseReminderId(
+            Tooltip(
+              message: hasActiveReminder ? 'Remove reminder' : 'Remind me',
+              child: AnimatedIconAction(
+                onTap: () async {
+                  if (hasActiveReminder) {
+                    if (item.kind == ReleaseCalendarEntryKind.movieRelease) {
+                      await ref
+                          .read(remindersProvider.notifier)
+                          .dismissRemindersForMedia(
                             mediaId: item.mediaId,
                             isTv: item.isTv,
+                          );
+                    } else {
+                      await ref
+                          .read(remindersProvider.notifier)
+                          .dismissReminder(activeReminder.id);
+                    }
+                  } else {
+                    final DateTime notifyAt =
+                        item.kind == ReleaseCalendarEntryKind.movieRelease
+                        ? DateTime(
+                            item.date.year,
+                            item.date.month,
+                            item.date.day,
+                            9,
                           )
-                        : buildEpisodeReminderId(
-                            mediaId: item.mediaId,
-                            seasonNumber: item.seasonNumber ?? 0,
-                            episodeNumber: item.episodeNumber ?? 0,
-                            airDate: item.date,
-                          ),
-                    type: item.kind == ReleaseCalendarEntryKind.movieRelease
-                        ? ReminderType.general
-                        : ReminderType.episodeAiring,
-                    title: item.title,
-                    message: item.kind == ReleaseCalendarEntryKind.movieRelease
-                        ? '${item.title} releases today.'
-                        : '${item.title} ${item.subtitle.toLowerCase()} airs soon.',
-                    notifyAt: notifyAt.isAfter(DateTime.now())
-                        ? notifyAt
-                        : DateTime.now().add(const Duration(minutes: 1)),
-                    createdAt: DateTime.now(),
-                    mediaId: item.mediaId,
-                    isTv: item.isTv,
-                    backdropPath: item.backdropPath,
-                    seasonNumber: item.seasonNumber,
-                    episodeNumber: item.episodeNumber,
-                    airDate: item.date,
+                        : item.date.subtract(const Duration(hours: 1));
+                    final AppReminder reminder = AppReminder(
+                      id: item.kind == ReleaseCalendarEntryKind.movieRelease
+                          ? buildReleaseReminderId(
+                              mediaId: item.mediaId,
+                              isTv: item.isTv,
+                            )
+                          : buildEpisodeReminderId(
+                              mediaId: item.mediaId,
+                              seasonNumber: item.seasonNumber ?? 0,
+                              episodeNumber: item.episodeNumber ?? 0,
+                              airDate: item.date,
+                            ),
+                      type: item.kind == ReleaseCalendarEntryKind.movieRelease
+                          ? ReminderType.general
+                          : ReminderType.episodeAiring,
+                      title: item.title,
+                      message:
+                          item.kind == ReleaseCalendarEntryKind.movieRelease
+                          ? '${item.title} releases today.'
+                          : '${item.title} ${item.subtitle.toLowerCase()} airs soon.',
+                      notifyAt: notifyAt.isAfter(DateTime.now())
+                          ? notifyAt
+                          : DateTime.now().add(const Duration(minutes: 1)),
+                      createdAt: DateTime.now(),
+                      mediaId: item.mediaId,
+                      isTv: item.isTv,
+                      backdropPath: item.backdropPath,
+                      seasonNumber: item.seasonNumber,
+                      episodeNumber: item.episodeNumber,
+                      airDate: item.date,
+                    );
+                    await ref
+                        .read(remindersProvider.notifier)
+                        .addReminder(reminder);
+                  }
+                  if (!context.mounted) {
+                    return;
+                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        hasActiveReminder
+                            ? 'Reminder removed for ${item.title}.'
+                            : item.kind == ReleaseCalendarEntryKind.movieRelease
+                            ? 'Release reminder set for ${item.title}.'
+                            : 'Episode reminder set for ${item.title}.',
+                      ),
+                    ),
                   );
-                  await ref
-                      .read(remindersProvider.notifier)
-                      .addReminder(reminder);
-                }
-                if (!context.mounted) {
-                  return;
-                }
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      hasActiveReminder
-                          ? 'Reminder removed for ${item.title}.'
-                          : item.kind == ReleaseCalendarEntryKind.movieRelease
-                          ? 'Release reminder set for ${item.title}.'
-                          : 'Episode reminder set for ${item.title}.',
+                },
+                borderRadius: BorderRadius.circular(999),
+                child: SizedBox(
+                  width: 42,
+                  height: 42,
+                  child: Center(
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 220),
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) {
+                            return ScaleTransition(
+                              scale: animation,
+                              child: child,
+                            );
+                          },
+                      child: Icon(
+                        hasActiveReminder
+                            ? Icons.notifications_active_rounded
+                            : Icons.notifications_none_rounded,
+                        key: ValueKey<bool>(hasActiveReminder),
+                        color: hasActiveReminder
+                            ? AppColors.cinemaWarmGlow
+                            : Colors.white70,
+                      ),
                     ),
                   ),
-                );
-              },
-              icon: Icon(
-                hasActiveReminder
-                    ? Icons.notifications_active_rounded
-                    : Icons.notifications_none_rounded,
-                color: hasActiveReminder
-                    ? AppColors.cinemaWarmGlow
-                    : Colors.white70,
+                ),
               ),
             ),
           ],

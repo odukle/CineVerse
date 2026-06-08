@@ -44,7 +44,10 @@ final tonightPromptRecommendationsProvider = FutureProvider.autoDispose
           ? GlobalMediaType.tv
           : GlobalMediaType.movie;
       final TonightPreferenceProfile preferenceProfile = ref.read(
-        tonightPreferenceProfileProvider(request.isTv),
+        tonightPreferenceProfileProvider((
+          isTv: request.isTv,
+          promptContext: request.prompt,
+        )),
       );
       final Set<int> excludedWatchedIds =
           (await ref.read(watchedItemsProvider.future))
@@ -67,8 +70,31 @@ final tonightPromptRecommendationsProvider = FutureProvider.autoDispose
         _progressAdd('Excluding ${excludedHiddenIds.length} hidden title(s)');
       }
       if (preferenceProfile.preferredGenres.isNotEmpty ||
-          preferenceProfile.mainstreamPenaltyStrength > 0) {
+          preferenceProfile.mainstreamPenaltyStrength > 0 ||
+          preferenceProfile.moreLikeThisSeedIds.isNotEmpty) {
         _progressAdd('Applying your feedback preferences');
+      }
+      if (preferenceProfile.tooMainstreamTitleIds.isNotEmpty) {
+        _progressAdd(
+          'Excluding ${preferenceProfile.tooMainstreamTitleIds.length} title(s) marked as too mainstream',
+        );
+      }
+
+      final String? requestedOriginalLanguage =
+          _extractOriginalLanguageCodeFromPrompt(request.prompt);
+
+      if (_shouldUseTmdbSeedOnlyRefresh(request, preferenceProfile)) {
+        _progressAdd(
+          'Skipping AI query and expanding from titles you marked as similar',
+        );
+        return _recommendFromTmdbFeedbackSeeds(
+          request: request,
+          repository: repository,
+          excludedWatchedIds: excludedWatchedIds,
+          excludedHiddenIds: excludedHiddenIds,
+          preferenceProfile: preferenceProfile,
+          requestedOriginalLanguage: requestedOriginalLanguage,
+        );
       }
 
       if (!appConfig.hasTonightRecommendationsApiUrl) {
@@ -82,6 +108,7 @@ final tonightPromptRecommendationsProvider = FutureProvider.autoDispose
         excludedWatchedIds: excludedWatchedIds,
         excludedHiddenIds: excludedHiddenIds,
         preferenceProfile: preferenceProfile,
+        requestedOriginalLanguage: requestedOriginalLanguage,
       );
     });
 
@@ -92,6 +119,7 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
   required Set<int> excludedWatchedIds,
   required Set<int> excludedHiddenIds,
   required TonightPreferenceProfile preferenceProfile,
+  required String? requestedOriginalLanguage,
 }) async {
   final bool showDiagnostics = kDebugMode || appConfig.showTonightDiagnostics;
   final String? idToken = await FirebaseAuth.instance.currentUser?.getIdToken();
@@ -179,7 +207,13 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
             return false;
           }
           return !excludedWatchedIds.contains(id) &&
-              !excludedHiddenIds.contains(id);
+              !excludedHiddenIds.contains(id) &&
+              !preferenceProfile.moreLikeThisSeedIds.contains(id) &&
+              !preferenceProfile.tooMainstreamTitleIds.contains(id) &&
+              !_isFilteredAsTooMainstream(
+                popularity: _readDouble(raw['popularity']) ?? 0,
+                profile: preferenceProfile,
+              );
         })
         .toList(growable: false);
     if (unseenRawResults.isEmpty) {
@@ -194,6 +228,7 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
         .toList(growable: false);
     final List<TonightRecommendationItem> recommendations =
         <TonightRecommendationItem>[];
+    final Set<int> recommendationIds = <int>{};
     for (int i = 0; i < shortlist.length; i++) {
       _progressAdd('Verifying pick ${i + 1}/${shortlist.length}');
       final TonightRecommendationItem? item =
@@ -204,6 +239,31 @@ Future<TonightPromptResult> _recommendWithFirebaseRecommendationService({
           );
       if (item != null) {
         recommendations.add(item);
+        recommendationIds.add(item.title.id);
+      }
+    }
+
+    if (preferenceProfile.moreLikeThisSeedIds.isNotEmpty) {
+      _progressAdd('Expanding around titles you liked');
+      final List<TonightRecommendationItem> feedbackSeedRecommendations =
+          await _collectFeedbackSeedRecommendations(
+            repository: repository,
+            isTv: request.isTv,
+            seedIds: preferenceProfile.moreLikeThisSeedIds,
+            excludedIds: <int>{
+              ...excludedWatchedIds,
+              ...excludedHiddenIds,
+              ...preferenceProfile.moreLikeThisSeedIds,
+              ...preferenceProfile.tooMainstreamTitleIds,
+              ...recommendationIds,
+            },
+            requiredOriginalLanguage: requestedOriginalLanguage,
+          );
+      for (final TonightRecommendationItem item
+          in feedbackSeedRecommendations) {
+        if (recommendationIds.add(item.title.id)) {
+          recommendations.add(item);
+        }
       }
     }
 
@@ -277,6 +337,190 @@ double _feedbackAdjustedScore({
     score -= penalty;
   }
   return score;
+}
+
+bool _shouldUseTmdbSeedOnlyRefresh(
+  TonightPromptRequest request,
+  TonightPreferenceProfile profile,
+) {
+  return request.useTmdbSeedRefreshOnly &&
+      profile.moreLikeThisSeedIds.isNotEmpty &&
+      profile.mainstreamPenaltyStrength <= 0;
+}
+
+bool _isFilteredAsTooMainstream({
+  required double popularity,
+  required TonightPreferenceProfile profile,
+}) {
+  if (profile.mainstreamPenaltyStrength <= 0) {
+    return false;
+  }
+  final double cutoff = _mainstreamPopularityCutoff(profile);
+  return popularity > cutoff;
+}
+
+double _mainstreamPopularityCutoff(TonightPreferenceProfile profile) {
+  final List<double> rejected =
+      profile.rejectedMainstreamPopularities
+          .where((double value) => value > 0)
+          .toList(growable: false)
+        ..sort();
+  if (rejected.isEmpty) {
+    return math.max(45, 85 - ((profile.mainstreamPenaltyStrength - 1) * 12));
+  }
+  final double median = rejected[rejected.length ~/ 2];
+  final double highest = rejected.last;
+  final double adaptive = math.min(median, highest - 6);
+  return adaptive.clamp(28, 90);
+}
+
+Future<TonightPromptResult> _recommendFromTmdbFeedbackSeeds({
+  required TonightPromptRequest request,
+  required MediaRepository repository,
+  required Set<int> excludedWatchedIds,
+  required Set<int> excludedHiddenIds,
+  required TonightPreferenceProfile preferenceProfile,
+  required String? requestedOriginalLanguage,
+}) async {
+  _progressAdd(
+    'Fetching TMDB recommendations from ${preferenceProfile.moreLikeThisSeedIds.length} liked title(s)',
+  );
+  if (requestedOriginalLanguage != null &&
+      requestedOriginalLanguage.isNotEmpty) {
+    _progressAdd(
+      'Keeping recommendations in ${requestedOriginalLanguage.toUpperCase()} when possible',
+    );
+  }
+  _progressAdd('Filtering watched, hidden, and already-liked titles');
+  _progressAdd('Expanding similar titles from TMDB');
+  final List<TonightRecommendationItem> recommendations =
+      await _collectFeedbackSeedRecommendations(
+        repository: repository,
+        isTv: request.isTv,
+        seedIds: preferenceProfile.moreLikeThisSeedIds,
+        excludedIds: <int>{
+          ...excludedWatchedIds,
+          ...excludedHiddenIds,
+          ...preferenceProfile.moreLikeThisSeedIds,
+          ...preferenceProfile.tooMainstreamTitleIds,
+        },
+        requiredOriginalLanguage: requestedOriginalLanguage,
+      );
+
+  if (recommendations.isEmpty) {
+    throw StateError(
+      'Could not find enough TMDB recommendations from the titles you liked. Try another refresh or broaden the query.',
+    );
+  }
+
+  _progressAdd('Scoring and ranking refined picks');
+  recommendations.sort(
+    (TonightRecommendationItem a, TonightRecommendationItem b) =>
+        _feedbackAdjustedScore(item: b, profile: preferenceProfile).compareTo(
+          _feedbackAdjustedScore(item: a, profile: preferenceProfile),
+        ),
+  );
+
+  _progressAdd('Finalizing your watchlist for tonight');
+  todayRecommendationPlanNotifier.value = <String>[
+    'Source: TMDB recommendations',
+    'Refined from titles you liked',
+    'Candidates: ${recommendations.length}',
+  ];
+  return TonightPromptResult(
+    interpretedIntent:
+        'Expanded from the titles you marked as similar for "${request.prompt}".',
+    recommendations: recommendations.take(18).toList(growable: false),
+    queryPlanChips: const <String>[
+      'Source: TMDB recommendations',
+      'Refinement: More like this',
+    ],
+  );
+}
+
+Future<List<TonightRecommendationItem>> _collectFeedbackSeedRecommendations({
+  required MediaRepository repository,
+  required bool isTv,
+  required List<int> seedIds,
+  required Set<int> excludedIds,
+  required String? requiredOriginalLanguage,
+}) async {
+  final List<TonightRecommendationItem> items = <TonightRecommendationItem>[];
+  final Set<int> seenIds = <int>{...excludedIds};
+  final int maxSeeds = seedIds.take(3).length;
+  int hydratedCount = 0;
+
+  for (final (int index, int seedId) in seedIds.take(3).indexed) {
+    try {
+      final String seedLabel = await _seedTitleLabel(
+        repository: repository,
+        seedId: seedId,
+        isTv: isTv,
+      );
+      _progressAdd(
+        'Fetching TMDB recommendations for $seedLabel (${index + 1}/$maxSeeds)',
+      );
+      final List<MovieRecommendation> recs = await repository
+          .fetchMovieRecommendations(seedId, isTv: isTv);
+      _progressAdd('Checking details for the strongest matches');
+      for (final MovieRecommendation rec in recs.take(8)) {
+        if (seenIds.contains(rec.id)) {
+          continue;
+        }
+        seenIds.add(rec.id);
+        hydratedCount += 1;
+        if (hydratedCount <= 4 || hydratedCount % 3 == 0) {
+          _progressAdd('Verifying TMDB candidate $hydratedCount');
+        }
+        final TonightRecommendationItem? item =
+            await _buildRecommendationItemFromMediaTitle(
+              title: rec.toMediaTitle(),
+              repository: repository,
+              isTv: isTv,
+              matchReason:
+                  'Expanded from a title you marked as “more like this”.',
+              scoreBoost: 12,
+              requiredOriginalLanguage: requiredOriginalLanguage,
+            );
+        if (item != null) {
+          items.add(item);
+        }
+        if (items.length >= 10) {
+          _progressAdd('Built enough refined candidates from TMDB');
+          return items;
+        }
+      }
+    } catch (error) {
+      debugPrint(
+        'Failed to fetch TMDB recommendations for feedback seed $seedId: $error',
+      );
+    }
+  }
+  return items;
+}
+
+Future<String> _seedTitleLabel({
+  required MediaRepository repository,
+  required int seedId,
+  required bool isTv,
+}) async {
+  try {
+    final MovieDetails details = await repository.fetchMovieDetails(
+      seedId,
+      isTv: isTv,
+    );
+    return _truncateProgressLabel(details.title);
+  } catch (_) {
+    return 'this title';
+  }
+}
+
+String _truncateProgressLabel(String value, {int maxChars = 26}) {
+  final String trimmed = value.trim();
+  if (trimmed.length <= maxChars) {
+    return trimmed;
+  }
+  return '${trimmed.substring(0, maxChars - 1).trimRight()}…';
 }
 
 @immutable
@@ -353,6 +597,7 @@ Future<TonightRecommendationItem?> _buildRecommendationServiceItem({
       releaseDate: details.releaseDate,
       voteAverage: details.catalogScore,
       voteCount: details.voteCount ?? 0,
+      popularity: _readDouble(raw['popularity']) ?? 0,
     );
     return TonightRecommendationItem(
       title: title,
@@ -366,6 +611,110 @@ Future<TonightRecommendationItem?> _buildRecommendationServiceItem({
     debugPrint('Failed to hydrate recommendation service result $id: $error');
     return null;
   }
+}
+
+Future<TonightRecommendationItem?> _buildRecommendationItemFromMediaTitle({
+  required MediaTitle title,
+  required MediaRepository repository,
+  required bool isTv,
+  required String matchReason,
+  required String? requiredOriginalLanguage,
+  double scoreBoost = 0,
+}) async {
+  try {
+    final MovieDetails details = await repository.fetchMovieDetails(
+      title.id,
+      isTv: isTv,
+    );
+    if (requiredOriginalLanguage != null &&
+        requiredOriginalLanguage.isNotEmpty &&
+        details.originalLanguage?.trim().toLowerCase() !=
+            requiredOriginalLanguage) {
+      return null;
+    }
+    return TonightRecommendationItem(
+      title: title,
+      details: details,
+      matchReason: matchReason,
+      score: (title.voteAverage ?? details.catalogScore ?? 0) + scoreBoost,
+    );
+  } catch (error) {
+    debugPrint(
+      'Failed to hydrate TMDB seed recommendation ${title.id}: $error',
+    );
+    return null;
+  }
+}
+
+String? _extractOriginalLanguageCodeFromPrompt(String prompt) {
+  final String lower = prompt.trim().toLowerCase();
+  const Map<String, String> languageAliases = <String, String>{
+    'arabic': 'ar',
+    'argentinian spanish': 'es',
+    'bengali': 'bn',
+    'bangla': 'bn',
+    'bosnian': 'bs',
+    'bulgarian': 'bg',
+    'cantonese': 'cn',
+    'catalan': 'ca',
+    'chinese': 'zh',
+    'croatian': 'hr',
+    'czech': 'cs',
+    'danish': 'da',
+    'dutch': 'nl',
+    'english': 'en',
+    'estonian': 'et',
+    'farsi': 'fa',
+    'persian': 'fa',
+    'filipino': 'tl',
+    'tagalog': 'tl',
+    'finnish': 'fi',
+    'french': 'fr',
+    'greek': 'el',
+    'gujarati': 'gu',
+    'german': 'de',
+    'hebrew': 'he',
+    'hindi': 'hi',
+    'hungarian': 'hu',
+    'icelandic': 'is',
+    'indonesian': 'id',
+    'bahasa indonesia': 'id',
+    'italian': 'it',
+    'japanese': 'ja',
+    'marathi': 'mr',
+    'malay': 'ms',
+    'tamil': 'ta',
+    'telugu': 'te',
+    'malayalam': 'ml',
+    'kannada': 'kn',
+    'korean': 'ko',
+    'mandarin': 'zh',
+    'norwegian': 'no',
+    'polish': 'pl',
+    'portuguese': 'pt',
+    'brazilian portuguese': 'pt',
+    'brazilian': 'pt',
+    'punjabi': 'pa',
+    'romanian': 'ro',
+    'russian': 'ru',
+    'serbian': 'sr',
+    'slovak': 'sk',
+    'slovenian': 'sl',
+    'spanish': 'es',
+    'swahili': 'sw',
+    'swedish': 'sv',
+    'thai': 'th',
+    'turkish': 'tr',
+    'ukrainian': 'uk',
+    'urdu': 'ur',
+    'vietnamese': 'vi',
+  };
+  for (final MapEntry<String, String> entry in languageAliases.entries) {
+    if (lower.contains(entry.key)) {
+      return entry.value;
+    }
+  }
+  return null;
 }
 
 String _recommendationServiceIntentSummary(

@@ -37,6 +37,7 @@ import 'package:cineverse/domain/entities/library_item.dart';
 import 'package:cineverse/domain/entities/watchlist_item.dart';
 import 'package:cineverse/presentation/features/home/providers/reminders_provider.dart';
 import 'package:cineverse/presentation/widgets/animated_dialog.dart';
+import 'package:cineverse/presentation/widgets/animated_icon_action.dart';
 import 'package:cineverse/presentation/widgets/media_actions_dialogs.dart';
 import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/presentation/features/movie_details/movie_details_screen.dart'
@@ -327,6 +328,13 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     ),
                   ),
                 if (!isTv) const SliverToBoxAdapter(child: _SectionDivider()),
+                if (!isTv)
+                  const SliverToBoxAdapter(
+                    child: _ScrollReveal(
+                      child: _LibraryRecommendationsSection(),
+                    ),
+                  ),
+                if (!isTv) const SliverToBoxAdapter(child: _SectionDivider()),
 
                 // Optimized combined shelf list (Base sections only)
                 SliverList(
@@ -352,10 +360,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 const SliverToBoxAdapter(child: _SectionDivider()),
                 const SliverToBoxAdapter(
                   child: _ScrollReveal(child: _CuratedCollectionSection()),
-                ),
-                const SliverToBoxAdapter(child: _SectionDivider()),
-                const SliverToBoxAdapter(
-                  child: _ScrollReveal(child: _LibraryRecommendationsSection()),
                 ),
                 const SliverToBoxAdapter(child: _SectionDivider()),
                 const SliverToBoxAdapter(
@@ -4635,7 +4639,7 @@ class _SpotlightCircleActionButton extends StatelessWidget {
       color: Colors.black.withValues(alpha: 0.5),
       shape: const CircleBorder(),
       elevation: 2,
-      child: InkWell(
+      child: AnimatedIconAction(
         onTap: () {
           HapticFeedback.selectionClick();
           onPressed();

@@ -12,6 +12,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:cineverse/app/router/app_router.dart' show AppRoute;
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
+import 'package:cineverse/presentation/widgets/animated_icon_action.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:cineverse/presentation/widgets/sync_indicator.dart';
@@ -418,7 +419,7 @@ class _ChromeActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final Widget button = Material(
       color: Colors.transparent,
-      child: InkWell(
+      child: AnimatedIconAction(
         onTap: () {
           HapticFeedback.selectionClick();
           onTap();
