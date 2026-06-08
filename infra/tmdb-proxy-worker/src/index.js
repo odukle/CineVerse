@@ -48,6 +48,11 @@ const TMDB_PERSON_TV_CREDITS_PATTERN = /^\/person\/\d+\/tv_credits$/;
 const TMDB_PERSON_MOVIE_CREDITS_PATTERN = /^\/person\/\d+\/movie_credits$/;
 const TMDB_COLLECTION_PATTERN = /^\/collection\/\d+$/;
 const TMDB_COMPANY_DETAILS_PATTERN = /^\/company\/\d+$/;
+const SHARE_MOVIE_LINK_PATTERN = /^\/movies\/\d+$/;
+const ANDROID_APP_LINKS = [
+  "D9:A1:EF:03:2A:02:3E:15:3F:6F:38:86:64:39:E9:4C:A0:1A:4F:F9:C2:3A:A7:47:87:3C:86:B4:11:A3:67:9D",
+  "65:C2:66:D7:FA:FF:6C:18:CE:73:22:94:FF:0E:84:17:31:25:F2:6C:73:6D:0C:46:BB:59:DA:B7:1E:32:92:A7",
+];
 
 
 export default {
@@ -74,9 +79,33 @@ export default {
 
     const url = new URL(request.url);
 
+    if (url.pathname === "/.well-known/assetlinks.json") {
+      return jsonResponse(
+        ANDROID_APP_LINKS.map((fingerprint) => ({
+          relation: ["delegate_permission/common.handle_all_urls"],
+          target: {
+            namespace: "android_app",
+            package_name: "com.odukle.cineverse",
+            sha256_cert_fingerprints: [fingerprint],
+          },
+        })),
+        200,
+        {
+          "Cache-Control": "public, max-age=3600",
+          "Content-Type": "application/json; charset=utf-8",
+        },
+      );
+    }
+
     if (url.pathname === "/health") {
       return jsonResponse({ ok: true }, 200, {
         "Cache-Control": "no-store",
+      });
+    }
+
+    if (SHARE_MOVIE_LINK_PATTERN.test(url.pathname)) {
+      return htmlResponse(buildSharePage(url), 200, {
+        "Cache-Control": "public, max-age=300",
       });
     }
 
@@ -224,4 +253,133 @@ function withCors(response) {
     statusText: response.statusText,
     headers,
   });
+}
+
+function htmlResponse(html, status = 200, extraHeaders = {}) {
+  return new Response(html, {
+    status,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      ...extraHeaders,
+    },
+  });
+}
+
+function buildSharePage(url) {
+  const mediaId = url.pathname.split("/").pop();
+  const isTv = url.searchParams.get("isTv") === "true";
+  const encodedTitle = url.searchParams.get("title") || "Lumi pick";
+  const title = escapeHtml(encodedTitle);
+  const tmdbUrl = `https://www.themoviedb.org/${isTv ? "tv" : "movie"}/${mediaId}`;
+  const playStoreUrl =
+    "https://play.google.com/store/apps/details?id=com.odukle.cineverse";
+  const appStoreUrl = "https://apps.apple.com/app/id6775792556";
+
+  return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${title} • Lumi</title>
+    <meta name="description" content="Open ${title} in Lumi." />
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(circle at top, rgba(111, 168, 255, 0.18), transparent 38%),
+          linear-gradient(180deg, #0d1118, #07090d 60%);
+        color: #f5f7fb;
+        font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .shell {
+        width: min(92vw, 460px);
+        padding: 28px;
+        border-radius: 28px;
+        background: rgba(14, 18, 28, 0.88);
+        border: 1px solid rgba(255,255,255,0.10);
+        box-shadow: 0 24px 80px rgba(0,0,0,0.38);
+      }
+      .eyebrow {
+        display: inline-flex;
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        color: rgba(255,255,255,0.78);
+        font-size: 12px;
+        letter-spacing: 0.02em;
+      }
+      h1 {
+        margin: 14px 0 8px;
+        font-size: 28px;
+        line-height: 1.08;
+      }
+      p {
+        margin: 0 0 18px;
+        color: rgba(255,255,255,0.74);
+      }
+      .actions {
+        display: grid;
+        gap: 12px;
+      }
+      a.button {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 48px;
+        padding: 0 16px;
+        border-radius: 16px;
+        text-decoration: none;
+        font-weight: 700;
+      }
+      a.primary {
+        background: linear-gradient(135deg, #80d8ff, #7c9dff);
+        color: #08111c;
+      }
+      a.secondary {
+        background: rgba(255,255,255,0.06);
+        color: #f5f7fb;
+        border: 1px solid rgba(255,255,255,0.10);
+      }
+      .stores {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      @media (max-width: 460px) {
+        .stores {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <div class="eyebrow">${isTv ? "TV Show" : "Movie"} • Shared from Lumi</div>
+      <h1>${title}</h1>
+      <p>This shared Lumi link is clickable in messaging apps. If Lumi is installed and app links are supported, your device can open it directly in the app.</p>
+      <div class="actions">
+        <a class="button primary" href="${tmdbUrl}">View on TMDB</a>
+        <div class="stores">
+          <a class="button secondary" href="${playStoreUrl}">Get Lumi on Android</a>
+          <a class="button secondary" href="${appStoreUrl}">Get Lumi on iPhone</a>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>`;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cineverse/core/config/app_config.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:flutter/material.dart';
@@ -70,15 +71,23 @@ class _MovieDetailsShareBottomSheetState
   }
 
   Future<void> _shareDeepLink() async {
-    final mediaType = widget.isTv ? 'tv' : 'movie';
-    final deepLink = 'cineverse://$mediaType/${widget.details.id}';
+    final AppConfig appConfig = AppConfig.fromEnvironment();
+    final Uri linkUri =
+        Uri.parse(
+          '${appConfig.effectiveMovieApiBaseUrl}/movies/${widget.details.id}',
+        ).replace(
+          queryParameters: <String, String>{
+            if (widget.isTv) 'isTv': 'true',
+            'title': widget.details.title,
+          },
+        );
     final storeLink = Platform.isAndroid
         ? 'https://play.google.com/store/apps/details?id=com.odukle.cineverse'
         : 'https://apps.apple.com/app/id6775792556';
 
     final shareText =
         'Check out "${widget.details.title}" on Lumi!\n\n'
-        'Open in App: $deepLink\n\n'
+        '${linkUri.toString()}\n\n'
         'Get Lumi: $storeLink';
 
     await Share.share(shareText);
@@ -133,8 +142,8 @@ class _MovieDetailsShareBottomSheetState
           ),
           _ShareOptionItem(
             icon: Icons.link_rounded,
-            title: 'Smart Deep Link',
-            subtitle: 'Directly opens in Lumi app',
+            title: 'Smart Lumi Link',
+            subtitle: 'Clickable share link for WhatsApp and other apps',
             color: Colors.blueAccent,
             onTap: () {
               Navigator.pop(context);
