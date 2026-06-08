@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:cineverse/presentation/providers/quotes_provider.dart';
@@ -465,6 +466,8 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                             ),
                                             _SortSelector(
                                               activeSort: _activeSort,
+                                              showRevenue:
+                                                  _activeFilter == 'movie',
                                               onSortChanged: (sort) => setState(
                                                 () => _activeSort = sort,
                                               ),
@@ -531,6 +534,12 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                             return scoreB.compareTo(
                               scoreA,
                             ); // highest rated first
+                          });
+                        } else if (_activeSort == 'revenue') {
+                          credits.sort((a, b) {
+                            final revenueA = a.media.revenue ?? 0;
+                            final revenueB = b.media.revenue ?? 0;
+                            return revenueB.compareTo(revenueA);
                           });
                         }
 
@@ -602,12 +611,24 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                           (16 * 2) -
                                           (12 * 2)) /
                                       3;
-                                  final bool sortByReleaseDate =
-                                      _activeSort == 'releaseDate';
+                                  final int? hydratedRevenue =
+                                      _activeSort == 'revenue' &&
+                                          credit.media.mediaType ==
+                                              GlobalMediaType.movie
+                                      ? ref
+                                            .watch(
+                                              mediaRevenueProvider(
+                                                credit.media.id,
+                                              ),
+                                            )
+                                            .value
+                                      : null;
                                   final String? subtitleOverride =
-                                      sortByReleaseDate
-                                      ? credit.media.releaseDate
-                                      : _buildCreditSubtitle(credit);
+                                      _buildCreditSubtitleForSort(
+                                        credit,
+                                        _activeSort,
+                                        hydratedRevenue: hydratedRevenue,
+                                      );
 
                                   return MediaPosterGridCard(
                                     movie: credit.media,
@@ -663,6 +684,41 @@ String? _buildCreditSubtitle(PersonCredit credit) {
 
   final String subtitle = segments.join(' • ').trim();
   return subtitle.isEmpty ? null : subtitle;
+}
+
+String? _buildCreditSubtitleForSort(
+  PersonCredit credit,
+  String activeSort, {
+  int? hydratedRevenue,
+}) {
+  switch (activeSort) {
+    case 'releaseDate':
+      return credit.media.releaseDate;
+    case 'voteAverage':
+      final double? rating = credit.media.voteAverage;
+      if (rating == null || rating <= 0) {
+        return credit.media.voteCount > 0
+            ? '${credit.media.voteCount} votes'
+            : null;
+      }
+      final String ratingText = rating.toStringAsFixed(1);
+      if (credit.media.voteCount > 0) {
+        return '$ratingText/10 • ${credit.media.voteCount} votes';
+      }
+      return '$ratingText/10';
+    case 'revenue':
+      final int revenue = hydratedRevenue ?? credit.media.revenue ?? 0;
+      if (revenue <= 0) {
+        return null;
+      }
+      return NumberFormat.compactCurrency(
+        symbol: '\$',
+        decimalDigits: 1,
+      ).format(revenue);
+    case 'popularity':
+    default:
+      return _buildCreditSubtitle(credit);
+  }
 }
 
 class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
@@ -1290,10 +1346,15 @@ class _FilterChip extends StatelessWidget {
 }
 
 class _SortSelector extends StatelessWidget {
-  const _SortSelector({required this.activeSort, required this.onSortChanged});
+  const _SortSelector({
+    required this.activeSort,
+    required this.onSortChanged,
+    required this.showRevenue,
+  });
 
   final String activeSort;
   final ValueChanged<String> onSortChanged;
+  final bool showRevenue;
 
   @override
   Widget build(BuildContext context) {
@@ -1307,6 +1368,8 @@ class _SortSelector extends StatelessWidget {
           return 'Release Date';
         case 'voteAverage':
           return 'Rating';
+        case 'revenue':
+          return 'Revenue';
         default:
           return 'Popularity';
       }
@@ -1374,6 +1437,14 @@ class _SortSelector extends StatelessWidget {
               style: TextStyle(color: Colors.white, fontSize: 13),
             ),
           ),
+          if (showRevenue)
+            const PopupMenuItem(
+              value: 'revenue',
+              child: Text(
+                'Revenue',
+                style: TextStyle(color: Colors.white, fontSize: 13),
+              ),
+            ),
         ],
       ),
     );
