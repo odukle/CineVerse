@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Saurabh Odukle Apps - Elegant Digital Craftsmanship</title>
-    <meta name="description" content="Explore beautiful, focus-driven applications crafted for mobile and web. Home of Lumi Cinema and other upcoming digital experiences." />
+    <meta name="description" content="Explore beautiful, focus-driven applications crafted for mobile and web. Home of Lumi Cinema, Teams Fluent Emojis, WikiQuote, and Viddit." />
     
     <!-- Premium Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -24,7 +24,7 @@
         --lumi-accent: #cfe98e;
         --lumi-glow: rgba(207, 233, 142, 0.15);
         
-        /* general accent */
+        /* General accents */
         --accent-indigo: #818cf8;
         --accent-rose: #f43f5e;
       }
@@ -70,9 +70,9 @@
       }
 
       header {
-        max-width: 1200px;
+        max-width: 1000px;
         margin: 0 auto;
-        padding: 40px 24px;
+        padding: 40px 24px 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -115,39 +115,69 @@
       }
 
       main {
-        max-width: 1200px;
+        max-width: 1000px;
         margin: 0 auto;
-        padding: 40px 24px 100px;
+        padding: 20px 24px 100px;
       }
 
-      .hero {
-        text-align: center;
-        max-width: 700px;
-        margin: 0 auto 80px;
+      /* Hero container with Profile picture */
+      .hero-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 48px;
+        margin: 20px auto 60px;
+      }
+
+      .hero-content {
+        flex: 1;
+        text-align: left;
       }
 
       h1 {
         font-family: 'Outfit', sans-serif;
-        font-size: clamp(2.5rem, 6vw, 4.2rem);
+        font-size: clamp(2.3rem, 5vw, 3.6rem);
         font-weight: 800;
-        line-height: 1.1;
+        line-height: 1.15;
         letter-spacing: -0.04em;
-        margin-bottom: 20px;
+        margin-bottom: 16px;
         background: linear-gradient(to right, #ffffff, #cbd5e1);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
       }
 
-      .hero p {
-        font-size: 1.15rem;
+      .hero-content p {
+        font-size: 1.1rem;
         color: var(--text-secondary);
         font-weight: 400;
+        max-width: 580px;
+      }
+
+      /* Profile picture styles */
+      .profile-wrapper {
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      .profile-img {
+        width: 140px;
+        height: 140px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--lumi-accent);
+        box-shadow: 0 0 24px var(--lumi-glow);
+        transition: all 0.3s ease;
+      }
+
+      .profile-img:hover {
+        transform: scale(1.05);
+        box-shadow: 0 0 32px var(--lumi-accent);
       }
 
       /* Apps Grid */
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
         gap: 30px;
         margin-top: 40px;
       }
@@ -215,16 +245,10 @@
         border-color: rgba(207, 233, 142, 0.25);
       }
 
-      .badge.wip {
+      .badge.soon {
         background-color: rgba(129, 140, 248, 0.1);
         color: var(--accent-indigo);
         border-color: rgba(129, 140, 248, 0.2);
-      }
-
-      .badge.soon {
-        background-color: rgba(244, 63, 94, 0.1);
-        color: var(--accent-rose);
-        border-color: rgba(244, 63, 94, 0.2);
       }
 
       .app-platform {
@@ -272,7 +296,7 @@
       .app-description {
         color: var(--text-secondary);
         font-size: 0.95rem;
-        line-height: 1.6;
+        line-height: 1.65;
         margin-bottom: 30px;
         flex-grow: 1;
       }
@@ -314,16 +338,16 @@
         border-color: rgba(255, 255, 255, 0.2);
       }
 
-      /* Placeholder Styles for Wip apps */
+      /* Placeholder Styles for WIP apps */
       .card.wip {
-        opacity: 0.8;
+        opacity: 0.85;
       }
       .card.wip:hover {
         opacity: 1;
       }
 
       footer {
-        max-width: 1200px;
+        max-width: 1000px;
         margin: 0 auto;
         padding: 40px 24px;
         border-top: 1px solid var(--card-border);
@@ -355,10 +379,16 @@
           padding: 24px;
         }
         main {
-          padding: 24px 24px 60px;
+          padding: 20px 24px 60px;
         }
-        .hero {
-          margin-bottom: 50px;
+        .hero-container {
+          flex-direction: column-reverse;
+          text-align: center;
+          gap: 24px;
+          margin-bottom: 40px;
+        }
+        .hero-content p {
+          max-width: 100%;
         }
         .grid {
           grid-template-columns: 1fr;
@@ -389,13 +419,18 @@
     </header>
 
     <main>
-      <section class="hero">
-        <h1>Crafting immersive digital tools.</h1>
-        <p>Beautiful, focused, and security-first applications built for cinema lovers, creators, and builders.</p>
+      <section class="hero-container">
+        <div class="hero-content">
+          <h1>Crafting immersive digital tools.</h1>
+          <p>Hi, I'm Saurabh Odukle. I design and build beautiful, focused, and security-first applications for movie lovers, creators, and mobile users.</p>
+        </div>
+        <div class="profile-wrapper">
+          <img src="saurabh.jpg" class="profile-img" alt="Saurabh Odukle Profile Picture" />
+        </div>
       </section>
 
       <div class="grid">
-        <!-- Lumi Cinema (Active App) -->
+        <!-- Lumi Cinema (Active App 1) -->
         <section class="card active">
           <div>
             <div class="badge-row">
@@ -422,53 +457,80 @@
           </div>
         </section>
 
-        <!-- SoundWave (Placeholder 1) -->
-        <section class="card wip">
+        <!-- Teams Fluent Emojis (Active App 2) -->
+        <section class="card active">
           <div>
             <div class="badge-row">
-              <span class="badge wip">In Progress</span>
+              <span class="badge active">Active</span>
               <div class="app-platform">
-                <span class="platform-tag">Web</span>
+                <span class="platform-tag">Android</span>
               </div>
             </div>
             
             <div class="app-title">
-              <div class="app-icon">🌊</div>
-              SoundWave
+              <img src="https://play-lh.googleusercontent.com/ZVssohXmgTbJpBLmuFeazUOkb-mfPC1DYOj2KFd4ZAM1sMp2l6MkMKW5i0C9qiZ4NAA=s256" class="app-icon" alt="Teams Fluent Emojis Icon" style="object-fit: contain;" />
+              Fluent Emojis
             </div>
             
             <p class="app-description">
-              A minimalist, ambient sound generator for focus, sleep, and coding. Custom audio mixers and clean soundscapes designed to help you enter flow state.
+              A clean and beautiful utility app for browsing, searching, and exporting Microsoft's open-source Fluent Emojis in high definition. Customize and save your favorite expressions.
             </p>
           </div>
           
           <div class="card-actions">
-            <span class="btn btn-secondary" style="cursor: not-allowed; opacity: 0.6;">Coming Soon</span>
+            <a href="https://play.google.com/store/apps/details?id=com.odukle.fluentemoji" target="_blank" rel="noreferrer" class="btn btn-primary">Google Play</a>
+            <a href="https://play.google.com/store/apps/dev?id=6258518222272137551" target="_blank" rel="noreferrer" class="btn btn-secondary">View Dev</a>
           </div>
         </section>
 
-        <!-- VibeCheck (Placeholder 2) -->
+        <!-- WikiQuote (Active App 3) -->
+        <section class="card active">
+          <div>
+            <div class="badge-row">
+              <span class="badge active">Active</span>
+              <div class="app-platform">
+                <span class="platform-tag">Android</span>
+              </div>
+            </div>
+            
+            <div class="app-title">
+              <img src="https://play-lh.googleusercontent.com/_5PfDEN7bcy5oHxhgb4zJjA2QjXN5QZuQC2LKJgwc5NRoHm01y23aNMLlPNwP96R9bYkrDy1cEcuRdXEPfXB=s256" class="app-icon" alt="WikiQuote Icon" style="object-fit: contain;" />
+              WikiQuote
+            </div>
+            
+            <p class="app-description">
+              A modern, lightweight client for Wikiquote.org. Search for quotes by person or topic, save your favorites locally, and share beautifully generated quotes.
+            </p>
+          </div>
+          
+          <div class="card-actions">
+            <a href="https://play.google.com/store/apps/details?id=com.odukle.wikiquotes" target="_blank" rel="noreferrer" class="btn btn-primary">Google Play</a>
+            <a href="https://play.google.com/store/apps/dev?id=6258518222272137551" target="_blank" rel="noreferrer" class="btn btn-secondary">View Dev</a>
+          </div>
+        </section>
+
+        <!-- Viddit (Coming Soon App) -->
         <section class="card wip">
           <div>
             <div class="badge-row">
               <span class="badge soon">Coming Soon</span>
               <div class="app-platform">
-                <span class="platform-tag">Mobile</span>
+                <span class="platform-tag">Flutter</span>
               </div>
             </div>
             
             <div class="app-title">
-              <div class="app-icon">✨</div>
-              VibeCheck
+              <div class="app-icon" style="background: linear-gradient(135deg, #2b1111 0%, #170707 100%); border-color: rgba(244, 63, 94, 0.2); color: var(--accent-rose);">📹</div>
+              Viddit
             </div>
             
             <p class="app-description">
-              A private journal and emotion tracking application focusing on end-to-end encryption and gorgeous interactive insights.
+              A modern, optimized Reddit client built specifically for scrolling vertical videos and GIFs. Smooth feeds and lightweight media caching designed for speed.
             </p>
           </div>
           
           <div class="card-actions">
-            <span class="btn btn-secondary" style="cursor: not-allowed; opacity: 0.6;">Coming Soon</span>
+            <span class="btn btn-secondary" style="cursor: not-allowed; opacity: 0.6; width: 100%;">In Development</span>
           </div>
         </section>
       </div>
