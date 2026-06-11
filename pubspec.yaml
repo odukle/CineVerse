@@ -131,10 +131,11 @@ flutter:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: assets/logos/lumi_app_icon.png
-  image_path_ios: assets/logos/lumi_app_icon_ios.png
+  image_path: assets/logos/lumi_app_icon_unified.png
+  image_path_android: assets/logos/lumi_app_icon_unified.png
+  image_path_ios: assets/logos/lumi_app_icon_unified.png
   adaptive_icon_background: "#0E1320"
-  adaptive_icon_foreground: assets/logos/lumi_app_icon.png
+  adaptive_icon_foreground: assets/logos/lumi_app_icon_unified.png
   remove_alpha_ios: true
 
 flutter_native_splash:
