@@ -14,12 +14,14 @@ import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/watched_item.dart';
 import 'package:cineverse/domain/entities/watchlist_item.dart';
 import 'package:cineverse/presentation/features/movies/models/tonight_watch_models.dart';
+import 'package:cineverse/presentation/features/movies/providers/tonight_ai_consent_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/tonight_query_history_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/tonight_feedback_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/tonight_watch_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/hidden_titles_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
+import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:cineverse/presentation/widgets/media_actions_dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -118,6 +120,9 @@ class _WhatShouldIWatchTonightScreenState
     final List<String> historyQueries =
         ref.watch(tonightQueryHistoryProvider).asData?.value ??
         const <String>[];
+    final TonightAiConsentStatus aiConsentStatus =
+        ref.watch(tonightAiConsentProvider).asData?.value ??
+        TonightAiConsentStatus.unknown;
     final bool hasClearablePreferences = ref.watch(
       tonightHasClearablePreferencesProvider(widget.isTv),
     );
@@ -173,6 +178,7 @@ class _WhatShouldIWatchTonightScreenState
                   isFetching: isFetching,
                   historyQueries: historyQueries,
                   onHistoryTap: _useHistoryPrompt,
+                  aiConsentStatus: aiConsentStatus,
                   hasClearablePreferences: hasClearablePreferences,
                   onClearHistory: () => unawaited(
                     ref.read(tonightQueryHistoryProvider.notifier).clear(),
@@ -209,7 +215,7 @@ class _WhatShouldIWatchTonightScreenState
     );
   }
 
-  void _runSearch() {
+  Future<void> _runSearch() async {
     final TonightPromptRequest? activeRequest = _submittedRequest;
     if (activeRequest != null) {
       final AsyncValue<TonightPromptResult> activeState = ref.read(
@@ -223,6 +229,10 @@ class _WhatShouldIWatchTonightScreenState
     final String prompt = _promptController.text.trim();
     if (prompt.length < 4) {
       _promptFocusNode.requestFocus();
+      return;
+    }
+    final bool canProceed = await _ensureAiConsent();
+    if (!canProceed || !mounted) {
       return;
     }
 
@@ -308,7 +318,7 @@ class _WhatShouldIWatchTonightScreenState
 
   void _useExamplePrompt(String prompt) {
     _promptController.text = prompt;
-    _runSearch();
+    unawaited(_runSearch());
   }
 
   void _useHistoryPrompt(String prompt) {
@@ -316,7 +326,7 @@ class _WhatShouldIWatchTonightScreenState
     _promptController.selection = TextSelection.fromPosition(
       TextPosition(offset: _promptController.text.length),
     );
-    _runSearch();
+    unawaited(_runSearch());
   }
 
   List<String> _buildRotatingExamples() {
@@ -447,6 +457,70 @@ class _WhatShouldIWatchTonightScreenState
       );
     });
   }
+
+  Future<bool> _ensureAiConsent() async {
+    final TonightAiConsentStatus status =
+        ref.read(tonightAiConsentProvider).asData?.value ??
+        TonightAiConsentStatus.unknown;
+    if (status == TonightAiConsentStatus.granted) {
+      return true;
+    }
+    final bool? allow = await _showAiConsentDialog(context);
+    if (allow == true) {
+      await ref.read(tonightAiConsentProvider.notifier).grant();
+      return true;
+    }
+    await ref.read(tonightAiConsentProvider.notifier).decline();
+    return false;
+  }
+
+  Future<bool?> _showAiConsentDialog(BuildContext context) {
+    return showAnimatedDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.detailsCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
+        title: Text(
+          'Allow AI data sharing?',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: const Text(
+          'Recommend Tonight sends the text you type, your selected media type, and temporary query-refinement context to Google Gemini and OpenRouter to generate recommendations. Your full library and your sign-in credentials are not sent to those AI providers. Allow this data sharing for AI recommendations?',
+          style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            style: TextButton.styleFrom(foregroundColor: Colors.white60),
+            child: const Text(
+              'Not now',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.cinemaSelected,
+            ),
+            child: const Text(
+              'Allow',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _PromptPanel extends StatelessWidget {
@@ -469,6 +543,7 @@ class _PromptPanel extends StatelessWidget {
     required this.isFetching,
     required this.historyQueries,
     required this.onHistoryTap,
+    required this.aiConsentStatus,
     required this.hasClearablePreferences,
     required this.onClearHistory,
     required this.onClearPreferences,
@@ -492,6 +567,7 @@ class _PromptPanel extends StatelessWidget {
   final bool isFetching;
   final List<String> historyQueries;
   final ValueChanged<String> onHistoryTap;
+  final TonightAiConsentStatus aiConsentStatus;
   final bool hasClearablePreferences;
   final VoidCallback onClearHistory;
   final VoidCallback onClearPreferences;
@@ -524,6 +600,41 @@ class _PromptPanel extends StatelessWidget {
             style: theme.textTheme.bodyMedium?.copyWith(
               color: Colors.white.withValues(alpha: 0.74),
               height: 1.45,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              color: Colors.white.withValues(alpha: 0.045),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.09)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Icon(
+                  aiConsentStatus == TonightAiConsentStatus.granted
+                      ? Icons.verified_user_rounded
+                      : Icons.privacy_tip_outlined,
+                  size: 18,
+                  color: aiConsentStatus == TonightAiConsentStatus.granted
+                      ? const Color(0xFF9FE7FF)
+                      : Colors.white.withValues(alpha: 0.82),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    aiConsentStatus == TonightAiConsentStatus.granted
+                        ? 'AI sharing enabled. Recommend Tonight sends your typed query text and temporary query context to Google Gemini and OpenRouter.'
+                        : 'Before AI recommendations run, Lumi will ask permission to send your typed query text and temporary query context to Google Gemini and OpenRouter.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.72),
+                      height: 1.45,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 14),

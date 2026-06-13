@@ -5,6 +5,7 @@ import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:cineverse/core/config/region_preferences.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/watched_item.dart';
+import 'package:cineverse/presentation/features/movies/providers/tonight_ai_consent_provider.dart';
 import 'package:cineverse/presentation/features/home/providers/watch_history_insights_provider.dart';
 import 'package:cineverse/presentation/features/home/providers/library_retention_provider.dart';
 import 'package:cineverse/presentation/features/home/providers/reminders_provider.dart';
@@ -26,6 +27,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 class AccountScreen extends ConsumerWidget {
   const AccountScreen({super.key});
+
+  static final Uri _aiPrivacyUri = Uri.parse(
+    'https://odukle.github.io/CineVerse/lumi/privacy.html',
+  );
 
   void _invalidateLocalLibraryProviders(WidgetRef ref) {
     ref.invalidate(watchlistProvider);
@@ -51,6 +56,88 @@ class AccountScreen extends ConsumerWidget {
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(SnackBar(content: Text(error.toString())));
+  }
+
+  Future<void> _showAiConsentChoice(
+    BuildContext context,
+    WidgetRef ref,
+    TonightAiConsentStatus currentStatus,
+  ) async {
+    final bool enabled = currentStatus == TonightAiConsentStatus.granted;
+    final bool? allow = await showAnimatedDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.detailsCard,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.08),
+            width: 1,
+          ),
+        ),
+        title: Text(
+          'AI recommendations data sharing',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        content: Text(
+          enabled
+              ? 'Recommend Tonight is allowed to send your typed query text, selected media type, and temporary query-refinement context to Google Gemini and OpenRouter. Your full library and sign-in credentials are not sent to those AI providers.'
+              : 'To use Recommend Tonight, Lumi needs permission to send your typed query text, selected media type, and temporary query-refinement context to Google Gemini and OpenRouter. Your full library and sign-in credentials are not sent to those AI providers.',
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 14,
+            height: 1.5,
+          ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.pop(context, null),
+            style: TextButton.styleFrom(foregroundColor: Colors.white60),
+            child: const Text(
+              'Close',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, !enabled),
+            style: TextButton.styleFrom(
+              foregroundColor: enabled
+                  ? Colors.redAccent
+                  : AppColors.cinemaSelected,
+            ),
+            child: Text(
+              enabled ? 'Disable' : 'Allow',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (allow == null) {
+      return;
+    }
+    if (allow) {
+      await ref.read(tonightAiConsentProvider.notifier).grant();
+      if (!context.mounted) {
+        return;
+      }
+      await _showInfoSnackBar(
+        context,
+        'AI recommendations data sharing enabled.',
+      );
+      return;
+    }
+    await ref.read(tonightAiConsentProvider.notifier).decline();
+    if (!context.mounted) {
+      return;
+    }
+    await _showInfoSnackBar(
+      context,
+      'AI recommendations data sharing disabled.',
+    );
   }
 
   Future<void> _confirmAndDeleteAccount(
@@ -268,6 +355,9 @@ class AccountScreen extends ConsumerWidget {
     final ThemeData theme = Theme.of(context);
     final userAsync = ref.watch(authStateProvider);
     final UserEntity? user = userAsync.value;
+    final TonightAiConsentStatus aiConsentStatus =
+        ref.watch(tonightAiConsentProvider).asData?.value ??
+        TonightAiConsentStatus.unknown;
     final int remindersCount = ref.watch(remindersCountProvider);
     final AsyncValue<LibraryRetentionBundle> retentionAsync = ref.watch(
       libraryRetentionBundleProvider,
@@ -586,6 +676,27 @@ class AccountScreen extends ConsumerWidget {
             subtitle:
                 'Manage the titles you have hidden from the Spotlight section.',
             onTap: () => context.pushNamed(AppRoute.hiddenTitles.name),
+          ),
+          const SizedBox(height: 14),
+          _AccountActionCard(
+            icon: Icons.privacy_tip_outlined,
+            title: 'AI Recommendations Privacy',
+            subtitle: aiConsentStatus == TonightAiConsentStatus.granted
+                ? 'Enabled. Recommend Tonight may send your typed query text and temporary query context to Google Gemini and OpenRouter.'
+                : 'Review and manage consent for sending Recommend Tonight query data to Google Gemini and OpenRouter.',
+            onTap: () => _showAiConsentChoice(context, ref, aiConsentStatus),
+            trailing: IconButton(
+              tooltip: 'Open privacy policy',
+              onPressed: () => launchUrl(
+                _aiPrivacyUri,
+                mode: LaunchMode.externalApplication,
+              ),
+              icon: const Icon(
+                Icons.open_in_new_rounded,
+                color: Colors.white70,
+                size: 20,
+              ),
+            ),
           ),
           const SizedBox(height: 18),
           const _DeveloperFooter(),
