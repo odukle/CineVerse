@@ -120,9 +120,6 @@ class _WhatShouldIWatchTonightScreenState
     final List<String> historyQueries =
         ref.watch(tonightQueryHistoryProvider).asData?.value ??
         const <String>[];
-    final TonightAiConsentStatus aiConsentStatus =
-        ref.watch(tonightAiConsentProvider).asData?.value ??
-        TonightAiConsentStatus.unknown;
     final bool hasClearablePreferences = ref.watch(
       tonightHasClearablePreferencesProvider(widget.isTv),
     );
@@ -178,7 +175,6 @@ class _WhatShouldIWatchTonightScreenState
                   isFetching: isFetching,
                   historyQueries: historyQueries,
                   onHistoryTap: _useHistoryPrompt,
-                  aiConsentStatus: aiConsentStatus,
                   hasClearablePreferences: hasClearablePreferences,
                   onClearHistory: () => unawaited(
                     ref.read(tonightQueryHistoryProvider.notifier).clear(),
@@ -495,7 +491,7 @@ class _WhatShouldIWatchTonightScreenState
           ),
         ),
         content: const Text(
-          'Recommend Tonight sends the text you type, your selected media type, and temporary query-refinement context to Google Gemini and OpenRouter to generate recommendations. Your full library and your sign-in credentials are not sent to those AI providers. Allow this data sharing for AI recommendations?',
+          'Recommend Tonight sends the text you type for a movie recommendation request and temporary query-refinement context to Google Gemini and OpenRouter. Your full library and your sign-in credentials are not sent to those AI providers. Allow this data sharing for AI recommendations?',
           style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
         ),
         actions: <Widget>[
@@ -543,7 +539,6 @@ class _PromptPanel extends StatelessWidget {
     required this.isFetching,
     required this.historyQueries,
     required this.onHistoryTap,
-    required this.aiConsentStatus,
     required this.hasClearablePreferences,
     required this.onClearHistory,
     required this.onClearPreferences,
@@ -567,7 +562,6 @@ class _PromptPanel extends StatelessWidget {
   final bool isFetching;
   final List<String> historyQueries;
   final ValueChanged<String> onHistoryTap;
-  final TonightAiConsentStatus aiConsentStatus;
   final bool hasClearablePreferences;
   final VoidCallback onClearHistory;
   final VoidCallback onClearPreferences;
@@ -600,41 +594,6 @@ class _PromptPanel extends StatelessWidget {
             style: theme.textTheme.bodyMedium?.copyWith(
               color: Colors.white.withValues(alpha: 0.74),
               height: 1.45,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(14),
-              color: Colors.white.withValues(alpha: 0.045),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.09)),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Icon(
-                  aiConsentStatus == TonightAiConsentStatus.granted
-                      ? Icons.verified_user_rounded
-                      : Icons.privacy_tip_outlined,
-                  size: 18,
-                  color: aiConsentStatus == TonightAiConsentStatus.granted
-                      ? const Color(0xFF9FE7FF)
-                      : Colors.white.withValues(alpha: 0.82),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    aiConsentStatus == TonightAiConsentStatus.granted
-                        ? 'AI sharing enabled. Recommend Tonight sends your typed query text and temporary query context to Google Gemini and OpenRouter.'
-                        : 'Before AI recommendations run, Lumi will ask permission to send your typed query text and temporary query context to Google Gemini and OpenRouter.',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: Colors.white.withValues(alpha: 0.72),
-                      height: 1.45,
-                    ),
-                  ),
-                ),
-              ],
             ),
           ),
           const SizedBox(height: 14),

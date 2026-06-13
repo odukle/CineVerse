@@ -84,8 +84,8 @@ class AccountScreen extends ConsumerWidget {
         ),
         content: Text(
           enabled
-              ? 'Recommend Tonight is allowed to send your typed query text, selected media type, and temporary query-refinement context to Google Gemini and OpenRouter. Your full library and sign-in credentials are not sent to those AI providers.'
-              : 'To use Recommend Tonight, Lumi needs permission to send your typed query text, selected media type, and temporary query-refinement context to Google Gemini and OpenRouter. Your full library and sign-in credentials are not sent to those AI providers.',
+              ? 'Recommend Tonight is allowed to send your typed movie recommendation request and temporary query-refinement context to Google Gemini and OpenRouter. Your full library and sign-in credentials are not sent to those AI providers.'
+              : 'To use Recommend Tonight, Lumi needs permission to send your typed movie recommendation request and temporary query-refinement context to Google Gemini and OpenRouter. Your full library and sign-in credentials are not sent to those AI providers.',
           style: const TextStyle(
             color: Colors.white70,
             fontSize: 14,
