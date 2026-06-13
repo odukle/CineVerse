@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scroller Support & Help</title>
+    <style>
+      :root {
+        --bg: #050508;
+        --bg-soft: #0c0c12;
+        --panel: rgba(15, 15, 22, 0.86);
+        --panel-strong: rgba(22, 22, 32, 0.94);
+        --text: #f5f7f8;
+        --muted: #a0a5b5;
+        --accent: #ff5722;
+        --accent-glow: rgba(255, 87, 34, 0.15);
+        --line: rgba(255, 255, 255, 0.08);
+        --shadow: 0 24px 90px rgba(0, 0, 0, 0.5);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(255, 87, 34, 0.18), transparent 35%),
+          radial-gradient(circle at bottom right, rgba(255, 87, 34, 0.08), transparent 30%),
+          linear-gradient(180deg, #09090e 0%, var(--bg) 100%);
+        min-height: 100vh;
+      }
+
+      a {
+        color: inherit;
+        text-decoration-color: rgba(255, 87, 34, 0.4);
+        transition: text-decoration-color 0.2s;
+      }
+
+      a:hover {
+        text-decoration-color: var(--accent);
+      }
+
+      .wrap {
+        width: min(1080px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0 72px;
+      }
+
+      .hero {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent 54%),
+          linear-gradient(180deg, rgba(22, 22, 30, 0.96), rgba(9, 9, 14, 0.96));
+        border-radius: 32px;
+        padding: 32px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero::after {
+        content: "";
+        position: absolute;
+        width: 280px;
+        height: 280px;
+        border-radius: 28px;
+        background: linear-gradient(180deg, rgba(255, 87, 34, 0.12), rgba(255, 87, 34, 0.03));
+        right: -60px;
+        top: -20px;
+        transform: rotate(20deg);
+        filter: blur(4px);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: var(--accent-glow);
+        border: 1px solid rgba(255, 87, 34, 0.25);
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        font-size: 0.78rem;
+      }
+
+      h1 {
+        font-size: clamp(2.3rem, 5vw, 4.6rem);
+        line-height: 0.95;
+        letter-spacing: -0.04em;
+        margin: 18px 0 16px;
+        max-width: 15ch;
+      }
+
+      .lead {
+        margin: 0;
+        max-width: 56ch;
+        color: var(--muted);
+        font-size: 1.08rem;
+        line-height: 1.75;
+      }
+
+      .grid {
+        margin-top: 24px;
+        display: grid;
+        gap: 18px;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      }
+
+      .card {
+        border: 1px solid var(--line);
+        background: var(--panel);
+        border-radius: 24px;
+        padding: 22px;
+        backdrop-filter: blur(10px);
+      }
+
+      .card h2 {
+        margin: 0 0 12px;
+        font-size: 1.08rem;
+        color: var(--text);
+        border-left: 3px solid var(--accent);
+        padding-left: 8px;
+      }
+
+      .card p,
+      .card li {
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .quick-actions {
+        margin-top: 22px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        position: relative;
+        z-index: 2;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 13px 18px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 700;
+        background: var(--accent);
+        color: #050508;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+      }
+
+      .button:hover {
+        transform: scale(1.02);
+      }
+
+      .button.secondary {
+        background: transparent;
+        color: var(--text);
+        border: 1px solid var(--line);
+      }
+
+      .button.secondary:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .section {
+        margin-top: 22px;
+        border: 1px solid var(--line);
+        background: var(--panel-strong);
+        border-radius: 28px;
+        padding: 28px;
+        box-shadow: var(--shadow);
+      }
+
+      .section h2 {
+        margin: 0 0 10px;
+        font-size: 1.45rem;
+      }
+
+      .section p {
+        color: var(--muted);
+        line-height: 1.75;
+      }
+
+      .faq {
+        display: grid;
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .faq-item {
+        padding: 18px 20px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 20px;
+        border: 1px solid var(--line);
+      }
+
+      .faq-item h3 {
+        margin: 0 0 8px;
+        font-size: 1rem;
+      }
+
+      .footer {
+        margin-top: 24px;
+        color: #727685;
+        font-size: 0.95rem;
+        border-top: 1px solid var(--line);
+        padding-top: 20px;
+      }
+
+      @media (max-width: 720px) {
+        .wrap {
+          width: min(100% - 20px, 1080px);
+          padding-top: 20px;
+          padding-bottom: 40px;
+        }
+
+        .hero,
+        .section {
+          border-radius: 24px;
+          padding: 22px;
+        }
+
+        .card {
+          border-radius: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="hero">
+        <div class="eyebrow">Scroller Support</div>
+        <h1>Help and support for Scroller.</h1>
+        <p class="lead">
+          Need help with Scroller? For bugs, video player troubleshooting, questions,
+          or general feedback, check the info below or contact support.
+        </p>
+
+        <div class="quick-actions">
+          <a class="button secondary" href="mailto:sodukle@gmail.com">Email Support</a>
+          <a class="button secondary" href="privacy.html">Privacy Policy</a>
+          <a class="button secondary" href="https://github.com/odukle/Viddit2/issues" target="_blank" rel="noreferrer">GitHub Issues</a>
+        </div>
+      </section>
+
+      <div class="grid">
+        <article class="card">
+          <h2>Contact</h2>
+          <p>Email: <a href="mailto:sodukle@gmail.com">sodukle@gmail.com</a></p>
+          <p>Response time: usually within 2 to 5 business days.</p>
+        </article>
+
+        <article class="card">
+          <h2>Support Topics</h2>
+          <ul>
+            <li>Reddit OAuth login & connection issues</li>
+            <li>Video playback buffering or audio issues</li>
+            <li>In-app content filtering & NSFW controls</li>
+            <li>Reported content & creator blocks</li>
+            <li>General performance & cache cleanup</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h2>Account & Data</h2>
+          <p>
+            Scroller is entirely serverless and does not require a custom user account. Logging in is done
+            directly and securely via Reddit OAuth. No personal account credentials or passwords are ever stored.
+            To log out or erase local data, simply tap "Log Out" in the Profile settings.
+          </p>
+        </article>
+      </div>
+
+      <section class="section">
+        <h2>Frequently Asked Questions & Policy Info</h2>
+        <p>Common answers regarding app usage and app store safety regulations.</p>
+
+        <div class="faq">
+          <article class="faq-item">
+            <h3>How do I report objectionable content or users?</h3>
+            <p>
+              Scroller enforces a zero-tolerance policy for abusive content. You can instantly report any video
+              by tapping the report option in the video's details sheet, or block a creator. Reported posts and blocked
+              users are filtered out immediately and hidden from your feed.
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>Why are some videos showing NSFW overlays?</h3>
+            <p>
+              By default, adult or sensitive content is filtered. You can toggle this setting in the Profile menu.
+              When enabled, mature content requires a verification confirmation to ensure you are 18+ and explicitly
+              agree to display the media.
+            </p>
+          </article>
+
+          <article class="faq-item">
+            <h3>Why does the app ask for Photo Library / Storage access?</h3>
+            <p>
+              Storage access is requested only if you manually choose to download a video or GIF from the feed
+              to your local device.
+            </p>
+          </article>
+        </div>
+
+        <p class="footer">
+          Scroller is developed by <a href="../" style="text-decoration: underline; color: var(--accent);">Saurabh Odukle</a>. This page is intended for product support, review audits, and customer feedback.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
