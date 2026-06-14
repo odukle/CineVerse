@@ -293,7 +293,12 @@ def fetch_tmdb_export_ids(
             url = f"{export_base_url.rstrip('/')}/{file_name}"
             LOGGER.info("Trying export: %s", url)
             response = requests.get(url, timeout=60)
-            if response.status_code == 404:
+            if response.status_code in {403, 404}:
+                LOGGER.info(
+                    "Export unavailable for %s (status=%s). Trying older export.",
+                    file_name,
+                    response.status_code,
+                )
                 continue
             response.raise_for_status()
             local.write_bytes(response.content)
