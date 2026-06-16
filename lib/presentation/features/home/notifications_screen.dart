@@ -1,5 +1,6 @@
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/presentation/features/home/providers/reminders_provider.dart';
+import 'package:cineverse/presentation/widgets/app_back_button.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +21,7 @@ class NotificationsScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
+          leading: const AppBackButton(),
           title: const Text(
             'Notifications',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),

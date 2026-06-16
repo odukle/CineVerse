@@ -11,6 +11,7 @@ import 'package:cineverse/domain/entities/search_company.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
 import 'package:cineverse/presentation/features/search/providers/search_provider.dart';
 import 'package:cineverse/presentation/features/search/providers/search_history_provider.dart';
+import 'package:cineverse/presentation/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -83,13 +84,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         backgroundColor: AppColors.cinemaGradientTop,
         elevation: 0,
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          onPressed: () {
-            HapticFeedback.selectionClick();
-            context.pushNamed(AppRoute.globalFilter.name);
-          },
-          icon: const Icon(Icons.tune_rounded, size: 24, color: Colors.white),
-        ),
+        leading: const AppBackButton(),
         title: SizedBox(
           height: 28,
           child: SvgPicture.asset(
@@ -100,6 +95,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         ),
         centerTitle: true,
         actions: [
+          IconButton(
+            onPressed: () {
+              HapticFeedback.selectionClick();
+              context.pushNamed(AppRoute.globalFilter.name);
+            },
+            icon: const Icon(Icons.tune_rounded, size: 24, color: Colors.white),
+          ),
           IconButton(
             onPressed: () {
               HapticFeedback.selectionClick();

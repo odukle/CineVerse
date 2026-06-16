@@ -1,6 +1,7 @@
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/domain/entities/media_review.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/movie_reviews_provider.dart';
+import 'package:cineverse/presentation/widgets/app_back_button.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -59,6 +60,7 @@ class _AllReviewsScreenState extends ConsumerState<AllReviewsScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        leading: const AppBackButton(),
         title: const Text('User Reviews'),
       ),
       body: reviewsAsync.when(
@@ -130,8 +132,9 @@ class _ReviewCardState extends State<_ReviewCard> {
               if (widget.review.authorAvatarPath != null)
                 CircleAvatar(
                   radius: 16,
-                  backgroundImage:
-                      CachedNetworkImageProvider(widget.review.authorAvatarPath!),
+                  backgroundImage: CachedNetworkImageProvider(
+                    widget.review.authorAvatarPath!,
+                  ),
                 )
               else
                 const CircleAvatar(
@@ -161,7 +164,10 @@ class _ReviewCardState extends State<_ReviewCard> {
               ),
               if (widget.review.authorRating != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.cinemaAccent,
                     borderRadius: BorderRadius.circular(8),
@@ -211,7 +217,9 @@ class _ReviewCardState extends State<_ReviewCard> {
                     child: Text(
                       widget.review.content,
                       maxLines: _isExpanded ? null : 10,
-                      overflow: _isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+                      overflow: _isExpanded
+                          ? TextOverflow.visible
+                          : TextOverflow.ellipsis,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.white.withValues(alpha: 0.8),
                         height: 1.6,

@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/data/models/omdb_title_details_dto.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/omdb_title_details_provider.dart';
+import 'package:cineverse/presentation/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -31,6 +32,7 @@ class FullPlotScreen extends ConsumerWidget {
       backgroundColor: AppColors.cinemaBackground,
       appBar: AppBar(
         backgroundColor: AppColors.cinemaGradientTop,
+        leading: const AppBackButton(),
         title: const Text('Full Plot'),
       ),
       body: detailsAsync.when(

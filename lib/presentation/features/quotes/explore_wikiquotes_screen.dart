@@ -6,6 +6,7 @@ import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/presentation/providers/quotes_provider.dart';
 import 'package:cineverse/domain/repositories/quotes_repository.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
+import 'package:cineverse/presentation/widgets/app_back_button.dart';
 import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 
@@ -47,6 +48,7 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
               backgroundColor: Colors.transparent,
               appBar: AppBar(
                 backgroundColor: AppColors.cinemaGradientTop,
+                leading: const AppBackButton(),
                 title: Text(title),
               ),
               body: const Center(
@@ -65,6 +67,7 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
               backgroundColor: Colors.transparent,
               appBar: AppBar(
                 backgroundColor: AppColors.cinemaGradientTop,
+                leading: const AppBackButton(),
                 title: Text(title),
               ),
               body: const Center(
@@ -87,6 +90,7 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                       pinned: true,
                       floating: true,
                       backgroundColor: AppColors.cinemaGradientTop,
+                      leading: const AppBackButton(),
                       title: Text(
                         title,
                         style: const TextStyle(fontWeight: FontWeight.bold),
@@ -216,6 +220,7 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
           backgroundColor: Colors.transparent,
           appBar: AppBar(
             backgroundColor: AppColors.cinemaGradientTop,
+            leading: const AppBackButton(),
             title: Text(title),
           ),
           body: const Center(child: CircularProgressIndicator()),
@@ -224,6 +229,7 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
           backgroundColor: Colors.transparent,
           appBar: AppBar(
             backgroundColor: AppColors.cinemaGradientTop,
+            leading: const AppBackButton(),
             title: Text(title),
           ),
           body: Center(

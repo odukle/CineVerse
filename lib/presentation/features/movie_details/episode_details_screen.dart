@@ -7,6 +7,7 @@ import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/tv_details_providers.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
+import 'package:cineverse/presentation/widgets/app_back_button.dart';
 import 'package:cineverse/presentation/widgets/full_screen_image_viewer.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:flutter/material.dart';
@@ -42,21 +43,24 @@ class EpisodeDetailsScreen extends ConsumerWidget {
     return BackgroundGradient(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-      body: episodeAsync.when(
-        data: (episode) =>
-            _EpisodeDetailsView(showTitle: showTitle, episode: episode),
-        loading: () => const _EpisodeDetailsShimmer(),
-        error: (error, _) => Scaffold(
-          appBar: AppBar(backgroundColor: Colors.transparent),
-          body: Center(
-            child: Text(
-              'Error: $error',
-              style: const TextStyle(color: Colors.white),
+        body: episodeAsync.when(
+          data: (episode) =>
+              _EpisodeDetailsView(showTitle: showTitle, episode: episode),
+          loading: () => const _EpisodeDetailsShimmer(),
+          error: (error, _) => Scaffold(
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              leading: const AppBackButton(),
+            ),
+            body: Center(
+              child: Text(
+                'Error: $error',
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
           ),
         ),
       ),
-    ),
     );
   }
 }
@@ -68,7 +72,8 @@ class _EpisodeDetailsView extends ConsumerStatefulWidget {
   final TvEpisode episode;
 
   @override
-  ConsumerState<_EpisodeDetailsView> createState() => _EpisodeDetailsViewState();
+  ConsumerState<_EpisodeDetailsView> createState() =>
+      _EpisodeDetailsViewState();
 }
 
 class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
@@ -94,7 +99,8 @@ class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
     _slideshowTimer = Timer.periodic(const Duration(seconds: 4), (timer) {
       if (_slideshowImages.length > 1 && _isNextImageReady && mounted) {
         setState(() {
-          _currentImageIndex = (_currentImageIndex + 1) % _slideshowImages.length;
+          _currentImageIndex =
+              (_currentImageIndex + 1) % _slideshowImages.length;
           _isNextImageReady = false;
           _preloadNextImage();
         });
@@ -125,7 +131,9 @@ class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
   @override
   Widget build(BuildContext context) {
     final dateStr = widget.episode.airDate != null
-        ? DateFormat('MMMM d, yyyy').format(DateTime.parse(widget.episode.airDate!))
+        ? DateFormat(
+            'MMMM d, yyyy',
+          ).format(DateTime.parse(widget.episode.airDate!))
         : 'Unknown Date';
 
     final String? backdropUrl = _slideshowImages.isNotEmpty
@@ -137,6 +145,7 @@ class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
         SliverAppBar(
           expandedHeight: 240,
           pinned: true,
+          leading: const AppBackButton(),
           flexibleSpace: FlexibleSpaceBar(
             background: Stack(
               fit: StackFit.expand,
@@ -153,8 +162,10 @@ class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
                           key: ValueKey(backdropUrl),
                           imageUrl: backdropUrl,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => Container(color: Colors.white10),
-                          errorWidget: (context, url, error) => Container(color: Colors.white10),
+                          placeholder: (context, url) =>
+                              Container(color: Colors.white10),
+                          errorWidget: (context, url, error) =>
+                              Container(color: Colors.white10),
                         ),
                 ),
                 DecoratedBox(
@@ -194,11 +205,7 @@ class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Icon(
-                        Icons.star,
-                        color: AppColors.cinemaAccent,
-                        size: 16,
-                      ),
+                      Icon(Icons.star, color: AppColors.cinemaAccent, size: 16),
                       const SizedBox(width: 4),
                       Text(
                         '${(widget.episode.voteAverage! * 10).toInt()}% User Score',
@@ -225,7 +232,8 @@ class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
                 ],
                 _buildCreditsSection(context),
                 const SizedBox(height: 24),
-                if (widget.episode.images.isNotEmpty) _buildImagesSection(context),
+                if (widget.episode.images.isNotEmpty)
+                  _buildImagesSection(context),
                 const SizedBox(height: 32),
               ],
             ),

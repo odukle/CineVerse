@@ -3,6 +3,7 @@ import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
+import 'package:cineverse/presentation/widgets/app_back_button.dart';
 import 'package:flutter/material.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:go_router/go_router.dart';
@@ -25,44 +26,43 @@ class AllSeasonsScreen extends StatelessWidget {
     return BackgroundGradient(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              showTitle,
-              style: const TextStyle(fontSize: 12, color: Colors.white70),
-            ),
-            const Text(
-              'All Seasons',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: const AppBackButton(),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                showTitle,
+                style: const TextStyle(fontSize: 12, color: Colors.white70),
               ),
-            ),
-          ],
+              const Text(
+                'All Seasons',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+        body: ListView.separated(
+          padding: const EdgeInsets.all(16),
+          itemCount: seasons.length,
+          separatorBuilder: (context, index) =>
+              const Divider(color: Colors.white10, height: 32),
+          itemBuilder: (context, index) {
+            final season = seasons[index];
+            return _SeasonListItem(
+              tvId: tvId,
+              showTitle: showTitle,
+              season: season,
+            );
+          },
         ),
       ),
-      body: ListView.separated(
-        padding: const EdgeInsets.all(16),
-        itemCount: seasons.length,
-        separatorBuilder: (context, index) => const Divider(
-          color: Colors.white10,
-          height: 32,
-        ),
-        itemBuilder: (context, index) {
-          final season = seasons[index];
-          return _SeasonListItem(
-            tvId: tvId,
-            showTitle: showTitle,
-            season: season,
-          );
-        },
-      ),
-    ),
     );
   }
 }
@@ -93,9 +93,7 @@ class _SeasonListItem extends StatelessWidget {
             'tvId': tvId.toString(),
             'seasonNumber': season.seasonNumber.toString(),
           },
-          queryParameters: {
-            'showTitle': showTitle,
-          },
+          queryParameters: {'showTitle': showTitle},
         );
       },
       borderRadius: BorderRadius.circular(12),
@@ -161,7 +159,8 @@ class _SeasonListItem extends StatelessWidget {
                         fontSize: 13,
                       ),
                     ),
-                  if (season.overview != null && season.overview!.isNotEmpty) ...[
+                  if (season.overview != null &&
+                      season.overview!.isNotEmpty) ...[
                     const SizedBox(height: 8),
                     Text(
                       season.overview!,

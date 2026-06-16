@@ -2,6 +2,7 @@ import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/presentation/features/home/providers/library_retention_provider.dart';
 import 'package:cineverse/presentation/features/home/providers/reminders_provider.dart';
+import 'package:cineverse/presentation/widgets/app_back_button.dart';
 import 'package:cineverse/presentation/widgets/animated_icon_action.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,7 @@ class ReleaseCalendarScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
+          leading: const AppBackButton(),
           title: const Text(
             'Release Calendar',
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800),

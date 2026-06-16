@@ -3,6 +3,7 @@ import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/tv_details_providers.dart';
+import 'package:cineverse/presentation/widgets/app_back_button.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,116 +32,123 @@ class SeasonDetailsScreen extends ConsumerWidget {
     return BackgroundGradient(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: false,
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              showTitle,
-              style: const TextStyle(fontSize: 12, color: Colors.white70),
-            ),
-            seasonAsync.when(
-              data: (season) => Text(
-                season.name,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          centerTitle: false,
+          leading: const AppBackButton(),
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                showTitle,
+                style: const TextStyle(fontSize: 12, color: Colors.white70),
+              ),
+              seasonAsync.when(
+                data: (season) => Text(
+                  season.name,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                loading: () => const Text(
+                  'Loading...',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
+                error: (_, _) => const Text(
+                  'Error',
+                  style: TextStyle(fontSize: 18, color: Colors.redAccent),
                 ),
               ),
-              loading: () => const Text(
-                'Loading...',
-                style: TextStyle(fontSize: 18, color: Colors.white),
+            ],
+          ),
+          actions: [
+            seasonAsync.when(
+              data: (season) => Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      '${season.episodes.length} Eps',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
               ),
-              error: (_, _) => const Text(
-                'Error',
-                style: TextStyle(fontSize: 18, color: Colors.redAccent),
-              ),
+              loading: () => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
             ),
           ],
         ),
-        actions: [
-          seasonAsync.when(
-            data: (season) => Padding(
-              padding: const EdgeInsets.only(right: 16),
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(4),
+        body: seasonAsync.when(
+          data: (season) => _SeasonDetailsView(tvId: tvId, season: season),
+          loading: () => const _SeasonDetailsShimmer(),
+          error: (error, _) => Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.error_outline_rounded,
+                    color: Colors.redAccent,
+                    size: 48,
                   ),
-                  child: Text(
-                    '${season.episodes.length} Eps',
-                    style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ),
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
-          ),
-        ],
-      ),
-      body: seasonAsync.when(
-        data: (season) => _SeasonDetailsView(
-          tvId: tvId,
-          season: season,
-        ),
-        loading: () => const _SeasonDetailsShimmer(),
-        error: (error, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.error_outline_rounded,
-                    color: Colors.redAccent, size: 48),
-                const SizedBox(height: 16),
-                const Text(
-                  'Failed to load season details',
-                  style: TextStyle(
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Failed to load season details',
+                    style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
-                      fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '$error',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white54),
-                ),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () => ref.invalidate(tvSeasonDetailsProvider(
-                      (tvId: tvId, seasonNumber: seasonNumber))),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.cinemaAccent,
-                    foregroundColor: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  child: Text('Retry'),
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Text(
+                    '$error',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.white54),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: () => ref.invalidate(
+                      tvSeasonDetailsProvider((
+                        tvId: tvId,
+                        seasonNumber: seasonNumber,
+                      )),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.cinemaAccent,
+                      foregroundColor: Colors.black,
+                    ),
+                    child: Text('Retry'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ),
     );
   }
 }
 
 class _SeasonDetailsView extends StatelessWidget {
-  const _SeasonDetailsView({
-    required this.tvId,
-    required this.season,
-  });
+  const _SeasonDetailsView({required this.tvId, required this.season});
 
   final int tvId;
   final TvSeason season;
@@ -160,10 +168,7 @@ class _SeasonDetailsView extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
       itemCount: season.episodes.length,
       itemBuilder: (context, index) {
-        return _EpisodeListItem(
-          tvId: tvId,
-          episode: season.episodes[index],
-        );
+        return _EpisodeListItem(tvId: tvId, episode: season.episodes[index]);
       },
     );
   }
@@ -198,9 +203,7 @@ class _EpisodeListItem extends StatelessWidget {
             'seasonNumber': episode.seasonNumber.toString(),
             'episodeNumber': episode.episodeNumber.toString(),
           },
-          queryParameters: {
-            'showTitle': episode.name,
-          },
+          queryParameters: {'showTitle': episode.name},
         );
       },
       borderRadius: BorderRadius.circular(12),
@@ -235,8 +238,10 @@ class _EpisodeListItem extends StatelessWidget {
                               borderRadius: 8,
                             ),
                             errorWidget: (_, _, _) => const Center(
-                              child: Icon(Icons.movie_outlined,
-                                  color: Colors.white10),
+                              child: Icon(
+                                Icons.movie_outlined,
+                                color: Colors.white10,
+                              ),
                             ),
                           )
                         : const Center(
@@ -348,7 +353,9 @@ class _RatingChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.cinemaAccent.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(4),
-        border: Border.all(color: AppColors.cinemaAccent.withValues(alpha: 0.3)),
+        border: Border.all(
+          color: AppColors.cinemaAccent.withValues(alpha: 0.3),
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
