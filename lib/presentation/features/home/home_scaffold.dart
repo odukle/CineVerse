@@ -235,14 +235,33 @@ class HomeScaffold extends ConsumerWidget {
                         color: AppColors.cinemaBorder.withValues(alpha: 0.3),
                       ),
                     ),
-                    child: Scrollbar(
-                      controller: scrollController,
-                      thumbVisibility: true,
-                      child: SingleChildScrollView(
+                    child: ScrollbarTheme(
+                      data: ScrollbarThemeData(
+                        thumbColor: WidgetStateProperty.all(
+                          Colors.white.withValues(alpha: 0.18),
+                        ),
+                        trackColor: WidgetStateProperty.all(
+                          Colors.white.withValues(alpha: 0.04),
+                        ),
+                        trackBorderColor: WidgetStateProperty.all(
+                          Colors.transparent,
+                        ),
+                        radius: const Radius.circular(999),
+                        thickness: WidgetStateProperty.all(5),
+                      ),
+                      child: RawScrollbar(
                         controller: scrollController,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
+                        thumbVisibility: true,
+                        trackVisibility: true,
+                        mainAxisMargin: 56,
+                        radius: const Radius.circular(999),
+                        thickness: 5,
+                        child: SingleChildScrollView(
+                          controller: scrollController,
+                          padding: const EdgeInsets.only(right: 12),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
                             Container(
                               width: 48,
                               height: 4,
@@ -395,7 +414,8 @@ class HomeScaffold extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(height: 6),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
