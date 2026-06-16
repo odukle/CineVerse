@@ -195,6 +195,7 @@ class HomeScaffold extends ConsumerWidget {
       builder: (context) {
         return Consumer(
           builder: (context, ref, _) {
+            final ScrollController scrollController = ScrollController();
             final currentSort = ref.watch(genreSortProvider);
             final effectiveCurrentSort =
                 isTv && currentSort.sortField == SortField.revenue
@@ -234,163 +235,168 @@ class HomeScaffold extends ConsumerWidget {
                         color: AppColors.cinemaBorder.withValues(alpha: 0.3),
                       ),
                     ),
-                    child: SingleChildScrollView(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Container(
-                            width: 48,
-                            height: 4,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.18),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Sort By',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 20,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(22),
-                              color: Colors.white.withValues(alpha: 0.04),
-                              border: Border.all(
-                                color: AppColors.cinemaBorder.withValues(
-                                  alpha: 0.2,
-                                ),
+                    child: Scrollbar(
+                      controller: scrollController,
+                      thumbVisibility: true,
+                      child: SingleChildScrollView(
+                        controller: scrollController,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 4,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.18),
+                                borderRadius: BorderRadius.circular(999),
                               ),
                             ),
-                            child: SwitchListTile(
-                              title: const Text(
-                                'Descending Order',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 14,
+                            const SizedBox(height: 16),
+                            const Text(
+                              'Sort By',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(22),
+                                color: Colors.white.withValues(alpha: 0.04),
+                                border: Border.all(
+                                  color: AppColors.cinemaBorder.withValues(
+                                    alpha: 0.2,
+                                  ),
                                 ),
                               ),
-                              value: isDescending,
-                              activeThumbColor: AppColors.cinemaAccent,
-                              onChanged: (value) {
-                                HapticFeedback.selectionClick();
-                                setModalState(() {
-                                  selectedOrder = value
-                                      ? SortOrder.descending
-                                      : SortOrder.ascending;
-                                });
-                              },
+                              child: SwitchListTile(
+                                title: const Text(
+                                  'Descending Order',
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                value: isDescending,
+                                activeThumbColor: AppColors.cinemaAccent,
+                                onChanged: (value) {
+                                  HapticFeedback.selectionClick();
+                                  setModalState(() {
+                                    selectedOrder = value
+                                        ? SortOrder.descending
+                                        : SortOrder.ascending;
+                                  });
+                                },
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          ...options.map((field) {
-                            final isSelected = selectedField == field;
-                            IconData fieldIcon;
-                            switch (field) {
-                              case SortField.popularity:
-                                fieldIcon = Icons.trending_up_rounded;
-                                break;
-                              case SortField.voteAverage:
-                                fieldIcon = Icons.star_rounded;
-                                break;
-                              case SortField.releaseDate:
-                                fieldIcon = Icons.calendar_today_rounded;
-                                break;
-                              case SortField.revenue:
-                                fieldIcon = Icons.attach_money_rounded;
-                                break;
-                              case SortField.voteCount:
-                                fieldIcon = Icons.people_rounded;
-                                break;
-                            }
+                            const SizedBox(height: 10),
+                            ...options.map((field) {
+                              final isSelected = selectedField == field;
+                              IconData fieldIcon;
+                              switch (field) {
+                                case SortField.popularity:
+                                  fieldIcon = Icons.trending_up_rounded;
+                                  break;
+                                case SortField.voteAverage:
+                                  fieldIcon = Icons.star_rounded;
+                                  break;
+                                case SortField.releaseDate:
+                                  fieldIcon = Icons.calendar_today_rounded;
+                                  break;
+                                case SortField.revenue:
+                                  fieldIcon = Icons.attach_money_rounded;
+                                  break;
+                                case SortField.voteCount:
+                                  fieldIcon = Icons.people_rounded;
+                                  break;
+                              }
 
-                            return ListTile(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              tileColor: isSelected
-                                  ? Colors.white.withValues(alpha: 0.08)
-                                  : Colors.transparent,
-                              leading: Icon(
-                                fieldIcon,
-                                color: isSelected
-                                    ? AppColors.cinemaAccent
-                                    : Colors.white70,
-                                size: 20,
-                              ),
-                              title: Text(
-                                field.label,
-                                style: TextStyle(
+                              return ListTile(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                tileColor: isSelected
+                                    ? Colors.white.withValues(alpha: 0.08)
+                                    : Colors.transparent,
+                                leading: Icon(
+                                  fieldIcon,
                                   color: isSelected
                                       ? AppColors.cinemaAccent
-                                      : Colors.white,
-                                  fontWeight: isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
+                                      : Colors.white70,
+                                  size: 20,
                                 ),
-                              ),
-                              trailing: isSelected
-                                  ? Icon(
-                                      selectedOrder == SortOrder.descending
-                                          ? Icons.arrow_downward_rounded
-                                          : Icons.arrow_upward_rounded,
-                                      color: AppColors.cinemaAccent,
-                                      size: 18,
-                                    )
-                                  : null,
-                              onTap: () {
-                                HapticFeedback.selectionClick();
-                                setModalState(() {
-                                  selectedField = field;
-                                });
-                              },
-                            );
-                          }),
-                          const SizedBox(height: 12),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                ref
-                                    .read(genreSortProvider.notifier)
-                                    .updateSort(selectedField, selectedOrder);
+                                title: Text(
+                                  field.label,
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? AppColors.cinemaAccent
+                                        : Colors.white,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
+                                trailing: isSelected
+                                    ? Icon(
+                                        selectedOrder == SortOrder.descending
+                                            ? Icons.arrow_downward_rounded
+                                            : Icons.arrow_upward_rounded,
+                                        color: AppColors.cinemaAccent,
+                                        size: 18,
+                                      )
+                                    : null,
+                                onTap: () {
+                                  HapticFeedback.selectionClick();
+                                  setModalState(() {
+                                    selectedField = field;
+                                  });
+                                },
+                              );
+                            }),
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  ref
+                                      .read(genreSortProvider.notifier)
+                                      .updateSort(selectedField, selectedOrder);
 
-                                final genreId = isTv
-                                    ? ref.read(selectedTvGenreIdProvider)
-                                    : ref.read(selectedMovieGenreIdProvider);
-                                if (genreId != null) {
-                                  resetGenreSection(ref, genreId, isTv: isTv);
-                                } else {
-                                  final section = isTv
-                                      ? MovieSection.tvPopular
-                                      : MovieSection.popular;
-                                  resetMovieSection(ref, section);
-                                }
+                                  final genreId = isTv
+                                      ? ref.read(selectedTvGenreIdProvider)
+                                      : ref.read(selectedMovieGenreIdProvider);
+                                  if (genreId != null) {
+                                    resetGenreSection(ref, genreId, isTv: isTv);
+                                  } else {
+                                    final section = isTv
+                                        ? MovieSection.tvPopular
+                                        : MovieSection.popular;
+                                    resetMovieSection(ref, section);
+                                  }
 
-                                Navigator.pop(context);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.cinemaAccent,
-                                foregroundColor: Colors.black,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
+                                  Navigator.pop(context);
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.cinemaAccent,
+                                  foregroundColor: Colors.black,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 14,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18),
+                                  ),
                                 ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18),
+                                child: const Text(
+                                  'Apply',
+                                  style: TextStyle(fontWeight: FontWeight.w800),
                                 ),
-                              ),
-                              child: const Text(
-                                'Apply',
-                                style: TextStyle(fontWeight: FontWeight.w800),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 6),
-                        ],
+                            const SizedBox(height: 6),
+                          ],
+                        ),
                       ),
                     ),
                   ),
