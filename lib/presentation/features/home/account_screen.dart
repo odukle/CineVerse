@@ -4,11 +4,13 @@ import 'package:cineverse/data/services/sync_service.dart';
 import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:cineverse/core/config/region_preferences.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
+import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/domain/entities/watched_item.dart';
 import 'package:cineverse/presentation/features/movies/providers/tonight_ai_consent_provider.dart';
 import 'package:cineverse/presentation/features/home/providers/watch_history_insights_provider.dart';
 import 'package:cineverse/presentation/features/home/providers/library_retention_provider.dart';
 import 'package:cineverse/presentation/features/home/providers/reminders_provider.dart';
+import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/notes_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
@@ -643,6 +645,8 @@ class AccountScreen extends ConsumerWidget {
           const SizedBox(height: 18),
           const _RegionPreferenceCard(),
           const SizedBox(height: 14),
+          const _ContentLanguagePreferenceCard(),
+          const SizedBox(height: 14),
           const _WatchHistoryInsightsCard(),
           const SizedBox(height: 14),
           _AccountActionCard(
@@ -936,6 +940,276 @@ class _RegionPreferenceCard extends ConsumerWidget {
                 ),
             ],
           ),
+        );
+      },
+    );
+  }
+}
+
+class _ContentLanguagePreferenceCard extends ConsumerWidget {
+  const _ContentLanguagePreferenceCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final ContentLanguageOption selected = ref.watch(
+      selectedContentLanguageOptionProvider,
+    );
+
+    return _AccountActionCard(
+      icon: Icons.translate_rounded,
+      title: 'Content Language',
+      subtitle: selected.code == null
+          ? 'All languages. Movies and TV tabs stay broad, while Explore can still prefer stronger local fits when available.'
+          : 'Currently set to ${selected.displayLabel}. Movies and TV tabs will stay strict, while Explore will prefer this language first.',
+      onTap: () => _showContentLanguagePicker(context, ref, selected.code),
+    );
+  }
+
+  Future<void> _showContentLanguagePicker(
+    BuildContext context,
+    WidgetRef ref,
+    String? selectedCode,
+  ) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        String? pendingCode = selectedCode;
+        String query = '';
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final List<ContentLanguageOption> visibleOptions =
+                contentLanguageOptions
+                    .where((option) {
+                      if (query.trim().isEmpty) {
+                        return true;
+                      }
+                      final String normalizedQuery = query.trim().toLowerCase();
+                      return option.label.toLowerCase().contains(
+                            normalizedQuery,
+                          ) ||
+                          (option.nativeLabel?.toLowerCase().contains(
+                                normalizedQuery,
+                              ) ??
+                              false);
+                    })
+                    .toList(growable: false);
+            return SafeArea(
+              top: false,
+              child: Container(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height * 0.9,
+                ),
+                height: MediaQuery.of(context).size.height * 0.9,
+                padding: const EdgeInsets.fromLTRB(18, 12, 18, 24),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: AppColors.cinemaPanelGradient,
+                  ),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(30),
+                  ),
+                  border: Border.all(
+                    color: AppColors.cinemaBorder.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Container(
+                      width: 48,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Content Language',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Movies and TV tabs use this strictly. Explore prefers it first and falls back when a rail gets sparse.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.72),
+                        fontSize: 13,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      onChanged: (value) {
+                        setModalState(() {
+                          query = value;
+                        });
+                      },
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Search languages',
+                        hintStyle: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.45),
+                        ),
+                        prefixIcon: Icon(
+                          Icons.search_rounded,
+                          color: Colors.white.withValues(alpha: 0.6),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white.withValues(alpha: 0.04),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(
+                            color: AppColors.cinemaBorder.withValues(
+                              alpha: 0.2,
+                            ),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(
+                            color: AppColors.cinemaBorder.withValues(
+                              alpha: 0.2,
+                            ),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(
+                            color: AppColors.cinemaAccent.withValues(
+                              alpha: 0.45,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Flexible(
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: visibleOptions
+                            .map((option) {
+                              final bool isSelected =
+                                  pendingCode == option.code;
+                              return ListTile(
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                tileColor: isSelected
+                                    ? Colors.white.withValues(alpha: 0.08)
+                                    : Colors.transparent,
+                                leading: Icon(
+                                  isSelected
+                                      ? Icons.radio_button_checked
+                                      : Icons.radio_button_off,
+                                  color: isSelected
+                                      ? AppColors.cinemaAccent
+                                      : Colors.white54,
+                                  size: 20,
+                                ),
+                                title: Text(
+                                  option.displayLabel,
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? AppColors.cinemaAccent
+                                        : Colors.white,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w700
+                                        : FontWeight.w500,
+                                  ),
+                                ),
+                                onTap: () {
+                                  HapticFeedback.selectionClick();
+                                  setModalState(() {
+                                    pendingCode = option.code;
+                                  });
+                                },
+                              );
+                            })
+                            .toList(growable: false),
+                      ),
+                    ),
+                    if (pendingCode != null) ...<Widget>[
+                      const SizedBox(height: 10),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(18),
+                          border: Border.all(
+                            color: AppColors.cinemaBorder.withValues(
+                              alpha: 0.24,
+                            ),
+                          ),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Icon(
+                              Icons.info_outline_rounded,
+                              size: 18,
+                              color: AppColors.cinemaAccent.withValues(
+                                alpha: 0.9,
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Text(
+                                'Some rails may look sparse in this mode because TMDB language metadata is incomplete for parts of the catalog, not necessarily because those titles do not exist.',
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.76),
+                                  fontSize: 12.5,
+                                  height: 1.45,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          ref
+                              .read(contentLanguageProvider.notifier)
+                              .setLanguage(pendingCode);
+                          resetMovieSection(ref, MovieSection.popular);
+                          resetMovieSection(ref, MovieSection.tvPopular);
+                          Navigator.pop(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.cinemaAccent,
+                          foregroundColor: Colors.black,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                        ),
+                        child: const Text(
+                          'Apply',
+                          style: TextStyle(fontWeight: FontWeight.w800),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );

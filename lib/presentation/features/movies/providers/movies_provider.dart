@@ -15,6 +15,7 @@ import 'package:cineverse/presentation/features/movies/providers/explore_provide
 import 'package:cineverse/presentation/features/movies/providers/hidden_titles_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MediaFilterOption {
   const MediaFilterOption({required this.label, required this.section});
@@ -97,6 +98,109 @@ final genreSortProvider = NotifierProvider<GenreSortNotifier, MediaFilter>(
   GenreSortNotifier.new,
 );
 
+class ContentLanguageOption {
+  const ContentLanguageOption({
+    required this.code,
+    required this.label,
+    this.nativeLabel,
+  });
+
+  final String? code;
+  final String label;
+  final String? nativeLabel;
+
+  String get displayLabel =>
+      nativeLabel == null ? label : '$label · $nativeLabel';
+}
+
+const List<ContentLanguageOption>
+contentLanguageOptions = <ContentLanguageOption>[
+  ContentLanguageOption(code: null, label: 'All Languages'),
+  ContentLanguageOption(code: 'ar', label: 'Arabic', nativeLabel: 'العربية'),
+  ContentLanguageOption(code: 'bn', label: 'Bengali', nativeLabel: 'বাংলা'),
+  ContentLanguageOption(code: 'en', label: 'English'),
+  ContentLanguageOption(code: 'fa', label: 'Persian', nativeLabel: 'فارسی'),
+  ContentLanguageOption(code: 'fr', label: 'French', nativeLabel: 'Français'),
+  ContentLanguageOption(code: 'de', label: 'German', nativeLabel: 'Deutsch'),
+  ContentLanguageOption(code: 'gu', label: 'Gujarati', nativeLabel: 'ગુજરાતી'),
+  ContentLanguageOption(code: 'hi', label: 'Hindi', nativeLabel: 'हिन्दी'),
+  ContentLanguageOption(
+    code: 'id',
+    label: 'Indonesian',
+    nativeLabel: 'Bahasa Indonesia',
+  ),
+  ContentLanguageOption(code: 'it', label: 'Italian', nativeLabel: 'Italiano'),
+  ContentLanguageOption(code: 'ja', label: 'Japanese', nativeLabel: '日本語'),
+  ContentLanguageOption(code: 'kn', label: 'Kannada', nativeLabel: 'ಕನ್ನಡ'),
+  ContentLanguageOption(code: 'ko', label: 'Korean', nativeLabel: '한국어'),
+  ContentLanguageOption(code: 'ml', label: 'Malayalam', nativeLabel: 'മലയാളം'),
+  ContentLanguageOption(code: 'mr', label: 'Marathi', nativeLabel: 'मराठी'),
+  ContentLanguageOption(code: 'pa', label: 'Punjabi', nativeLabel: 'ਪੰਜਾਬੀ'),
+  ContentLanguageOption(code: 'pl', label: 'Polish', nativeLabel: 'Polski'),
+  ContentLanguageOption(
+    code: 'pt',
+    label: 'Portuguese',
+    nativeLabel: 'Português',
+  ),
+  ContentLanguageOption(code: 'ru', label: 'Russian', nativeLabel: 'Русский'),
+  ContentLanguageOption(code: 'es', label: 'Spanish', nativeLabel: 'Español'),
+  ContentLanguageOption(code: 'sv', label: 'Swedish', nativeLabel: 'Svenska'),
+  ContentLanguageOption(code: 'ta', label: 'Tamil', nativeLabel: 'தமிழ்'),
+  ContentLanguageOption(code: 'te', label: 'Telugu', nativeLabel: 'తెలుగు'),
+  ContentLanguageOption(code: 'th', label: 'Thai', nativeLabel: 'ไทย'),
+  ContentLanguageOption(code: 'tr', label: 'Turkish', nativeLabel: 'Türkçe'),
+  ContentLanguageOption(code: 'ur', label: 'Urdu', nativeLabel: 'اردو'),
+  ContentLanguageOption(
+    code: 'vi',
+    label: 'Vietnamese',
+    nativeLabel: 'Tiếng Việt',
+  ),
+  ContentLanguageOption(code: 'zh', label: 'Chinese', nativeLabel: '中文'),
+];
+
+class ContentLanguageNotifier extends Notifier<String?> {
+  static const String _contentLanguageKey = 'content_language_mode';
+
+  @override
+  String? build() {
+    _restorePersistedLanguage();
+    return null;
+  }
+
+  Future<void> _restorePersistedLanguage() async {
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    final String? persistedCode = preferences.getString(_contentLanguageKey);
+    if (ref.mounted && state != persistedCode) {
+      state = persistedCode;
+    }
+  }
+
+  Future<void> setLanguage(String? code) async {
+    state = code;
+    final SharedPreferences preferences = await SharedPreferences.getInstance();
+    if (code == null || code.isEmpty) {
+      await preferences.remove(_contentLanguageKey);
+      return;
+    }
+    await preferences.setString(_contentLanguageKey, code);
+  }
+}
+
+final contentLanguageProvider =
+    NotifierProvider<ContentLanguageNotifier, String?>(
+      ContentLanguageNotifier.new,
+    );
+
+final selectedContentLanguageOptionProvider = Provider<ContentLanguageOption>((
+  ref,
+) {
+  final String? code = ref.watch(contentLanguageProvider);
+  return contentLanguageOptions.firstWhere(
+    (option) => option.code == code,
+    orElse: () => contentLanguageOptions.first,
+  );
+});
+
 final getMovieSectionUseCaseProvider = Provider<GetMovieSectionUseCase>((ref) {
   return GetMovieSectionUseCase(ref.watch(mediaRepositoryProvider));
 });
@@ -106,6 +210,7 @@ typedef _SectionCacheKey = ({
   MovieSection section,
   SortField sortField,
   SortOrder sortOrder,
+  String? languageCode,
 });
 typedef _GenreCacheKey = ({
   String regionCode,
@@ -113,6 +218,7 @@ typedef _GenreCacheKey = ({
   bool isTv,
   SortField sortField,
   SortOrder sortOrder,
+  String? languageCode,
 });
 
 final Map<_SectionCacheKey, List<MediaTitle>> _movieSectionCache = {};
@@ -142,11 +248,13 @@ _SectionCacheKey _buildSectionCacheKey({
   required String regionCode,
   required MovieSection section,
   required MediaFilter sortFilter,
+  String? languageCode,
 }) => (
   regionCode: regionCode,
   section: section,
   sortField: sortFilter.sortField,
   sortOrder: sortFilter.sortOrder,
+  languageCode: languageCode,
 );
 
 _GenreCacheKey _buildGenreCacheKey({
@@ -154,13 +262,32 @@ _GenreCacheKey _buildGenreCacheKey({
   required int genreId,
   required bool isTv,
   required MediaFilter sortFilter,
+  String? languageCode,
 }) => (
   regionCode: regionCode,
   genreId: genreId,
   isTv: isTv,
   sortField: sortFilter.sortField,
   sortOrder: sortFilter.sortOrder,
+  languageCode: languageCode,
 );
+
+enum _LanguageModeBehavior { strict, preferred }
+
+MediaFilter _withGlobalLanguage(MediaFilter filter, String? languageCode) {
+  if (languageCode == null || languageCode.isEmpty) {
+    return filter;
+  }
+  return filter.copyWith(originalLanguageCode: languageCode);
+}
+
+List<MediaTitle> _applyLanguageMode(
+  List<MediaTitle> results, {
+  required String? languageCode,
+  required _LanguageModeBehavior behavior,
+}) {
+  return results;
+}
 
 int _ratingSortMinVotes({
   required bool isTv,
@@ -219,6 +346,7 @@ void loadNextPages(WidgetRef ref, MovieSection section) {
     regionCode: ref.read(preferredRegionCodeProvider),
     section: section,
     sortFilter: sortFilter,
+    languageCode: ref.read(contentLanguageProvider),
   );
   if (_fetchingCache[cacheKey] == true || _exhaustedCache[cacheKey] == true) {
     return;
@@ -232,6 +360,7 @@ void loadNextExplorePages(WidgetRef ref, MovieSection section) {
     regionCode: ref.read(preferredRegionCodeProvider),
     section: section,
     sortFilter: const MediaFilter(),
+    languageCode: ref.read(contentLanguageProvider),
   );
   if (_fetchingCache[cacheKey] == true || _exhaustedCache[cacheKey] == true) {
     return;
@@ -250,6 +379,7 @@ final movieSectionExhaustedProvider = Provider.family<bool, MovieSection>((
         regionCode: regionCode,
         section: section,
         sortFilter: sortFilter,
+        languageCode: ref.watch(contentLanguageProvider),
       )] ??
       false;
 });
@@ -261,6 +391,7 @@ final exploreMovieSectionExhaustedProvider =
             regionCode: regionCode,
             section: section,
             sortFilter: const MediaFilter(),
+            languageCode: ref.watch(contentLanguageProvider),
           )] ??
           false;
     });
@@ -272,6 +403,7 @@ void loadNextGenrePages(WidgetRef ref, int genreId, {bool isTv = false}) {
     genreId: genreId,
     isTv: isTv,
     sortFilter: sortFilter,
+    languageCode: ref.read(contentLanguageProvider),
   );
   if (_genreFetchingCache[cacheKey] == true ||
       _genreExhaustedCache[cacheKey] == true) {
@@ -291,6 +423,7 @@ void loadNextExploreGenrePages(
     genreId: genreId,
     isTv: isTv,
     sortFilter: const MediaFilter(),
+    languageCode: ref.read(contentLanguageProvider),
   );
   if (_genreFetchingCache[cacheKey] == true ||
       _genreExhaustedCache[cacheKey] == true) {
@@ -307,6 +440,7 @@ void resetGenreSection(WidgetRef ref, int genreId, {bool isTv = false}) {
     genreId: genreId,
     isTv: isTv,
     sortFilter: sortFilter,
+    languageCode: ref.read(contentLanguageProvider),
   );
   _genreSectionCache.remove(cacheKey);
   _genreLoadedPagesCache.remove(cacheKey);
@@ -324,6 +458,7 @@ final genreSectionExhaustedProvider =
             genreId: params.id,
             isTv: params.isTv,
             sortFilter: sortFilter,
+            languageCode: ref.watch(contentLanguageProvider),
           )] ??
           false;
     });
@@ -336,6 +471,7 @@ final exploreGenreSectionExhaustedProvider =
             genreId: params.id,
             isTv: params.isTv,
             sortFilter: const MediaFilter(),
+            languageCode: ref.watch(contentLanguageProvider),
           )] ??
           false;
     });
@@ -346,6 +482,7 @@ void resetMovieSection(WidgetRef ref, MovieSection section) {
     regionCode: ref.read(preferredRegionCodeProvider),
     section: section,
     sortFilter: sortFilter,
+    languageCode: ref.read(contentLanguageProvider),
   );
   _movieSectionCache.remove(cacheKey);
   _loadedPagesCache.remove(cacheKey);
@@ -354,10 +491,136 @@ void resetMovieSection(WidgetRef ref, MovieSection section) {
   ref.invalidate(movieSectionProvider(section));
 }
 
+({DateTime? fromDate, DateTime? toDate, Set<int> releaseTypes, int minVotes})
+_sectionDiscoverConstraints(
+  MovieSection section, {
+  required bool isTv,
+  required MediaFilter sortFilter,
+}) {
+  DateTime? fromDate;
+  DateTime? toDate;
+  Set<int> releaseTypes = <int>{};
+  int minVotes = 0;
+  final now = DateTime.now();
+  final today = DateTime(now.year, now.month, now.day);
+
+  if (section == MovieSection.nowPlaying ||
+      section == MovieSection.tvOnTheAir) {
+    fromDate = today.subtract(const Duration(days: 30));
+    toDate = today;
+    releaseTypes = <int>{2, 3};
+  } else if (section == MovieSection.upcoming ||
+      section == MovieSection.tvAiringToday) {
+    fromDate = today.add(const Duration(days: 1));
+    toDate = today.add(const Duration(days: 90));
+    releaseTypes = <int>{2, 3};
+  } else if (section == MovieSection.topRated ||
+      section == MovieSection.tvTopRated) {
+    minVotes = isTv ? 150 : 300;
+  }
+
+  minVotes = _ratingSortMinVotes(
+    isTv: isTv,
+    sortFilter: sortFilter,
+    baseMinVotes: minVotes,
+  );
+
+  return (
+    fromDate: fromDate,
+    toDate: toDate,
+    releaseTypes: releaseTypes,
+    minVotes: minVotes,
+  );
+}
+
+bool _shouldUseDiscoverForSection(
+  MovieSection section, {
+  required MediaFilter sortFilter,
+  required String? languageCode,
+  required _LanguageModeBehavior behavior,
+}) {
+  if (!sortFilter.isDefault ||
+      section == MovieSection.nowPlaying ||
+      section == MovieSection.upcoming ||
+      section == MovieSection.tvOnTheAir ||
+      section == MovieSection.tvAiringToday) {
+    return true;
+  }
+
+  if (languageCode == null || languageCode.isEmpty) {
+    return false;
+  }
+
+  return behavior == _LanguageModeBehavior.strict ||
+      section == MovieSection.popular ||
+      section == MovieSection.topRated ||
+      section == MovieSection.tvPopular ||
+      section == MovieSection.tvTopRated ||
+      section == MovieSection.discover ||
+      section == MovieSection.tvDiscover;
+}
+
+Future<List<MediaTitle>> _discoverPageWithLanguagePreference(
+  DiscoverMediaUseCase discoverUseCase, {
+  required bool isTv,
+  required MovieSection section,
+  required MediaFilter filter,
+  required int page,
+  required String? languageCode,
+  required _LanguageModeBehavior behavior,
+}) async {
+  final MediaFilter localizedFilter = _withGlobalLanguage(filter, languageCode);
+  final List<MediaTitle> localizedResults = await discoverUseCase(
+    DiscoverMediaParams(isTv: isTv, filter: localizedFilter, page: page),
+  );
+
+  if (languageCode == null || languageCode.isEmpty) {
+    return localizedResults;
+  }
+
+  if (behavior == _LanguageModeBehavior.strict) {
+    return _applyLanguageMode(
+      localizedResults,
+      languageCode: languageCode,
+      behavior: behavior,
+    );
+  }
+
+  if (localizedResults.length >= 12 ||
+      section == MovieSection.discover ||
+      section == MovieSection.tvDiscover) {
+    return _applyLanguageMode(
+      localizedResults,
+      languageCode: languageCode,
+      behavior: behavior,
+    );
+  }
+
+  final List<MediaTitle> fallbackResults = await discoverUseCase(
+    DiscoverMediaParams(isTv: isTv, filter: filter, page: page),
+  );
+  final List<MediaTitle> merged = <MediaTitle>[];
+  final Set<int> seenIds = <int>{};
+  for (final MediaTitle media in <MediaTitle>[
+    ...localizedResults,
+    ...fallbackResults,
+  ]) {
+    if (seenIds.add(media.id)) {
+      merged.add(media);
+    }
+  }
+  return _applyLanguageMode(
+    merged,
+    languageCode: languageCode,
+    behavior: behavior,
+  );
+}
+
 Future<List<MediaTitle>> _fetchMovieSection(
   Ref ref,
   MovieSection section, {
   required MediaFilter sortFilter,
+  required _LanguageModeBehavior languageBehavior,
 }) async {
   var disposed = false;
   ref.onDispose(() {
@@ -365,6 +628,7 @@ Future<List<MediaTitle>> _fetchMovieSection(
   });
 
   final String regionCode = ref.watch(preferredRegionCodeProvider);
+  final String? languageCode = ref.watch(contentLanguageProvider);
 
   // Watch filters if we are in discover mode to trigger re-runs
   if (section == MovieSection.discover) {
@@ -377,6 +641,7 @@ Future<List<MediaTitle>> _fetchMovieSection(
     regionCode: regionCode,
     section: section,
     sortFilter: sortFilter,
+    languageCode: languageCode,
   );
 
   final int targetPage = _getTargetPage(cacheKey);
@@ -413,7 +678,6 @@ Future<List<MediaTitle>> _fetchMovieSection(
         final List<MediaTitle> pageResults;
         if (section == MovieSection.discover) {
           final filter = movieDiscoverFilter!;
-          // Merge global sort into discover filter
           final effectiveFilter = filter.copyWith(
             sortField: sortFilter.sortField,
             sortOrder: sortFilter.sortOrder,
@@ -423,12 +687,17 @@ Future<List<MediaTitle>> _fetchMovieSection(
               baseMinVotes: filter.minUserVotes,
             ),
           );
-          pageResults = await discoverUseCase(
-            DiscoverMediaParams(isTv: false, filter: effectiveFilter, page: i),
+          pageResults = await _discoverPageWithLanguagePreference(
+            discoverUseCase,
+            isTv: false,
+            section: section,
+            filter: effectiveFilter,
+            page: i,
+            languageCode: languageCode,
+            behavior: languageBehavior,
           );
         } else if (section == MovieSection.tvDiscover) {
           final filter = tvDiscoverFilter!;
-          // Merge global sort into discover filter
           final effectiveFilter = filter.copyWith(
             sortField: sortFilter.sortField,
             sortOrder: sortFilter.sortOrder,
@@ -438,62 +707,49 @@ Future<List<MediaTitle>> _fetchMovieSection(
               baseMinVotes: filter.minUserVotes,
             ),
           );
-          pageResults = await discoverUseCase(
-            DiscoverMediaParams(isTv: true, filter: effectiveFilter, page: i),
+          pageResults = await _discoverPageWithLanguagePreference(
+            discoverUseCase,
+            isTv: true,
+            section: section,
+            filter: effectiveFilter,
+            page: i,
+            languageCode: languageCode,
+            behavior: languageBehavior,
           );
-        } else if (!sortFilter.isDefault ||
-            section == MovieSection.nowPlaying ||
-            section == MovieSection.upcoming ||
-            section == MovieSection.tvOnTheAir ||
-            section == MovieSection.tvAiringToday) {
-          // For non-default sort OR specific date-sensitive sections, use discover with strict filters
+        } else if (_shouldUseDiscoverForSection(
+          section,
+          sortFilter: sortFilter,
+          languageCode: languageCode,
+          behavior: languageBehavior,
+        )) {
           final bool isTv = section.name.startsWith('tv');
-
-          DateTime? fromDate;
-          DateTime? toDate;
-          Set<int> releaseTypes = {};
-          int minVotes = 0;
-          final now = DateTime.now();
-          final today = DateTime(now.year, now.month, now.day);
-
-          if (section == MovieSection.nowPlaying ||
-              section == MovieSection.tvOnTheAir) {
-            fromDate = today.subtract(const Duration(days: 30));
-            toDate = today;
-            releaseTypes = {2, 3};
-          } else if (section == MovieSection.upcoming ||
-              section == MovieSection.tvAiringToday) {
-            // Strictly from tomorrow onwards to avoid "already released" movies
-            fromDate = today.add(const Duration(days: 1));
-            toDate = today.add(const Duration(days: 90));
-            releaseTypes = {2, 3};
-          } else if (section == MovieSection.topRated ||
-              section == MovieSection.tvTopRated) {
-            minVotes = isTv ? 150 : 300; // TMDB threshold for top rated
-          }
-
-          minVotes = _ratingSortMinVotes(
+          final constraints = _sectionDiscoverConstraints(
+            section,
             isTv: isTv,
             sortFilter: sortFilter,
-            baseMinVotes: minVotes,
           );
-
-          pageResults = await discoverUseCase(
-            DiscoverMediaParams(
-              isTv: isTv,
-              filter: MediaFilter(
-                sortField: sortFilter.sortField,
-                sortOrder: sortFilter.sortOrder,
-                releaseDateFrom: fromDate,
-                releaseDateTo: toDate,
-                releaseTypes: releaseTypes,
-                minUserVotes: minVotes,
-              ),
-              page: i,
+          pageResults = await _discoverPageWithLanguagePreference(
+            discoverUseCase,
+            isTv: isTv,
+            section: section,
+            filter: MediaFilter(
+              sortField: sortFilter.sortField,
+              sortOrder: sortFilter.sortOrder,
+              releaseDateFrom: constraints.fromDate,
+              releaseDateTo: constraints.toDate,
+              releaseTypes: constraints.releaseTypes,
+              minUserVotes: constraints.minVotes,
             ),
+            page: i,
+            languageCode: languageCode,
+            behavior: languageBehavior,
           );
         } else {
-          pageResults = await useCase(section, page: i);
+          pageResults = _applyLanguageMode(
+            await useCase(section, page: i),
+            languageCode: languageCode,
+            behavior: languageBehavior,
+          );
         }
         final List<MediaTitle> acceptedPageResults = _applySortGuardrails(
           pageResults,
@@ -542,12 +798,22 @@ Future<List<MediaTitle>> _fetchMovieSection(
 final movieSectionProvider =
     FutureProvider.family<List<MediaTitle>, MovieSection>((ref, section) async {
       final sortFilter = ref.watch(genreSortProvider);
-      return _fetchMovieSection(ref, section, sortFilter: sortFilter);
+      return _fetchMovieSection(
+        ref,
+        section,
+        sortFilter: sortFilter,
+        languageBehavior: _LanguageModeBehavior.strict,
+      );
     });
 
 final exploreMovieSectionProvider =
     FutureProvider.family<List<MediaTitle>, MovieSection>((ref, section) async {
-      return _fetchMovieSection(ref, section, sortFilter: const MediaFilter());
+      return _fetchMovieSection(
+        ref,
+        section,
+        sortFilter: const MediaFilter(),
+        languageBehavior: _LanguageModeBehavior.preferred,
+      );
     });
 
 final genreSectionProvider =
@@ -556,21 +822,29 @@ final genreSectionProvider =
       params,
     ) async {
       final sortFilter = ref.watch(genreSortProvider);
-      return _fetchGenreSection(ref, params, sortFilter: sortFilter);
+      return _fetchGenreSection(
+        ref,
+        params,
+        sortFilter: sortFilter,
+        languageBehavior: _LanguageModeBehavior.strict,
+      );
     });
 
 Future<List<MediaTitle>> _fetchGenreSection(
   Ref ref,
   ({int id, bool isTv}) params, {
   required MediaFilter sortFilter,
+  required _LanguageModeBehavior languageBehavior,
 }) async {
   final String regionCode = ref.watch(preferredRegionCodeProvider);
+  final String? languageCode = ref.watch(contentLanguageProvider);
 
   final _GenreCacheKey cacheKey = _buildGenreCacheKey(
     regionCode: regionCode,
     genreId: params.id,
     isTv: params.isTv,
     sortFilter: sortFilter,
+    languageCode: languageCode,
   );
   final int targetPage = _getGenreTargetPage(cacheKey);
 
@@ -590,22 +864,27 @@ Future<List<MediaTitle>> _fetchGenreSection(
     _genreFetchingCache[cacheKey] = true;
     for (int i = startPage; i <= maxPage; i++) {
       try {
-        final List<MediaTitle> pageResults = await discoverUseCase(
-          DiscoverMediaParams(
-            isTv: params.isTv,
-            filter: MediaFilter(
-              sortField: sortFilter.sortField,
-              sortOrder: sortFilter.sortOrder,
-              minUserVotes: _ratingSortMinVotes(
-                isTv: params.isTv,
-                sortFilter: sortFilter,
-                baseMinVotes: 0,
+        final List<MediaTitle> pageResults =
+            await _discoverPageWithLanguagePreference(
+              discoverUseCase,
+              isTv: params.isTv,
+              section: params.isTv
+                  ? MovieSection.tvDiscover
+                  : MovieSection.discover,
+              filter: MediaFilter(
+                sortField: sortFilter.sortField,
+                sortOrder: sortFilter.sortOrder,
+                minUserVotes: _ratingSortMinVotes(
+                  isTv: params.isTv,
+                  sortFilter: sortFilter,
+                  baseMinVotes: 0,
+                ),
+                genres: {params.id},
               ),
-              genres: {params.id},
-            ),
-            page: i,
-          ),
-        );
+              page: i,
+              languageCode: languageCode,
+              behavior: languageBehavior,
+            );
         final List<MediaTitle> acceptedPageResults = _applySortGuardrails(
           pageResults,
           isTv: params.isTv,
@@ -655,7 +934,12 @@ final exploreGenreSectionProvider =
       ref,
       params,
     ) async {
-      return _fetchGenreSection(ref, params, sortFilter: const MediaFilter());
+      return _fetchGenreSection(
+        ref,
+        params,
+        sortFilter: const MediaFilter(),
+        languageBehavior: _LanguageModeBehavior.preferred,
+      );
     });
 
 final discoverPoolProvider = FutureProvider<List<MediaTitle>>((ref) async {
@@ -707,9 +991,15 @@ typedef _MoodCacheKey = ({
   bool isTv,
   SortField sortField,
   SortOrder sortOrder,
+  String? languageCode,
 });
-typedef _HiddenGemsCacheKey = ({String regionCode});
-typedef _CuratedTonightCacheKey = ({String regionCode, bool isTv, int dayKey});
+typedef _HiddenGemsCacheKey = ({String regionCode, String? languageCode});
+typedef _CuratedTonightCacheKey = ({
+  String regionCode,
+  bool isTv,
+  int dayKey,
+  String? languageCode,
+});
 
 final Map<_MoodCacheKey, List<MediaTitle>> _moodSectionCache = {};
 final Map<_MoodCacheKey, int> _moodLoadedPagesCache = {};
@@ -1003,6 +1293,7 @@ void loadNextMoodPages(WidgetRef ref, MovieMood mood, {bool isTv = false}) {
     isTv: isTv,
     sortField: sortFilter.sortField,
     sortOrder: sortFilter.sortOrder,
+    languageCode: ref.read(contentLanguageProvider),
   );
   if (_moodFetchingCache[cacheKey] == true ||
       _moodExhaustedCache[cacheKey] == true) {
@@ -1022,6 +1313,7 @@ final moodSectionExhaustedProvider =
             isTv: params.isTv,
             sortField: sortFilter.sortField,
             sortOrder: sortFilter.sortOrder,
+            languageCode: ref.watch(contentLanguageProvider),
           )] ??
           false;
     });
@@ -1033,6 +1325,7 @@ final moodSectionProvider =
     ) async {
       final String regionCode = ref.watch(preferredRegionCodeProvider);
       final sortFilter = ref.watch(genreSortProvider);
+      final String? languageCode = ref.watch(contentLanguageProvider);
 
       final _MoodCacheKey cacheKey = (
         regionCode: regionCode,
@@ -1040,6 +1333,7 @@ final moodSectionProvider =
         isTv: params.isTv,
         sortField: sortFilter.sortField,
         sortOrder: sortFilter.sortOrder,
+        languageCode: languageCode,
       );
       final int targetPage = _getMoodTargetPage(cacheKey);
 
@@ -1056,21 +1350,25 @@ final moodSectionProvider =
         _moodFetchingCache[cacheKey] = true;
         for (int i = startPage; i <= targetPage; i++) {
           try {
-            final List<MediaTitle> pageResults = await discoverUseCase(
-              DiscoverMediaParams(
-                isTv: params.isTv,
-                filter: MediaFilter(
-                  sortField: sortFilter.sortField,
-                  sortOrder: sortFilter.sortOrder,
-                  mood: params.mood,
-                  userScore: const RangeValues(5.5, 10.0),
-                  minUserVotes: 10,
-                  includeNotRated: false,
-                ),
-
-                page: i,
-              ),
-            );
+            final List<MediaTitle> pageResults =
+                await _discoverPageWithLanguagePreference(
+                  discoverUseCase,
+                  isTv: params.isTv,
+                  section: params.isTv
+                      ? MovieSection.tvDiscover
+                      : MovieSection.discover,
+                  filter: MediaFilter(
+                    sortField: sortFilter.sortField,
+                    sortOrder: sortFilter.sortOrder,
+                    mood: params.mood,
+                    userScore: const RangeValues(5.5, 10.0),
+                    minUserVotes: 10,
+                    includeNotRated: false,
+                  ),
+                  page: i,
+                  languageCode: languageCode,
+                  behavior: _LanguageModeBehavior.preferred,
+                );
             results.addAll(pageResults);
             _moodLoadedPagesCache[cacheKey] = i;
             if (pageResults.isEmpty || pageResults.length < 20) {
@@ -1105,6 +1403,7 @@ final moodSectionProvider =
 void loadNextHiddenGemsPages(WidgetRef ref) {
   final _HiddenGemsCacheKey cacheKey = (
     regionCode: ref.read(preferredRegionCodeProvider),
+    languageCode: ref.read(contentLanguageProvider),
   );
   if (_hiddenGemsFetchingCache[cacheKey] == true ||
       _hiddenGemsExhaustedCache[cacheKey] == true) {
@@ -1118,13 +1417,16 @@ void loadNextHiddenGemsPages(WidgetRef ref) {
 final hiddenGemsSectionExhaustedProvider = Provider<bool>((ref) {
   final _HiddenGemsCacheKey cacheKey = (
     regionCode: ref.watch(preferredRegionCodeProvider),
+    languageCode: ref.watch(contentLanguageProvider),
   );
   return _hiddenGemsExhaustedCache[cacheKey] ?? false;
 });
 
 final hiddenGemsSectionProvider = FutureProvider<List<MediaTitle>>((ref) async {
+  final String? languageCode = ref.watch(contentLanguageProvider);
   final _HiddenGemsCacheKey cacheKey = (
     regionCode: ref.watch(preferredRegionCodeProvider),
+    languageCode: languageCode,
   );
   final repository = ref.watch(mediaRepositoryProvider);
   final discoverUseCase = DiscoverMediaUseCase(repository);
@@ -1138,19 +1440,22 @@ final hiddenGemsSectionProvider = FutureProvider<List<MediaTitle>>((ref) async {
   if (startPage <= targetPage) {
     _hiddenGemsFetchingCache[cacheKey] = true;
     for (int page = startPage; page <= targetPage; page++) {
-      final List<MediaTitle> pageResults = await discoverUseCase(
-        DiscoverMediaParams(
-          isTv: false,
-          filter: const MediaFilter(
-            sortField: SortField.popularity,
-            sortOrder: SortOrder.ascending,
-            userScore: RangeValues(7.01, 10.0),
-            minUserVotes: 120,
-            includeNotRated: false,
-          ),
-          page: page,
-        ),
-      );
+      final List<MediaTitle> pageResults =
+          await _discoverPageWithLanguagePreference(
+            discoverUseCase,
+            isTv: false,
+            section: MovieSection.discover,
+            filter: const MediaFilter(
+              sortField: SortField.popularity,
+              sortOrder: SortOrder.ascending,
+              userScore: RangeValues(7.01, 10.0),
+              minUserVotes: 120,
+              includeNotRated: false,
+            ),
+            page: page,
+            languageCode: languageCode,
+            behavior: _LanguageModeBehavior.preferred,
+          );
 
       results.addAll(pageResults);
       _hiddenGemsLoadedPagesCache[cacheKey] = page;
@@ -1179,6 +1484,7 @@ final curatedTonightRailProvider = FutureProvider<CuratedTonightRailData>((
 ) async {
   final String regionCode = ref.watch(preferredRegionCodeProvider);
   final bool isTv = ref.watch(exploreMediaTypeProvider) == ExploreMediaType.tv;
+  final String? languageCode = ref.watch(contentLanguageProvider);
   final int dayKey =
       ref.watch(curatedTonightDayKeyProvider).value ??
       _calendarDayKey(DateTime.now());
@@ -1187,6 +1493,7 @@ final curatedTonightRailProvider = FutureProvider<CuratedTonightRailData>((
     regionCode: regionCode,
     isTv: isTv,
     dayKey: dayKey,
+    languageCode: languageCode,
   );
   final CuratedTonightRailData? cached = _curatedTonightCache[cacheKey];
   if (cached != null) {
@@ -1203,21 +1510,24 @@ final curatedTonightRailProvider = FutureProvider<CuratedTonightRailData>((
 
   final List<MediaTitle> fetched = <MediaTitle>[];
   for (int page = 1; page <= 3; page++) {
-    final List<MediaTitle> pageResults = await discoverUseCase(
-      DiscoverMediaParams(
-        isTv: isTv,
-        filter: MediaFilter(
-          sortField: SortField.voteAverage,
-          sortOrder: SortOrder.descending,
-          userScore: profile.scoreRange,
-          minUserVotes: profile.minUserVotes,
-          includeNotRated: false,
-          genres: genreIds,
-          runtime: profile.runtime,
-        ),
-        page: page,
-      ),
-    );
+    final List<MediaTitle> pageResults =
+        await _discoverPageWithLanguagePreference(
+          discoverUseCase,
+          isTv: isTv,
+          section: isTv ? MovieSection.tvDiscover : MovieSection.discover,
+          filter: MediaFilter(
+            sortField: SortField.voteAverage,
+            sortOrder: SortOrder.descending,
+            userScore: profile.scoreRange,
+            minUserVotes: profile.minUserVotes,
+            includeNotRated: false,
+            genres: genreIds,
+            runtime: profile.runtime,
+          ),
+          page: page,
+          languageCode: languageCode,
+          behavior: _LanguageModeBehavior.preferred,
+        );
     fetched.addAll(pageResults);
     if (pageResults.isEmpty || pageResults.length < 20) {
       break;
@@ -1235,20 +1545,23 @@ final curatedTonightRailProvider = FutureProvider<CuratedTonightRailData>((
   final int seed = dayKey + profile.id.hashCode + (isTv ? 1009 : 0);
   List<MediaTitle> source = _rankCuratedCandidates(unique, profile, isTv: isTv);
   if (source.length < 24) {
-    final List<MediaTitle> relaxedFallback = await discoverUseCase(
-      DiscoverMediaParams(
-        isTv: isTv,
-        filter: MediaFilter(
-          sortField: SortField.popularity,
-          sortOrder: SortOrder.descending,
-          userScore: const RangeValues(5.5, 10.0),
-          minUserVotes: 60,
-          includeNotRated: false,
-          genres: genreIds,
-        ),
-        page: 1,
-      ),
-    );
+    final List<MediaTitle> relaxedFallback =
+        await _discoverPageWithLanguagePreference(
+          discoverUseCase,
+          isTv: isTv,
+          section: isTv ? MovieSection.tvDiscover : MovieSection.discover,
+          filter: MediaFilter(
+            sortField: SortField.popularity,
+            sortOrder: SortOrder.descending,
+            userScore: const RangeValues(5.5, 10.0),
+            minUserVotes: 60,
+            includeNotRated: false,
+            genres: genreIds,
+          ),
+          page: 1,
+          languageCode: languageCode,
+          behavior: _LanguageModeBehavior.preferred,
+        );
     final List<MediaTitle> merged = <MediaTitle>[...source];
     for (final MediaTitle media in relaxedFallback) {
       if (seenIds.add(media.id)) {
