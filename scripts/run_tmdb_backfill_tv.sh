@@ -13,7 +13,7 @@ LOOKBACK_DAYS="${LOOKBACK_DAYS:-21}"
 print_help() {
   cat <<EOF
 Usage:
-  scripts/run_tmdb_backfill_tv.sh [--dry-run] [extra args...]
+  scripts/run_tmdb_backfill_tv.sh [--dry-run] [--resume] [extra args...]
 
 Defaults:
   CSV_PATH=$CSV_PATH
@@ -23,6 +23,7 @@ Defaults:
 
 Examples:
   scripts/run_tmdb_backfill_tv.sh
+  scripts/run_tmdb_backfill_tv.sh --resume
   scripts/run_tmdb_backfill_tv.sh --dry-run
   scripts/run_tmdb_backfill_tv.sh --max-ids 25000 --max-rps 8
 EOF
@@ -38,6 +39,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --dry-run)
       DRY_RUN=1
+      shift
+      ;;
+    --resume)
+      EXTRA_ARGS+=("--resume")
       shift
       ;;
     *)
@@ -69,4 +74,3 @@ fi
 echo "Running TV backfill wrapper..."
 echo "Command: ${CMD[*]}"
 "${CMD[@]}"
-

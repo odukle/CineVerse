@@ -11,7 +11,7 @@ import sqlite3
 import sys
 import time
 from pathlib import Path
-from typing import Any, Dict, Iterable, Iterator, List, Optional
+from typing import Any, Dict, Iterable, Iterator, List, Optional, Tuple
 
 import requests
 
@@ -155,6 +155,7 @@ class TMDBClient:
         self.timeout_seconds = timeout_seconds
         self.retries = max(1, retries)
         self._last_request_started = 0.0
+        self._session = requests.Session()
 
     def get_json(self, path: str, *, params: Optional[dict] = None) -> Optional[dict]:
         url = f"{self.base_url}/{path.lstrip('/')}"
@@ -168,7 +169,7 @@ class TMDBClient:
         for attempt in range(1, self.retries + 1):
             self._throttle()
             try:
-                response = requests.get(
+                response = self._session.get(
                     url,
                     params=req_params,
                     headers=headers,
@@ -273,13 +274,13 @@ class TMDBClient:
             return None
 
 
-def fetch_tmdb_export_ids(
+def fetch_tmdb_export_ids_with_source(
     *,
     media_type: str,
     export_base_url: str = DEFAULT_EXPORT_BASE,
     lookback_days: int = 21,
     cache_dir: Path,
-) -> List[int]:
+) -> Tuple[List[int], str]:
     if media_type not in {"movie", "tv_series"}:
         raise ValueError("media_type must be 'movie' or 'tv_series'")
 
@@ -311,10 +312,26 @@ def fetch_tmdb_export_ids(
                 len(ids),
                 local.name,
             )
-            return ids
+            return ids, local.name
     raise RuntimeError(
         f"Could not find a valid {media_type} export in last {lookback_days} day(s)."
     )
+
+
+def fetch_tmdb_export_ids(
+    *,
+    media_type: str,
+    export_base_url: str = DEFAULT_EXPORT_BASE,
+    lookback_days: int = 21,
+    cache_dir: Path,
+) -> List[int]:
+    ids, _source_name = fetch_tmdb_export_ids_with_source(
+        media_type=media_type,
+        export_base_url=export_base_url,
+        lookback_days=lookback_days,
+        cache_dir=cache_dir,
+    )
+    return ids
 
 
 def _parse_export_ids(path: Path) -> List[int]:
@@ -505,6 +522,21 @@ def load_csv_to_sqlite(
     return existing_ids
 
 
+def load_existing_ids_from_sqlite(
+    *,
+    conn: sqlite3.Connection,
+    table_name: str,
+    log_every: int = 100000,
+) -> set[int]:
+    existing_ids: set[int] = set()
+    cursor = conn.execute(f"SELECT id FROM {table_name} ORDER BY id ASC")
+    for index, (row_id,) in enumerate(cursor, start=1):
+        existing_ids.add(int(row_id))
+        if log_every > 0 and index % log_every == 0:
+            LOGGER.info("Loaded %s existing ids from %s", index, table_name)
+    return existing_ids
+
+
 def upsert_row_sqlite(
     *,
     conn: sqlite3.Connection,
@@ -553,6 +585,55 @@ def load_checkpoint(path: Path) -> dict:
 def save_checkpoint(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def ensure_resume_table(conn: sqlite3.Connection) -> None:
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS processed_ids (
+          run_key TEXT NOT NULL,
+          id INTEGER NOT NULL,
+          status TEXT NOT NULL,
+          updated_at INTEGER NOT NULL,
+          PRIMARY KEY (run_key, id)
+        )
+        """
+    )
+    conn.commit()
+
+
+def clear_resume_run(conn: sqlite3.Connection, *, run_key: str) -> None:
+    conn.execute("DELETE FROM processed_ids WHERE run_key = ?", (run_key,))
+    conn.commit()
+
+
+def has_resume_processed_id(
+    conn: sqlite3.Connection,
+    *,
+    run_key: str,
+    row_id: int,
+) -> bool:
+    row = conn.execute(
+        "SELECT 1 FROM processed_ids WHERE run_key = ? AND id = ? LIMIT 1",
+        (run_key, int(row_id)),
+    ).fetchone()
+    return row is not None
+
+
+def mark_resume_processed_id(
+    conn: sqlite3.Connection,
+    *,
+    run_key: str,
+    row_id: int,
+    status: str,
+) -> None:
+    conn.execute(
+        """
+        INSERT OR REPLACE INTO processed_ids (run_key, id, status, updated_at)
+        VALUES (?, ?, ?, ?)
+        """,
+        (run_key, int(row_id), status, int(time.time())),
+    )
 
 
 def progress_line(
