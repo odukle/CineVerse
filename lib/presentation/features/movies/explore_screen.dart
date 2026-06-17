@@ -106,17 +106,6 @@ class ExploreScreen extends ConsumerStatefulWidget {
 
   static const List<ExploreShelfData> _movieBaseSections = <ExploreShelfData>[
     ExploreShelfData(
-      title: 'Trending',
-      filters: <ExploreFilterOption>[
-        ExploreFilterOption(label: 'Today', section: MovieSection.trendingDay),
-        ExploreFilterOption(
-          label: 'This Week',
-          section: MovieSection.trendingWeek,
-        ),
-      ],
-      variant: _ShelfVariant.featured,
-    ),
-    ExploreShelfData(
       title: "What's Popular",
       filters: <ExploreFilterOption>[
         ExploreFilterOption(label: 'Popular', section: MovieSection.popular),
@@ -130,6 +119,17 @@ class ExploreScreen extends ConsumerStatefulWidget {
           section: MovieSection.upcoming,
         ),
       ],
+    ),
+    ExploreShelfData(
+      title: 'Trending',
+      filters: <ExploreFilterOption>[
+        ExploreFilterOption(label: 'Today', section: MovieSection.trendingDay),
+        ExploreFilterOption(
+          label: 'This Week',
+          section: MovieSection.trendingWeek,
+        ),
+      ],
+      variant: _ShelfVariant.featured,
     ),
     ExploreShelfData(
       title: 'Hidden Gems',
@@ -155,20 +155,6 @@ class ExploreScreen extends ConsumerStatefulWidget {
 
   static const List<ExploreShelfData> _tvBaseSections = <ExploreShelfData>[
     ExploreShelfData(
-      title: 'TV Trending',
-      filters: <ExploreFilterOption>[
-        ExploreFilterOption(
-          label: 'Today',
-          section: MovieSection.tvTrendingDay,
-        ),
-        ExploreFilterOption(
-          label: 'This Week',
-          section: MovieSection.tvTrendingWeek,
-        ),
-      ],
-      variant: _ShelfVariant.featured,
-    ),
-    ExploreShelfData(
       title: "What's Popular",
       filters: <ExploreFilterOption>[
         ExploreFilterOption(label: 'Popular', section: MovieSection.tvPopular),
@@ -185,6 +171,20 @@ class ExploreScreen extends ConsumerStatefulWidget {
           section: MovieSection.tvAiringToday,
         ),
       ],
+    ),
+    ExploreShelfData(
+      title: 'TV Trending',
+      filters: <ExploreFilterOption>[
+        ExploreFilterOption(
+          label: 'Today',
+          section: MovieSection.tvTrendingDay,
+        ),
+        ExploreFilterOption(
+          label: 'This Week',
+          section: MovieSection.tvTrendingWeek,
+        ),
+      ],
+      variant: _ShelfVariant.featured,
     ),
     ExploreShelfData(
       title: 'On The Air',
