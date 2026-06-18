@@ -6,6 +6,7 @@ import json
 import os
 import re
 import time
+import unicodedata
 from typing import Iterable, Optional
 from urllib.parse import parse_qs, urlparse
 
@@ -68,6 +69,7 @@ def resolveProviderLink(req: https_fn.Request) -> https_fn.Response:
 
     normalized_provider = _normalize_provider_name(provider_name)
     provider_aliases = _provider_aliases(normalized_provider)
+    source_is_tmdb = _is_tmdb_url(source_url)
     effective_justwatch_url = _normalize_to_justwatch_url(source_url)
     if not effective_justwatch_url:
         return _json_response(
@@ -83,6 +85,7 @@ def resolveProviderLink(req: https_fn.Request) -> https_fn.Response:
     cache_key = _build_cache_key(effective_justwatch_url, normalized_provider)
 
     cached = _read_cache_entry(cache_key)
+    cached_miss_response: Optional[dict] = None
     if cached is not None:
         if cached.get("status") == "ok":
             resolved_url = str(cached.get("resolvedUrl") or "").strip()
@@ -99,73 +102,80 @@ def resolveProviderLink(req: https_fn.Request) -> https_fn.Response:
             fallback_url = str(cached.get("justwatchUrl") or "").strip()
             if not fallback_url:
                 fallback_url = effective_justwatch_url
+            cached_miss_response = {
+                "error": "No provider-specific URL found on JustWatch page.",
+                "resolvedUrl": fallback_url,
+                "providerName": provider_name,
+                "source": "cache",
+            }
+
+    attempted_tmdb_fallback = False
+    page_candidates = [effective_justwatch_url]
+    if source_is_tmdb and source_url.strip() not in page_candidates:
+        page_candidates.append(source_url.strip())
+
+    fetch_errors: list[str] = []
+
+    for candidate_url in page_candidates:
+        if candidate_url == source_url.strip() and source_is_tmdb:
+            attempted_tmdb_fallback = True
+        try:
+            response = requests.get(
+                candidate_url,
+                timeout=8,
+                headers={
+                    "User-Agent": (
+                        "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
+                        "(KHTML, like Gecko) Chrome/123.0 Safari/537.36"
+                    ),
+                    "Accept-Language": "en-US,en;q=0.9",
+                },
+            )
+            response.raise_for_status()
+            page_html = response.text
+        except requests.RequestException as exc:
+            fetch_errors.append(f"{candidate_url}: {exc}")
+            continue
+
+        resolved = _resolve_from_json_ld(page_html, provider_aliases)
+        if resolved:
+            if _is_cacheable_provider_url(resolved):
+                _write_cache_entry(
+                    cache_key=cache_key,
+                    justwatch_url=effective_justwatch_url,
+                    normalized_provider=normalized_provider,
+                    status="ok",
+                    resolved_url=resolved,
+                    source="jsonld",
+                )
             return _json_response(
-                404,
+                200,
                 {
-                    "error": "No provider-specific URL found on JustWatch page.",
-                    "resolvedUrl": fallback_url,
+                    "resolvedUrl": resolved,
                     "providerName": provider_name,
-                    "source": "cache",
+                    "source": "jsonld",
                 },
             )
 
-    try:
-        response = requests.get(
-            effective_justwatch_url,
-            timeout=8,
-            headers={
-                "User-Agent": (
-                    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 "
-                    "(KHTML, like Gecko) Chrome/123.0 Safari/537.36"
-                ),
-                "Accept-Language": "en-US,en;q=0.9",
-            },
-        )
-        response.raise_for_status()
-        page_html = response.text
-    except requests.RequestException as exc:
-        return _json_response(
-            502,
-            {"error": f"Failed to fetch JustWatch page: {exc}"},
-        )
-
-    resolved = _resolve_from_json_ld(page_html, provider_aliases)
-    if resolved:
-        _write_cache_entry(
-            cache_key=cache_key,
-            justwatch_url=effective_justwatch_url,
-            normalized_provider=normalized_provider,
-            status="ok",
-            resolved_url=resolved,
-            source="jsonld",
-        )
-        return _json_response(
-            200,
-            {
-                "resolvedUrl": resolved,
-                "providerName": provider_name,
-                "source": "jsonld",
-            },
-        )
-
-    resolved = _resolve_from_embedded_state(page_html, provider_aliases)
-    if resolved:
-        _write_cache_entry(
-            cache_key=cache_key,
-            justwatch_url=effective_justwatch_url,
-            normalized_provider=normalized_provider,
-            status="ok",
-            resolved_url=resolved,
-            source="embedded-offers",
-        )
-        return _json_response(
-            200,
-            {
-                "resolvedUrl": resolved,
-                "providerName": provider_name,
-                "source": "embedded-offers",
-            },
-        )
+        resolved = _resolve_from_embedded_state(page_html, provider_aliases)
+        if resolved:
+            if _is_cacheable_provider_url(resolved):
+                _write_cache_entry(
+                    cache_key=cache_key,
+                    justwatch_url=effective_justwatch_url,
+                    normalized_provider=normalized_provider,
+                    status="ok",
+                    resolved_url=resolved,
+                    source="embedded-offers",
+                )
+            return _json_response(
+                200,
+                {
+                    "resolvedUrl": resolved,
+                    "providerName": provider_name,
+                    "source": "embedded-offers",
+                },
+            )
 
     _write_cache_entry(
         cache_key=cache_key,
@@ -178,9 +188,14 @@ def resolveProviderLink(req: https_fn.Request) -> https_fn.Response:
     return _json_response(
         404,
         {
-            "error": "No provider-specific URL found on JustWatch page.",
+            "error": (
+                "No provider-specific URL found on watch pages."
+                if attempted_tmdb_fallback
+                else "No provider-specific URL found on JustWatch page."
+            ),
             "resolvedUrl": effective_justwatch_url,
             "providerName": provider_name,
+            "attemptedTmdbFallback": attempted_tmdb_fallback,
         },
     )
 
@@ -806,34 +821,100 @@ def _derive_justwatch_url_from_tmdb_watch_link(tmdb_watch_url: str) -> Optional[
 
     media_kind = match.group(1)
     media_id = match.group(2)
-    media_type_path = "movie" if media_kind == "movie" else "tv-show"
+    media_type_paths = _justwatch_media_type_paths(media_kind)
 
     query = parse_qs(parsed.query)
     country_code = _tmdb_locale_to_country(query)
-    title, release_year = _tmdb_title_and_year(
+    preferred_language = _tmdb_preferred_language(query)
+    preferred_locale = _tmdb_preferred_locale(query)
+    title_candidates, release_year = _tmdb_title_candidates_and_year(
         media_kind=media_kind,
         media_id=media_id,
+        preferred_language=preferred_language,
+        preferred_locale=preferred_locale,
     )
-    if not title:
+    if not title_candidates:
         return None
 
-    slug = _slugify(title)
-    if not slug:
-        return None
+    fallback_url: Optional[str] = None
+    for title in title_candidates:
+        slug = _slugify(title)
+        if not slug:
+            continue
+        for media_type_path in media_type_paths:
+            base_url = f"https://www.justwatch.com/{country_code}/{media_type_path}/{slug}"
+            if fallback_url is None:
+                fallback_url = base_url
+            if release_year:
+                with_year = f"{base_url}-{release_year}"
+                if _url_exists(with_year):
+                    return with_year
+            if _url_exists(base_url):
+                return base_url
+    return fallback_url
 
-    base_url = f"https://www.justwatch.com/{country_code}/{media_type_path}/{slug}"
-    if release_year:
-        with_year = f"{base_url}-{release_year}"
-        if _url_exists(with_year):
-            return with_year
-    if _url_exists(base_url):
-        return base_url
-    return base_url
 
-
-def _tmdb_title_and_year(*, media_kind: str, media_id: str) -> tuple[Optional[str], Optional[str]]:
+def _tmdb_title_candidates_and_year(
+    *,
+    media_kind: str,
+    media_id: str,
+    preferred_language: Optional[str] = None,
+    preferred_locale: Optional[str] = None,
+) -> tuple[list[str], Optional[str]]:
     proxy_base = os.getenv(_TMDB_PROXY_BASE_URL_ENV, _TMDB_PROXY_BASE_URL_DEFAULT).rstrip("/")
     endpoint = f"{proxy_base}/{media_kind}/{media_id}"
+    params = {"language": preferred_locale} if preferred_locale else None
+    try:
+        response = requests.get(
+            endpoint,
+            timeout=8,
+            params=params,
+            headers={"Accept": "application/json"},
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except Exception:
+        return [], None
+
+    if media_kind == "movie":
+        primary_title = str(payload.get("title") or "").strip()
+        original_title = str(payload.get("original_title") or "").strip()
+        date_value = str(payload.get("release_date") or "").strip()
+    else:
+        primary_title = str(payload.get("name") or "").strip()
+        original_title = str(payload.get("original_name") or "").strip()
+        date_value = str(payload.get("first_air_date") or "").strip()
+
+    translation_titles = _tmdb_translation_titles(
+        media_kind=media_kind,
+        media_id=media_id,
+        preferred_language=preferred_language,
+    )
+
+    candidates: list[str] = []
+    seen: set[str] = set()
+    for raw in [primary_title, original_title, *translation_titles]:
+        title = str(raw or "").strip()
+        if not title:
+            continue
+        key = title.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        candidates.append(title)
+
+    year_match = re.match(r"^(\d{4})", date_value)
+    return candidates, (year_match.group(1) if year_match else None)
+
+
+def _tmdb_translation_titles(
+    *,
+    media_kind: str,
+    media_id: str,
+    preferred_language: Optional[str] = None,
+) -> list[str]:
+    proxy_base = os.getenv(_TMDB_PROXY_BASE_URL_ENV, _TMDB_PROXY_BASE_URL_DEFAULT).rstrip("/")
+    endpoint = f"{proxy_base}/{media_kind}/{media_id}/translations"
     try:
         response = requests.get(
             endpoint,
@@ -843,16 +924,31 @@ def _tmdb_title_and_year(*, media_kind: str, media_id: str) -> tuple[Optional[st
         response.raise_for_status()
         payload = response.json()
     except Exception:
-        return None, None
+        return []
 
-    if media_kind == "movie":
-        title = str(payload.get("title") or payload.get("original_title") or "").strip()
-        date_value = str(payload.get("release_date") or "").strip()
-    else:
-        title = str(payload.get("name") or payload.get("original_name") or "").strip()
-        date_value = str(payload.get("first_air_date") or "").strip()
-    year_match = re.match(r"^(\d{4})", date_value)
-    return (title or None, year_match.group(1) if year_match else None)
+    translations = payload.get("translations")
+    if not isinstance(translations, list):
+        return []
+
+    preferred: list[str] = []
+    others: list[str] = []
+
+    for item in translations:
+        if not isinstance(item, dict):
+            continue
+        data = item.get("data")
+        if not isinstance(data, dict):
+            continue
+        title = str(data.get("title") or data.get("name") or "").strip()
+        if not title:
+            continue
+        lang = str(item.get("iso_639_1") or "").strip().lower()
+        if preferred_language and lang == preferred_language.lower():
+            preferred.append(title)
+        else:
+            others.append(title)
+
+    return preferred + others
 
 
 def _tmdb_locale_to_country(query: dict[str, list[str]]) -> str:
@@ -874,9 +970,45 @@ def _tmdb_locale_to_country(query: dict[str, list[str]]) -> str:
     return "us"
 
 
+def _tmdb_preferred_language(query: dict[str, list[str]]) -> Optional[str]:
+    language = str((query.get("language") or [""])[0]).strip().lower()
+    locale = str((query.get("locale") or [""])[0]).strip().lower()
+
+    if len(language) == 2 and language.isalpha():
+        return language
+    if language and "-" in language:
+        prefix = language.split("-", 1)[0]
+        if len(prefix) == 2 and prefix.isalpha():
+            return prefix
+    if locale and "-" in locale:
+        prefix = locale.split("-", 1)[0]
+        if len(prefix) == 2 and prefix.isalpha():
+            return prefix
+    return None
+
+
+def _tmdb_preferred_locale(query: dict[str, list[str]]) -> Optional[str]:
+    locale = str((query.get("locale") or [""])[0]).strip()
+    language = str((query.get("language") or [""])[0]).strip()
+
+    if locale and "-" in locale:
+        return locale
+    if language and "-" in language:
+        return language
+    return None
+
+
+def _justwatch_media_type_paths(media_kind: str) -> list[str]:
+    if media_kind == "movie":
+        return ["movie", "film", "Film"]
+    return ["tv-show", "show", "serie", "Serie"]
+
+
 def _slugify(text: str) -> str:
+    normalized = unicodedata.normalize("NFKD", text)
+    ascii_text = normalized.encode("ascii", "ignore").decode("ascii")
     cleaned = (
-        text.lower()
+        ascii_text.lower()
         .strip()
         .replace("&", " and ")
         .replace("'", "")
@@ -917,6 +1049,23 @@ def _url_exists(url: str) -> bool:
         return False
 
 
+def _is_cacheable_provider_url(url: str) -> bool:
+    try:
+        parsed = urlparse(url.strip())
+    except Exception:
+        return False
+    host = (parsed.netloc or "").strip().lower()
+    if not host:
+        return False
+    blocked_hosts = {
+        "justwatch.com",
+        "www.justwatch.com",
+        "themoviedb.org",
+        "www.themoviedb.org",
+    }
+    return host not in blocked_hosts
+
+
 def _resolve_from_json_ld(page_html: str, provider_aliases: set[str]) -> Optional[str]:
     for script_body in _extract_ld_json_scripts(page_html):
         try:
@@ -925,6 +1074,8 @@ def _resolve_from_json_ld(page_html: str, provider_aliases: set[str]) -> Optiona
             continue
         for node in _iter_json_nodes(parsed):
             potential_actions = node.get("potentialAction")
+            if isinstance(potential_actions, dict):
+                potential_actions = [potential_actions]
             if not isinstance(potential_actions, list):
                 continue
             for action in potential_actions:
@@ -978,10 +1129,11 @@ def _extract_ld_json_scripts(page_html: str) -> Iterable[str]:
 def _iter_json_nodes(value: object) -> Iterable[dict]:
     if isinstance(value, dict):
         yield value
+        for nested in value.values():
+            yield from _iter_json_nodes(nested)
     elif isinstance(value, list):
         for item in value:
-            if isinstance(item, dict):
-                yield item
+            yield from _iter_json_nodes(item)
 
 
 def _normalize_provider_name(value: str) -> str:
