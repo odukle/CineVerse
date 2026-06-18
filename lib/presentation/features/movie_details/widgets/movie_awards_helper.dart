@@ -18,6 +18,8 @@ class MovieAwards {
     required this.otherWins,
     required this.otherNominations,
     this.detailEntries = const <AwardDetailEntry>[],
+    this.resolverTotalWins,
+    this.resolverTotalNominations,
   });
 
   factory MovieAwards.parse(String? raw) {
@@ -34,6 +36,8 @@ class MovieAwards {
         otherWins: 0,
         otherNominations: 0,
         detailEntries: <AwardDetailEntry>[],
+        resolverTotalWins: null,
+        resolverTotalNominations: null,
       );
     }
 
@@ -104,6 +108,12 @@ class MovieAwards {
   factory MovieAwards.fromResolverPayload(Map<String, dynamic>? payload) {
     final String awardsText = (payload?['awardsText'] as String? ?? '').trim();
     final MovieAwards parsed = MovieAwards.parse(awardsText);
+    final int? resolverTotalWins = payload?['totalWins'] is num
+        ? (payload?['totalWins'] as num).toInt()
+        : null;
+    final int? resolverTotalNominations = payload?['totalNominations'] is num
+        ? (payload?['totalNominations'] as num).toInt()
+        : null;
 
     final List<AwardDetailEntry> detailEntries = <AwardDetailEntry>[];
     final dynamic rawItems = payload?['detailItems'];
@@ -137,6 +147,8 @@ class MovieAwards {
       otherWins: parsed.otherWins,
       otherNominations: parsed.otherNominations,
       detailEntries: detailEntries,
+      resolverTotalWins: resolverTotalWins,
+      resolverTotalNominations: resolverTotalNominations,
     );
   }
 
@@ -150,10 +162,17 @@ class MovieAwards {
   final int otherWins;
   final int otherNominations;
   final List<AwardDetailEntry> detailEntries;
+  final int? resolverTotalWins;
+  final int? resolverTotalNominations;
 
-  int get totalWins => oscarWins + globeWins + baftaWins + otherWins;
+  int get totalWins =>
+      resolverTotalWins ?? (oscarWins + globeWins + baftaWins + otherWins);
   int get totalNominations =>
-      oscarNominations + globeNominations + baftaNominations + otherNominations;
+      resolverTotalNominations ??
+      (oscarNominations +
+          globeNominations +
+          baftaNominations +
+          otherNominations);
 
   bool get hasAwards => totalWins > 0 || totalNominations > 0;
 

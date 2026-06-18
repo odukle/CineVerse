@@ -93,5 +93,29 @@ void main() {
       expect(nomsOnly.totalNominations, 12);
       expect(nomsOnly.displaySummary, '12 nominations');
     });
+
+    test('uses resolver totals when detail lines do not contain numeric summary', () {
+      final awards = MovieAwards.fromResolverPayload({
+        'awardsText':
+            'Nominee: Best Actress (Academy Awards). Nominee: Best Original Score (Golden Globes).',
+        'totalWins': 65,
+        'totalNominations': 192,
+        'detailItems': [
+          {
+            'text': 'Nominee: Best Actress (Academy Awards)',
+            'awardName': 'Academy Awards',
+          },
+          {
+            'text': 'Nominee: Best Original Score (Golden Globes)',
+            'awardName': 'Golden Globes',
+          },
+        ],
+      });
+
+      expect(awards.totalWins, 65);
+      expect(awards.totalNominations, 192);
+      expect(awards.displaySummary, '65 wins & 192 nominations');
+      expect(awards.hasAwards, true);
+    });
   });
 }

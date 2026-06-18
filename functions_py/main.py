@@ -29,6 +29,9 @@ _TMDB_PROXY_BASE_URL_ENV = "TMDB_PROXY_BASE_URL"
 _TMDB_PROXY_BASE_URL_DEFAULT = "https://cineverse-tmdb-proxy.sodukle.workers.dev"
 _OMDB_API_KEY_ENV = "OMDB_API_KEY"
 _OMDB_BASE_URL = "https://www.omdbapi.com"
+_OMDB_RESOLVER_URL = (
+    "https://us-east4-cineverse-flutter-591.cloudfunctions.net/resolveOmdbTitleDetails"
+)
 
 _PROVIDER_ALIASES: dict[str, list[str]] = {
     "amazon prime video": ["prime video", "amazon prime video", "amazon video"],
@@ -239,6 +242,30 @@ def resolveMovieAwards(req: https_fn.Request) -> https_fn.Response:
         return _json_response(400, {"error": "movieId is required (numeric)."})
 
     tmdb_result = _scrape_tmdb_awards(movie_id=movie_id, language=language)
+    omdb_result = _fetch_omdb_awards(imdb_id=imdb_id)
+
+    if (
+        tmdb_result is not None
+        and tmdb_result.get("awardsText")
+        and omdb_result is not None
+        and omdb_result.get("awardsText")
+    ):
+        merged = _merge_award_sources(
+            tmdb_result=tmdb_result,
+            omdb_result=omdb_result,
+        )
+        return _json_response(
+            200,
+            {
+                "source": "omdb_totals_tmdb_details",
+                "awardsText": merged["awardsText"],
+                "totalWins": merged.get("totalWins", 0),
+                "totalNominations": merged.get("totalNominations", 0),
+                "detailLines": merged.get("detailLines", []),
+                "detailItems": merged.get("detailItems", []),
+            },
+        )
+
     if tmdb_result is not None and tmdb_result.get("awardsText"):
         return _json_response(
             200,
@@ -252,7 +279,6 @@ def resolveMovieAwards(req: https_fn.Request) -> https_fn.Response:
             },
         )
 
-    omdb_result = _fetch_omdb_awards(imdb_id=imdb_id)
     if omdb_result is not None and omdb_result.get("awardsText"):
         return _json_response(
             200,
@@ -311,6 +337,8 @@ def _scrape_tmdb_awards(*, movie_id: str, language: str) -> Optional[dict]:
 
     wins, nominations = _extract_award_counts(page_html)
     detail_items = _extract_award_detail_items(page_html, max_items=50)
+    if wins == 0 and nominations == 0 and detail_items:
+        wins, nominations = _derive_award_counts_from_items(detail_items)
     detail_lines = [str(item.get("text") or "").strip() for item in detail_items]
     detail_lines = [line for line in detail_lines if line]
 
@@ -344,13 +372,74 @@ def _scrape_tmdb_awards(*, movie_id: str, language: str) -> Optional[dict]:
     }
 
 
+def _merge_award_sources(*, tmdb_result: dict, omdb_result: dict) -> dict:
+    total_wins = int(omdb_result.get("totalWins") or 0)
+    total_nominations = int(omdb_result.get("totalNominations") or 0)
+    detail_lines = [
+        str(line).strip()
+        for line in (tmdb_result.get("detailLines") or [])
+        if str(line).strip()
+    ]
+    detail_items = list(tmdb_result.get("detailItems") or [])
+
+    awards_lines: list[str] = []
+    omdb_awards_text = str(omdb_result.get("awardsText") or "").strip()
+    if omdb_awards_text:
+        awards_lines.extend(
+            part.strip()
+            for part in omdb_awards_text.split(".")
+            if part.strip() and part.strip().lower() != "n/a"
+        )
+
+    seen = {line.lower() for line in awards_lines}
+    for line in detail_lines:
+        key = line.lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        awards_lines.append(line)
+
+    awards_text = ". ".join(
+        line.strip().rstrip(".")
+        for line in awards_lines
+        if line.strip()
+    )
+    if awards_text:
+        awards_text = f"{awards_text}."
+
+    return {
+        "awardsText": awards_text,
+        "totalWins": total_wins,
+        "totalNominations": total_nominations,
+        "detailLines": detail_lines,
+        "detailItems": detail_items,
+    }
+
+
+def _derive_award_counts_from_items(
+    detail_items: list[dict[str, str]],
+) -> tuple[int, int]:
+    wins = 0
+    nominations = 0
+    for item in detail_items:
+        text = str(item.get("text") or "").strip().lower()
+        if not text:
+            continue
+        if text.startswith("winner:"):
+            wins += 1
+        elif text.startswith("nominee:") or text.startswith("nominated:"):
+            nominations += 1
+    return wins, nominations
+
+
 def _extract_award_counts(page_html: str) -> tuple[int, int]:
+    compact_html = re.sub(r"\s+", " ", html.unescape(page_html))
     wins = 0
     nominations = 0
 
     meta_match = re.search(
         r"has received\s+(\d+)\s+nominations?\s+and\s+(\d+)\s+wins?",
-        page_html,
+        compact_html,
         flags=re.IGNORECASE,
     )
     if meta_match:
@@ -358,14 +447,22 @@ def _extract_award_counts(page_html: str) -> tuple[int, int]:
         wins = int(meta_match.group(2))
         return wins, nominations
 
-    heading_match = re.search(
-        r"(\d+)\s+Nominations\s*,\s*(\d+)\s+Wins",
-        page_html,
-        flags=re.IGNORECASE,
+    heading_patterns = (
+        r"(\d+)\s+Nominations?\s*[,|/•-]?\s*(\d+)\s+Wins?",
+        r"(\d+)\s+Wins?\s*[,|/•-]?\s*(\d+)\s+Nominations?",
     )
-    if heading_match:
-        nominations = int(heading_match.group(1))
-        wins = int(heading_match.group(2))
+    for pattern in heading_patterns:
+        heading_match = re.search(pattern, compact_html, flags=re.IGNORECASE)
+        if heading_match:
+            first = int(heading_match.group(1))
+            second = int(heading_match.group(2))
+            if "wins" in pattern.lower() and pattern.lower().startswith(r"(\d+)\s+wins"):
+                wins = first
+                nominations = second
+            else:
+                nominations = first
+                wins = second
+            return wins, nominations
 
     return wins, nominations
 
@@ -440,6 +537,10 @@ def _fetch_omdb_awards(*, imdb_id: str) -> Optional[dict]:
     if not imdb_id:
         return None
 
+    resolver_result = _fetch_omdb_awards_via_resolver(imdb_id=imdb_id)
+    if resolver_result is not None and resolver_result.get("awardsText"):
+        return resolver_result
+
     omdb_api_key = os.getenv(_OMDB_API_KEY_ENV, "").strip()
     if not omdb_api_key:
         return None
@@ -461,6 +562,45 @@ def _fetch_omdb_awards(*, imdb_id: str) -> Optional[dict]:
         return None
 
     awards = str(payload.get("Awards") or "").strip()
+    if not awards or awards.lower() == "n/a":
+        return None
+
+    wins = _extract_numeric_awards(awards, r"(\d+)\s+wins?")
+    nominations = _extract_numeric_awards(awards, r"(\d+)\s+nominations?")
+    detail_lines = [
+        part.strip()
+        for part in awards.split(".")
+        if part.strip() and part.strip().lower() != "n/a"
+    ]
+    return {
+        "awardsText": awards,
+        "totalWins": wins,
+        "totalNominations": nominations,
+        "detailLines": detail_lines,
+    }
+
+
+def _fetch_omdb_awards_via_resolver(*, imdb_id: str) -> Optional[dict]:
+    try:
+        response = requests.get(
+            _OMDB_RESOLVER_URL,
+            timeout=12,
+            params={"imdbId": imdb_id, "mode": "details"},
+            headers={"Accept": "application/json"},
+        )
+        if response.status_code >= 400:
+            return None
+        payload = response.json()
+    except Exception:
+        return None
+
+    data = payload.get("data") if isinstance(payload, dict) else None
+    if not isinstance(data, dict):
+        return None
+    if str(data.get("Response") or "").strip().lower() == "false":
+        return None
+
+    awards = str(data.get("Awards") or "").strip()
     if not awards or awards.lower() == "n/a":
         return None
 
