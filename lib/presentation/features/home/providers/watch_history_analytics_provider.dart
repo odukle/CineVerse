@@ -172,6 +172,7 @@ List<MonthlyRatingTrend> _buildRatingTrends(List<_EnrichedWatchedItem> items) {
   final Map<String, _RatingAccumulator> monthRatings =
       <String, _RatingAccumulator>{};
   for (final _EnrichedWatchedItem item in items) {
+    if (item.item.rating <= 0) continue;
     final DateTime d = item.item.watchDate;
     final String key = '${d.year}-${d.month.toString().padLeft(2, '0')}';
     final _RatingAccumulator accumulator =

@@ -45,7 +45,9 @@ class WatchHistoryInsights {
 final watchHistoryInsightsProvider = FutureProvider<WatchHistoryInsights?>((
   ref,
 ) async {
-  final List<WatchedItem> watchedItems = await ref.watch(watchedItemsProvider.future);
+  final List<WatchedItem> watchedItems = await ref.watch(
+    watchedItemsProvider.future,
+  );
   final List<WatchedItem> mediaItems = watchedItems
       .where(
         (WatchedItem item) =>
@@ -85,40 +87,42 @@ final watchHistoryInsightsProvider = FutureProvider<WatchHistoryInsights?>((
       if (normalized.isEmpty) continue;
 
       genreCounts[normalized] = (genreCounts[normalized] ?? 0) + 1;
-      final _GenreRatingAccumulator accumulator =
-          genreRatings[normalized] ?? const _GenreRatingAccumulator();
-      genreRatings[normalized] = accumulator.add(rating);
+      if (rating > 0) {
+        final _GenreRatingAccumulator accumulator =
+            genreRatings[normalized] ?? const _GenreRatingAccumulator();
+        genreRatings[normalized] = accumulator.add(rating);
+      }
     }
   }
 
   final List<MapEntry<String, int>> favoriteGenres =
-      genreCounts.entries.toList(growable: false)
-    ..sort((a, b) {
-      final int countCompare = b.value.compareTo(a.value);
-      if (countCompare != 0) return countCompare;
-      return a.key.compareTo(b.key);
-    });
+      genreCounts.entries.toList(growable: false)..sort((a, b) {
+        final int countCompare = b.value.compareTo(a.value);
+        if (countCompare != 0) return countCompare;
+        return a.key.compareTo(b.key);
+      });
 
   final List<String> topFavoriteGenres = favoriteGenres
       .take(3)
       .map((MapEntry<String, int> e) => e.key)
       .toList(growable: false);
 
-  final List<GenreRatingInsight> averageRatingPerGenre = genreRatings.entries
-      .map((entry) {
-        final _GenreRatingAccumulator stats = entry.value;
-        return GenreRatingInsight(
-          genre: entry.key,
-          averageRating: stats.average,
-          watchedCount: stats.count,
-        );
-      })
-      .toList(growable: false)
-    ..sort((a, b) {
-      final int ratingCompare = b.averageRating.compareTo(a.averageRating);
-      if (ratingCompare != 0) return ratingCompare;
-      return b.watchedCount.compareTo(a.watchedCount);
-    });
+  final List<GenreRatingInsight> averageRatingPerGenre =
+      genreRatings.entries
+          .map((entry) {
+            final _GenreRatingAccumulator stats = entry.value;
+            return GenreRatingInsight(
+              genre: entry.key,
+              averageRating: stats.average,
+              watchedCount: stats.count,
+            );
+          })
+          .toList(growable: false)
+        ..sort((a, b) {
+          final int ratingCompare = b.averageRating.compareTo(a.averageRating);
+          if (ratingCompare != 0) return ratingCompare;
+          return b.watchedCount.compareTo(a.watchedCount);
+        });
 
   final int averageRuntimeMinutes = runtimes.isEmpty
       ? 0
@@ -128,8 +132,9 @@ final watchHistoryInsightsProvider = FutureProvider<WatchHistoryInsights?>((
   final String topGenresText = topFavoriteGenres.isEmpty
       ? 'a mix of genres'
       : topFavoriteGenres.join(', ');
-  final GenreRatingInsight? topRatedGenre =
-      averageRatingPerGenre.isEmpty ? null : averageRatingPerGenre.first;
+  final GenreRatingInsight? topRatedGenre = averageRatingPerGenre.isEmpty
+      ? null
+      : averageRatingPerGenre.first;
 
   final String insightsText =
       'You mostly watch $topGenresText. '
@@ -138,7 +143,9 @@ final watchHistoryInsightsProvider = FutureProvider<WatchHistoryInsights?>((
 
   return WatchHistoryInsights(
     favoriteGenres: topFavoriteGenres,
-    averageRatingPerGenre: averageRatingPerGenre.take(5).toList(growable: false),
+    averageRatingPerGenre: averageRatingPerGenre
+        .take(5)
+        .toList(growable: false),
     preferredRuntimeLabel: preferredRuntimeLabel,
     averageRuntimeMinutes: averageRuntimeMinutes,
     insightsText: insightsText,

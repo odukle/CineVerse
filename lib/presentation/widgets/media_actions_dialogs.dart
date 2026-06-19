@@ -155,9 +155,15 @@ class _AddToListDialogState extends State<AddToListDialog> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.cinemaAccent, width: 1.5),
+                      borderSide: BorderSide(
+                        color: AppColors.cinemaAccent,
+                        width: 1.5,
+                      ),
                     ),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -179,9 +185,7 @@ class _AddToListDialogState extends State<AddToListDialog> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white60,
-              ),
+              style: TextButton.styleFrom(foregroundColor: Colors.white60),
               child: const Text(
                 'Cancel',
                 style: TextStyle(fontWeight: FontWeight.w600),
@@ -213,7 +217,10 @@ class _AddToListDialogState extends State<AddToListDialog> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.cinemaAccent,
                 foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
@@ -271,7 +278,7 @@ class _WatchedDialogState extends State<WatchedDialog> {
   @override
   void initState() {
     super.initState();
-    _rating = widget.existingItem?.rating ?? 5;
+    _rating = widget.existingItem?.rating ?? 0;
     _watchDate = widget.existingItem?.watchDate ?? DateTime.now();
     _rewatchCount = widget.existingItem?.rewatchCount ?? 0;
   }
@@ -284,10 +291,7 @@ class _WatchedDialogState extends State<WatchedDialog> {
       backgroundColor: AppColors.detailsCard,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
-        side: BorderSide(
-          color: Colors.white.withValues(alpha: 0.08),
-          width: 1,
-        ),
+        side: BorderSide(color: Colors.white.withValues(alpha: 0.08), width: 1),
       ),
       title: Text(
         isEditing ? 'Edit Watched Info' : 'Mark as Watched',
@@ -301,24 +305,63 @@ class _WatchedDialogState extends State<WatchedDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Rating',
+            'Rating (Optional)',
             style: TextStyle(color: Colors.white70, fontSize: 12),
           ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(5, (index) {
-              return IconButton(
-                onPressed: () => setState(() => _rating = index + 1),
-                icon: Icon(
-                  index < _rating
-                      ? Icons.star_rounded
-                      : Icons.star_outline_rounded,
-                  color: AppColors.cinemaAccent,
-                  size: 32,
+          const SizedBox(height: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 4,
+                runSpacing: 4,
+                children: List.generate(5, (index) {
+                  return IconButton(
+                    onPressed: () => setState(() => _rating = index + 1),
+                    constraints: const BoxConstraints(
+                      minWidth: 40,
+                      minHeight: 40,
+                    ),
+                    padding: EdgeInsets.zero,
+                    visualDensity: VisualDensity.compact,
+                    icon: Icon(
+                      index < _rating
+                          ? Icons.star_rounded
+                          : Icons.star_outline_rounded,
+                      color: AppColors.cinemaAccent,
+                      size: 30,
+                    ),
+                  );
+                }),
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: _rating == 0
+                      ? null
+                      : () => setState(() => _rating = 0),
+                  style: TextButton.styleFrom(
+                    foregroundColor: _rating == 0
+                        ? Colors.white38
+                        : Colors.white70,
+                  ),
+                  child: const Text(
+                    'Unrated',
+                    style: TextStyle(fontWeight: FontWeight.w600),
+                  ),
                 ),
-              );
-            }),
+              ),
+            ],
           ),
+          if (_rating == 0)
+            const Padding(
+              padding: EdgeInsets.only(top: 4),
+              child: Text(
+                'This will be saved as watched without a personal rating.',
+                style: TextStyle(color: Colors.white54, fontSize: 12),
+              ),
+            ),
           const SizedBox(height: 16),
           const Text(
             'Watch Date',
@@ -401,9 +444,7 @@ class _WatchedDialogState extends State<WatchedDialog> {
                 Navigator.pop(context);
                 _removeWatched(context, ref);
               },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.redAccent,
-              ),
+              style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
               child: const Text(
                 'Remove',
                 style: TextStyle(fontWeight: FontWeight.w600),
@@ -412,9 +453,7 @@ class _WatchedDialogState extends State<WatchedDialog> {
           ),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          style: TextButton.styleFrom(
-            foregroundColor: Colors.white60,
-          ),
+          style: TextButton.styleFrom(foregroundColor: Colors.white60),
           child: const Text(
             'Cancel',
             style: TextStyle(fontWeight: FontWeight.w600),
@@ -496,9 +535,7 @@ class _WatchedDialogState extends State<WatchedDialog> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white60,
-              ),
+              style: TextButton.styleFrom(foregroundColor: Colors.white60),
               child: const Text(
                 'Cancel',
                 style: TextStyle(fontWeight: FontWeight.w600),
@@ -517,9 +554,7 @@ class _WatchedDialogState extends State<WatchedDialog> {
                   Navigator.pop(context);
                 }
               },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.redAccent,
-              ),
+              style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
               child: const Text(
                 'Remove',
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -602,15 +637,16 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: AppColors.cinemaAccent, width: 1.5),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            style: TextButton.styleFrom(
-              foregroundColor: Colors.white60,
-            ),
+            style: TextButton.styleFrom(foregroundColor: Colors.white60),
             child: const Text(
               'Cancel',
               style: TextStyle(fontWeight: FontWeight.w600),

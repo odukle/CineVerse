@@ -10,6 +10,7 @@ import 'package:cineverse/presentation/providers/auth_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/library_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
+import 'package:cineverse/presentation/features/movie_details/providers/notes_provider.dart';
 
 enum SyncStatus { idle, syncing, error }
 
@@ -43,6 +44,8 @@ final syncServiceProvider = Provider<SyncService>((ref) {
         ref.invalidate(watchedItemsProvider);
         ref.invalidate(favouritesProvider);
         ref.invalidate(namedListsProvider);
+        ref.invalidate(allNotesProvider);
+        ref.invalidate(mediaNotesProvider);
       }
     },
   );

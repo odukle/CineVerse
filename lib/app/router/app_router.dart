@@ -102,7 +102,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: AppRoute.watchlist.path,
                 name: AppRoute.watchlist.name,
-                builder: (context, state) => const WatchlistScreen(),
+                builder: (context, state) {
+                  final String? tab = state.uri.queryParameters['tab'];
+                  if (tab != null) {
+                    return LibrarySectionScreen(
+                      section: LibrarySection.fromSlug(tab),
+                    );
+                  }
+                  return WatchlistScreen(
+                    openSectionSlug: state.uri.queryParameters['openSection'],
+                  );
+                },
               ),
             ],
           ),
@@ -159,6 +169,29 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final shareId = state.pathParameters['shareId']!;
           return SharedListImportScreen(shareId: shareId);
+        },
+      ),
+      GoRoute(
+        path: AppRoute.librarySection.path,
+        name: AppRoute.librarySection.name,
+        builder: (context, state) {
+          final section = LibrarySection.fromSlug(
+            state.pathParameters['section']!,
+          );
+          return LibrarySectionScreen(section: section);
+        },
+      ),
+      GoRoute(
+        path: AppRoute.libraryList.path,
+        name: AppRoute.libraryList.name,
+        builder: (context, state) {
+          final listId = int.parse(state.pathParameters['listId']!);
+          final filterName = state.uri.queryParameters['filter'] ?? 'all';
+          final filter = LibraryMediaFilter.values.firstWhere(
+            (value) => value.name == filterName,
+            orElse: () => LibraryMediaFilter.all,
+          );
+          return NamedListDetailsScreen(listId: listId, filter: filter);
         },
       ),
       GoRoute(
@@ -396,6 +429,8 @@ enum AppRoute {
   movies('/', 'movies'),
   tvShows('/tv-shows', 'tv-shows'),
   watchlist('/watchlist', 'watchlist'),
+  librarySection('/watchlist/category/:section', 'library-section'),
+  libraryList('/watchlist/list/:listId', 'library-list'),
   account('/account', 'account'),
   movieDetails('/movies/:movieId', 'movie-details'),
   filter('/filter', 'filter'),

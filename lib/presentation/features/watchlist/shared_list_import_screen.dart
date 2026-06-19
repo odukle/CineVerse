@@ -6,6 +6,7 @@ import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/shared_named_list.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/library_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/shared_named_list_provider.dart';
+import 'package:cineverse/presentation/features/watchlist/watchlist_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -115,7 +116,10 @@ class _SharedListImportScreenState
         return;
       }
       ToastUtils.showToast(context, 'Imported into "$importedName"');
-      context.go(AppRoute.watchlist.path);
+      context.goNamed(
+        AppRoute.watchlist.name,
+        queryParameters: {'openSection': LibrarySection.lists.slug},
+      );
     } catch (error) {
       if (!mounted) {
         return;

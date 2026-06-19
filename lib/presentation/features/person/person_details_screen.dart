@@ -5,6 +5,7 @@ import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:cineverse/presentation/widgets/full_screen_image_viewer.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
+import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,8 +18,6 @@ import 'package:cineverse/presentation/features/person/providers/person_details_
 import 'package:cineverse/domain/entities/person_details.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:sliver_tools/sliver_tools.dart';
-import 'package:cineverse/app/router/app_router.dart';
-import 'package:go_router/go_router.dart';
 
 class PersonDetailsScreen extends ConsumerStatefulWidget {
   const PersonDetailsScreen({super.key, required this.personId, this.heroTag});
@@ -1924,11 +1923,12 @@ class _FrequentCollaboratorsSection extends ConsumerWidget {
                     return GestureDetector(
                       onTap: () {
                         HapticFeedback.selectionClick();
-                        context.pushNamed(
-                          AppRoute.personDetails.name,
-                          pathParameters: {
-                            'personId': collaborator.id.toString(),
-                          },
+                        Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => _CollaboratorTitlesScreen(
+                              collaborator: collaborator,
+                            ),
+                          ),
                         );
                       },
                       child: Container(
@@ -2010,6 +2010,76 @@ class _FrequentCollaboratorsSection extends ConsumerWidget {
         ),
       ),
       error: (error, stackTrace) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _CollaboratorTitlesScreen extends StatelessWidget {
+  const _CollaboratorTitlesScreen({required this.collaborator});
+
+  final Collaborator collaborator;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final List<MediaTitle> sharedTitles = collaborator.sharedTitles;
+    final double width = ((MediaQuery.of(context).size.width - 48) / 3)
+        .clamp(104.0, 136.0);
+
+    return BackgroundGradient(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: AppColors.cinemaGradientTop,
+          elevation: 0,
+          titleSpacing: 0,
+          title: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                collaborator.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              Text(
+                '${sharedTitles.length} shared ${sharedTitles.length == 1 ? "title" : "titles"}',
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: Colors.white.withValues(alpha: 0.74),
+                ),
+              ),
+            ],
+          ),
+        ),
+        body: sharedTitles.isEmpty
+            ? Center(
+                child: Text(
+                  'No shared titles available.',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: Colors.white70,
+                  ),
+                ),
+              )
+            : GridView.builder(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: math.max(
+                    2,
+                    (MediaQuery.of(context).size.width / 132).floor(),
+                  ),
+                  mainAxisSpacing: 18,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 0.54,
+                ),
+                itemCount: sharedTitles.length,
+                itemBuilder: (context, index) => MediaPosterGridCard(
+                  movie: sharedTitles[index],
+                  sectionTitle: 'collaborations',
+                  width: width,
+                  subtitleOverride: sharedTitles[index].releaseDate,
+                ),
+              ),
+      ),
     );
   }
 }

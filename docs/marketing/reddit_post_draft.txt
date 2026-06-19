@@ -1,0 +1,33 @@
+Title:
+I built Lumi, a movie and TV discovery app for people who never know what to watch next
+
+Body:
+I’ve always had the same problem with movie apps: they’re good at tracking, but not great at actually helping me decide what to watch tonight.
+
+So I built Lumi.
+
+It’s a movie and TV discovery app focused on helping you find something faster, with features like:
+
+- AI-assisted recommendation prompts
+- “Recommend Tonight” suggestions
+- watchlist, watched history, hidden titles
+- release reminders
+- deep links to open titles directly
+- language-aware discovery
+- cleaner sorting and filtering than most default browse screens
+
+It’s now live on both Android and iPhone/iPad, and I’m looking for early users who actually care about movies and shows to try it and tell me what feels good, what feels confusing, and what’s missing.
+
+Android:
+https://play.google.com/store/apps/details?id=com.odukle.cineverse
+
+iOS:
+https://apps.apple.com/us/app/lumi-movies-tv-discovery/id6775792556
+
+If you try it, I’d really like feedback on 3 things:
+
+1. Did it help you find something you’d actually want to watch?
+2. Was the recommendation flow clear?
+3. What feature would make you keep using it?
+
+I built it independently, so every download and every bit of feedback helps.

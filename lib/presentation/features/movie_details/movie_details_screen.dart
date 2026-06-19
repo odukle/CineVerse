@@ -52,6 +52,10 @@ import 'package:cineverse/presentation/features/movie_details/widgets/quotes_car
 import 'package:cineverse/presentation/features/movie_details/widgets/full_cast_crew_chip.dart';
 import 'package:cineverse/presentation/features/movie_details/widgets/movie_details_share_bottom_sheet.dart';
 
+void _dismissKeyboard() {
+  FocusManager.instance.primaryFocus?.unfocus();
+}
+
 class MovieDetailsScreen extends ConsumerWidget {
   const MovieDetailsScreen({
     super.key,
@@ -1414,6 +1418,7 @@ class _ImagesCarousel extends ConsumerWidget {
 
                   return GestureDetector(
                     onTap: () {
+                      _dismissKeyboard();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -1474,7 +1479,7 @@ class _ExternalRatingsRow extends StatelessWidget {
     final MovieRating? metacritic = _ratingForSource(ratings, 'Metacritic');
     final List<Widget> chips = <Widget>[];
 
-    if (userRating != null) {
+    if ((userRating ?? 0) > 0) {
       chips.add(
         _ExternalRatingChip(
           value: '$userRating.0',
@@ -2650,6 +2655,7 @@ class _WatchedButton extends ConsumerWidget {
     bool isWatched,
     WatchedItem? existingItem,
   ) {
+    _dismissKeyboard();
     showAnimatedDialog(
       context: context,
       builder: (context) => WatchedDialog(
@@ -3051,6 +3057,7 @@ class _NoteItem extends ConsumerWidget {
 
     return InkWell(
       onTap: () {
+        _dismissKeyboard();
         showAnimatedDialog(
           context: context,
           builder: (context) => AddNoteDialog(
@@ -3106,6 +3113,7 @@ class _NoteItem extends ConsumerWidget {
   }
 
   void _confirmDelete(BuildContext context, WidgetRef ref) {
+    _dismissKeyboard();
     showAnimatedDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -3199,6 +3207,7 @@ class _NoteInputState extends ConsumerState<_NoteInput> {
   Widget build(BuildContext context) {
     final Widget noteField = TextField(
       controller: _controller,
+      onTapOutside: (_) => _dismissKeyboard(),
       maxLines: null,
       style: const TextStyle(color: Colors.white, fontSize: 14),
       decoration: InputDecoration(
@@ -3308,6 +3317,7 @@ class _CurrentSeasonSection extends StatelessWidget {
           const SizedBox(height: 12),
           GestureDetector(
             onTap: () {
+              _dismissKeyboard();
               context.pushNamed(
                 AppRoute.seasonDetails.name,
                 pathParameters: {
@@ -3420,6 +3430,7 @@ class _CurrentSeasonSection extends StatelessWidget {
           const SizedBox(height: 12),
           TextButton(
             onPressed: () {
+              _dismissKeyboard();
               context.pushNamed(
                 AppRoute.allSeasons.name,
                 pathParameters: {'tvId': details.id.toString()},
@@ -3459,6 +3470,7 @@ class _LibraryListButton extends ConsumerWidget {
   }
 
   void _showAddToListDialog(BuildContext context, WidgetRef ref) {
+    _dismissKeyboard();
     showAnimatedDialog(
       context: context,
       builder: (context) => AddToListDialog(details: details, isTv: isTv),
@@ -3642,6 +3654,7 @@ class _ReviewsSnippet extends ConsumerWidget {
                   ),
                   TextButton(
                     onPressed: () {
+                      _dismissKeyboard();
                       context.pushNamed(
                         AppRoute.allReviews.name,
                         queryParameters: {
@@ -3849,6 +3862,7 @@ class _AwardsSection extends ConsumerWidget {
             const SizedBox(width: 8),
             ActionChip(
               onPressed: () {
+                _dismissKeyboard();
                 context.pushNamed(
                   AppRoute.movieAwards.name,
                   extra: <String, dynamic>{
@@ -5049,6 +5063,7 @@ class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
   }
 
   void _showSuccessDialog() {
+    _dismissKeyboard();
     showAnimatedDialog(
       context: context,
       builder: (context) {
@@ -5404,6 +5419,7 @@ class _MovieCollectionSection extends ConsumerWidget {
                       return GestureDetector(
                         onTap: () {
                           HapticFeedback.selectionClick();
+                          _dismissKeyboard();
                           context.pushNamed(
                             AppRoute.movieDetails.name,
                             pathParameters: {'movieId': part.id.toString()},
@@ -5525,6 +5541,7 @@ class _KeywordsThemesSection extends StatelessWidget {
               return GestureDetector(
                 onTap: () {
                   HapticFeedback.selectionClick();
+                  _dismissKeyboard();
                   context.pushNamed(
                     AppRoute.keywordDetails.name,
                     pathParameters: {'keywordId': keyword.id.toString()},
@@ -5807,6 +5824,7 @@ class _ProductionCompaniesSection extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   onTap: () {
                     HapticFeedback.selectionClick();
+                    _dismissKeyboard();
                     context.pushNamed(
                       AppRoute.companyDetails.name,
                       pathParameters: {'companyId': company.id.toString()},

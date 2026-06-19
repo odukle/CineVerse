@@ -313,6 +313,10 @@ class AccountScreen extends ConsumerWidget {
 
   Future<void> _handleSignInResult(BuildContext context, WidgetRef ref) async {
     final SyncService syncService = ref.read(syncServiceProvider);
+    final UserEntity? signedInUser = ref
+        .read(authRepositoryProvider)
+        .currentUser;
+    syncService.updateUserId(signedInUser?.id);
     final bool hasLocalLibrary = await syncService.hasLocalLibraryContent();
 
     if (!context.mounted) {
@@ -492,9 +496,12 @@ class AccountScreen extends ConsumerWidget {
                                     ref
                                         .read(syncServiceProvider)
                                         .suspendNextAutomaticPull();
-                                    await ref
+                                    final UserEntity? user = await ref
                                         .read(authRepositoryProvider)
                                         .signInWithGoogle();
+                                    ref
+                                        .read(syncServiceProvider)
+                                        .updateUserId(user?.id);
                                     if (!context.mounted) {
                                       return;
                                     }
@@ -538,9 +545,12 @@ class AccountScreen extends ConsumerWidget {
                                       ref
                                           .read(syncServiceProvider)
                                           .suspendNextAutomaticPull();
-                                      await ref
+                                      final UserEntity? user = await ref
                                           .read(authRepositoryProvider)
                                           .signInWithApple();
+                                      ref
+                                          .read(syncServiceProvider)
+                                          .updateUserId(user?.id);
                                       if (!context.mounted) {
                                         return;
                                       }

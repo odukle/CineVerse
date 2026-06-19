@@ -24,166 +24,423 @@ import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/shared_named_list_provider.dart';
 
+enum LibrarySection {
+  watchlist('watchlist', 'Watchlist'),
+  favourites('favourites', 'Favourites'),
+  lists('lists', 'Lists'),
+  notes('notes', 'Notes'),
+  watched('watched', 'Watched');
+
+  const LibrarySection(this.slug, this.label);
+
+  final String slug;
+  final String label;
+
+  static LibrarySection fromSlug(String slug) {
+    return LibrarySection.values.firstWhere(
+      (section) => section.slug == slug,
+      orElse: () => LibrarySection.watchlist,
+    );
+  }
+}
+
+enum LibraryMediaFilter {
+  all('All'),
+  movies('Movies'),
+  tv('TV');
+
+  const LibraryMediaFilter(this.label);
+
+  final String label;
+}
+
 class WatchlistScreen extends ConsumerStatefulWidget {
-  const WatchlistScreen({super.key});
+  const WatchlistScreen({super.key, this.openSectionSlug});
+
+  final String? openSectionSlug;
 
   @override
   ConsumerState<WatchlistScreen> createState() => _WatchlistScreenState();
 }
 
 class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
-  int? _selectedListId;
+  bool _openedInitialSection = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_openedInitialSection) {
+      return;
+    }
+    final String? openSectionSlug = widget.openSectionSlug;
+    if (openSectionSlug == null || openSectionSlug.isEmpty) {
+      return;
+    }
+    _openedInitialSection = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      context.pushNamed(
+        AppRoute.librarySection.name,
+        pathParameters: {'section': openSectionSlug},
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final watchlistCount = ref.watch(watchlistProvider).value?.length;
+    final favouritesCount = ref.watch(favouritesProvider).value?.length;
+    final watchedCount = ref.watch(watchedItemsProvider).value?.length;
+    final namedLists = ref.watch(namedListsProvider).value;
+    final notesCount = ref.watch(allNotesProvider).value?.length;
+
+    final cards = <_LibraryHubCardData>[
+      _LibraryHubCardData(
+        section: LibrarySection.watchlist,
+        icon: Icons.bookmark_rounded,
+        accent: const Color(0xFF63D3FF),
+        countLabel: _countLabel(watchlistCount, 'title'),
+        subtitle: 'Everything you plan to watch next.',
+      ),
+      _LibraryHubCardData(
+        section: LibrarySection.favourites,
+        icon: Icons.favorite_rounded,
+        accent: const Color(0xFFFF6B7A),
+        countLabel: _countLabel(favouritesCount, 'favourite'),
+        subtitle: 'The titles you never want to lose.',
+      ),
+      _LibraryHubCardData(
+        section: LibrarySection.lists,
+        icon: Icons.list_alt_rounded,
+        accent: const Color(0xFFFFB84D),
+        countLabel: namedLists == null
+            ? '...'
+            : '${namedLists.length} ${namedLists.length == 1 ? "list" : "lists"}',
+        subtitle: namedLists == null
+            ? 'Curated collections you can organize and share.'
+            : '${namedLists.fold<int>(0, (sum, list) => sum + list.items.length)} saved titles across your lists.',
+      ),
+      _LibraryHubCardData(
+        section: LibrarySection.notes,
+        icon: Icons.sticky_note_2_rounded,
+        accent: const Color(0xFF8FBC8F),
+        countLabel: _countLabel(notesCount, 'note'),
+        subtitle: 'Your thoughts, reactions, and reminders.',
+      ),
+      _LibraryHubCardData(
+        section: LibrarySection.watched,
+        icon: Icons.check_circle_rounded,
+        accent: const Color(0xFF9C88FF),
+        countLabel: _countLabel(watchedCount, 'watched'),
+        subtitle: 'Finished titles plus your history and stats.',
+      ),
+    ];
+
     return TabContentReveal(
-      child: DefaultTabController(
-        length: 5,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+      child: CustomScrollView(
+        slivers: [
+          const SliverToBoxAdapter(child: SizedBox(height: 8)),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
               child: Container(
-                padding: const EdgeInsets.all(4),
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(999),
+                  borderRadius: BorderRadius.circular(28),
                   gradient: LinearGradient(
-                    colors: AppColors.cinemaPanelGradient,
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AppColors.detailsCard.withValues(alpha: 0.96),
+                      AppColors.detailsCard.withValues(alpha: 0.78),
+                    ],
                   ),
                   border: Border.all(
-                    color: AppColors.cinemaBorder.withValues(alpha: 0.28),
+                    color: AppColors.cinemaBorder.withValues(alpha: 0.22),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.cinemaGlow.withValues(alpha: 0.08),
+                      blurRadius: 24,
+                      spreadRadius: -12,
+                      offset: const Offset(0, 14),
+                    ),
+                  ],
                 ),
-                child: TabBar(
-                  onTap: (_) => HapticFeedback.selectionClick(),
-                  isScrollable: true,
-                  tabAlignment: TabAlignment.start,
-                  dividerColor: Colors.transparent,
-                  indicatorSize: TabBarIndicatorSize.label,
-                  indicator: BoxDecoration(
-                    color: AppColors.cinemaAccent.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(
-                      color: AppColors.cinemaAccent.withValues(alpha: 0.4),
-                    ),
-                  ),
-                  indicatorPadding: const EdgeInsets.symmetric(
-                    vertical: 3,
-                    horizontal: 0,
-                  ),
-                  splashBorderRadius: BorderRadius.circular(999),
-                  labelColor: Colors.white,
-                  unselectedLabelColor: Colors.white.withValues(alpha: 0.7),
-                  labelStyle: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                  ),
-                  unselectedLabelStyle: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  labelPadding: const EdgeInsets.symmetric(horizontal: 2),
-                  tabs: const <Tab>[
-                    Tab(
-                      child: SizedBox(
-                        height: 28,
-                        child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Text(
-                              'Watchlist',
-                              maxLines: 1,
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
-                            ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Library',
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
                           ),
-                        ),
-                      ),
                     ),
-                    Tab(
-                      child: SizedBox(
-                        height: 28,
-                        child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Text(
-                              'Favourites',
-                              maxLines: 1,
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Tab(
-                      child: SizedBox(
-                        height: 28,
-                        child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Text(
-                              'Lists',
-                              maxLines: 1,
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Tab(
-                      child: SizedBox(
-                        height: 28,
-                        child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Text(
-                              'Notes',
-                              maxLines: 1,
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Tab(
-                      child: SizedBox(
-                        height: 28,
-                        child: Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 10),
-                            child: Text(
-                              'Watched',
-                              maxLines: 1,
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
-                            ),
-                          ),
-                        ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Keep everything organized by collection, favourites, notes, and watch history.',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.68),
+                        fontSize: 13,
+                        height: 1.4,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            Expanded(
-              child: TabBarView(
-                children: [
-                  const _WatchlistTab(),
-                  const _FavouritesTab(),
-                  _ListsTab(
-                    selectedListId: _selectedListId,
-                    onListSelected: (id) =>
-                        setState(() => _selectedListId = id),
-                  ),
-                  const _NotesTab(),
-                  const _WatchedTab(),
-                ],
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 28),
+            sliver: SliverGrid(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final card = cards[index];
+                return _LibraryHubCard(card: card);
+              }, childCount: cards.length),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 14,
+                mainAxisSpacing: 14,
+                childAspectRatio: 0.95,
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _countLabel(int? count, String noun) {
+    if (count == null) return '...';
+    return '$count ${count == 1 ? noun : '${noun}s'}';
+  }
+}
+
+class LibrarySectionScreen extends ConsumerStatefulWidget {
+  const LibrarySectionScreen({super.key, required this.section});
+
+  final LibrarySection section;
+
+  @override
+  ConsumerState<LibrarySectionScreen> createState() =>
+      _LibrarySectionScreenState();
+}
+
+class _LibrarySectionScreenState extends ConsumerState<LibrarySectionScreen> {
+  LibraryMediaFilter _mediaFilter = LibraryMediaFilter.all;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.section.label),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () => context.pop(),
+        ),
+      ),
+      body: TabContentReveal(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: _LibraryMediaFilterBar(
+                selected: _mediaFilter,
+                onSelected: (filter) => setState(() => _mediaFilter = filter),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Expanded(child: _buildSectionBody()),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionBody() {
+    return switch (widget.section) {
+      LibrarySection.watchlist => _WatchlistTab(filter: _mediaFilter),
+      LibrarySection.favourites => _FavouritesTab(filter: _mediaFilter),
+      LibrarySection.lists => _ListsTab(filter: _mediaFilter),
+      LibrarySection.notes => _NotesTab(filter: _mediaFilter),
+      LibrarySection.watched => _WatchedTab(filter: _mediaFilter),
+    };
+  }
+}
+
+class _LibraryMediaFilterBar extends StatelessWidget {
+  const _LibraryMediaFilterBar({
+    required this.selected,
+    required this.onSelected,
+  });
+
+  final LibraryMediaFilter selected;
+  final ValueChanged<LibraryMediaFilter> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 40,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: LibraryMediaFilter.values.length,
+        separatorBuilder: (_, _) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final filter = LibraryMediaFilter.values[index];
+          final isSelected = filter == selected;
+          return ChoiceChip(
+            label: Text(filter.label),
+            selected: isSelected,
+            onSelected: (_) => onSelected(filter),
+            selectedColor: AppColors.cinemaAccent.withValues(alpha: 0.2),
+            backgroundColor: Colors.white.withValues(alpha: 0.05),
+            side: BorderSide(
+              color: isSelected
+                  ? AppColors.cinemaGlow
+                  : AppColors.cinemaBorder.withValues(alpha: 0.18),
+            ),
+            labelStyle: TextStyle(
+              color: isSelected ? AppColors.cinemaAccent : Colors.white70,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+bool _matchesLibraryMediaFilter(
+  GlobalMediaType mediaType,
+  LibraryMediaFilter filter,
+) {
+  return switch (filter) {
+    LibraryMediaFilter.all =>
+      mediaType == GlobalMediaType.movie || mediaType == GlobalMediaType.tv,
+    LibraryMediaFilter.movies => mediaType == GlobalMediaType.movie,
+    LibraryMediaFilter.tv => mediaType == GlobalMediaType.tv,
+  };
+}
+
+class _LibraryHubCardData {
+  const _LibraryHubCardData({
+    required this.section,
+    required this.icon,
+    required this.accent,
+    required this.countLabel,
+    required this.subtitle,
+  });
+
+  final LibrarySection section;
+  final IconData icon;
+  final Color accent;
+  final String countLabel;
+  final String subtitle;
+}
+
+class _LibraryHubCard extends StatelessWidget {
+  const _LibraryHubCard({required this.card});
+
+  final _LibraryHubCardData card;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: () {
+          HapticFeedback.selectionClick();
+          context.pushNamed(
+            AppRoute.librarySection.name,
+            pathParameters: {'section': card.section.slug},
+          );
+        },
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                card.accent.withValues(alpha: 0.16),
+                AppColors.detailsCard.withValues(alpha: 0.96),
+              ],
+            ),
+            border: Border.all(color: card.accent.withValues(alpha: 0.24)),
+            boxShadow: [
+              BoxShadow(
+                color: card.accent.withValues(alpha: 0.12),
+                blurRadius: 24,
+                spreadRadius: -14,
+                offset: const Offset(0, 14),
+              ),
+            ],
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: card.accent.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: card.accent.withValues(alpha: 0.28),
+                        ),
+                      ),
+                      child: Icon(card.icon, color: card.accent, size: 20),
+                    ),
+                    const Spacer(),
+                    Icon(
+                      Icons.arrow_outward_rounded,
+                      color: Colors.white.withValues(alpha: 0.42),
+                      size: 18,
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Text(
+                  card.section.label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  card.countLabel,
+                  style: TextStyle(
+                    color: card.accent,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  card.subtitle,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.68),
+                    fontSize: 12,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -191,28 +448,35 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
 }
 
 class _WatchlistTab extends ConsumerWidget {
-  const _WatchlistTab();
+  const _WatchlistTab({required this.filter});
+
+  final LibraryMediaFilter filter;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final watchlistAsync = ref.watch(watchlistProvider);
     return watchlistAsync.when(
-      data: (items) => _MediaGrid(
-        items: items
-            .map(
-              (e) => MediaTitle(
-                id: e.id,
-                title: e.title,
-                posterPath: e.posterPath,
-                releaseDate: e.releaseDate,
-                mediaType: e.mediaType,
-                voteAverage: e.voteAverage,
-              ),
-            )
-            .toList(),
-        emptyLabel: 'Your watchlist is empty',
-        emptyIcon: Icons.bookmark_border_rounded,
-      ),
+      data: (items) {
+        final filteredItems = items
+            .where((e) => _matchesLibraryMediaFilter(e.mediaType, filter))
+            .toList(growable: false);
+        return _MediaGrid(
+          items: filteredItems
+              .map(
+                (e) => MediaTitle(
+                  id: e.id,
+                  title: e.title,
+                  posterPath: e.posterPath,
+                  releaseDate: e.releaseDate,
+                  mediaType: e.mediaType,
+                  voteAverage: e.voteAverage,
+                ),
+              )
+              .toList(),
+          emptyLabel: 'No ${filter.label.toLowerCase()} in your watchlist',
+          emptyIcon: Icons.bookmark_border_rounded,
+        );
+      },
       loading: () => const _LoadingGrid(),
       error: (e, _) => Center(
         child: Text('Error: $e', style: const TextStyle(color: Colors.white)),
@@ -222,28 +486,35 @@ class _WatchlistTab extends ConsumerWidget {
 }
 
 class _FavouritesTab extends ConsumerWidget {
-  const _FavouritesTab();
+  const _FavouritesTab({required this.filter});
+
+  final LibraryMediaFilter filter;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final favouritesAsync = ref.watch(favouritesProvider);
     return favouritesAsync.when(
-      data: (items) => _MediaGrid(
-        items: items
-            .map(
-              (e) => MediaTitle(
-                id: e.id,
-                title: e.title,
-                posterPath: e.posterPath,
-                releaseDate: e.releaseDate,
-                mediaType: e.mediaType,
-                voteAverage: e.voteAverage,
-              ),
-            )
-            .toList(),
-        emptyLabel: 'No favourites yet',
-        emptyIcon: Icons.favorite_border_rounded,
-      ),
+      data: (items) {
+        final filteredItems = items
+            .where((e) => _matchesLibraryMediaFilter(e.mediaType, filter))
+            .toList(growable: false);
+        return _MediaGrid(
+          items: filteredItems
+              .map(
+                (e) => MediaTitle(
+                  id: e.id,
+                  title: e.title,
+                  posterPath: e.posterPath,
+                  releaseDate: e.releaseDate,
+                  mediaType: e.mediaType,
+                  voteAverage: e.voteAverage,
+                ),
+              )
+              .toList(),
+          emptyLabel: 'No ${filter.label.toLowerCase()} in favourites',
+          emptyIcon: Icons.favorite_border_rounded,
+        );
+      },
       loading: () => const _LoadingGrid(),
       error: (e, _) => Center(
         child: Text('Error: $e', style: const TextStyle(color: Colors.white)),
@@ -253,14 +524,18 @@ class _FavouritesTab extends ConsumerWidget {
 }
 
 class _WatchedTab extends ConsumerWidget {
-  const _WatchedTab();
+  const _WatchedTab({required this.filter});
+
+  final LibraryMediaFilter filter;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final watchedAsync = ref.watch(watchedItemsProvider);
     return watchedAsync.when(
       data: (items) => _WatchedScrollableContent(
+        filter: filter,
         items: items
+            .where((e) => _matchesLibraryMediaFilter(e.mediaType, filter))
             .map(
               (e) => MediaTitle(
                 id: e.id,
@@ -282,9 +557,10 @@ class _WatchedTab extends ConsumerWidget {
 }
 
 class _WatchedScrollableContent extends StatelessWidget {
-  const _WatchedScrollableContent({required this.items});
+  const _WatchedScrollableContent({required this.items, required this.filter});
 
   final List<MediaTitle> items;
+  final LibraryMediaFilter filter;
 
   @override
   Widget build(BuildContext context) {
@@ -316,7 +592,7 @@ class _WatchedScrollableContent extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Your watched list is empty',
+                    'No ${filter.label.toLowerCase()} in watched',
                     style: TextStyle(
                       color: Colors.white54,
                       fontSize: 16,
@@ -441,9 +717,8 @@ class _WatchHistoryAnalyticsCard extends StatelessWidget {
 }
 
 class _ListsTab extends ConsumerWidget {
-  const _ListsTab({required this.selectedListId, required this.onListSelected});
-  final int? selectedListId;
-  final ValueChanged<int?> onListSelected;
+  const _ListsTab({required this.filter});
+  final LibraryMediaFilter filter;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -460,136 +735,57 @@ class _ListsTab extends ConsumerWidget {
           );
         }
 
-        final currentId = selectedListId ?? lists.first.id;
-        final selectedList = lists.firstWhere(
-          (l) => l.id == currentId,
-          orElse: () => lists.first,
-        );
+        final filteredLists = lists
+            .where(
+              (list) =>
+                  filter == LibraryMediaFilter.all ||
+                  list.items.any(
+                    (item) =>
+                        _matchesLibraryMediaFilter(item.mediaType, filter),
+                  ),
+            )
+            .toList(growable: false);
 
-        return Column(
-          children: [
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 40,
-              child: ListView.separated(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: lists.length,
-                separatorBuilder: (context, index) => const SizedBox(width: 8),
-                itemBuilder: (context, index) {
-                  final list = lists[index];
-                  final isSelected = list.id == currentId;
-                  return ChoiceChip(
-                    label: Text(list.name),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      if (selected) onListSelected(list.id);
-                    },
-                    selectedColor: AppColors.cinemaAccent.withValues(
-                      alpha: 0.2,
-                    ),
-                    labelStyle: TextStyle(
-                      color: isSelected
-                          ? AppColors.cinemaAccent
-                          : Colors.white70,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
-                    ),
-                    backgroundColor: Colors.white.withValues(alpha: 0.05),
-                    side: BorderSide(
-                      color: isSelected
-                          ? AppColors.cinemaGlow
-                          : AppColors.cinemaBorder.withValues(alpha: 0.18),
-                    ),
-                  );
-                },
-              ),
-            ),
-            Expanded(
-              child: FutureBuilder<List<NamedListItem>>(
-                future: ref
-                    .read(namedListsProvider.notifier)
-                    .getItemsForList(selectedList.id),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const _LoadingGrid();
-                  }
-                  final items = snapshot.data ?? [];
-                  final mediaTitles = items
-                      .map(
-                        (e) => MediaTitle(
-                          id: e.mediaId,
-                          title: e.title,
-                          posterPath: e.posterPath,
-                          releaseDate: e.releaseDate,
-                          mediaType: e.mediaType,
-                          voteAverage: e.voteAverage,
-                        ),
-                      )
-                      .toList();
+        if (filteredLists.isEmpty) {
+          return _buildEmptyState(
+            'No lists with ${filter.label.toLowerCase()}',
+            Icons.list_rounded,
+          );
+        }
 
-                  if (mediaTitles.isEmpty) {
-                    return Column(
-                      children: [
-                        Expanded(
-                          child: _buildEmptyState(
-                            'This list is empty',
-                            Icons.list_rounded,
-                          ),
-                        ),
-                        if (lists.any((l) => l.id == currentId))
-                          _buildListActions(context, ref, selectedList),
-                      ],
-                    );
-                  }
-
-                  const double crossAxisSpacing = 12;
-                  const int crossAxisCount = 3;
-                  final double cardWidth =
-                      (MediaQuery.sizeOf(context).width -
-                          (16 * 2) -
-                          (crossAxisSpacing * 2)) /
-                      crossAxisCount;
-
-                  return CustomScrollView(
-                    slivers: [
-                      SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                        sliver: SliverGrid(
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: crossAxisCount,
-                                crossAxisSpacing: crossAxisSpacing,
-                                mainAxisSpacing: 16,
-                                childAspectRatio: 0.55,
-                              ),
-                          delegate: SliverChildBuilderDelegate((
-                            context,
-                            index,
-                          ) {
-                            final media = mediaTitles[index];
-                            return MediaPosterGridCard(
-                              movie: media,
-                              sectionTitle: 'library',
-                              width: cardWidth,
-                              isTvTitle: media.mediaType == GlobalMediaType.tv,
-                              enableWatchlistUndoOnRemove: true,
-                            );
-                          }, childCount: mediaTitles.length),
-                        ),
-                      ),
-                      if (lists.any((l) => l.id == currentId))
-                        SliverToBoxAdapter(
-                          child: _buildListActions(context, ref, selectedList),
-                        ),
-                      const SliverToBoxAdapter(child: SizedBox(height: 32)),
-                    ],
-                  );
-                },
-              ),
-            ),
-          ],
+        return GridView.builder(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 14,
+            mainAxisSpacing: 14,
+            childAspectRatio: 0.92,
+          ),
+          itemCount: filteredLists.length,
+          itemBuilder: (context, index) {
+            final list = filteredLists[index];
+            final matchingItems = list.items
+                .where(
+                  (item) => _matchesLibraryMediaFilter(item.mediaType, filter),
+                )
+                .toList(growable: false);
+            final previewItem = matchingItems.isEmpty
+                ? null
+                : matchingItems.first;
+            return _NamedListCard(
+              list: list,
+              matchingCount: matchingItems.length,
+              previewItem: previewItem,
+              onTap: () {
+                HapticFeedback.selectionClick();
+                context.pushNamed(
+                  AppRoute.libraryList.name,
+                  pathParameters: {'listId': list.id.toString()},
+                  queryParameters: {'filter': filter.name},
+                );
+              },
+            );
+          },
         );
       },
       loading: () => Center(
@@ -627,72 +823,86 @@ class _ListsTab extends ConsumerWidget {
     final canShare = selectedList.items.isNotEmpty;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 12,
-        runSpacing: 12,
+      child: Row(
         children: [
-          TextButton.icon(
-            onPressed: canShare
-                ? () => _shareList(context, ref, selectedList)
-                : null,
-            icon: Icon(
-              Icons.share_rounded,
-              color: canShare ? Colors.white : Colors.white38,
-              size: 18,
-            ),
-            label: Text(
-              'Share List',
-              style: TextStyle(
+          Expanded(
+            child: TextButton.icon(
+              onPressed: canShare
+                  ? () => _shareList(context, ref, selectedList)
+                  : null,
+              icon: Icon(
+                Icons.share_rounded,
                 color: canShare ? Colors.white : Colors.white38,
-                fontSize: 13,
+                size: 18,
               ),
-            ),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              backgroundColor: canShare
-                  ? Colors.white.withValues(alpha: 0.08)
-                  : Colors.white.withValues(alpha: 0.03),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+              label: Text(
+                'Share',
+                style: TextStyle(
+                  color: canShare ? Colors.white : Colors.white38,
+                  fontSize: 13,
+                ),
               ),
-            ),
-          ),
-          TextButton.icon(
-            onPressed: () => _showRenameDialog(context, ref, selectedList),
-            icon: Icon(
-              Icons.edit_rounded,
-              color: AppColors.cinemaAccent,
-              size: 18,
-            ),
-            label: Text(
-              'Rename List',
-              style: TextStyle(color: AppColors.cinemaAccent, fontSize: 13),
-            ),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              backgroundColor: AppColors.cinemaAccent.withValues(alpha: 0.1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
+                backgroundColor: canShare
+                    ? Colors.white.withValues(alpha: 0.08)
+                    : Colors.white.withValues(alpha: 0.03),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             ),
           ),
-          TextButton.icon(
-            onPressed: () => _confirmDeleteList(context, ref, selectedList),
-            icon: const Icon(
-              Icons.delete_sweep_rounded,
-              color: Colors.redAccent,
-              size: 18,
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextButton.icon(
+              onPressed: () => _showRenameDialog(context, ref, selectedList),
+              icon: Icon(
+                Icons.edit_rounded,
+                color: AppColors.cinemaAccent,
+                size: 18,
+              ),
+              label: Text(
+                'Rename',
+                style: TextStyle(color: AppColors.cinemaAccent, fontSize: 13),
+              ),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
+                backgroundColor: AppColors.cinemaAccent.withValues(alpha: 0.1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
             ),
-            label: const Text(
-              'Delete List',
-              style: TextStyle(color: Colors.redAccent, fontSize: 13),
-            ),
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              backgroundColor: Colors.redAccent.withValues(alpha: 0.1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: TextButton.icon(
+              onPressed: () => _confirmDeleteList(context, ref, selectedList),
+              icon: const Icon(
+                Icons.delete_sweep_rounded,
+                color: Colors.redAccent,
+                size: 18,
+              ),
+              label: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.redAccent, fontSize: 13),
+              ),
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
+                ),
+                backgroundColor: Colors.redAccent.withValues(alpha: 0.1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             ),
           ),
@@ -864,8 +1074,266 @@ class _ListsTab extends ConsumerWidget {
   }
 }
 
+class NamedListDetailsScreen extends ConsumerWidget {
+  const NamedListDetailsScreen({
+    super.key,
+    required this.listId,
+    required this.filter,
+  });
+
+  final int listId;
+  final LibraryMediaFilter filter;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final listsAsync = ref.watch(namedListsProvider);
+
+    return Scaffold(
+      appBar: AppBar(),
+      body: listsAsync.when(
+        data: (lists) {
+          NamedList? selectedList;
+          for (final list in lists) {
+            if (list.id == listId) {
+              selectedList = list;
+              break;
+            }
+          }
+
+          if (selectedList == null) {
+            return _buildEmptyState(
+              'This list no longer exists',
+              Icons.list_alt,
+            );
+          }
+
+          final mediaTitles = selectedList.items
+              .where((e) => _matchesLibraryMediaFilter(e.mediaType, filter))
+              .map(
+                (e) => MediaTitle(
+                  id: e.mediaId,
+                  title: e.title,
+                  posterPath: e.posterPath,
+                  releaseDate: e.releaseDate,
+                  mediaType: e.mediaType,
+                  voteAverage: e.voteAverage,
+                ),
+              )
+              .toList(growable: false);
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      selectedList.name,
+                      style: Theme.of(context).textTheme.headlineSmall
+                          ?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                          ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      '${mediaTitles.length} ${mediaTitles.length == 1 ? "title" : "titles"} shown',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.64),
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: mediaTitles.isEmpty
+                    ? _buildEmptyState(
+                        'No ${filter.label.toLowerCase()} in this list',
+                        Icons.list_rounded,
+                      )
+                    : _NamedListMediaGrid(items: mediaTitles),
+              ),
+              _ListsTab(
+                filter: filter,
+              )._buildListActions(context, ref, selectedList),
+            ],
+          );
+        },
+        loading: () => const _LoadingGrid(),
+        error: (e, _) => Center(child: Text('Error: $e')),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(String label, IconData icon) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 64, color: Colors.white.withValues(alpha: 0.15)),
+          const SizedBox(height: 16),
+          Text(
+            label,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.52),
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _NamedListCard extends StatelessWidget {
+  const _NamedListCard({
+    required this.list,
+    required this.matchingCount,
+    required this.previewItem,
+    required this.onTap,
+  });
+
+  final NamedList list;
+  final int matchingCount;
+  final NamedListItem? previewItem;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: onTap,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                AppColors.cinemaAccent.withValues(alpha: 0.14),
+                AppColors.detailsCard.withValues(alpha: 0.96),
+              ],
+            ),
+            border: Border.all(
+              color: AppColors.cinemaBorder.withValues(alpha: 0.22),
+            ),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: AppColors.cinemaAccent.withValues(alpha: 0.16),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(
+                        Icons.list_alt_rounded,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    const Spacer(),
+                    Icon(
+                      Icons.arrow_outward_rounded,
+                      color: Colors.white.withValues(alpha: 0.42),
+                      size: 18,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                Expanded(
+                  child: Text(
+                    list.name,
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '$matchingCount ${matchingCount == 1 ? "title" : "titles"}',
+                  style: TextStyle(
+                    color: AppColors.cinemaAccent,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  previewItem?.title ?? 'Open list',
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.66),
+                    fontSize: 12,
+                    height: 1.35,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _NamedListMediaGrid extends StatelessWidget {
+  const _NamedListMediaGrid({required this.items});
+
+  final List<MediaTitle> items;
+
+  @override
+  Widget build(BuildContext context) {
+    const double crossAxisSpacing = 12;
+    const int crossAxisCount = 3;
+    final double cardWidth =
+        (MediaQuery.sizeOf(context).width - (16 * 2) - (crossAxisSpacing * 2)) /
+        crossAxisCount;
+
+    return GridView.builder(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: crossAxisSpacing,
+        mainAxisSpacing: 16,
+        childAspectRatio: 0.55,
+      ),
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final media = items[index];
+        return MediaPosterGridCard(
+          movie: media,
+          sectionTitle: 'library',
+          width: cardWidth,
+          isTvTitle: media.mediaType == GlobalMediaType.tv,
+          enableWatchlistUndoOnRemove: true,
+        );
+      },
+    );
+  }
+}
+
 class _NotesTab extends ConsumerWidget {
-  const _NotesTab();
+  const _NotesTab({required this.filter});
+
+  final LibraryMediaFilter filter;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -874,7 +1342,10 @@ class _NotesTab extends ConsumerWidget {
     return notesAsync.when(
       skipLoadingOnReload: !notesAsync.hasError,
       data: (notes) {
-        if (notes.isEmpty) {
+        final List<MovieNote> filteredNotes = notes
+            .where((note) => _matchesLibraryMediaFilter(note.mediaType, filter))
+            .toList(growable: false);
+        if (filteredNotes.isEmpty) {
           return const Center(
             child: Text(
               'No notes found.',
@@ -883,7 +1354,9 @@ class _NotesTab extends ConsumerWidget {
           );
         }
 
-        final List<_GroupedNotesEntry> groupedNotes = _groupNotesByTitle(notes);
+        final List<_GroupedNotesEntry> groupedNotes = _groupNotesByTitle(
+          filteredNotes,
+        );
 
         return ListView.separated(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),

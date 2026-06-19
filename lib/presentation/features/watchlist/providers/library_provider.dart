@@ -89,8 +89,7 @@ class NamedListsNotifier extends StreamNotifier<List<NamedList>> {
 
   Future<String> importSharedList(SharedNamedList sharedList) async {
     final repo = ref.read(libraryRepositoryProvider);
-    final existingLists =
-        ref.read(namedListsProvider).value ?? const <NamedList>[];
+    final existingLists = state.value ?? const <NamedList>[];
     final importedName = _dedupeListName(sharedList.name, existingLists);
     final listId = await repo.createNamedList(importedName);
 

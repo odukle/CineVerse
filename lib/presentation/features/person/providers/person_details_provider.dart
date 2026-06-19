@@ -42,6 +42,7 @@ class Collaborator {
     this.imageUrl,
     required this.count,
     required this.role,
+    this.sharedTitles = const [],
   });
 
   final int id;
@@ -49,6 +50,7 @@ class Collaborator {
   final String? imageUrl;
   final int count;
   final String role;
+  final List<MediaTitle> sharedTitles;
 }
 
 class PersonAnalyticsData {
@@ -165,53 +167,92 @@ final personAnalyticsProvider = FutureProvider.family<PersonAnalyticsData, int>(
   }
 
   final collaboratorCounts = <int, Collaborator>{};
-  for (final movie in validMovieDetailsList) {
-    for (final actor in movie.cast) {
-      if (actor.id == personId) continue;
-      final existing = collaboratorCounts[actor.id];
-      if (existing == null) {
-        collaboratorCounts[actor.id] = Collaborator(
-          id: actor.id,
-          name: actor.name,
-          imageUrl: actor.imageUrl,
-          count: 1,
-          role: 'Actor',
-        );
-      } else {
-        collaboratorCounts[actor.id] = Collaborator(
-          id: actor.id,
-          name: actor.name,
-          imageUrl: actor.imageUrl,
-          count: existing.count + 1,
-          role: existing.role,
-        );
-      }
-    }
-    for (final crew in movie.crew) {
-      if (crew.id == personId) continue;
-      final existing = collaboratorCounts[crew.id];
-      if (existing == null) {
-        collaboratorCounts[crew.id] = Collaborator(
-          id: crew.id,
-          name: crew.name,
-          imageUrl: crew.imageUrl,
-          count: 1,
-          role: crew.role,
-        );
-      } else {
-        collaboratorCounts[crew.id] = Collaborator(
-          id: crew.id,
-          name: crew.name,
-          imageUrl: crew.imageUrl,
-          count: existing.count + 1,
-          role: existing.role,
-        );
-      }
+  final collaboratorSharedTitles = <int, Map<int, MediaTitle>>{};
+
+  void registerCollaborator({
+    required int collaboratorId,
+    required String collaboratorName,
+    required String? imageUrl,
+    required String role,
+    required MediaTitle sharedTitle,
+  }) {
+    final existing = collaboratorCounts[collaboratorId];
+    collaboratorSharedTitles.putIfAbsent(
+      collaboratorId,
+      () => <int, MediaTitle>{},
+    )[sharedTitle.id] = sharedTitle;
+
+    if (existing == null) {
+      collaboratorCounts[collaboratorId] = Collaborator(
+        id: collaboratorId,
+        name: collaboratorName,
+        imageUrl: imageUrl,
+        count: 1,
+        role: role,
+      );
+    } else {
+      collaboratorCounts[collaboratorId] = Collaborator(
+        id: collaboratorId,
+        name: collaboratorName,
+        imageUrl: imageUrl,
+        count: existing.count + 1,
+        role: existing.role,
+      );
     }
   }
 
-  final sortedCollaborators = collaboratorCounts.values.toList()
-    ..sort((a, b) => b.count.compareTo(a.count));
+  for (final movie in validMovieDetailsList) {
+    final MediaTitle? sharedTitle = uniqueMovies[movie.id];
+    if (sharedTitle == null) {
+      continue;
+    }
+    for (final actor in movie.cast) {
+      if (actor.id == personId) continue;
+      registerCollaborator(
+        collaboratorId: actor.id,
+        collaboratorName: actor.name,
+        imageUrl: actor.imageUrl,
+        role: 'Actor',
+        sharedTitle: sharedTitle,
+      );
+    }
+    for (final crew in movie.crew) {
+      if (crew.id == personId) continue;
+      registerCollaborator(
+        collaboratorId: crew.id,
+        collaboratorName: crew.name,
+        imageUrl: crew.imageUrl,
+        role: crew.role,
+        sharedTitle: sharedTitle,
+      );
+    }
+  }
+
+  final sortedCollaborators = collaboratorCounts.values
+      .map((collaborator) {
+        final sharedTitles =
+            collaboratorSharedTitles[collaborator.id]?.values.toList() ??
+            const <MediaTitle>[];
+        sharedTitles.sort((a, b) {
+          final int popularityCompare = b.popularity.compareTo(a.popularity);
+          if (popularityCompare != 0) return popularityCompare;
+          return (b.releaseDate ?? '').compareTo(a.releaseDate ?? '');
+        });
+        return Collaborator(
+          id: collaborator.id,
+          name: collaborator.name,
+          imageUrl: collaborator.imageUrl,
+          count: collaborator.count,
+          role: collaborator.role,
+          sharedTitles: sharedTitles,
+        );
+      })
+      .toList()
+    ..sort((a, b) {
+      final int countCompare = b.count.compareTo(a.count);
+      if (countCompare != 0) return countCompare;
+      return a.name.compareTo(b.name);
+    });
 
   final collaborators = sortedCollaborators.take(5).toList();
 
