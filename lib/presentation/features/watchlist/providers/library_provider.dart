@@ -1,6 +1,7 @@
 import 'package:cineverse/data/providers/data_providers.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/library_item.dart';
+import 'package:cineverse/domain/entities/shared_named_list.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
 import 'package:cineverse/domain/entities/watchlist_item.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -25,13 +26,14 @@ class FavouritesNotifier extends StreamNotifier<List<FavouriteItem>> {
 
 final favouritesProvider =
     StreamNotifierProvider<FavouritesNotifier, List<FavouriteItem>>(
-  FavouritesNotifier.new,
-);
+      FavouritesNotifier.new,
+    );
 
-final isFavouriteProvider = Provider.family<bool, ({int id, GlobalMediaType type})>((ref, arg) {
-  final favourites = ref.watch(favouritesProvider).value ?? [];
-  return favourites.any((f) => f.id == arg.id && f.mediaType == arg.type);
-});
+final isFavouriteProvider =
+    Provider.family<bool, ({int id, GlobalMediaType type})>((ref, arg) {
+      final favourites = ref.watch(favouritesProvider).value ?? [];
+      return favourites.any((f) => f.id == arg.id && f.mediaType == arg.type);
+    });
 
 // Named Lists Provider
 class NamedListsNotifier extends StreamNotifier<List<NamedList>> {
@@ -67,8 +69,14 @@ class NamedListsNotifier extends StreamNotifier<List<NamedList>> {
     }
   }
 
-  Future<void> removeItemFromList(int listId, int mediaId, GlobalMediaType mediaType) async {
-    await ref.read(libraryRepositoryProvider).removeItemFromNamedList(listId, mediaId, mediaType.index);
+  Future<void> removeItemFromList(
+    int listId,
+    int mediaId,
+    GlobalMediaType mediaType,
+  ) async {
+    await ref
+        .read(libraryRepositoryProvider)
+        .removeItemFromNamedList(listId, mediaId, mediaType.index);
   }
 
   Future<List<NamedListItem>> getItemsForList(int listId) {
@@ -78,13 +86,62 @@ class NamedListsNotifier extends StreamNotifier<List<NamedList>> {
   Future<void> renameList(int id, String newName) async {
     await ref.read(libraryRepositoryProvider).renameNamedList(id, newName);
   }
+
+  Future<String> importSharedList(SharedNamedList sharedList) async {
+    final repo = ref.read(libraryRepositoryProvider);
+    final existingLists =
+        ref.read(namedListsProvider).value ?? const <NamedList>[];
+    final importedName = _dedupeListName(sharedList.name, existingLists);
+    final listId = await repo.createNamedList(importedName);
+
+    for (final item in sharedList.items) {
+      await repo.addItemToNamedList(
+        NamedListItem(
+          listId: listId,
+          mediaId: item.mediaId,
+          title: item.title,
+          posterPath: item.posterPath,
+          releaseDate: item.releaseDate,
+          mediaType: item.mediaType,
+          addedDate: DateTime.now(),
+          voteAverage: item.voteAverage,
+        ),
+      );
+    }
+
+    return importedName;
+  }
+
+  String _dedupeListName(String preferredName, List<NamedList> existingLists) {
+    final trimmedName = preferredName.trim().isEmpty
+        ? 'Shared List'
+        : preferredName.trim();
+    final existingNames = existingLists
+        .map((list) => list.name.trim().toLowerCase())
+        .toSet();
+    if (!existingNames.contains(trimmedName.toLowerCase())) {
+      return trimmedName;
+    }
+
+    int suffix = 2;
+    while (existingNames.contains('$trimmedName ($suffix)'.toLowerCase())) {
+      suffix++;
+    }
+    return '$trimmedName ($suffix)';
+  }
 }
 
 final namedListsProvider =
     StreamNotifierProvider<NamedListsNotifier, List<NamedList>>(
-  NamedListsNotifier.new,
-);
+      NamedListsNotifier.new,
+    );
 
-final isItemInListProvider = FutureProvider.family<bool, ({int listId, int mediaId, GlobalMediaType type})>((ref, arg) async {
-  return ref.watch(libraryRepositoryProvider).isItemInList(arg.listId, arg.mediaId, arg.type.index);
-});
+final isItemInListProvider =
+    FutureProvider.family<
+      bool,
+      ({int listId, int mediaId, GlobalMediaType type})
+    >((ref, arg) async {
+      return ref
+          .watch(libraryRepositoryProvider)
+          .isItemInList(arg.listId, arg.mediaId, arg.type.index);
+    });

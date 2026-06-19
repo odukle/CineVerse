@@ -2,6 +2,7 @@ import 'package:cineverse/presentation/features/home/home_scaffold.dart';
 import 'package:cineverse/presentation/features/home/movies_screen.dart';
 import 'package:cineverse/presentation/features/home/tv_shows_screen.dart';
 import 'package:cineverse/presentation/features/watchlist/watchlist_screen.dart';
+import 'package:cineverse/presentation/features/watchlist/shared_list_import_screen.dart';
 import 'package:cineverse/presentation/features/home/account_screen.dart';
 import 'package:cineverse/presentation/features/movie_details/movie_details_screen.dart';
 import 'package:cineverse/presentation/features/movies/explore_screen.dart';
@@ -150,6 +151,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final query = state.uri.queryParameters['query'];
           return SearchScreen(initialQuery: query);
+        },
+      ),
+      GoRoute(
+        path: AppRoute.sharedListImport.path,
+        name: AppRoute.sharedListImport.name,
+        builder: (context, state) {
+          final shareId = state.pathParameters['shareId']!;
+          return SharedListImportScreen(shareId: shareId);
         },
       ),
       GoRoute(
@@ -391,6 +400,7 @@ enum AppRoute {
   movieDetails('/movies/:movieId', 'movie-details'),
   filter('/filter', 'filter'),
   search('/search', 'search'),
+  sharedListImport('/lists/:shareId', 'shared-list-import'),
   globalFilter('/global-filter', 'global-filter'),
   personDetails('/person/:personId', 'person-details'),
   collectionDetails('/collection/:collectionId', 'collection-details'),

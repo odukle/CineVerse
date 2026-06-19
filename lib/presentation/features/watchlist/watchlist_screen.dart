@@ -21,6 +21,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
+import 'package:cineverse/presentation/features/watchlist/providers/shared_named_list_provider.dart';
 
 class WatchlistScreen extends ConsumerStatefulWidget {
   const WatchlistScreen({super.key});
@@ -622,11 +624,40 @@ class _ListsTab extends ConsumerWidget {
     WidgetRef ref,
     NamedList selectedList,
   ) {
+    final canShare = selectedList.items.isNotEmpty;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 24),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 12,
+        runSpacing: 12,
         children: [
+          TextButton.icon(
+            onPressed: canShare
+                ? () => _shareList(context, ref, selectedList)
+                : null,
+            icon: Icon(
+              Icons.share_rounded,
+              color: canShare ? Colors.white : Colors.white38,
+              size: 18,
+            ),
+            label: Text(
+              'Share List',
+              style: TextStyle(
+                color: canShare ? Colors.white : Colors.white38,
+                fontSize: 13,
+              ),
+            ),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              backgroundColor: canShare
+                  ? Colors.white.withValues(alpha: 0.08)
+                  : Colors.white.withValues(alpha: 0.03),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
           TextButton.icon(
             onPressed: () => _showRenameDialog(context, ref, selectedList),
             icon: Icon(
@@ -646,7 +677,6 @@ class _ListsTab extends ConsumerWidget {
               ),
             ),
           ),
-          const SizedBox(width: 16),
           TextButton.icon(
             onPressed: () => _confirmDeleteList(context, ref, selectedList),
             icon: const Icon(
@@ -669,6 +699,31 @@ class _ListsTab extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _shareList(
+    BuildContext context,
+    WidgetRef ref,
+    NamedList list,
+  ) async {
+    try {
+      final shareLink = await ref
+          .read(sharedNamedListServiceProvider)
+          .createShareLink(list);
+      final itemLabel = list.items.length == 1 ? 'title' : 'titles';
+      await Share.share(
+        'Import "${list.name}" into Lumi (${list.items.length} $itemLabel): $shareLink',
+        subject: list.name,
+      );
+    } catch (error) {
+      if (!context.mounted) {
+        return;
+      }
+      ToastUtils.showToast(
+        context,
+        error.toString().replaceFirst('Exception: ', ''),
+      );
+    }
   }
 
   void _showRenameDialog(BuildContext context, WidgetRef ref, NamedList list) {
