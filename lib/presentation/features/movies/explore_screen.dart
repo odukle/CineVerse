@@ -39,6 +39,7 @@ import 'package:cineverse/presentation/features/home/providers/reminders_provide
 import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:cineverse/presentation/widgets/animated_icon_action.dart';
 import 'package:cineverse/presentation/widgets/media_actions_dialogs.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/presentation/features/movie_details/movie_details_screen.dart'
     show GeneralReminderDialog, GeneralReminderDialogResult;
@@ -57,169 +58,208 @@ class _SectionVisualSpec {
   final String subtitle;
 }
 
-const Map<String, _SectionVisualSpec> _sectionVisuals =
+Map<String, _SectionVisualSpec> _sectionVisuals(BuildContext context) =>
     <String, _SectionVisualSpec>{
-      'Trending': _SectionVisualSpec(
+      context.l10n.trending: _SectionVisualSpec(
         icon: Icons.trending_up_rounded,
         accent: Color(0xFF49E4FF),
-        subtitle: 'Hot now across the audience feed',
+        subtitle: context.l10n.hotNowAudience,
       ),
-      "What's Popular": _SectionVisualSpec(
+      context.l10n.whatsPopular: _SectionVisualSpec(
         icon: Icons.local_fire_department_rounded,
         accent: Color(0xFFFF9966),
-        subtitle: 'Big crowd-pleasers with strong momentum',
+        subtitle: context.l10n.bigCrowdPleasers,
       ),
-      'Hidden Gems': _SectionVisualSpec(
+      context.l10n.hiddenGems: _SectionVisualSpec(
         icon: Icons.auto_awesome_rounded,
         accent: Color(0xFFE6C76A),
-        subtitle: 'High-rated titles most viewers skip',
+        subtitle: context.l10n.highRatedSkipped,
       ),
-      'Now Playing': _SectionVisualSpec(
+      context.l10n.nowPlaying: _SectionVisualSpec(
         icon: Icons.theaters_rounded,
         accent: Color(0xFFFF6E8A),
-        subtitle: 'Current theatrical slate and near-future releases',
+        subtitle: context.l10n.currentTheatricalSlate,
       ),
-      'TV Trending': _SectionVisualSpec(
+      context.l10n.tvTrending: _SectionVisualSpec(
         icon: Icons.live_tv_rounded,
         accent: Color(0xFF42E8FF),
-        subtitle: 'Most discussed shows this week',
+        subtitle: context.l10n.mostDiscussedShowsThisWeek,
       ),
-      'On The Air': _SectionVisualSpec(
+      context.l10n.onTheAir: _SectionVisualSpec(
         icon: Icons.wifi_tethering_rounded,
         accent: Color(0xFF91F6A1),
-        subtitle: 'Series currently airing with active episodes',
+        subtitle: context.l10n.seriesCurrentlyAiring,
       ),
-      'Discover by Mood': _SectionVisualSpec(
+      context.l10n.discoverByMood: _SectionVisualSpec(
         icon: Icons.mood_rounded,
         accent: Color(0xFFB391FF),
-        subtitle: 'Pick a vibe and get instant matching titles',
+        subtitle: context.l10n.pickAVibe,
       ),
-      'Recommended for You': _SectionVisualSpec(
+      context.l10n.recommendedForYou: _SectionVisualSpec(
         icon: Icons.psychology_rounded,
         accent: Color(0xFF7DD9FF),
-        subtitle: 'Personalized from your watch behavior',
+        subtitle: context.l10n.personalizedFromWatchBehavior,
       ),
     };
 
 class ExploreScreen extends ConsumerStatefulWidget {
   const ExploreScreen({super.key});
 
-  static const List<ExploreShelfData> _movieBaseSections = <ExploreShelfData>[
-    ExploreShelfData(
-      title: "What's Popular",
-      filters: <ExploreFilterOption>[
-        ExploreFilterOption(label: 'Popular', section: MovieSection.popular),
-        ExploreFilterOption(label: 'Top Rated', section: MovieSection.topRated),
-        ExploreFilterOption(
-          label: 'In Theaters',
-          section: MovieSection.nowPlaying,
+  static List<ExploreShelfData> _movieBaseSections(BuildContext context) =>
+      <ExploreShelfData>[
+        ExploreShelfData(
+          title: context.l10n.whatsPopular,
+          filters: <ExploreFilterOption>[
+            ExploreFilterOption(
+              label: context.l10n.popular,
+              section: MovieSection.popular,
+            ),
+            ExploreFilterOption(
+              label: context.l10n.topRated,
+              section: MovieSection.topRated,
+            ),
+            ExploreFilterOption(
+              label: context.l10n.inTheaters,
+              section: MovieSection.nowPlaying,
+            ),
+            ExploreFilterOption(
+              label: context.l10n.comingSoon,
+              section: MovieSection.upcoming,
+            ),
+          ],
         ),
-        ExploreFilterOption(
-          label: 'Coming Soon',
-          section: MovieSection.upcoming,
+        ExploreShelfData(
+          title: context.l10n.trending,
+          filters: <ExploreFilterOption>[
+            ExploreFilterOption(
+              label: context.l10n.today,
+              section: MovieSection.trendingDay,
+            ),
+            ExploreFilterOption(
+              label: context.l10n.thisWeek,
+              section: MovieSection.trendingWeek,
+            ),
+          ],
+          variant: _ShelfVariant.featured,
         ),
-      ],
-    ),
-    ExploreShelfData(
-      title: 'Trending',
-      filters: <ExploreFilterOption>[
-        ExploreFilterOption(label: 'Today', section: MovieSection.trendingDay),
-        ExploreFilterOption(
-          label: 'This Week',
-          section: MovieSection.trendingWeek,
+        ExploreShelfData(
+          title: context.l10n.hiddenGems,
+          filters: <ExploreFilterOption>[
+            ExploreFilterOption(
+              label: context.l10n.all,
+              isHiddenGems: true,
+            ),
+          ],
         ),
-      ],
-      variant: _ShelfVariant.featured,
-    ),
-    ExploreShelfData(
-      title: 'Hidden Gems',
-      filters: <ExploreFilterOption>[
-        ExploreFilterOption(label: 'All', isHiddenGems: true),
-      ],
-    ),
-    ExploreShelfData(
-      title: 'Now Playing',
-      filters: <ExploreFilterOption>[
-        ExploreFilterOption(
-          label: 'In Theaters',
-          section: MovieSection.nowPlaying,
+        ExploreShelfData(
+          title: context.l10n.nowPlaying,
+          filters: <ExploreFilterOption>[
+            ExploreFilterOption(
+              label: context.l10n.inTheaters,
+              section: MovieSection.nowPlaying,
+            ),
+            ExploreFilterOption(
+              label: context.l10n.comingSoon,
+              section: MovieSection.upcoming,
+            ),
+            ExploreFilterOption(
+              label: context.l10n.topRated,
+              section: MovieSection.topRated,
+            ),
+          ],
         ),
-        ExploreFilterOption(
-          label: 'Coming Soon',
-          section: MovieSection.upcoming,
-        ),
-        ExploreFilterOption(label: 'Top Rated', section: MovieSection.topRated),
-      ],
-    ),
-  ];
+      ];
 
-  static const List<ExploreShelfData> _tvBaseSections = <ExploreShelfData>[
-    ExploreShelfData(
-      title: "What's Popular",
-      filters: <ExploreFilterOption>[
-        ExploreFilterOption(label: 'Popular', section: MovieSection.tvPopular),
-        ExploreFilterOption(
-          label: 'Top Rated',
-          section: MovieSection.tvTopRated,
+  static List<ExploreShelfData> _tvBaseSections(BuildContext context) =>
+      <ExploreShelfData>[
+        ExploreShelfData(
+          title: context.l10n.whatsPopular,
+          filters: <ExploreFilterOption>[
+            ExploreFilterOption(
+              label: context.l10n.popular,
+              section: MovieSection.tvPopular,
+            ),
+            ExploreFilterOption(
+              label: context.l10n.topRated,
+              section: MovieSection.tvTopRated,
+            ),
+            ExploreFilterOption(
+              label: context.l10n.onTheAir,
+              section: MovieSection.tvOnTheAir,
+            ),
+            ExploreFilterOption(
+              label: context.l10n.airingToday,
+              section: MovieSection.tvAiringToday,
+            ),
+          ],
         ),
-        ExploreFilterOption(
-          label: 'On The Air',
-          section: MovieSection.tvOnTheAir,
+        ExploreShelfData(
+          title: context.l10n.tvTrending,
+          filters: <ExploreFilterOption>[
+            ExploreFilterOption(
+              label: context.l10n.today,
+              section: MovieSection.tvTrendingDay,
+            ),
+            ExploreFilterOption(
+              label: context.l10n.thisWeek,
+              section: MovieSection.tvTrendingWeek,
+            ),
+          ],
+          variant: _ShelfVariant.featured,
         ),
-        ExploreFilterOption(
-          label: 'Airing Today',
-          section: MovieSection.tvAiringToday,
+        ExploreShelfData(
+          title: context.l10n.onTheAir,
+          filters: <ExploreFilterOption>[
+            ExploreFilterOption(
+              label: context.l10n.onTheAir,
+              section: MovieSection.tvOnTheAir,
+            ),
+            ExploreFilterOption(
+              label: context.l10n.airingToday,
+              section: MovieSection.tvAiringToday,
+            ),
+            ExploreFilterOption(
+              label: context.l10n.topRated,
+              section: MovieSection.tvTopRated,
+            ),
+          ],
         ),
-      ],
-    ),
-    ExploreShelfData(
-      title: 'TV Trending',
-      filters: <ExploreFilterOption>[
-        ExploreFilterOption(
-          label: 'Today',
-          section: MovieSection.tvTrendingDay,
-        ),
-        ExploreFilterOption(
-          label: 'This Week',
-          section: MovieSection.tvTrendingWeek,
-        ),
-      ],
-      variant: _ShelfVariant.featured,
-    ),
-    ExploreShelfData(
-      title: 'On The Air',
-      filters: <ExploreFilterOption>[
-        ExploreFilterOption(
-          label: 'On The Air',
-          section: MovieSection.tvOnTheAir,
-        ),
-        ExploreFilterOption(
-          label: 'Airing Today',
-          section: MovieSection.tvAiringToday,
-        ),
-        ExploreFilterOption(
-          label: 'Top Rated',
-          section: MovieSection.tvTopRated,
-        ),
-      ],
-    ),
-  ];
+      ];
 
-  static const ExploreShelfData _moodSection = ExploreShelfData(
-    title: 'Discover by Mood',
-    filters: <ExploreFilterOption>[
-      ExploreFilterOption(label: 'Mind-bending', mood: MovieMood.mindBending),
-      ExploreFilterOption(label: 'Feel-good', mood: MovieMood.feelGood),
-      ExploreFilterOption(label: 'Dark', mood: MovieMood.dark),
-      ExploreFilterOption(label: 'Fast-paced', mood: MovieMood.fastPaced),
-      ExploreFilterOption(
-        label: 'Edge-of-your-seat',
-        mood: MovieMood.edgeOfYourSeat,
-      ),
-      ExploreFilterOption(label: 'Cinematic', mood: MovieMood.cinematic),
-      ExploreFilterOption(label: 'Indie', mood: MovieMood.indie),
-    ],
-  );
+  static ExploreShelfData _moodSection(BuildContext context) =>
+      ExploreShelfData(
+        title: context.l10n.discoverByMood,
+        filters: <ExploreFilterOption>[
+          ExploreFilterOption(
+            label: context.l10n.mindBending,
+            mood: MovieMood.mindBending,
+          ),
+          ExploreFilterOption(
+            label: context.l10n.feelGood,
+            mood: MovieMood.feelGood,
+          ),
+          ExploreFilterOption(
+            label: context.l10n.dark,
+            mood: MovieMood.dark,
+          ),
+          ExploreFilterOption(
+            label: context.l10n.fastPaced,
+            mood: MovieMood.fastPaced,
+          ),
+          ExploreFilterOption(
+            label: context.l10n.edgeOfYourSeat,
+            mood: MovieMood.edgeOfYourSeat,
+          ),
+          ExploreFilterOption(
+            label: context.l10n.cinematic,
+            mood: MovieMood.cinematic,
+          ),
+          ExploreFilterOption(
+            label: context.l10n.indie,
+            mood: MovieMood.indie,
+          ),
+        ],
+      );
 
   @override
   ConsumerState<ExploreScreen> createState() => _ExploreScreenState();
@@ -244,8 +284,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final bool hasMovieApiAccess = appConfig.hasMovieApiAccess;
 
     final List<ExploreShelfData> baseSections = isTv
-        ? ExploreScreen._tvBaseSections
-        : ExploreScreen._movieBaseSections;
+        ? ExploreScreen._tvBaseSections(context)
+        : ExploreScreen._movieBaseSections(context);
 
     if (!hasMovieApiAccess) {
       return Center(
@@ -257,7 +297,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               const Icon(Icons.vpn_key_outlined, size: 52, color: Colors.white),
               const SizedBox(height: 16),
               Text(
-                'Movie API configuration required',
+                context.l10n.movieApiConfigurationRequired,
                 style: theme.textTheme.headlineSmall?.copyWith(
                   color: Colors.white,
                 ),
@@ -265,7 +305,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Add MOVIE_PROXY_BASE_URL to connect the app to the TMDB proxy.',
+                context.l10n.addMovieProxyBaseUrl,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: Colors.white.withValues(alpha: 0.8),
                 ),
@@ -362,10 +402,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                   child: _ScrollReveal(child: _CuratedCollectionSection()),
                 ),
                 const SliverToBoxAdapter(child: _SectionDivider()),
-                const SliverToBoxAdapter(
+                SliverToBoxAdapter(
                   child: _ScrollReveal(
                     child: _MovieShelfSection(
-                      section: ExploreScreen._moodSection,
+                      section: ExploreScreen._moodSection(context),
                     ),
                   ),
                 ),
@@ -432,7 +472,7 @@ class _LibraryRecommendationsSection extends ConsumerWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              'Start adding titles for recommendations',
+              context.l10n.startAddingTitlesForRecommendations,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium?.copyWith(
                 color: Colors.white,
@@ -441,7 +481,7 @@ class _LibraryRecommendationsSection extends ConsumerWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Add ${isTv ? 'TV shows' : 'movies'} to your watchlist, favourites, or watched list to see titles you might love.',
+              context.l10n.addShowsMoviesForRecommendations,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: Colors.white.withValues(alpha: 0.5),
@@ -457,11 +497,11 @@ class _LibraryRecommendationsSection extends ConsumerWidget {
       libraryRecommendationsProvider(RecSource.all),
     );
     final _SectionVisualSpec visual =
-        _sectionVisuals['Recommended for You'] ??
-        const _SectionVisualSpec(
+        _sectionVisuals(context)[context.l10n.recommendedForYou] ??
+        _SectionVisualSpec(
           icon: Icons.psychology_rounded,
           accent: Color(0xFF7DD9FF),
-          subtitle: 'Personalized from your watch behavior',
+          subtitle: context.l10n.personalizedFromWatchBehavior,
         );
 
     void navigateToSection() {
@@ -469,30 +509,30 @@ class _LibraryRecommendationsSection extends ConsumerWidget {
         AppRoute.exploreSection.name,
         queryParameters: {'isTv': isTv.toString()},
         extra: {
-          'sectionTitle': 'Recommended for You',
+          'sectionTitle': context.l10n.recommendedForYou,
           'filters': [
-            const ExploreFilterOption(
-              label: 'All',
+            ExploreFilterOption(
+              label: context.l10n.all,
               isLibraryRecommendations: true,
               recSource: RecSource.all,
             ),
-            const ExploreFilterOption(
-              label: 'Watchlist',
+            ExploreFilterOption(
+              label: context.l10n.watchlist,
               isLibraryRecommendations: true,
               recSource: RecSource.watchlist,
             ),
-            const ExploreFilterOption(
-              label: 'Favourites',
+            ExploreFilterOption(
+              label: context.l10n.favourites,
               isLibraryRecommendations: true,
               recSource: RecSource.favourites,
             ),
-            const ExploreFilterOption(
-              label: 'Lists',
+            ExploreFilterOption(
+              label: context.l10n.lists,
               isLibraryRecommendations: true,
               recSource: RecSource.lists,
             ),
-            const ExploreFilterOption(
-              label: 'Watched',
+            ExploreFilterOption(
+              label: context.l10n.watched,
               isLibraryRecommendations: true,
               recSource: RecSource.watched,
             ),
@@ -517,7 +557,7 @@ class _LibraryRecommendationsSection extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Recommended for You',
+                      context.l10n.recommendedForYou,
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         fontSize: 20,
@@ -536,7 +576,7 @@ class _LibraryRecommendationsSection extends ConsumerWidget {
                 ),
               ),
               _SectionFilterPill(
-                label: 'See All',
+                label: context.l10n.seeAll,
                 onTap: navigateToSection,
                 accent: visual.accent,
               ),
@@ -572,7 +612,7 @@ class _LibraryRecommendationsSection extends ConsumerWidget {
                     child: RepaintBoundary(
                       child: MediaPosterGridCard(
                         movie: data[index],
-                        sectionTitle: 'Recommended for You',
+                        sectionTitle: context.l10n.recommendedForYou,
                         width: finalCardWidth,
                         isTvTitle: isTv,
                         disableSortBasedSubtitle: true,
@@ -642,8 +682,8 @@ class _TonightWatchQuickLaunchStrip extends ConsumerWidget {
                 Expanded(
                   child: Text(
                     isTv
-                        ? 'Need something to watch tonight?'
-                        : 'Need a movie for tonight?',
+                        ? context.l10n.needSomethingToWatchTonight
+                        : context.l10n.needAMovieForTonight,
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
@@ -664,7 +704,7 @@ class _TonightWatchQuickLaunchStrip extends ConsumerWidget {
                     ),
                   ),
                   child: Text(
-                    isTv ? 'Try AI Shows' : 'Try AI Movies',
+                    isTv ? context.l10n.tryAiShows : context.l10n.tryAiMovies,
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
@@ -851,7 +891,7 @@ class _TonightWatchLauncherSectionState
                                 ),
                               ),
                               child: Text(
-                                'AI Tonight Watch',
+                                context.l10n.aiTonightWatch,
                                 style: theme.textTheme.labelLarge?.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w800,
@@ -860,7 +900,7 @@ class _TonightWatchLauncherSectionState
                             ),
                             const SizedBox(height: 14),
                             Text(
-                              'Describe it your way.\nWe find the best matches.',
+                              context.l10n.describeItYourWay,
                               style: theme.textTheme.headlineSmall?.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w900,
@@ -870,8 +910,8 @@ class _TonightWatchLauncherSectionState
                             const SizedBox(height: 10),
                             Text(
                               isTv
-                                  ? 'Type or speak a natural-language request. Lumi builds an AI plan, runs vector search, and returns multiple show picks.'
-                                  : 'Type or speak a natural-language request. Lumi builds an AI plan, runs vector search, and returns multiple movie picks.',
+                                  ? context.l10n.aiLauncherDescriptionShow
+                                  : context.l10n.aiLauncherDescriptionMovie,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: Colors.white.withValues(alpha: 0.82),
                                 height: 1.45,
@@ -881,18 +921,18 @@ class _TonightWatchLauncherSectionState
                             Wrap(
                               spacing: 8,
                               runSpacing: 8,
-                              children: const <Widget>[
+                              children: <Widget>[
                                 _TonightLauncherFeatureChip(
                                   icon: Icons.mic_none_rounded,
-                                  label: 'Voice input',
+                                  label: context.l10n.voiceInput,
                                 ),
                                 _TonightLauncherFeatureChip(
                                   icon: Icons.auto_awesome_rounded,
-                                  label: 'AI query plan',
+                                  label: context.l10n.aiQueryPlan,
                                 ),
                                 _TonightLauncherFeatureChip(
                                   icon: Icons.view_carousel_rounded,
-                                  label: 'Multiple picks',
+                                  label: context.l10n.multiplePicks,
                                 ),
                               ],
                             ),
@@ -923,7 +963,9 @@ class _TonightWatchLauncherSectionState
                                       ),
                                       const SizedBox(width: 8),
                                       Text(
-                                        isTv ? 'Find Shows' : 'Find Movies',
+                                        isTv
+                                            ? context.l10n.findShows
+                                            : context.l10n.findMovies,
                                         style: theme.textTheme.labelLarge
                                             ?.copyWith(
                                               color: Colors.white,
@@ -1311,7 +1353,7 @@ class _DiscoverSpotlightSectionState
             runtimeMinutes: details.runtimeMinutes,
             voteAverage: details.catalogScore ?? movie.voteAverage,
             voteCount: details.voteCount,
-            categoryLabel: 'From Spotlight',
+            categoryLabel: context.l10n.fromSpotlight,
             sourceMediaId: details.id,
             isTv: isTv,
             recommendations: details.recommendations,
@@ -1433,7 +1475,7 @@ class _DiscoverSpotlightSectionState
                   ),
                 ),
                 title: Text(
-                  'Hide Title',
+                  context.l10n.hideTitle,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -1443,8 +1485,8 @@ class _DiscoverSpotlightSectionState
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Hiding this title will prevent it from appearing in the Spotlight section in the future.',
+                    Text(
+                      context.l10n.hideTitleDescription,
                       style: TextStyle(color: Colors.white70, fontSize: 14),
                     ),
                     const SizedBox(height: 16),
@@ -1465,8 +1507,8 @@ class _DiscoverSpotlightSectionState
                             },
                           ),
                         ),
-                        const Text(
-                          "Don't ask again",
+                        Text(
+                          context.l10n.dontAskAgain,
                           style: TextStyle(color: Colors.white, fontSize: 14),
                         ),
                       ],
@@ -1479,8 +1521,8 @@ class _DiscoverSpotlightSectionState
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.white60,
                     ),
-                    child: const Text(
-                      'Cancel',
+                    child: Text(
+                      context.l10n.cancel,
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -1489,8 +1531,8 @@ class _DiscoverSpotlightSectionState
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.redAccent,
                     ),
-                    child: const Text(
-                      'Hide',
+                    child: Text(
+                      context.l10n.hide,
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
@@ -1516,7 +1558,7 @@ class _DiscoverSpotlightSectionState
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('"${media.title}" has been hidden'),
+            content: Text(context.l10n.titleHasBeenHidden(media.title)),
             backgroundColor: AppColors.detailsCard,
             duration: const Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
@@ -1627,7 +1669,7 @@ class _DiscoverSpotlightSectionState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Failed to load discover picks. $error',
+                context.l10n.errorGeneric(error.toString()),
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.error,
                 ),
@@ -1636,7 +1678,7 @@ class _DiscoverSpotlightSectionState
               TextButton.icon(
                 onPressed: () => ref.invalidate(discoverPoolProvider),
                 icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text('Retry'),
+                label: Text(context.l10n.retry),
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.cinemaAccent,
                   padding: EdgeInsets.zero,
@@ -1657,7 +1699,7 @@ class _DiscoverSpotlightSectionState
 
           if (movies.isEmpty) {
             return Text(
-              'No discover picks available right now.',
+              context.l10n.noDiscoverPicks,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: Colors.white.withValues(alpha: 0.72),
               ),
@@ -1691,7 +1733,7 @@ class _DiscoverSpotlightSectionState
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              'Discover Spotlight',
+                              context.l10n.discoverSpotlight,
                               style: theme.textTheme.headlineSmall?.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w800,
@@ -1703,7 +1745,7 @@ class _DiscoverSpotlightSectionState
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Cinematic picks with instant vibe context. Roll for another surprise card.',
+                        context.l10n.cinematicPicksContext,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: Colors.white.withValues(alpha: 0.78),
                           fontSize: 14,
@@ -1777,7 +1819,7 @@ class _DiscoverSpotlightSectionState
                                     ),
                                     const SizedBox(height: 20),
                                     Text(
-                                      'Spotlight Completed',
+                                      context.l10n.spotlightCompleted,
                                       style: theme.textTheme.titleMedium
                                           ?.copyWith(
                                             color: Colors.white,
@@ -1786,7 +1828,7 @@ class _DiscoverSpotlightSectionState
                                     ),
                                     const SizedBox(height: 8),
                                     Text(
-                                      'You have swiped and cleared all choices in your discover feed.',
+                                      context.l10n.clearedAllChoices,
                                       textAlign: TextAlign.center,
                                       style: theme.textTheme.bodyMedium
                                           ?.copyWith(
@@ -1803,7 +1845,7 @@ class _DiscoverSpotlightSectionState
                                         Icons.restart_alt_rounded,
                                         size: 20,
                                       ),
-                                      label: const Text('Reset Spotlight'),
+                                      label: Text(context.l10n.resetSpotlight),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppColors.cinemaAccent,
                                         foregroundColor: Colors.white,
@@ -1924,7 +1966,7 @@ class _DiscoverSpotlightSectionState
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Discover Spotlight',
+                            context.l10n.discoverSpotlight,
                             style: theme.textTheme.headlineSmall?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w800,
@@ -1936,7 +1978,7 @@ class _DiscoverSpotlightSectionState
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Cinematic picks with instant vibe context. Roll for another surprise card.',
+                      context.l10n.cinematicPicksContext,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.white.withValues(alpha: 0.78),
                         fontSize: 14,
@@ -2478,7 +2520,7 @@ class _DiscoverSpotlightSectionState
                                                                   width: 4,
                                                                 ),
                                                                 Text(
-                                                                  'Play Preview',
+                                                                  context.l10n.playPreview,
                                                                   style: theme
                                                                       .textTheme
                                                                       .labelSmall
@@ -2839,7 +2881,7 @@ class _DiscoverSpotlightSectionState
                                                                           ),
                                                                         ] else
                                                                           Text(
-                                                                            'IMDb NA',
+                                                                            context.l10n.imdbNa,
                                                                             style: theme.textTheme.labelSmall?.copyWith(
                                                                               color: Colors.white.withValues(
                                                                                 alpha: 0.6,
@@ -3315,11 +3357,11 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
     final mediaType = ref.watch(exploreMediaTypeProvider);
     final bool isTv = mediaType == ExploreMediaType.tv;
     final _SectionVisualSpec visual =
-        _sectionVisuals[widget.section.title] ??
-        const _SectionVisualSpec(
+        _sectionVisuals(context)[widget.section.title] ??
+        _SectionVisualSpec(
           icon: Icons.movie_outlined,
           accent: Color(0xFF7DD9FF),
-          subtitle: 'Fresh picks updated continuously',
+          subtitle: context.l10n.freshPicksContinuous,
         );
     final bool isHiddenGemsSection =
         !isTv && widget.section.filters.any((filter) => filter.isHiddenGems);
@@ -3397,7 +3439,7 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                   ),
                   const SizedBox(width: 8),
                   _SectionFilterPill(
-                    label: 'See All',
+                    label: context.l10n.seeAll,
                     onTap: () => _navigateToSection(filters: effectiveFilters),
                     accent: visual.accent,
                     icon: Icons.open_in_new_rounded,
@@ -3448,12 +3490,11 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                   error: (Object error, StackTrace stackTrace) => Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: _SectionMessageCard(
-                      title: 'Couldn’t load this rail',
-                      body:
-                          'There was a temporary issue loading ${widget.section.title.toLowerCase()}.',
+                      title: context.l10n.couldNotLoadThisRail,
+                      body: context.l10n.temporaryIssueLoadingRail,
                       accent: visual.accent,
                       icon: Icons.wifi_tethering_error_rounded,
-                      actionLabel: 'Retry',
+                      actionLabel: context.l10n.retry,
                       onAction: () {
                         final int? genreId = activeFilter.genreId;
                         final MovieMood? mood = activeFilter.mood;
@@ -3503,15 +3544,15 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: _SectionMessageCard(
-                          title: 'No titles here yet',
+                          title: context.l10n.noTitlesHereYet,
                           body:
                               activeFilter.isHiddenGems &&
                                   activeFilter.genreId != null
-                              ? 'No hidden gems found for this genre yet. Try another genre.'
-                              : 'Try another filter or open this section for broader discovery.',
+                              ? context.l10n.noHiddenGemsForGenre
+                              : context.l10n.tryAnotherFilter,
                           accent: visual.accent,
                           icon: Icons.search_off_rounded,
-                          actionLabel: 'See all filters',
+                          actionLabel: context.l10n.seeAllFilters,
                           onAction: () =>
                               _navigateToSection(filters: effectiveFilters),
                         ),
@@ -3739,7 +3780,7 @@ class _CuratedCollectionSection extends ConsumerWidget {
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        'Curated Tonight',
+                        context.l10n.curatedTonight,
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
@@ -3752,12 +3793,11 @@ class _CuratedCollectionSection extends ConsumerWidget {
                 ],
               ),
               error: (Object error, StackTrace stackTrace) => _SectionMessageCard(
-                title: 'Couldn’t load curated picks',
-                body:
-                    'There was a temporary issue loading tonight’s curated list.',
+                title: context.l10n.couldNotLoadCuratedPicks,
+                body: context.l10n.temporaryIssueLoadingCurated,
                 accent: accent,
                 icon: Icons.wifi_tethering_error_rounded,
-                actionLabel: 'Retry',
+                actionLabel: context.l10n.retry,
                 onAction: () => ref.invalidate(curatedTonightRailProvider),
               ),
               data: (CuratedTonightRailData curated) => Column(
@@ -3776,7 +3816,12 @@ class _CuratedCollectionSection extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              'Curated Tonight: ${curated.profile.title}',
+                              context.l10n.curatedTonightTitle(
+                                curatedTonightTitleFor(
+                                  context.l10n,
+                                  curated.profile.titleKey,
+                                ),
+                              ),
                               style: theme.textTheme.titleMedium?.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w800,
@@ -3784,7 +3829,10 @@ class _CuratedCollectionSection extends ConsumerWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              curated.profile.description,
+                              curatedTonightDescriptionFor(
+                                context.l10n,
+                                curated.profile.descriptionKey,
+                              ),
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: Colors.white.withValues(alpha: 0.76),
                                 height: 1.35,
@@ -3795,7 +3843,7 @@ class _CuratedCollectionSection extends ConsumerWidget {
                       ),
                       const SizedBox(width: 8),
                       _InfoBadge(
-                        label: 'Today',
+                        label: context.l10n.today,
                         color: accent,
                         accent: accent,
                         icon: Icons.today_rounded,
@@ -3823,12 +3871,11 @@ class _CuratedCollectionSection extends ConsumerWidget {
             data: (CuratedTonightRailData curated) {
               if (curated.titles.isEmpty) {
                 return _SectionMessageCard(
-                  title: 'No curated picks available',
-                  body:
-                      'Try again in a moment while we refresh tonight’s TMDB list.',
+                  title: context.l10n.noCuratedPicksAvailable,
+                  body: context.l10n.tryAgainWhileRefresh,
                   accent: accent,
                   icon: Icons.search_off_rounded,
-                  actionLabel: 'Retry',
+                  actionLabel: context.l10n.retry,
                   onAction: () => ref.invalidate(curatedTonightRailProvider),
                 );
               }
@@ -3847,7 +3894,7 @@ class _CuratedCollectionSection extends ConsumerWidget {
                       accent: accent,
                       child: MediaPosterGridCard(
                         movie: curated.titles[index],
-                        sectionTitle: 'Curated Tonight',
+                        sectionTitle: context.l10n.curatedTonight,
                         width: finalCardWidth,
                         isTvTitle: isTv,
                         disableSortBasedSubtitle: true,
@@ -4710,7 +4757,9 @@ class _SpotlightFavouriteButton extends ConsumerWidget {
         if (context.mounted) {
           ToastUtils.showToast(
             context,
-            isFav ? 'Removed from Favourites' : 'Added to Favourites',
+            isFav
+                ? context.l10n.removedFromFavourites
+                : context.l10n.addedToFavourites,
           );
         }
       },
@@ -4745,7 +4794,9 @@ class _SpotlightWatchlistButton extends ConsumerWidget {
           if (context.mounted) {
             ToastUtils.showToast(
               context,
-              isAdded ? 'Removed from Watchlist' : 'Added to Watchlist',
+              isAdded
+                  ? context.l10n.removedFromWatchlist
+                  : context.l10n.addedToWatchlist,
             );
           }
         },
@@ -4839,7 +4890,7 @@ class _SpotlightReminderButton extends ConsumerWidget {
             type: ReminderType.general,
             title: details.title,
             message: result.reminderText.trim().isEmpty
-                ? 'Reminder for ${details.title}'
+                ? context.l10n.reminderForTitle(details.title)
                 : result.reminderText,
             notifyAt: result.notifyAt,
             createdAt: DateTime.now(),
@@ -4849,7 +4900,7 @@ class _SpotlightReminderButton extends ConsumerWidget {
         );
 
     if (context.mounted) {
-      ToastUtils.showToast(context, 'Reminder set successfully');
+      ToastUtils.showToast(context, context.l10n.reminderSetSuccessfully);
     }
   }
 }

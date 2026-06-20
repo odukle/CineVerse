@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/movie_note.dart';
@@ -30,9 +31,9 @@ class NotesScreen extends ConsumerWidget {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'All Notes',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          context.l10n.allNotes,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
@@ -43,10 +44,10 @@ class NotesScreen extends ConsumerWidget {
         skipLoadingOnReload: !notesAsync.hasError,
         data: (notes) {
           if (notes.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
-                'No notes found.',
-                style: TextStyle(color: Colors.white54),
+                context.l10n.noNotesFound,
+                style: const TextStyle(color: Colors.white54),
               ),
             );
           }
@@ -72,7 +73,7 @@ class NotesScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Error: $err',
+                context.l10n.errorGeneric(err.toString()),
                 style: const TextStyle(color: Colors.redAccent),
               ),
               const SizedBox(height: 16),
@@ -82,7 +83,7 @@ class NotesScreen extends ConsumerWidget {
                   backgroundColor: AppColors.cinemaAccent,
                   foregroundColor: Colors.black,
                 ),
-                child: const Text('Retry'),
+                child: Text(context.l10n.retry),
               ),
             ],
           ),
@@ -198,7 +199,7 @@ class _NoteListTile extends ConsumerWidget {
                 size: 20,
               ),
               onPressed: () => _handleDelete(context, ref),
-              tooltip: 'Delete Note',
+              tooltip: context.l10n.deleteNote,
             ),
           ),
         ],
@@ -225,11 +226,11 @@ class _NoteListTile extends ConsumerWidget {
 
     if (!context.mounted) return;
     ToastUtils.showToast(
-      context, 
-      'Note deleted',
+      context,
+      context.l10n.noteDeleted,
       duration: const Duration(seconds: 5),
       action: SnackBarAction(
-        label: 'UNDO',
+        label: context.l10n.undo,
         textColor: AppColors.cinemaAccent,
         onPressed: () async {
           await actions.addNote(
@@ -279,7 +280,7 @@ class _UndoSnackBarContentState extends State<_UndoSnackBarContent> {
       children: [
         Expanded(
           child: Text(
-            'Note deleted ($_remaining s)',
+            context.l10n.noteDeletedWithCount(_remaining),
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -293,7 +294,7 @@ class _UndoSnackBarContentState extends State<_UndoSnackBarContent> {
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
           },
           child: Text(
-            'UNDO',
+            context.l10n.undo,
             style: TextStyle(
               color: AppColors.cinemaAccent,
               fontWeight: FontWeight.bold,

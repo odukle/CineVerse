@@ -4,11 +4,20 @@ import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/presentation/features/home/tv_shows_screen.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
+import 'package:cineverse/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  const localizationsDelegates = [
+    AppLocalizations.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+  ];
+
   testWidgets('tv shows screen switches between popular and genre tabs', (
     WidgetTester tester,
   ) async {
@@ -51,7 +60,11 @@ void main() {
             isTv: true,
           )).overrideWith((ref) async => buildTitles('Mystery Show', 201)),
         ],
-        child: const MaterialApp(home: Scaffold(body: TvShowsScreen())),
+        child: const MaterialApp(
+          localizationsDelegates: localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(body: TvShowsScreen()),
+        ),
       ),
     );
 

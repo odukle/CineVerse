@@ -1,4 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/presentation/features/movies/providers/filter_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
@@ -34,10 +35,10 @@ class MediaGrid extends ConsumerWidget {
     final mediaAsync = ref.watch(provider);
 
     final String sectionTitle = !customFilter.isDefault
-        ? 'Filtered Results'
+        ? context.l10n.filteredResults
         : genreId != null
-        ? 'Genre Results'
-        : 'Popular';
+        ? context.l10n.genreResults
+        : context.l10n.popularity;
 
     return mediaAsync.when(
       loading: () => const _ShimmerGrid(),
@@ -48,7 +49,7 @@ class MediaGrid extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Could not load content. $error',
+                context.l10n.couldNotLoadContent(error.toString()),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.error,
@@ -61,7 +62,7 @@ class MediaGrid extends ConsumerWidget {
                   backgroundColor: AppColors.cinemaAccent,
                   foregroundColor: Colors.black,
                 ),
-                child: const Text('Retry'),
+                child: Text(context.l10n.retry),
               ),
             ],
           ),
@@ -71,7 +72,7 @@ class MediaGrid extends ConsumerWidget {
         if (data.isEmpty) {
           return Center(
             child: Text(
-              'No content available for this selection.',
+              context.l10n.noContentAvailableForThisSelection,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: Colors.white.withValues(alpha: 0.72),
               ),

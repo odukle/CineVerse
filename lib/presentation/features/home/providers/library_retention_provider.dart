@@ -1,12 +1,15 @@
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/data/providers/data_providers.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/library_item.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/watched_item.dart';
 import 'package:cineverse/domain/entities/watchlist_item.dart';
+import 'package:cineverse/l10n/app_localizations.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/library_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const int kRetentionLookaheadDays = 180;
@@ -112,8 +115,10 @@ class _TrackedLibraryItem {
   bool get isTv => mediaType == GlobalMediaType.tv;
 }
 
-final libraryRetentionBundleProvider =
-    FutureProvider.autoDispose<LibraryRetentionBundle>((ref) async {
+final libraryRetentionBundleProvider = FutureProvider.autoDispose
+    .family<LibraryRetentionBundle, BuildContext>((ref, context) async {
+      final AppLocalizations l10n = context.l10n;
+
       final List<WatchlistItem> watchlist = await ref.watch(
         watchlistProvider.future,
       );
@@ -168,7 +173,7 @@ final libraryRetentionBundleProvider =
           releaseDate: item.releaseDate,
           voteAverage: item.voteAverage,
           addedAt: item.addedDate,
-          sourceLabel: 'Watchlist',
+          sourceLabel: l10n.watchlist,
         );
       }
       for (final FavouriteItem item in favourites) {
@@ -180,7 +185,7 @@ final libraryRetentionBundleProvider =
           releaseDate: item.releaseDate,
           voteAverage: item.voteAverage,
           addedAt: item.addedDate,
-          sourceLabel: 'Favourites',
+          sourceLabel: l10n.favourites,
         );
       }
       for (final NamedList list in namedLists) {
@@ -193,7 +198,7 @@ final libraryRetentionBundleProvider =
             releaseDate: item.releaseDate,
             voteAverage: item.voteAverage,
             addedAt: item.addedDate,
-            sourceLabel: 'Lists',
+            sourceLabel: l10n.lists,
           );
         }
       }
@@ -205,7 +210,7 @@ final libraryRetentionBundleProvider =
           posterPath: item.posterPath,
           voteAverage: item.voteAverage,
           addedAt: item.watchDate,
-          sourceLabel: 'Watched',
+          sourceLabel: l10n.watched,
         );
       }
 
@@ -235,7 +240,7 @@ final libraryRetentionBundleProvider =
               isTv: false,
               kind: ReleaseCalendarEntryKind.movieRelease,
               date: releaseDate,
-              subtitle: 'Movie release',
+              subtitle: l10n.movieRelease,
               sourceLabels: item.sourceLabels.toList()..sort(),
               posterPath: item.posterPath,
             ),
@@ -276,8 +281,10 @@ final libraryRetentionBundleProvider =
             isTv: true,
             kind: ReleaseCalendarEntryKind.episodeAiring,
             date: airDate,
-            subtitle:
-                'Episode S${nextEpisode.seasonNumber} • E${nextEpisode.episodeNumber}',
+            subtitle: l10n.episodeSeasonEpisode(
+              nextEpisode.seasonNumber,
+              nextEpisode.episodeNumber,
+            ),
             sourceLabels: item.sourceLabels.toList()..sort(),
             posterPath: item.posterPath ?? details.posterPath,
             backdropPath: details.backdropPath,
@@ -299,8 +306,8 @@ final libraryRetentionBundleProvider =
           )
           .toList();
       unwatched.sort((_TrackedLibraryItem a, _TrackedLibraryItem b) {
-        final double scoreA = _watchNextScore(a, now);
-        final double scoreB = _watchNextScore(b, now);
+        final double scoreA = _watchNextScore(a, now, l10n);
+        final double scoreB = _watchNextScore(b, now, l10n);
         return scoreB.compareTo(scoreA);
       });
 
@@ -311,7 +318,7 @@ final libraryRetentionBundleProvider =
               mediaId: item.id,
               title: item.title,
               isTv: item.isTv,
-              reason: _watchNextReason(item, now),
+              reason: _watchNextReason(item, now, l10n),
               posterPath: item.posterPath,
               releaseDate: item.releaseDate,
               voteAverage: item.voteAverage,
@@ -348,11 +355,15 @@ DateTime? _tryParseDate(String? value) {
   }
 }
 
-double _watchNextScore(_TrackedLibraryItem item, DateTime now) {
+double _watchNextScore(
+  _TrackedLibraryItem item,
+  DateTime now,
+  AppLocalizations l10n,
+) {
   final double sourceScore =
-      (item.sourceLabels.contains('Watchlist') ? 40 : 0) +
-      (item.sourceLabels.contains('Favourites') ? 22 : 0) +
-      (item.sourceLabels.contains('Lists') ? 16 : 0);
+      (item.sourceLabels.contains(l10n.watchlist) ? 40 : 0) +
+      (item.sourceLabels.contains(l10n.favourites) ? 22 : 0) +
+      (item.sourceLabels.contains(l10n.lists) ? 16 : 0);
   final double voteScore = (item.voteAverage ?? 0) * 4.5;
   final int ageDays = now.difference(item.addedAt).inDays.clamp(0, 3650);
   final double freshnessScore = (365 - ageDays.clamp(0, 365)) / 14;
@@ -363,18 +374,22 @@ double _watchNextScore(_TrackedLibraryItem item, DateTime now) {
   return sourceScore + voteScore + freshnessScore + releaseScore;
 }
 
-String _watchNextReason(_TrackedLibraryItem item, DateTime now) {
-  if (item.sourceLabels.contains('Watchlist')) {
+String _watchNextReason(
+  _TrackedLibraryItem item,
+  DateTime now,
+  AppLocalizations l10n,
+) {
+  if (item.sourceLabels.contains(l10n.watchlist)) {
     final int age = now.difference(item.addedAt).inDays;
     if (age >= kStaleWatchlistDays) {
       return 'Sitting in your watchlist for $age days';
     }
     return 'Already on your watchlist';
   }
-  if (item.sourceLabels.contains('Favourites')) {
+  if (item.sourceLabels.contains(l10n.favourites)) {
     return 'You favourited this but have not marked it watched yet';
   }
-  if (item.sourceLabels.contains('Lists')) {
+  if (item.sourceLabels.contains(l10n.lists)) {
     return 'Saved in one of your lists and ready to watch';
   }
   return 'Matches titles you already track';

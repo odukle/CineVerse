@@ -1,4 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/domain/entities/media_review.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/movie_reviews_provider.dart';
 import 'package:cineverse/presentation/widgets/app_back_button.dart';
@@ -61,13 +62,13 @@ class _AllReviewsScreenState extends ConsumerState<AllReviewsScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: const AppBackButton(),
-        title: const Text('User Reviews'),
+        title: Text(context.l10n.userReviews),
       ),
       body: reviewsAsync.when(
         skipLoadingOnReload: true,
         data: (reviews) {
           if (reviews.isEmpty) {
-            return const Center(child: Text('No reviews yet.'));
+            return Center(child: Text(context.l10n.noReviewsYet));
           }
 
           return ListView.separated(
@@ -96,7 +97,7 @@ class _AllReviewsScreenState extends ConsumerState<AllReviewsScreen> {
           separatorBuilder: (context, index) => const SizedBox(height: 16),
           itemBuilder: (context, index) => const _ReviewShimmer(),
         ),
-        error: (err, stack) => Center(child: Text('Error: $err')),
+        error: (err, stack) => Center(child: Text(context.l10n.errorGeneric(err.toString()))),
       ),
     );
   }

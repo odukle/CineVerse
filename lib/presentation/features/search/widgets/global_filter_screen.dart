@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
@@ -49,9 +50,9 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          title: const Text(
-            'Filters',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          title: Text(
+            context.l10n.filterScreenTitle,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           leading: IconButton(
             icon: const Icon(Icons.close, color: Colors.white),
@@ -61,7 +62,7 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
             TextButton(
               onPressed: _resetFilters,
               child: Text(
-                'Reset',
+                context.l10n.reset,
                 style: TextStyle(color: AppColors.cinemaAccent),
               ),
             ),
@@ -76,7 +77,7 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
               _buildMediaTypeChips(),
               const Divider(color: Colors.white24, height: 32),
 
-              _buildSectionHeader('Sort By'),
+              _buildSectionHeader(context.l10n.sortBy),
               _buildSortDropdowns(),
               const Divider(color: Colors.white24, height: 32),
 
@@ -84,30 +85,30 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
               _buildAvailabilities(),
               const Divider(color: Colors.white24, height: 32),
 
-              _buildSectionHeader('User Score'),
+              _buildSectionHeader(context.l10n.userScore),
               _buildUserScoreSlider(),
               _buildIncludeNotRatedToggle(),
               const Divider(color: Colors.white24, height: 32),
 
-              _buildSectionHeader('Release Dates'),
+              _buildSectionHeader(context.l10n.releaseDate),
               _buildReleaseTypeChips(),
               const SizedBox(height: 16),
               _buildDatePickers(),
               const Divider(color: Colors.white24, height: 32),
 
-              _buildSectionHeader('Minimum User Votes'),
+              _buildSectionHeader(context.l10n.voteCount),
               _buildMinVotesSlider(),
               const Divider(color: Colors.white24, height: 32),
 
-              _buildSectionHeader('People'),
+              _buildSectionHeader(context.l10n.withPeople),
               _buildPeopleFilter(),
               const Divider(color: Colors.white24, height: 32),
 
-              _buildSectionHeader('Genres'),
+              _buildSectionHeader(context.l10n.genres),
               _buildGenreChips(),
               const Divider(color: Colors.white24, height: 32),
 
-              _buildSectionHeader('Runtime (minutes)'),
+              _buildSectionHeader(context.l10n.runtime),
               _buildRuntimeSlider(),
               const SizedBox(height: 32),
             ],
@@ -136,9 +137,9 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                'Apply Filters',
-                style: TextStyle(
+              child: Text(
+                context.l10n.applyFilters,
+                style: const TextStyle(
                   color: Colors.black,
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -289,12 +290,12 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
 
   Widget _buildAvailabilities() {
     final options = {
-      'All': '',
-      'Free': 'free',
-      'Stream': 'flatrate',
-      'Rent': 'rent',
+      context.l10n.all: '',
+      context.l10n.free: 'free',
+      context.l10n.stream: 'flatrate',
+      context.l10n.rent: 'rent',
       'Ads': 'ads',
-      'Buy': 'buy',
+      context.l10n.buy: 'buy',
     };
 
     return Wrap(
@@ -386,9 +387,9 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        const Text(
-          'Include Not Rated',
-          style: TextStyle(color: Colors.white70, fontSize: 14),
+        Text(
+          context.l10n.includeNotRated,
+          style: const TextStyle(color: Colors.white70, fontSize: 14),
         ),
         const SizedBox(width: 8),
         Switch(
@@ -414,13 +415,13 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
     }
 
     final options = {
-      'All': 0,
+      context.l10n.all: 0,
       'Theatrical Limited': 1,
-      'Theatrical': 3,
+      context.l10n.theatricalRelease: 3,
       'Premier': 2,
-      'Digital': 4,
-      'Physical': 5,
-      'TV': 6,
+      context.l10n.digitalStreaming: 4,
+      context.l10n.physicalRelease: 5,
+      context.l10n.tv: 6,
     };
 
     return Wrap(
@@ -472,7 +473,7 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
       children: [
         Expanded(
           child: _buildDatePicker(
-            label: 'From',
+            label: context.l10n.from,
             date: _currentFilter.releaseDateFrom,
             onChanged: (date) => setState(
               () => _currentFilter = _currentFilter.copyWith(
@@ -484,7 +485,7 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
         const SizedBox(width: 16),
         Expanded(
           child: _buildDatePicker(
-            label: 'To',
+            label: context.l10n.to,
             date: _currentFilter.releaseDateTo,
             onChanged: (date) => setState(
               () =>
@@ -614,7 +615,7 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
               backgroundColor: WidgetStateProperty.all(
                 Colors.white.withValues(alpha: 0.05),
               ),
-              hintText: 'Search for a person...',
+              hintText: context.l10n.searchForPerson,
               hintStyle: WidgetStateProperty.all(
                 const TextStyle(color: Colors.white54, fontSize: 14),
               ),
@@ -796,15 +797,15 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
         ),
         error: (error, stack) => Row(
           children: [
-            const Text(
-              'Error loading TV genres',
-              style: TextStyle(color: Colors.red, fontSize: 12),
+            Text(
+              context.l10n.errorLoadingTvGenres,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
             ),
             const SizedBox(width: 12),
             TextButton(
               onPressed: () => ref.invalidate(tvGenresProvider),
               child: Text(
-                'Retry',
+                context.l10n.retry,
                 style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12),
               ),
             ),
@@ -816,15 +817,15 @@ class _GlobalFilterScreenState extends ConsumerState<GlobalFilterScreen> {
       ),
       error: (error, stack) => Row(
         children: [
-          const Text(
-            'Error loading genres',
-            style: TextStyle(color: Colors.red, fontSize: 12),
+          Text(
+            context.l10n.errorLoadingGenres(error.toString()),
+            style: const TextStyle(color: Colors.red, fontSize: 12),
           ),
           const SizedBox(width: 12),
           TextButton(
             onPressed: () => ref.invalidate(movieGenresProvider),
             child: Text(
-              'Retry',
+              context.l10n.retry,
               style: TextStyle(color: AppColors.cinemaAccent, fontSize: 12),
             ),
           ),

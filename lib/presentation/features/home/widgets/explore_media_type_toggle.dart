@@ -1,4 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/presentation/features/movies/providers/explore_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +26,7 @@ class ExploreMediaTypeToggle extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           _ToggleOption(
-            label: 'Movies',
+            label: context.l10n.toggleMovies,
             selected: mediaType == ExploreMediaType.movie,
             onTap: () {
               if (mediaType != ExploreMediaType.movie) {
@@ -37,7 +38,7 @@ class ExploreMediaTypeToggle extends ConsumerWidget {
             },
           ),
           _ToggleOption(
-            label: 'TV',
+            label: context.l10n.toggleTv,
             selected: mediaType == ExploreMediaType.tv,
             onTap: () {
               if (mediaType != ExploreMediaType.tv) {

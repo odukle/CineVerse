@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
@@ -54,7 +55,7 @@ class EpisodeDetailsScreen extends ConsumerWidget {
             ),
             body: Center(
               child: Text(
-                'Error: $error',
+                context.l10n.errorGeneric(error.toString()),
                 style: const TextStyle(color: Colors.white),
               ),
             ),
@@ -188,7 +189,7 @@ class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${widget.episode.seasonNumber}x${widget.episode.episodeNumber} • $dateStr',
+                  '${widget.episode.seasonNumber}x${widget.episode.episodeNumber}${context.l10n.runtimeSeparator(dateStr)}',
                   style: const TextStyle(color: Colors.white54, fontSize: 14),
                 ),
                 const SizedBox(height: 8),
@@ -259,9 +260,9 @@ class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Cast & Crew',
-              style: TextStyle(
+            Text(
+              context.l10n.castAndCrew,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -279,7 +280,7 @@ class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
                 );
               },
               child: Text(
-                'View Full',
+                context.l10n.viewFull,
                 style: TextStyle(color: AppColors.cinemaAccent),
               ),
             ),
@@ -307,9 +308,9 @@ class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
         ),
         if (featuredCrew.isNotEmpty) ...[
           const SizedBox(height: 16),
-          const Text(
-            'Featured Crew',
-            style: TextStyle(
+          Text(
+            context.l10n.featuredCrew,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 16,
               fontWeight: FontWeight.bold,
@@ -344,9 +345,9 @@ class _EpisodeDetailsViewState extends ConsumerState<_EpisodeDetailsView> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Stills',
-          style: TextStyle(
+        Text(
+          context.l10n.stills,
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 18,
             fontWeight: FontWeight.bold,

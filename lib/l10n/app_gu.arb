@@ -1,0 +1,3454 @@
+{
+  "@@locale": "gu",
+  "appName": "લુમી",
+  "@appName": {
+    "description": "The name of the application"
+  },
+  "navExplore": "અન્વેષણ કરો",
+  "@navExplore": {
+    "description": "Bottom navigation label for Explore tab"
+  },
+  "navMovies": "મૂવીઝ",
+  "@navMovies": {
+    "description": "Bottom navigation label for Movies tab"
+  },
+  "navTvShows": "ટીવી શો",
+  "@navTvShows": {
+    "description": "Bottom navigation label for TV Shows tab"
+  },
+  "navLibrary": "પુસ્તકાલય",
+  "@navLibrary": {
+    "description": "Bottom navigation label for Library/Watchlist tab"
+  },
+  "navAccount": "એકાઉન્ટ",
+  "@navAccount": {
+    "description": "Bottom navigation label for Account tab"
+  },
+  "searchHint": "મૂવીઝ, ટીવી શો, કંપનીઓ શોધો...",
+  "@searchHint": {
+    "description": "Search bar hint text"
+  },
+  "searchForPerson": "વ્યક્તિને શોધો...",
+  "@searchForPerson": {
+    "description": "Search person placeholder"
+  },
+  "searchLanguages": "ભાષાઓ શોધો",
+  "@searchLanguages": {
+    "description": "Hint for language search input"
+  },
+  "searchNameOrRole": "નામ અથવા ભૂમિકા શોધો...",
+  "@searchNameOrRole": {
+    "description": "Search cast crew placeholder"
+  },
+  "retry": "ફરી પ્રયાસ કરો",
+  "@retry": {
+    "description": "Button label to retry a failed action"
+  },
+  "tryAgain": "ફરી પ્રયાસ કરો",
+  "@tryAgain": {
+    "description": "Alternative retry button label"
+  },
+  "clear": "સાફ કરો",
+  "@clear": {
+    "description": "Button label to clear content"
+  },
+  "cancel": "રદ કરો",
+  "@cancel": {
+    "description": "Button label to cancel an action"
+  },
+  "ok": "ઓકે",
+  "@ok": {
+    "description": "Button label to confirm/acknowledge"
+  },
+  "save": "સાચવો",
+  "@save": {
+    "description": "Button label to save content"
+  },
+  "delete": "કાઢી નાખો",
+  "@delete": {
+    "description": "Button label to delete content"
+  },
+  "share": "શેર કરો",
+  "@share": {
+    "description": "Button label to share content"
+  },
+  "undo": "પૂર્વવત્ કરો",
+  "@undo": {
+    "description": "Undo button"
+  },
+  "close": "બંધ કરો",
+  "@close": {
+    "description": "Button label to close a dialog/sheet"
+  },
+  "apply": "લાગુ કરો",
+  "@apply": {
+    "description": "Button label to apply filters"
+  },
+  "reset": "રીસેટ",
+  "@reset": {
+    "description": "Button label to reset a state"
+  },
+  "done": "થઈ ગયું",
+  "@done": {
+    "description": "Button label for completion"
+  },
+  "signInWithGoogle": "Google",
+  "@signInWithGoogle": {
+    "description": "Google sign-in button label"
+  },
+  "signInWithApple": "સાથે સાઇન ઇન કરો Apple",
+  "@signInWithApple": {
+    "description": "Apple sign-in button label"
+  },
+  "signOut": "સાઇન આઉટ કરો",
+  "@signOut": {
+    "description": "Sign out button label"
+  },
+  "deleteAccount": "એકાઉન્ટ કાઢી નાખો",
+  "@deleteAccount": {
+    "description": "Delete account button label"
+  },
+  "accountDeletedSuccessfully": "એકાઉન્ટ સફળતાપૂર્વક કાઢી નાખ્યું.",
+  "@accountDeletedSuccessfully": {
+    "description": "Snackbar message after account deletion"
+  },
+  "appearance": "દેખાવ",
+  "@appearance": {
+    "description": "Appearance settings title"
+  },
+  "appearanceSubtitle": "તમારી થીમ પસંદ કરો અને એપ્લિકેશન દેખાવને કસ્ટમાઇઝ કરો.",
+  "@appearanceSubtitle": {
+    "description": "Appearance settings subtitle"
+  },
+  "notifications": "સૂચનાઓ",
+  "@notifications": {
+    "description": "Notifications settings title"
+  },
+  "releaseCalendar": "પ્રકાશન કેલેન્ડર",
+  "@releaseCalendar": {
+    "description": "Release calendar title"
+  },
+  "hiddenTitles": "છુપાયેલા શીર્ષકો",
+  "@hiddenTitles": {
+    "description": "Hidden titles screen title"
+  },
+  "aiRecommendationsPrivacy": "AI ભલામણો ગોપનીયતા",
+  "@aiRecommendationsPrivacy": {
+    "description": "AI consent settings title"
+  },
+  "contentRegion": "સામગ્રી પ્રદેશ",
+  "@contentRegion": {
+    "description": "Content region settings title"
+  },
+  "contentLanguage": "સામગ્રી ભાષા",
+  "@contentLanguage": {
+    "description": "Content language settings title"
+  },
+  "watchlist": "વૉચલિસ્ટ",
+  "@watchlist": {
+    "description": "Watchlist section title"
+  },
+  "notes": "નોંધો",
+  "@notes": {
+    "description": "Notes section title"
+  },
+  "deleteNote": "નોંધ કાઢી નાખો",
+  "@deleteNote": {
+    "description": "Tooltip for delete note action"
+  },
+  "addNoteHint": "એક નોંધ ઉમેરો...",
+  "@addNoteHint": {
+    "description": "Hint for note input field"
+  },
+  "addBriefNoteHint": "સંક્ષિપ્ત નોંધ ઉમેરો (વૈકલ્પિક)...",
+  "@addBriefNoteHint": {
+    "description": "Hint for brief note input"
+  },
+  "enterNewName": "નવું નામ દાખલ કરો...",
+  "@enterNewName": {
+    "description": "Hint for rename input"
+  },
+  "importSharedList": "આયાત શેર કરેલ સૂચિ",
+  "@importSharedList": {
+    "description": "Import shared list screen title"
+  },
+  "discoverOnLumi": "શોધો LUMI",
+  "@discoverOnLumi": {
+    "description": "Branding text on recommendation cards"
+  },
+  "filtered": "ફિલ્ટર કરેલ",
+  "@filtered": {
+    "description": "Label for filtered genre chip"
+  },
+  "fullPlot": "સંપૂર્ણ પ્લોટ",
+  "@fullPlot": {
+    "description": "Full plot dialog/button label"
+  },
+  "userReviews": "વપરાશકર્તા સમીક્ષાઓ",
+  "@userReviews": {
+    "description": "User reviews section title"
+  },
+  "noReviewsYet": "હજુ સુધી કોઈ સમીક્ષાઓ નથી.",
+  "@noReviewsYet": {
+    "description": "Empty state message for reviews"
+  },
+  "openInYouTube": "YouTube માં ખોલો",
+  "@openInYouTube": {
+    "description": "Button to open video in YouTube"
+  },
+  "hiddenGems": "હિડન જેમ્સ",
+  "@hiddenGems": {
+    "description": "Explore section title for hidden gems"
+  },
+  "resetSpotlight": "સ્પોટલાઇટ રીસેટ કરો",
+  "@resetSpotlight": {
+    "description": "Button to reset spotlight selections"
+  },
+  "clearPreferences": "સ્પષ્ટ પસંદગીઓ",
+  "@clearPreferences": {
+    "description": "Button to clear user preferences"
+  },
+  "refreshPicks": "રિફ્રેશ પિક્સ",
+  "@refreshPicks": {
+    "description": "Button to refresh recommendations"
+  },
+  "shareBoard": "શેર બોર્ડ",
+  "@shareBoard": {
+    "description": "Button to share recommendation board"
+  },
+  "exploreDetails": "અન્વેષણ કરો વિગતો",
+  "@exploreDetails": {
+    "description": "Button to explore item details"
+  },
+  "searchWikiquotes": "શોધો વિકિક્વોટ્સ",
+  "@searchWikiquotes": {
+    "description": "Wikiquotes search button"
+  },
+  "selectAQuote": "એક ક્વોટ પસંદ કરો",
+  "@selectAQuote": {
+    "description": "Quote selection dialog title"
+  },
+  "tooltipShareQuote": "શેર અવતરણ",
+  "@tooltipShareQuote": {
+    "description": "Tooltip for share quote button"
+  },
+  "tooltipCopyQuote": "કોપી ક્વોટ",
+  "@tooltipCopyQuote": {
+    "description": "Tooltip for copy quote button"
+  },
+  "tooltipShareDialogue": "શેર કરો સંવાદ",
+  "@tooltipShareDialogue": {
+    "description": "Tooltip for share dialogue button"
+  },
+  "tooltipCopyDialogue": "સંવાદની નકલ કરો",
+  "@tooltipCopyDialogue": {
+    "description": "Tooltip for copy dialogue button"
+  },
+  "tooltipUnhide": "છુપાવો",
+  "@tooltipUnhide": {
+    "description": "Tooltip for unhide title button"
+  },
+  "tooltipOpenPrivacyPolicy": "ગોપનીયતા નીતિ ખોલો",
+  "@tooltipOpenPrivacyPolicy": {
+    "description": "Tooltip for privacy policy link"
+  },
+  "tooltipRefreshInsights": "આંતરદૃષ્ટિ તાજી કરો",
+  "@tooltipRefreshInsights": {
+    "description": "Tooltip for refresh insights button"
+  },
+  "tooltipSortTitles": "શીર્ષકો સૉર્ટ કરો",
+  "@tooltipSortTitles": {
+    "description": "Tooltip for sort button"
+  },
+  "tooltipSearch": "શોધો",
+  "@tooltipSearch": {
+    "description": "Tooltip for search button"
+  },
+  "tooltipFilters": "ફિલ્ટર્સ",
+  "@tooltipFilters": {
+    "description": "Tooltip for filters button"
+  },
+  "tooltipSaveToGallery": "ગેલેરીમાં સાચવો",
+  "@tooltipSaveToGallery": {
+    "description": "Tooltip for save to gallery button"
+  },
+  "tooltipShare": "શેર કરો",
+  "@tooltipShare": {
+    "description": "Tooltip for share button"
+  },
+  "tooltipShareAnalytics": "વિશ્લેષણો શેર કરો",
+  "@tooltipShareAnalytics": {
+    "description": "Tooltip for share analytics button"
+  },
+  "tooltipSetAiringReminder": "પ્રસારણ રીમાઇન્ડર સેટ કરો",
+  "@tooltipSetAiringReminder": {
+    "description": "Tooltip for airing reminder"
+  },
+  "tooltipLibrarySynced": "લાઇબ્રેરી ક્લાઉડ સાથે સમન્વયિત",
+  "@tooltipLibrarySynced": {
+    "description": "Tooltip when library sync is complete"
+  },
+  "noMoreEntries": "હવે કોઈ એન્ટ્રી નથી",
+  "@noMoreEntries": {
+    "description": "Message shown when there are no more items to load"
+  },
+  "noItemsFound": "કોઈ આઇટમ મળી નથી.",
+  "@noItemsFound": {
+    "description": "Message shown when no items are found"
+  },
+  "errorLoadingGenres": "શૈલીઓ લોડ કરવામાં ભૂલ: {error}",
+  "@errorLoadingGenres": {
+    "description": "Error message when genres fail to load",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorGeneric": "ભૂલ: {error}",
+  "@errorGeneric": {
+    "description": "Generic error message",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingLists": "સૂચિઓ લોડ કરવામાં ભૂલ",
+  "@errorLoadingLists": {
+    "description": "Error when lists fail to load"
+  },
+  "errorLoadingQuotes": "અવતરણ લોડ કરવામાં નિષ્ફળ: {error}",
+  "@errorLoadingQuotes": {
+    "description": "Error loading quotes"
+  },
+  "errorCouldNotShareAnalytics": "વિશ્લેષણ કાર્ડ શેર કરી શકાયું નથી.",
+  "@errorCouldNotShareAnalytics": {
+    "description": "Snackbar error for analytics sharing failure"
+  },
+  "errorCouldNotShareRecommendations": "ભલામણ બોર્ડ શેર કરી શકાયું નથી.",
+  "@errorCouldNotShareRecommendations": {
+    "description": "Snackbar error for recommendation sharing failure"
+  },
+  "errorCouldNotShareInsights": "ઘડિયાળની જાણકારી શેર કરી શકાઈ નથી.",
+  "@errorCouldNotShareInsights": {
+    "description": "Snackbar error for insights sharing failure"
+  },
+  "watchInsightsNotReady": "ઘડિયાળની જાણકારી હજી તૈયાર નથી.",
+  "@watchInsightsNotReady": {
+    "description": "Snackbar message when insights are still loading"
+  },
+  "titleRestoredToSpotlight": "\"{title}\" સ્પોટલાઇટ પર પુનઃસ્થાપિત",
+  "@titleRestoredToSpotlight": {
+    "description": "Snackbar when a title is restored to spotlight",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "titleHasBeenHidden": "\"{title}\" છુપાયેલ છે",
+  "@titleHasBeenHidden": {
+    "description": "Snackbar when a title is hidden",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "hiddenDate": "છુપાયેલ છે: {date}",
+  "@hiddenDate": {
+    "description": "Label showing when a title was hidden",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "moviesInThisCollection": "આ સંગ્રહમાં મૂવીઝ",
+  "@moviesInThisCollection": {
+    "description": "Collection details section header"
+  },
+  "searchPlanReady": "સર્ચ પ્લાન તૈયાર છે",
+  "@searchPlanReady": {
+    "description": "Tonight watch progress message"
+  },
+  "hoursBeforeAirTime": "પ્રસારણ સમય પહેલા",
+  "@hoursBeforeAirTime": {
+    "description": "Hint for reminder time input"
+  },
+  "noUpcomingReleases": "કોઈ આગામી રિલીઝ નથી",
+  "@noUpcomingReleases": {
+    "description": "Empty state for release calendar"
+  },
+  "noRemindersSet": "કોઈ રીમાઇન્ડર સેટ નથી",
+  "@noRemindersSet": {
+    "description": "Empty state for notifications"
+  },
+  "noHiddenTitles": "કોઈ છુપાયેલા શીર્ષક નથી",
+  "@noHiddenTitles": {
+    "description": "Empty state for hidden titles"
+  },
+  "hiddenTitlesDescription": "સ્પોટલાઇટ વિભાગમાંથી તમે છુપાવેલા શીર્ષકો અહીં દેખાશે, અને તમે તેમને ગમે ત્યારે પુનઃસ્થાપિત કરી શકશો.",
+  "@hiddenTitlesDescription": {
+    "description": "Description for hidden titles screen"
+  },
+  "tvShow": "ટીવી શો",
+  "@tvShow": {
+    "description": "Label for TV show type"
+  },
+  "movie": "ફિલ્મ",
+  "@movie": {
+    "description": "Label for movie type"
+  },
+  "aiConsentGranted": "માં તમારા વ્યક્તિગત ડેટાનો ઉપયોગ કરવાની ભલામણ કરવામાં આવી છે.",
+  "@aiConsentGranted": {
+    "description": "Subtitle when AI consent is granted"
+  },
+  "aiConsentNotGranted": "જ્યાં સુધી તમે પસંદ ન કરો ત્યાં સુધી તમારો લાઇબ્રેરી ડેટા ક્યારેય શેર કરવામાં આવતો નથી.",
+  "@aiConsentNotGranted": {
+    "description": "Subtitle when AI consent is not granted"
+  },
+  "languageSettingExplanation": "મૂવીઝ અને ટીવી ટેબ્સ આનો સખત ઉપયોગ કરે છે. એક્સપ્લોર તેને પહેલા પસંદ કરે છે અને જ્યારે રેલ છૂટી પડે છે ત્યારે તે પાછું પડે છે.",
+  "@languageSettingExplanation": {
+    "description": "Explanation for content language setting"
+  },
+  "filterScreenTitle": "ફિલ્ટર્સ",
+  "@filterScreenTitle": {
+    "description": "Filter screen AppBar title"
+  },
+  "sortBy": "ક્રમમાં ગોઠવો",
+  "@sortBy": {
+    "description": "Sort by label in filters"
+  },
+  "genres": "શૈલીઓ",
+  "@genres": {
+    "description": "Genres label in filters"
+  },
+  "year": "વર્ષ",
+  "@year": {
+    "description": "Year filter label"
+  },
+  "rating": "રેટિંગ",
+  "@rating": {
+    "description": "Rating filter label"
+  },
+  "runtime": "રનટાઇમ",
+  "@runtime": {
+    "description": "Runtime filter label"
+  },
+  "withPeople": "લોકો સાથે",
+  "@withPeople": {
+    "description": "People filter label"
+  },
+  "voteCount": "મત ગણતરી દ્વારા સૉર્ટ કરો",
+  "@voteCount": {
+    "description": "Vote count filter label"
+  },
+  "today": "આજે",
+  "@today": {
+    "description": "Localized string for today"
+  },
+  "tomorrow": "કાલે",
+  "@tomorrow": {
+    "description": "Label for tomorrow's date"
+  },
+  "yesterday": "ગઈકાલે",
+  "@yesterday": {
+    "description": "Label for yesterday's date"
+  },
+  "minutes": "મિનિટ",
+  "@minutes": {
+    "description": "Abbreviation for minutes"
+  },
+  "hours": "ક",
+  "@hours": {
+    "description": "Abbreviation for hours"
+  },
+  "cast": "કાસ્ટ",
+  "@cast": {
+    "description": "Cast section title"
+  },
+  "crew": "ક્રૂ",
+  "@crew": {
+    "description": "Crew section title"
+  },
+  "director": "દિગ્દર્શક",
+  "@director": {
+    "description": "Director label"
+  },
+  "seasons": "ઋતુઓ",
+  "@seasons": {
+    "description": "Seasons label for TV shows"
+  },
+  "episodes": "એપિસોડ્સ",
+  "@episodes": {
+    "description": "Episodes label for TV shows"
+  },
+  "overview": "વિહંગાવલોકન",
+  "@overview": {
+    "description": "Overview section title"
+  },
+  "similar": "સમાન",
+  "@similar": {
+    "description": "Similar titles section"
+  },
+  "recommendations": "ભલામણો",
+  "@recommendations": {
+    "description": "Recommendations section"
+  },
+  "addedToWatchlist": "વૉચલિસ્ટમાં ઉમેર્યું",
+  "@addedToWatchlist": {
+    "description": "Snackbar after adding to watchlist"
+  },
+  "removedFromWatchlist": "વૉચલિસ્ટમાંથી કાઢી નાખ્યું",
+  "@removedFromWatchlist": {
+    "description": "Snackbar after removing from watchlist"
+  },
+  "popularity": "લોકપ્રિયતા",
+  "@popularity": {
+    "description": "Sort option: popularity"
+  },
+  "releaseDate": "પ્રકાશન તારીખ",
+  "@releaseDate": {
+    "description": "Sort option: release date"
+  },
+  "revenueLabel": "આવક",
+  "@revenueLabel": {
+    "description": "Sort option: revenue"
+  },
+  "originalTitle": "મૂળ શીર્ષક",
+  "@originalTitle": {
+    "description": "Sort option: original title"
+  },
+  "voteAverage": "મત સરેરાશ",
+  "@voteAverage": {
+    "description": "Sort option: vote average"
+  },
+  "favourites": "મનપસંદ",
+  "@favourites": {
+    "description": "Favourites section label"
+  },
+  "lists": "યાદીઓ",
+  "@lists": {
+    "description": "Localized string for lists"
+  },
+  "watched": "જોયું",
+  "@watched": {
+    "description": "Localized string for watched"
+  },
+  "all": "બધા",
+  "@all": {
+    "description": "All filter option"
+  },
+  "tv": "ટીવી",
+  "@tv": {
+    "description": "TV filter option"
+  },
+  "librarySubtitle": "સંગ્રહ, મનપસંદ, નોંધો અને જોવાયાના ઇતિહાસ દ્વારા બધું ગોઠવાયેલ રાખો.",
+  "@librarySubtitle": {
+    "description": "Watchlist screen subtitle"
+  },
+  "selectRegion": "પ્રદેશ પસંદ કરો",
+  "@selectRegion": {
+    "description": "Region selection dialog title"
+  },
+  "selectRegionDescription": "ફક્ત TMDb એન્ડપોઇન્ટ્સ જે પ્રદેશ-જાગૃત પ્રશ્નોને સપોર્ટ કરે છે તે આ પસંદગીનો ઉપયોગ કરશે.",
+  "@selectRegionDescription": {
+    "description": "Region selection dialog description"
+  },
+  "useAutoDetectedRegion": "સ્વતઃ-શોધાયેલ પ્રદેશનો ઉપયોગ કરો",
+  "@useAutoDetectedRegion": {
+    "description": "Button to use auto-detected region"
+  },
+  "reminderRemoved": "રિમાઇન્ડર દૂર કર્યું",
+  "@reminderRemoved": {
+    "description": "Localized string for reminderRemoved"
+  },
+  "releaseReminderSet": "{title} માટે રિલીઝ રિમાઇન્ડર સેટ કર્યું.",
+  "@releaseReminderSet": {
+    "description": "Snackbar when a release reminder is set",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "episodeReminderSet": "{title} માટે એપિસોડ રિમાઇન્ડર સેટ કર્યું.",
+  "@episodeReminderSet": {
+    "description": "Snackbar when an episode reminder is set",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "filteredResults": "ફિલ્ટર કરેલા પરિણામો",
+  "@filteredResults": {
+    "description": "Filtered results label"
+  },
+  "genreResults": "શૈલી પરિણામો",
+  "@genreResults": {
+    "description": "Genre results label"
+  },
+  "couldNotLoadContent": "સામગ્રી લોડ કરી શકાઈ નથી. {error}",
+  "@couldNotLoadContent": {
+    "description": "Error when content fails to load",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noContentAvailableForThisSelection": "આ પસંદગી માટે કોઈ સામગ્રી ઉપલબ્ધ નથી.",
+  "@noContentAvailableForThisSelection": {
+    "description": "Empty state when no content is available"
+  },
+  "writer": "લેખક",
+  "@writer": {
+    "description": "Writer label"
+  },
+  "actors": "અભિનેતાઓ",
+  "@actors": {
+    "description": "Actors label"
+  },
+  "noteNotFound": "નોંધ મળી નથી.",
+  "@noteNotFound": {
+    "description": "Error when note is not found"
+  },
+  "yourNotesCount": "તમારી નોંધો ({count})",
+  "@yourNotesCount": {
+    "description": "Localized string for yourNotesCount",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noteDeleted": "નોંધ કાઢી નાખી",
+  "@noteDeleted": {
+    "description": "Localized string for noteDeleted"
+  },
+  "noteDeletedWithCount": "નોંધ કાઢી નાખી ({count} સે)",
+  "@noteDeletedWithCount": {
+    "description": "Localized string for noteDeletedWithCount",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loadMore": "વધુ લોડ કરો",
+  "@loadMore": {
+    "description": "Load more button"
+  },
+  "noMoreProductionsFound": "વધુ કોઈ પ્રોડક્શન્સ મળ્યાં નથી.",
+  "@noMoreProductionsFound": {
+    "description": "No more productions in company details"
+  },
+  "noProductionsFound": "કોઈ પ્રોડક્શન્સ મળ્યાં નથી.",
+  "@noProductionsFound": {
+    "description": "No productions in company details"
+  },
+  "watchInsights": "જુઓ આંતરદૃષ્ટિ",
+  "@watchInsights": {
+    "description": "Watch insights section title"
+  },
+  "analyzingWatchHistory": "તમારા જોવાયાના ઇતિહાસનું વિશ્લેષણ કરી રહ્યું છે...",
+  "@analyzingWatchHistory": {
+    "description": "Analyzing watch history loading text"
+  },
+  "manageHiddenTitlesDescription": "સ્પોટલાઇટ વિભાગમાંથી તમે છુપાવેલા શીર્ષકોનું સંચાલન કરો.",
+  "@manageHiddenTitlesDescription": {
+    "description": "Description for hidden titles management"
+  },
+  "tmdbLanguageMetadataNote": "આ મોડમાં કેટલાક રેલ્સ છૂટાછવાયા દેખાઈ શકે છે કારણ કે કેટલોગના ભાગો માટે TMDB ભાષા મેટાડેટા અપૂર્ણ છે, જરૂરી નથી કે તે શીર્ષકો અસ્તિત્વમાં ન હોય.",
+  "@tmdbLanguageMetadataNote": {
+    "description": "Note about TMDB language metadata sparseness"
+  },
+  "tmdbDisclaimer": "આ ઉત્પાદન TMDB API નો ઉપયોગ કરે છે પરંતુ TMDB દ્વારા સમર્થન કે પ્રમાણિત નથી.",
+  "@tmdbDisclaimer": {
+    "description": "TMDB API disclaimer"
+  },
+  "useLocalLibraryForSync": "સમન્વયન માટે સ્થાનિક લાઇબ્રેરીનો ઉપયોગ કરીએ?",
+  "@useLocalLibraryForSync": {
+    "description": "Ask user to use local library for sync"
+  },
+  "themePresets": "થીમ પ્રીસેટ્સ",
+  "@themePresets": {
+    "description": "Theme presets label"
+  },
+  "exitApp": "એપ્લિકેશનમાંથી બહાર નીકળો",
+  "@exitApp": {
+    "description": "Exit app dialog title"
+  },
+  "popular": "લોકપ્રિય",
+  "@popular": {
+    "description": "Popular section label"
+  },
+  "couldNotLoadReminders": "રિમાઇન્ડર્સ લોડ કરી શકાયા નથી.\n{error}",
+  "@couldNotLoadReminders": {
+    "description": "Error loading reminders",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noRemindersSetYet": "હજુ સુધી કોઈ રિમાઇન્ડર સેટ કરેલા નથી.\nએપિસોડ ટ્રેકર અથવા મૂવી વિગતોમાંથી એક બનાવો.",
+  "@noRemindersSetYet": {
+    "description": "No reminders set yet"
+  },
+  "episodeSeasonEpisode": "એપિસોડ S{seasonNumber} • E{episodeNumber}",
+  "@episodeSeasonEpisode": {
+    "description": "Episode season and episode label",
+    "placeholders": {
+      "seasonNumber": {
+        "type": "int"
+      },
+      "episodeNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "movieRelease": "ફિલ્મ રિલીઝ",
+  "@movieRelease": {
+    "description": "Movie release reminder label"
+  },
+  "voteAverageStars": "આ એપ્લિકેશન લેબલનો gu માં અનુવાદ કરો: {voteAverage} ★",
+  "@voteAverageStars": {
+    "description": "Vote average with stars",
+    "placeholders": {
+      "voteAverage": {
+        "type": "String"
+      }
+    }
+  },
+  "addMoreTrackedContent": "તમારી વોચલિસ્ટ, મનપસંદ અથવા યાદીઓમાં વધુ મૂવીઝ અથવા શો ઉમેરો.",
+  "@addMoreTrackedContent": {
+    "description": "Add more tracked content"
+  },
+  "fastPicksDescription": "તમે પહેલાથી જ શું સાચવ્યું છે તેના આધારે ઝડપી પસંદગીઓ.",
+  "@fastPicksDescription": {
+    "description": "Fast picks based on saved content"
+  },
+  "releaseCalendarDescription": "એક-ટેપ રિમાઇન્ડર સાથે મૂવી રિલીઝ અને આગામી ટીવી એપિસોડ.",
+  "@releaseCalendarDescription": {
+    "description": "Release calendar feature description"
+  },
+  "staleWatchlist": "વાસી વોચલિસ્ટ",
+  "@staleWatchlist": {
+    "description": "Stale watchlist label"
+  },
+  "tracked": "ટ્રેક કરેલ",
+  "@tracked": {
+    "description": "Tracked tab label"
+  },
+  "upcoming": "આગામી",
+  "@upcoming": {
+    "description": "Upcoming tab label"
+  },
+  "upcomingEmptyDescription": "જ્યારે ટ્રેક કરેલી ફિલ્મોને રિલીઝ તારીખો મળે છે અથવા શોમાં નવા એપિસોડ શેડ્યૂલ કરવામાં આવે છે, ત્યારે તે અહીં દેખાશે.",
+  "@upcomingEmptyDescription": {
+    "description": "Empty state for upcoming releases"
+  },
+  "howManyMoviesWatchedEachMonth": "તમે દર મહિને કેટલી ફિલ્મો જોયા?",
+  "@howManyMoviesWatchedEachMonth": {
+    "description": "Chart description"
+  },
+  "howPersonalRatingsShifting": "સમય જતાં તમારા વ્યક્તિગત રેટિંગ કેવી રીતે બદલાઈ રહ્યા છે",
+  "@howPersonalRatingsShifting": {
+    "description": "Chart description"
+  },
+  "keepWatchingToBuildProfile": "તમારી વિઝ્યુઅલ પ્રોફાઇલ બનાવવા માટે જોતા રહો.",
+  "@keepWatchingToBuildProfile": {
+    "description": "Empty state for watch history"
+  },
+  "lumiWatchAnalytics": "લુમી વોચ એનાલિટિક્સ",
+  "@lumiWatchAnalytics": {
+    "description": "Watch analytics branding"
+  },
+  "noGenreDistributionYet": "હજુ સુધી કોઈ શૈલી વિતરણ ઉપલબ્ધ નથી.",
+  "@noGenreDistributionYet": {
+    "description": "Empty state for genre distribution"
+  },
+  "noMovieWatchHistoryRecentMonths": "તાજેતરના મહિનાઓમાં કોઈ ફિલ્મ જોવાનો ઇતિહાસ નથી.",
+  "@noMovieWatchHistoryRecentMonths": {
+    "description": "Empty state for monthly watch history"
+  },
+  "noRatingTrendDataYet": "હજુ સુધી કોઈ રેટિંગ ટ્રેન્ડ ડેટા ઉપલબ્ધ નથી.",
+  "@noRatingTrendDataYet": {
+    "description": "Empty state for rating trend"
+  },
+  "preferredRuntime": "પસંદગીનો રનટાઇમ",
+  "@preferredRuntime": {
+    "description": "Preferred runtime label"
+  },
+  "preferredRuntimeLabel": "પસંદગીનો રનટાઇમ ~{minutes} મિનિટ ({label}) છે.",
+  "@preferredRuntimeLabel": {
+    "description": "Preferred runtime text",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "styledCardWithWatchStats": "તમારા ઘડિયાળના આંકડા સાથે સ્ટાઇલ કરેલ કાર્ડ",
+  "@styledCardWithWatchStats": {
+    "description": "Share option description"
+  },
+  "titlesAnalyzed": "શીર્ષકોનું વિશ્લેષણ કર્યું",
+  "@titlesAnalyzed": {
+    "description": "Titles analyzed label"
+  },
+  "tryAgainAfterMoment": "થોડીવાર પછી ફરી પ્રયાસ કરો.",
+  "@tryAgainAfterMoment": {
+    "description": "Retry suggestion"
+  },
+  "watchAnalytics": "ઘડિયાળ વિશ્લેષણ",
+  "@watchAnalytics": {
+    "description": "Watch analytics title"
+  },
+  "whatGenresDominateHistory": "તમારા જોવાયાના ઇતિહાસમાં કયા શૈલીઓનું પ્રભુત્વ છે?",
+  "@whatGenresDominateHistory": {
+    "description": "Genre distribution description"
+  },
+  "toggleMovies": "મૂવીઝ",
+  "@toggleMovies": {
+    "description": "Movies toggle label"
+  },
+  "toggleTv": "ટીવી",
+  "@toggleTv": {
+    "description": "TV toggle label"
+  },
+  "noMoreTitlesFound": "વધુ શીર્ષકો મળ્યાં નથી.",
+  "@noMoreTitlesFound": {
+    "description": "No more titles in keyword screen"
+  },
+  "noTitlesFoundForKeyword": "આ કીવર્ડ માટે કોઈ શીર્ષક મળ્યાં નથી.",
+  "@noTitlesFoundForKeyword": {
+    "description": "No titles for keyword"
+  },
+  "viewFull": "પૂર્ણ જુઓ",
+  "@viewFull": {
+    "description": "View full episode"
+  },
+  "accoladeDetails": "પુરસ્કારની વિગતો",
+  "@accoladeDetails": {
+    "description": "Accolade details dialog title"
+  },
+  "noDetailedAwardsInfo": "પુરસ્કારોની કોઈ વિગતવાર માહિતી ઉપલબ્ધ નથી.",
+  "@noDetailedAwardsInfo": {
+    "description": "No awards details"
+  },
+  "alertSet": "ચેતવણી સેટ!",
+  "@alertSet": {
+    "description": "Alert set confirmation"
+  },
+  "budget": "બજેટ",
+  "@budget": {
+    "description": "Budget label"
+  },
+  "buy": "ખરીદો",
+  "@buy": {
+    "description": "Buy provider label"
+  },
+  "chooseBetweenHours": "૧ અને {maxHours} વચ્ચે પસંદ કરો",
+  "@chooseBetweenHours": {
+    "description": "Hours input validation",
+    "placeholders": {
+      "maxHours": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteNoteConfirmationTitle": "નોંધ કાઢી નાખીએ?",
+  "@deleteNoteConfirmationTitle": {
+    "description": "Delete note dialog title"
+  },
+  "episodeReminder": "એપિસોડ રિમાઇન્ડર",
+  "@episodeReminder": {
+    "description": "Episode reminder dialog title"
+  },
+  "facebook": "ફેસબુક",
+  "@facebook": {
+    "description": "Facebook social link"
+  },
+  "free": "મફત",
+  "@free": {
+    "description": "Free provider label"
+  },
+  "images": "છબીઓ",
+  "@images": {
+    "description": "Images section title"
+  },
+  "instagram": "ઇન્સ્ટાગ્રામ",
+  "@instagram": {
+    "description": "Instagram social link"
+  },
+  "netProfit": "ચોખ્ખો નફો",
+  "@netProfit": {
+    "description": "Net profit label"
+  },
+  "noNotesYet": "હજુ સુધી કોઈ નોંધ નથી. તમારા વિચારો ઉમેરો!",
+  "@noNotesYet": {
+    "description": "No notes yet message"
+  },
+  "originalLanguage": "મૂળ ભાષા",
+  "@originalLanguage": {
+    "description": "Original language label"
+  },
+  "partOfCollection": "{collectionName} નો ભાગ",
+  "@partOfCollection": {
+    "description": "Part of collection label",
+    "placeholders": {
+      "collectionName": {
+        "type": "String"
+      }
+    }
+  },
+  "roi": "ROI",
+  "@roi": {
+    "description": "ROI label"
+  },
+  "releaseAlertSet": "{date} માટે રિલીઝ વોચ એલર્ટ સેટ કરેલ છે.",
+  "@releaseAlertSet": {
+    "description": "Release alert set message",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rent": "ભાડું",
+  "@rent": {
+    "description": "Rent provider label"
+  },
+  "revenue": "આવક",
+  "@revenue": {
+    "description": "Revenue label"
+  },
+  "seeAllReviews": "બધા જુઓ ({count})",
+  "@seeAllReviews": {
+    "description": "See all reviews button",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "setReminder": "રીમાઇન્ડર સેટ કરો",
+  "@setReminder": {
+    "description": "Set reminder button"
+  },
+  "status": "સ્થિતિ",
+  "@status": {
+    "description": "Status label"
+  },
+  "stream": "પ્રવાહ",
+  "@stream": {
+    "description": "Stream provider label"
+  },
+  "tikTok": "ટિકટોક",
+  "@tikTok": {
+    "description": "TikTok social link"
+  },
+  "twitterX": "એક્સ",
+  "@twitterX": {
+    "description": "X social link"
+  },
+  "yours": "તમારું",
+  "@yours": {
+    "description": "Yours label"
+  },
+  "youtube": "યુટ્યુબ",
+  "@youtube": {
+    "description": "YouTube social link"
+  },
+  "durationDays": "ડી",
+  "@durationDays": {
+    "description": "Days abbreviation"
+  },
+  "durationHours": "ક",
+  "@durationHours": {
+    "description": "Hours abbreviation"
+  },
+  "durationMinutes": "મી",
+  "@durationMinutes": {
+    "description": "Minutes abbreviation"
+  },
+  "durationSeconds": "ઓ",
+  "@durationSeconds": {
+    "description": "Seconds abbreviation"
+  },
+  "seasonRating": "આ એપ્લિકેશન લેબલનો gu માં અનુવાદ કરો: ★ {score}%",
+  "@seasonRating": {
+    "description": "Season rating percentage",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "we": "અમે",
+  "@we": {
+    "description": "Localized string for we"
+  },
+  "aspect16x9": "૧૬:૯",
+  "@aspect16x9": {
+    "description": "16:9 aspect ratio"
+  },
+  "aspect9x16": "૯:૧૬",
+  "@aspect9x16": {
+    "description": "9:16 aspect ratio"
+  },
+  "background": "બીજે",
+  "@background": {
+    "description": "Background label"
+  },
+  "episodeCount": "{count} ઇપીએસ",
+  "@episodeCount": {
+    "description": "Episode count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noEpisodesForSeason": "આ સીઝન માટે કોઈ એપિસોડ મળ્યા નથી.",
+  "@noEpisodesForSeason": {
+    "description": "No episodes for season"
+  },
+  "beautifulStyledCardForStories": "સામાજિક વાર્તાઓ માટે સુંદર શૈલીનું કાર્ડ",
+  "@beautifulStyledCardForStories": {
+    "description": "Share option description"
+  },
+  "clickableShareLink": "WhatsApp અને અન્ય એપ્સ માટે ક્લિક કરી શકાય તેવી શેર લિંક",
+  "@clickableShareLink": {
+    "description": "Share option description"
+  },
+  "placeQuoteOnBackdrop": "મૂવી બેકડ્રોપ પર તમારા મનપસંદ ભાવ મૂકો",
+  "@placeQuoteOnBackdrop": {
+    "description": "Share option description"
+  },
+  "standardLinkToMovieDatabase": "મૂવી ડેટાબેઝની માનક લિંક",
+  "@standardLinkToMovieDatabase": {
+    "description": "Share option description"
+  },
+  "exploreLabel": "અન્વેષણ કરો",
+  "@exploreLabel": {
+    "description": "Explore label"
+  },
+  "quoteCharacter": "આ એપ્લિકેશન લેબલનો અનુવાદ gu માં કરો: — {character}",
+  "@quoteCharacter": {
+    "description": "Quote character attribution",
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "aiTonightWatch": "એઆઈ ટુનાઇટ વોચ",
+  "@aiTonightWatch": {
+    "description": "AI tonight watch feature"
+  },
+  "aiQueryPlan": "AI ક્વેરી પ્લાન",
+  "@aiQueryPlan": {
+    "description": "AI query plan label"
+  },
+  "airingToday": "આજે પ્રસારિત થઈ રહ્યું છે",
+  "@airingToday": {
+    "description": "Airing today section"
+  },
+  "bigCrowdPleasers": "જોરદાર ગતિ સાથે મોટી ભીડને ખુશ કરનારાઓ",
+  "@bigCrowdPleasers": {
+    "description": "Explore section subtitle"
+  },
+  "cinematic": "સિનેમેટિક",
+  "@cinematic": {
+    "description": "Mood label"
+  },
+  "comingSoon": "જલ્દી આવે છે",
+  "@comingSoon": {
+    "description": "Coming soon section"
+  },
+  "currentTheatricalSlate": "વર્તમાન થિયેટર સ્લેટ અને નજીકના ભવિષ્યમાં રિલીઝ",
+  "@currentTheatricalSlate": {
+    "description": "Explore section subtitle"
+  },
+  "dark": "શ્યામ",
+  "@dark": {
+    "description": "Mood label"
+  },
+  "discoverSpotlight": "સ્પોટલાઇટ શોધો",
+  "@discoverSpotlight": {
+    "description": "Discover spotlight title"
+  },
+  "edgeOfYourSeat": "તમારી સીટની ધાર",
+  "@edgeOfYourSeat": {
+    "description": "Mood label"
+  },
+  "fastPaced": "ઝડપી ગતિવાળું",
+  "@fastPaced": {
+    "description": "Mood label"
+  },
+  "feelGood": "સારું લાગે છે",
+  "@feelGood": {
+    "description": "Mood label"
+  },
+  "freshPicksContinuous": "તાજા પસંદગીઓ સતત અપડેટ થાય છે",
+  "@freshPicksContinuous": {
+    "description": "Explore section subtitle"
+  },
+  "hideTitle": "શીર્ષક છુપાવો",
+  "@hideTitle": {
+    "description": "Hide title dialog title"
+  },
+  "highRatedSkipped": "મોટાભાગના દર્શકો જે ઉચ્ચ રેટિંગ ધરાવતા ટાઇટલ છોડી દે છે",
+  "@highRatedSkipped": {
+    "description": "Explore section subtitle"
+  },
+  "hotNowAudience": "હવે પ્રેક્ષકોના ફીડમાં ચર્ચામાં છે",
+  "@hotNowAudience": {
+    "description": "Explore section subtitle"
+  },
+  "inTheaters": "થિયેટરોમાં",
+  "@inTheaters": {
+    "description": "In theaters section"
+  },
+  "indie": "ઇન્ડી",
+  "@indie": {
+    "description": "Mood label"
+  },
+  "mindBending": "મનને ધ્રુજાવી દે તેવું",
+  "@mindBending": {
+    "description": "Mood label"
+  },
+  "mostDiscussedShowsThisWeek": "આ અઠવાડિયાના સૌથી વધુ ચર્ચિત શો",
+  "@mostDiscussedShowsThisWeek": {
+    "description": "Explore section subtitle"
+  },
+  "multiplePicks": "બહુવિધ પસંદગીઓ",
+  "@multiplePicks": {
+    "description": "Multiple picks feature chip"
+  },
+  "onTheAir": "ઓન ધ એર",
+  "@onTheAir": {
+    "description": "On the air section"
+  },
+  "personalizedFromWatchBehavior": "તમારા ઘડિયાળના વર્તન પરથી વ્યક્તિગત કરેલ",
+  "@personalizedFromWatchBehavior": {
+    "description": "Explore section subtitle"
+  },
+  "pickAVibe": "એક વાઇબ પસંદ કરો અને તાત્કાલિક મેચિંગ ટાઇટલ મેળવો",
+  "@pickAVibe": {
+    "description": "Explore section subtitle"
+  },
+  "seeAll": "બધું જુઓ",
+  "@seeAll": {
+    "description": "See all button"
+  },
+  "seriesCurrentlyAiring": "હાલમાં સક્રિય એપિસોડ સાથે પ્રસારિત થતી શ્રેણી",
+  "@seriesCurrentlyAiring": {
+    "description": "Explore section subtitle"
+  },
+  "thisWeek": "આ અઠવાડિયે",
+  "@thisWeek": {
+    "description": "This week filter"
+  },
+  "topRated": "શ્રેષ્ઠ રેટિંગ",
+  "@topRated": {
+    "description": "Top rated section"
+  },
+  "voiceInput": "વૉઇસ ઇનપુટ",
+  "@voiceInput": {
+    "description": "Voice input feature chip"
+  },
+  "matchPercent": "{matchPct}% મેચ",
+  "@matchPercent": {
+    "description": "Match percentage",
+    "placeholders": {
+      "matchPct": {
+        "type": "String"
+      }
+    }
+  },
+  "runtimeMinutes": "{minutes} મિનિટ",
+  "@runtimeMinutes": {
+    "description": "Runtime in minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "examplePrompt": "ઉદાહરણ: ઇન્ટરસ્ટેલર જેવું કંઈક, પણ સાયન્સ ફિક્શન નહીં.",
+  "@examplePrompt": {
+    "description": "Example prompt hint"
+  },
+  "findingYourPerfectWatch": "તમારી સંપૂર્ણ ઘડિયાળ શોધી રહ્યા છીએ{dots}",
+  "@findingYourPerfectWatch": {
+    "description": "Finding recommendations loading",
+    "placeholders": {
+      "dots": {
+        "type": "String"
+      }
+    }
+  },
+  "moreLikeThis": "આના જેવું વધુ",
+  "@moreLikeThis": {
+    "description": "More like this button"
+  },
+  "notForMe": "મારા માટે નહીં",
+  "@notForMe": {
+    "description": "Not for me button"
+  },
+  "recentQueries": "તાજેતરની ક્વેરી",
+  "@recentQueries": {
+    "description": "Recent queries section"
+  },
+  "shufflingIdeas": "વિચારોને બદલી રહ્યા છીએ...",
+  "@shufflingIdeas": {
+    "description": "Shuffling ideas loading"
+  },
+  "tooMainstream": "ખૂબ જ મુખ્ય પ્રવાહ",
+  "@tooMainstream": {
+    "description": "Too mainstream button"
+  },
+  "whatShouldIWatchTonight": "આજે રાત્રે મારે શું જોવું જોઈએ?",
+  "@whatShouldIWatchTonight": {
+    "description": "Tonight feature title"
+  },
+  "debugLogEntry": "આ એપ્લિકેશન લેબલનો અનુવાદ gu માં કરો: [{time}] {message}",
+  "@debugLogEntry": {
+    "description": "Debug log entry",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "from": "પ્રતિ",
+  "@from": {
+    "description": "From filter label"
+  },
+  "to": "પ્રતિ",
+  "@to": {
+    "description": "To filter label"
+  },
+  "removedFromWatchlistCountdown": "વોચલિસ્ટમાંથી દૂર કર્યું ({seconds} સે)",
+  "@removedFromWatchlistCountdown": {
+    "description": "Removed from watchlist with countdown",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "creditsCount": "{count} ક્રેડિટ્સ",
+  "@creditsCount": {
+    "description": "Person credits count",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "acrossFilmography": "ફિલ્મોગ્રાફીનો સમગ્ર અનુભવ",
+  "@acrossFilmography": {
+    "description": "Across filmography label"
+  },
+  "birthplace": "જન્મસ્થળ",
+  "@birthplace": {
+    "description": "Birthplace label"
+  },
+  "born": "જન્મ",
+  "@born": {
+    "description": "Born label"
+  },
+  "credits": "ક્રેડિટ્સ",
+  "@credits": {
+    "description": "Credits label"
+  },
+  "died": "મૃત્યુ પામ્યા",
+  "@died": {
+    "description": "Died label"
+  },
+  "knownFor": "માટે જાણીતા",
+  "@knownFor": {
+    "description": "Known for label"
+  },
+  "noSharedTitlesAvailable": "કોઈ શેર કરેલ શીર્ષકો ઉપલબ્ધ નથી.",
+  "@noSharedTitlesAvailable": {
+    "description": "No shared titles available"
+  },
+  "photos": "ફોટા",
+  "@photos": {
+    "description": "Photos section"
+  },
+  "personRating": "રેટિંગ",
+  "@personRating": {
+    "description": "Rating column header"
+  },
+  "taggedImages": "ટૅગ કરેલી છબીઓ",
+  "@taggedImages": {
+    "description": "Tagged images section"
+  },
+  "website": "વેબસાઇટ",
+  "@website": {
+    "description": "Website link"
+  },
+  "noQuotesFound": "કોઈ અવતરણચિહ્નો મળ્યાં નથી.",
+  "@noQuotesFound": {
+    "description": "No quotes found"
+  },
+  "noSectionsFound": "કોઈ વિભાગો મળ્યા નથી.",
+  "@noSectionsFound": {
+    "description": "No sections found"
+  },
+  "clearAll": "બધું સાફ કરો",
+  "@clearAll": {
+    "description": "Clear all button"
+  },
+  "noCollectionsFound": "કોઈ સંગ્રહ મળ્યો નથી",
+  "@noCollectionsFound": {
+    "description": "No collections found"
+  },
+  "noCompaniesFound": "કોઈ કંપનીઓ મળી નથી.",
+  "@noCompaniesFound": {
+    "description": "No companies found"
+  },
+  "noKeywordsFound": "કોઈ કીવર્ડ મળ્યા નથી.",
+  "@noKeywordsFound": {
+    "description": "No keywords found"
+  },
+  "noMoreResultsFound": "કોઈ વધુ પરિણામો મળ્યાં નથી.",
+  "@noMoreResultsFound": {
+    "description": "No more search results"
+  },
+  "noResultsFound": "કોઈ પરિણામ મળ્યું નથી.",
+  "@noResultsFound": {
+    "description": "No search results"
+  },
+  "deleteListConfirmation": "શું તમે ખરેખર {listName} ને કાઢી નાખવા માંગો છો?",
+  "@deleteListConfirmation": {
+    "description": "Delete list confirmation",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteListTitle": "યાદી કાઢી નાખીએ?",
+  "@deleteListTitle": {
+    "description": "Delete list dialog title"
+  },
+  "everythingYouPlanToWatch": "તમે આગળ શું જોવાનું વિચારી રહ્યા છો તે બધું.",
+  "@everythingYouPlanToWatch": {
+    "description": "Watchlist section description"
+  },
+  "finishedTitlesAndHistory": "પૂર્ણ થયેલા શીર્ષકો વત્તા તમારો ઇતિહાસ અને આંકડા.",
+  "@finishedTitlesAndHistory": {
+    "description": "Watched section description"
+  },
+  "noListsCreatedYet": "હજુ સુધી કોઈ યાદીઓ બનાવવામાં આવી નથી.",
+  "@noListsCreatedYet": {
+    "description": "No lists created"
+  },
+  "noNotesFound": "કોઈ નોંધ મળી નથી",
+  "@noNotesFound": {
+    "description": "Localized string for noNotesFound"
+  },
+  "renameList": "યાદીનું નામ બદલો",
+  "@renameList": {
+    "description": "Rename list dialog title"
+  },
+  "titlesYouNeverWantToLose": "એવા ટાઇટલ જે તમે ક્યારેય ગુમાવવા માંગતા નથી.",
+  "@titlesYouNeverWantToLose": {
+    "description": "Favourites section description"
+  },
+  "yourThoughtsReactions": "તમારા વિચારો, પ્રતિક્રિયાઓ અને યાદો.",
+  "@yourThoughtsReactions": {
+    "description": "Notes section description"
+  },
+  "imageCounter": "આ એપ્લિકેશન લેબલનો અનુવાદ gu માં કરો: {current} / {total}",
+  "@imageCounter": {
+    "description": "Image counter",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "removeFromWatchedConfirmation": "શું તમે ખરેખર આને તમારી જોયેલી સૂચિમાંથી દૂર કરવા માંગો છો?",
+  "@removeFromWatchedConfirmation": {
+    "description": "Remove from watched confirmation"
+  },
+  "savedAsWatchedWithoutRating": "આને વ્યક્તિગત રેટિંગ વિના જોયેલું તરીકે સાચવવામાં આવશે.",
+  "@savedAsWatchedWithoutRating": {
+    "description": "Saved as watched without rating"
+  },
+  "noAdditionalRecommendationTrailers": "કોઈ વધારાના ભલામણ ટ્રેઇલર્સ મળ્યા નથી.",
+  "@noAdditionalRecommendationTrailers": {
+    "description": "No recommendation trailers"
+  },
+  "sharedListItemsCount": "આ એપ્લિકેશન લેબલનો અનુવાદ gu માં કરો: {count} {itemLabel}",
+  "@sharedListItemsCount": {
+    "description": "Shared list items count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "itemLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidSharedListLink": "લિંક અમાન્ય, સમયસીમા સમાપ્ત થઈ ગઈ હોઈ શકે છે, અથવા હવે ઍક્સેસિબલ રહેશે નહીં.",
+  "@invalidSharedListLink": {
+    "description": "Invalid shared list link"
+  },
+  "noTitlesAvailableToImport": "આયાત કરવા માટે કોઈ શીર્ષકો ઉપલબ્ધ નથી.",
+  "@noTitlesAvailableToImport": {
+    "description": "No titles to import"
+  },
+  "allLanguages": "બધી ભાષાઓ",
+  "@allLanguages": {
+    "description": "Language name: All Languages"
+  },
+  "arabic": "અરબી",
+  "@arabic": {
+    "description": "Language name: Arabic"
+  },
+  "bengali": "બંગાળી",
+  "@bengali": {
+    "description": "Language name: Bengali"
+  },
+  "chinese": "ચાઇનીઝ",
+  "@chinese": {
+    "description": "Language name: Chinese"
+  },
+  "english": "અંગ્રેજી",
+  "@english": {
+    "description": "Language name: English"
+  },
+  "french": "ફ્રેન્ચ",
+  "@french": {
+    "description": "Language name: French"
+  },
+  "german": "જર્મન",
+  "@german": {
+    "description": "Language name: German"
+  },
+  "gujarati": "ગુજરાતી",
+  "@gujarati": {
+    "description": "Language name: Gujarati"
+  },
+  "hindi": "હિન્દી",
+  "@hindi": {
+    "description": "Language name: Hindi"
+  },
+  "indonesian": "ઇન્ડોનેશિયન",
+  "@indonesian": {
+    "description": "Language name: Indonesian"
+  },
+  "italian": "ઇટાલિયન",
+  "@italian": {
+    "description": "Language name: Italian"
+  },
+  "japanese": "જાપાનીઝ",
+  "@japanese": {
+    "description": "Language name: Japanese"
+  },
+  "kannada": "કન્નડ",
+  "@kannada": {
+    "description": "Language name: Kannada"
+  },
+  "korean": "કોરિયન",
+  "@korean": {
+    "description": "Language name: Korean"
+  },
+  "malayalam": "મલયાલમ",
+  "@malayalam": {
+    "description": "Language name: Malayalam"
+  },
+  "marathi": "મરાઠી",
+  "@marathi": {
+    "description": "Language name: Marathi"
+  },
+  "persian": "પર્શિયન",
+  "@persian": {
+    "description": "Language name: Persian"
+  },
+  "polish": "પોલિશ",
+  "@polish": {
+    "description": "Language name: Polish"
+  },
+  "portuguese": "પોર્ટુગીઝ",
+  "@portuguese": {
+    "description": "Language name: Portuguese"
+  },
+  "punjabi": "પંજાબી",
+  "@punjabi": {
+    "description": "Language name: Punjabi"
+  },
+  "russian": "રશિયન",
+  "@russian": {
+    "description": "Language name: Russian"
+  },
+  "spanish": "સ્પેનિશ",
+  "@spanish": {
+    "description": "Language name: Spanish"
+  },
+  "swedish": "સ્વીડિશ",
+  "@swedish": {
+    "description": "Language name: Swedish"
+  },
+  "tamil": "તમિલ",
+  "@tamil": {
+    "description": "Language name: Tamil"
+  },
+  "telugu": "તેલુગુ",
+  "@telugu": {
+    "description": "Language name: Telugu"
+  },
+  "thai": "થાઈ",
+  "@thai": {
+    "description": "Language name: Thai"
+  },
+  "turkish": "ટર્કિશ",
+  "@turkish": {
+    "description": "Language name: Turkish"
+  },
+  "urdu": "ઉર્દુ",
+  "@urdu": {
+    "description": "Language name: Urdu"
+  },
+  "vietnamese": "વિયેતનામીસ",
+  "@vietnamese": {
+    "description": "Language name: Vietnamese"
+  },
+  "failedToLoadCollectionDetails": "સંગ્રહ વિગતો લોડ કરવામાં નિષ્ફળ થયાં",
+  "@failedToLoadCollectionDetails": {
+    "description": "Localized string for failedToLoadCollectionDetails"
+  },
+  "franchiseProgress": "ફ્રેન્ચાઇઝ પ્રગતિ",
+  "@franchiseProgress": {
+    "description": "Localized string for franchiseProgress"
+  },
+  "officialSite": "સત્તાવાર સાઇટ",
+  "@officialSite": {
+    "description": "Localized string for officialSite"
+  },
+  "productions": "પ્રોડક્શન્સ",
+  "@productions": {
+    "description": "Localized string for productions"
+  },
+  "productionCompany": "ઉત્પાદન કંપની",
+  "@productionCompany": {
+    "description": "Localized string for productionCompany"
+  },
+  "failedToLoadCompanyInfo": "કંપનીની માહિતી લોડ કરવામાં નિષ્ફળ થયાં",
+  "@failedToLoadCompanyInfo": {
+    "description": "Localized string for failedToLoadCompanyInfo"
+  },
+  "profile": "પ્રોફાઇલ",
+  "@profile": {
+    "description": "Localized string for profile"
+  },
+  "guestViewer": "મહેમાન દર્શક",
+  "@guestViewer": {
+    "description": "Localized string for guestViewer"
+  },
+  "yourProfileSyncStateRegionPreferences": "તમારી પ્રોફાઇલ, સિંક સ્થિતિ, પ્રદેશ અને વિઝ્યુઅલ પસંદગીઓ બધું અહીં રહે છે.",
+  "@yourProfileSyncStateRegionPreferences": {
+    "description": "Localized string for yourProfileSyncStateRegionPreferences"
+  },
+  "signInToSync": "તમારી વોચલિસ્ટ, રેટિંગ અને પસંદગીઓને સમન્વયિત કરવા માટે સાઇન ઇન કરો.",
+  "@signInToSync": {
+    "description": "Localized string for signInToSync"
+  },
+  "signedInAndSyncing": "સાઇન ઇન કર્યું છે અને ક્લાઉડ સાથે સિંક કરી રહ્યું છે.",
+  "@signedInAndSyncing": {
+    "description": "Localized string for signedInAndSyncing"
+  },
+  "developedBy": "દ્વારા વિકસિત",
+  "@developedBy": {
+    "description": "Localized string for developedBy"
+  },
+  "couldNotAnalyzeWatchHistory": "હમણાં જોવાયાના ઇતિહાસનું વિશ્લેષણ કરી શકાયું નથી.",
+  "@couldNotAnalyzeWatchHistory": {
+    "description": "Localized string for couldNotAnalyzeWatchHistory"
+  },
+  "includeLocalLibrary": "સ્થાનિક લાઇબ્રેરી શામેલ કરો",
+  "@includeLocalLibrary": {
+    "description": "Localized string for includeLocalLibrary"
+  },
+  "useCloudOnly": "ફક્ત ક્લાઉડનો ઉપયોગ કરો",
+  "@useCloudOnly": {
+    "description": "Localized string for useCloudOnly"
+  },
+  "localLibrarySyncDescription": "આ ઉપકરણમાં પહેલાથી જ સ્થાનિક લાઇબ્રેરી શીર્ષકો છે. તેમને તમારી સાઇન-ઇન કરેલી લાઇબ્રેરીમાં શામેલ કરો, અથવા સ્થાનિક લાઇબ્રેરી ડેટાને તમારી ક્લાઉડ લાઇબ્રેરીથી બદલો.",
+  "@localLibrarySyncDescription": {
+    "description": "Localized string for localLibrarySyncDescription"
+  },
+  "mergedLocalTitles": "તમારી સાઇન-ઇન કરેલી લાઇબ્રેરીમાં સ્થાનિક શીર્ષકો મર્જ કર્યા.",
+  "@mergedLocalTitles": {
+    "description": "Localized string for mergedLocalTitles"
+  },
+  "replacedLocalLibrary": "સ્થાનિક લાઇબ્રેરી ડેટાને તમારી ક્લાઉડ લાઇબ્રેરીથી બદલી નાખ્યો.",
+  "@replacedLocalLibrary": {
+    "description": "Localized string for replacedLocalLibrary"
+  },
+  "deleteAccountConfirmation": "આ તમારા Lumi એકાઉન્ટ અને સમન્વયિત ક્લાઉડ ડેટાને કાયમી ધોરણે કાઢી નાખશે. જ્યાં સુધી તમે એપ્લિકેશન ડેટા અલગથી દૂર નહીં કરો ત્યાં સુધી આ ઉપકરણ પરનો સ્થાનિક ડેટા રહેશે.",
+  "@deleteAccountConfirmation": {
+    "description": "Localized string for deleteAccountConfirmation"
+  },
+  "signedOutAndCleared": "આ ઉપકરણ પર સાઇન આઉટ કર્યું અને સ્થાનિક લાઇબ્રેરી સાફ કરી.",
+  "@signedOutAndCleared": {
+    "description": "Localized string for signedOutAndCleared"
+  },
+  "keepLocalLibrary": "સ્થાનિક પુસ્તકાલય રાખો",
+  "@keepLocalLibrary": {
+    "description": "Localized string for keepLocalLibrary"
+  },
+  "clearLocalLibrary": "સ્થાનિક લાઇબ્રેરી સાફ કરો",
+  "@clearLocalLibrary": {
+    "description": "Localized string for clearLocalLibrary"
+  },
+  "signOutChoiceDescription": "સાઇન આઉટ કર્યા પછી આ ઉપકરણ પર સ્થાનિક લાઇબ્રેરી રાખવી કે નહીં તે પસંદ કરો.",
+  "@signOutChoiceDescription": {
+    "description": "Localized string for signOutChoiceDescription"
+  },
+  "disable": "અક્ષમ કરો",
+  "@disable": {
+    "description": "Localized string for disable"
+  },
+  "aiRecommendationsEnabled": "AI ભલામણો ડેટા શેરિંગ સક્ષમ.",
+  "@aiRecommendationsEnabled": {
+    "description": "Localized string for aiRecommendationsEnabled"
+  },
+  "aiRecommendationsDisabled": "AI ભલામણો ડેટા શેરિંગ અક્ષમ કરેલ છે.",
+  "@aiRecommendationsDisabled": {
+    "description": "Localized string for aiRecommendationsDisabled"
+  },
+  "reviewAndManageConsent": "AI પ્રદાતાઓને લાઇબ્રેરી ડેટા મોકલવા માટે સંમતિની સમીક્ષા કરો અને તેનું સંચાલન કરો.",
+  "@reviewAndManageConsent": {
+    "description": "Localized string for reviewAndManageConsent"
+  },
+  "aiRecommendationsEnabledSubtitle": "સક્ષમ. રેકમેન્ડ ટુનાઇટ તમારા લાઇબ્રેરી સારાંશ અને તાજેતરના પ્રશ્નો AI પ્રદાતાઓને મોકલી શકે છે.",
+  "@aiRecommendationsEnabledSubtitle": {
+    "description": "Localized string for aiRecommendationsEnabledSubtitle"
+  },
+  "basedOnWatchedTitles": "{count} જોયેલા શીર્ષકો પર આધારિત",
+  "@basedOnWatchedTitles": {
+    "description": "Localized string for basedOnWatchedTitles",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lastUpdated": "છેલ્લે અપડેટ: {date}",
+  "@lastUpdated": {
+    "description": "Localized string for lastUpdated",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseYourVibe": "તમારો સ્વભાવ પસંદ કરો",
+  "@chooseYourVibe": {
+    "description": "Localized string for chooseYourVibe"
+  },
+  "appearanceDescription": "કોઈપણ વર્તન બદલ્યા વિના, સિનેમેટિક વ્યક્તિત્વો વચ્ચે એપ્લિકેશનની અદલાબદલી કરો.",
+  "@appearanceDescription": {
+    "description": "Localized string for appearanceDescription"
+  },
+  "exitAppConfirmation": "શું તમે ખરેખર Lumi માંથી બહાર નીકળવા માંગો છો?",
+  "@exitAppConfirmation": {
+    "description": "Localized string for exitAppConfirmation"
+  },
+  "dismiss": "કાઢી નાખો",
+  "@dismiss": {
+    "description": "Localized string for dismiss"
+  },
+  "generatingWatchAnalytics": "વોચ એનાલિટિક્સ જનરેટ કરી રહ્યા છીએ",
+  "@generatingWatchAnalytics": {
+    "description": "Localized string for generatingWatchAnalytics"
+  },
+  "thisUsuallyTakesAFewSeconds": "આમાં સામાન્ય રીતે થોડીક સેકન્ડ લાગે છે.",
+  "@thisUsuallyTakesAFewSeconds": {
+    "description": "Localized string for thisUsuallyTakesAFewSeconds"
+  },
+  "yourScreenStory": "તમારી સ્ક્રીન સ્ટોરી",
+  "@yourScreenStory": {
+    "description": "Localized string for yourScreenStory"
+  },
+  "snapshotOfHowAndWhatYouWatch": "તમે કેવી રીતે અને શું જુઓ છો તેનો સ્નેપશોટ",
+  "@snapshotOfHowAndWhatYouWatch": {
+    "description": "Localized string for snapshotOfHowAndWhatYouWatch"
+  },
+  "yourFavoriteGenres": "તમારી મનપસંદ શૈલીઓ",
+  "@yourFavoriteGenres": {
+    "description": "Localized string for yourFavoriteGenres"
+  },
+  "genrePerformanceHighestRated": "શૈલી પ્રદર્શન (સૌથી વધુ રેટિંગ)",
+  "@genrePerformanceHighestRated": {
+    "description": "Localized string for genrePerformanceHighestRated"
+  },
+  "personalizedViewingPatterns": "વ્યક્તિગત જોવાના દાખલા",
+  "@personalizedViewingPatterns": {
+    "description": "Localized string for personalizedViewingPatterns"
+  },
+  "builtWithLumi": "લુમી સાથે બનેલ",
+  "@builtWithLumi": {
+    "description": "Localized string for builtWithLumi"
+  },
+  "sharedWithLumi": "લુમી સાથે શેર કર્યું",
+  "@sharedWithLumi": {
+    "description": "Localized string for sharedWithLumi"
+  },
+  "shareAnalytics": "વિશ્લેષણ શેર કરો",
+  "@shareAnalytics": {
+    "description": "Localized string for shareAnalytics"
+  },
+  "analyzedTitlesUpdated": "વિશ્લેષણ કરેલ {count} શીર્ષકો • અપડેટ કરેલ {date}",
+  "@analyzedTitlesUpdated": {
+    "description": "Localized string for analyzedTitlesUpdated",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "allSeasons": "બધી ઋતુઓ",
+  "@allSeasons": {
+    "description": "Localized string for allSeasons"
+  },
+  "castAndCrew": "કલાકારો અને ક્રૂ",
+  "@castAndCrew": {
+    "description": "Localized string for castAndCrew"
+  },
+  "featuredCrew": "ફીચર્ડ ક્રૂ",
+  "@featuredCrew": {
+    "description": "Localized string for featuredCrew"
+  },
+  "stills": "સ્ટિલ્સ",
+  "@stills": {
+    "description": "Localized string for stills"
+  },
+  "accoladeSummary": "પુરસ્કાર સારાંશ",
+  "@accoladeSummary": {
+    "description": "Localized string for accoladeSummary"
+  },
+  "awardsAndAccolades": "પુરસ્કારો અને પ્રશંસા",
+  "@awardsAndAccolades": {
+    "description": "Localized string for awardsAndAccolades"
+  },
+  "unableToLoadMovieDetails": "મૂવીની વિગતો લોડ કરી શકાતી નથી",
+  "@unableToLoadMovieDetails": {
+    "description": "Localized string for unableToLoadMovieDetails"
+  },
+  "overviewUnavailable": "આ શીર્ષક માટે ઝાંખી ઉપલબ્ધ નથી.",
+  "@overviewUnavailable": {
+    "description": "Localized string for overviewUnavailable"
+  },
+  "openCompletePlot": "OMDb માંથી સંપૂર્ણ પ્લોટ અને વધારાનો મેટાડેટા ખોલો.",
+  "@openCompletePlot": {
+    "description": "Localized string for openCompletePlot"
+  },
+  "noOverviewForSeason": "આ સીઝન માટે કોઈ ઝાંખી ઉપલબ્ધ નથી.",
+  "@noOverviewForSeason": {
+    "description": "Localized string for noOverviewForSeason"
+  },
+  "userScore": "વપરાશકર્તા સ્કોર",
+  "@userScore": {
+    "description": "Localized string for userScore"
+  },
+  "playTrailer": "ટ્રેલર ચલાવો",
+  "@playTrailer": {
+    "description": "Localized string for playTrailer"
+  },
+  "whereToWatch": "ક્યાં જોવું",
+  "@whereToWatch": {
+    "description": "Localized string for whereToWatch"
+  },
+  "availabilityDataByJustWatch": "જસ્ટવોચ દ્વારા ઉપલબ્ધતા ડેટા.",
+  "@availabilityDataByJustWatch": {
+    "description": "Localized string for availabilityDataByJustWatch"
+  },
+  "reminderSaved": "રિમાઇન્ડર સાચવ્યું",
+  "@reminderSaved": {
+    "description": "Localized string for reminderSaved"
+  },
+  "reminderForTitle": "{title} માટે રિમાઇન્ડર",
+  "@reminderForTitle": {
+    "description": "Localized string for reminderForTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "pleaseSelectFutureTime": "કૃપા કરીને ભવિષ્યનો સમય પસંદ કરો",
+  "@pleaseSelectFutureTime": {
+    "description": "Localized string for pleaseSelectFutureTime"
+  },
+  "notifyAt": "સૂચિત કરો",
+  "@notifyAt": {
+    "description": "Localized string for notifyAt"
+  },
+  "notifyHoursBeforeAiring": "પ્રસારણના કેટલા કલાક પહેલા જાણ કરવી?",
+  "@notifyHoursBeforeAiring": {
+    "description": "Localized string for notifyHoursBeforeAiring"
+  },
+  "enterNumberBetween": "૧ અને {maxHours} વચ્ચેનો નંબર દાખલ કરો",
+  "@enterNumberBetween": {
+    "description": "Localized string for enterNumberBetween",
+    "placeholders": {
+      "maxHours": {
+        "type": "String"
+      }
+    }
+  },
+  "set": "સેટ",
+  "@set": {
+    "description": "Localized string for set"
+  },
+  "selectedReminderTimePassed": "પસંદ કરેલ રિમાઇન્ડર સમય પહેલાથી જ પસાર થઈ ગયો છે.",
+  "@selectedReminderTimePassed": {
+    "description": "Localized string for selectedReminderTimePassed"
+  },
+  "episodeReminderSaved": "{date} માટે એપિસોડ રિમાઇન્ડર સાચવ્યું",
+  "@episodeReminderSaved": {
+    "description": "Localized string for episodeReminderSaved",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "areYouSureDeleteNote": "શું તમે ખરેખર આ નોંધ કાઢી નાખવા માંગો છો?",
+  "@areYouSureDeleteNote": {
+    "description": "Localized string for areYouSureDeleteNote"
+  },
+  "noteAdded": "નોંધ ઉમેરી",
+  "@noteAdded": {
+    "description": "Localized string for noteAdded"
+  },
+  "lastSeason": "છેલ્લી સીઝન",
+  "@lastSeason": {
+    "description": "Localized string for lastSeason"
+  },
+  "currentSeason": "વર્તમાન સીઝન",
+  "@currentSeason": {
+    "description": "Localized string for currentSeason"
+  },
+  "viewAllSeasons": "બધી સીઝન જુઓ",
+  "@viewAllSeasons": {
+    "description": "Localized string for viewAllSeasons"
+  },
+  "removedFromFavourites": "મનપસંદમાંથી દૂર કર્યું",
+  "@removedFromFavourites": {
+    "description": "Localized string for removedFromFavourites"
+  },
+  "addedToFavourites": "મનપસંદમાં ઉમેર્યું",
+  "@addedToFavourites": {
+    "description": "Localized string for addedToFavourites"
+  },
+  "awardsAndNominations": "પુરસ્કારો અને નામાંકનો",
+  "@awardsAndNominations": {
+    "description": "Localized string for awardsAndNominations"
+  },
+  "viewAll": "બધું જુઓ",
+  "@viewAll": {
+    "description": "Localized string for viewAll"
+  },
+  "boxOfficeFinancials": "બોક્સ ઓફિસ ફાઇનાન્શિયલ્સ",
+  "@boxOfficeFinancials": {
+    "description": "Localized string for boxOfficeFinancials"
+  },
+  "successMeter": "સફળતા માપક",
+  "@successMeter": {
+    "description": "Localized string for successMeter"
+  },
+  "blockbuster": "બ્લોકબસ્ટર",
+  "@blockbuster": {
+    "description": "Localized string for blockbuster"
+  },
+  "hit": "હિટ",
+  "@hit": {
+    "description": "Localized string for hit"
+  },
+  "breakEven": "બ્રેક-ઈવન",
+  "@breakEven": {
+    "description": "Localized string for breakEven"
+  },
+  "underperformer": "અંડરપર્ફોર્મર",
+  "@underperformer": {
+    "description": "Localized string for underperformer"
+  },
+  "boxOfficeBomb": "બોક્સ ઓફિસ બોમ્બ",
+  "@boxOfficeBomb": {
+    "description": "Localized string for boxOfficeBomb"
+  },
+  "episodeTracker": "એપિસોડ ટ્રેકર",
+  "@episodeTracker": {
+    "description": "Localized string for episodeTracker"
+  },
+  "setAiringReminder": "પ્રસારણ રિમાઇન્ડર સેટ કરો",
+  "@setAiringReminder": {
+    "description": "Localized string for setAiringReminder"
+  },
+  "nextEpisodeCountdown": "આગામી એપિસોડનું કાઉન્ટડાઉન",
+  "@nextEpisodeCountdown": {
+    "description": "Localized string for nextEpisodeCountdown"
+  },
+  "nextEpisode": "આગામી એપિસોડ",
+  "@nextEpisode": {
+    "description": "Localized string for nextEpisode"
+  },
+  "lastEpisodeToAir": "છેલ્લો એપિસોડ પ્રસારિત થયો",
+  "@lastEpisodeToAir": {
+    "description": "Localized string for lastEpisodeToAir"
+  },
+  "unknown": "અજ્ઞાત",
+  "@unknown": {
+    "description": "Localized string for unknown"
+  },
+  "contentAdvisory": "સામગ્રી સલાહકાર",
+  "@contentAdvisory": {
+    "description": "Localized string for contentAdvisory"
+  },
+  "violence": "હિંસા",
+  "@violence": {
+    "description": "Localized string for violence"
+  },
+  "sexAndNudity": "સેક્સ અને નગ્નતા",
+  "@sexAndNudity": {
+    "description": "Localized string for sexAndNudity"
+  },
+  "foulLanguage": "ભાષા",
+  "@foulLanguage": {
+    "description": "Localized string for foulLanguage"
+  },
+  "substances": "પદાર્થો",
+  "@substances": {
+    "description": "Localized string for substances"
+  },
+  "fearAndHorror": "ભય અને ભયાનકતા",
+  "@fearAndHorror": {
+    "description": "Localized string for fearAndHorror"
+  },
+  "familyFriendly": "કૌટુંબિક મૈત્રીપૂર્ણ",
+  "@familyFriendly": {
+    "description": "Localized string for familyFriendly"
+  },
+  "generalAudience": "સામાન્ય પ્રેક્ષકો",
+  "@generalAudience": {
+    "description": "Localized string for generalAudience"
+  },
+  "releaseTimeline": "પ્રકાશન સમયરેખા",
+  "@releaseTimeline": {
+    "description": "Localized string for releaseTimeline"
+  },
+  "notifyMe": "મને સૂચિત કરો",
+  "@notifyMe": {
+    "description": "Localized string for notifyMe"
+  },
+  "theatricalRelease": "થિયેટર રિલીઝ",
+  "@theatricalRelease": {
+    "description": "Localized string for theatricalRelease"
+  },
+  "digitalStreaming": "ડિજિટલ / સ્ટ્રીમિંગ",
+  "@digitalStreaming": {
+    "description": "Localized string for digitalStreaming"
+  },
+  "physicalRelease": "ભૌતિક (બ્લુ-રે / ડીવીડી)",
+  "@physicalRelease": {
+    "description": "Localized string for physicalRelease"
+  },
+  "awesome": "અદ્ભુત",
+  "@awesome": {
+    "description": "Localized string for awesome"
+  },
+  "keywordsAndThemes": "કીવર્ડ્સ અને થીમ્સ",
+  "@keywordsAndThemes": {
+    "description": "Localized string for keywordsAndThemes"
+  },
+  "videosAndBehindTheScenes": "વિડિઓઝ અને પડદા પાછળની ઘટનાઓ",
+  "@videosAndBehindTheScenes": {
+    "description": "Localized string for videosAndBehindTheScenes"
+  },
+  "productionStudios": "પ્રોડક્શન સ્ટુડિયો",
+  "@productionStudios": {
+    "description": "Localized string for productionStudios"
+  },
+  "fetchingWatchLink": "ઘડિયાળની લિંક મેળવી રહ્યા છીએ",
+  "@fetchingWatchLink": {
+    "description": "Localized string for fetchingWatchLink"
+  },
+  "findingBestProviderPage": "આ શીર્ષક માટે શ્રેષ્ઠ પ્રદાતા પૃષ્ઠ શોધી રહ્યું છે.",
+  "@findingBestProviderPage": {
+    "description": "Localized string for findingBestProviderPage"
+  },
+  "episodeCode": "S{season}E{episode}",
+  "@episodeCode": {
+    "description": "Localized string for episodeCode",
+    "placeholders": {
+      "season": {
+        "type": "String"
+      },
+      "episode": {
+        "type": "String"
+      }
+    }
+  },
+  "error": "ભૂલ",
+  "@error": {
+    "description": "Localized string for error"
+  },
+  "failedToLoadSeasonDetails": "સીઝનની વિગતો લોડ કરવામાં નિષ્ફળ થયાં",
+  "@failedToLoadSeasonDetails": {
+    "description": "Localized string for failedToLoadSeasonDetails"
+  },
+  "loading": "લોડ કરી રહ્યું છે...",
+  "@loading": {
+    "description": "Localized string for loading"
+  },
+  "runtimeSeparator": "આ એપ્લિકેશન લેબલનો અનુવાદ gu માં કરો: • {runtime}",
+  "@runtimeSeparator": {
+    "description": "Localized string for runtimeSeparator",
+    "placeholders": {
+      "runtime": {
+        "type": "String"
+      }
+    }
+  },
+  "fullCastAndCrew": "સંપૂર્ણ કલાકારો અને ક્રૂ",
+  "@fullCastAndCrew": {
+    "description": "Localized string for fullCastAndCrew"
+  },
+  "shareMovie": "મૂવી શેર કરો",
+  "@shareMovie": {
+    "description": "Localized string for shareMovie"
+  },
+  "quotes": "અવતરણ",
+  "@quotes": {
+    "description": "Localized string for quotes"
+  },
+  "mayIncludeMismatches": "લેક્સિકલ ક્વોટ શોધને કારણે પ્રસંગોપાત મેળ ખાતી નથી.",
+  "@mayIncludeMismatches": {
+    "description": "Localized string for mayIncludeMismatches"
+  },
+  "movieApiConfigurationRequired": "મૂવી API ગોઠવણી જરૂરી છે",
+  "@movieApiConfigurationRequired": {
+    "description": "Localized string for movieApiConfigurationRequired"
+  },
+  "addMovieProxyBaseUrl": "એપ્લિકેશનને TMDB પ્રોક્સી સાથે કનેક્ટ કરવા માટે MOVIE_PROXY_BASE_URL ઉમેરો.",
+  "@addMovieProxyBaseUrl": {
+    "description": "Localized string for addMovieProxyBaseUrl"
+  },
+  "cinematicPicksContext": "ઇન્સ્ટન્ટ વાઇબ સંદર્ભ સાથે સિનેમેટિક પસંદગીઓ. બીજા સરપ્રાઇઝ કાર્ડ માટે રોલ કરો.",
+  "@cinematicPicksContext": {
+    "description": "Localized string for cinematicPicksContext"
+  },
+  "curatedTonight": "આજે રાત્રે ક્યુરેટ કરેલ",
+  "@curatedTonight": {
+    "description": "Localized string for curatedTonight"
+  },
+  "curatedTonightTitle": "આજે રાત્રે ક્યુરેટ કરેલ: {title}",
+  "@curatedTonightTitle": {
+    "description": "Localized string for curatedTonightTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "describeItYourWay": "તેને તમારી રીતે વર્ણવો.\nઅમે શ્રેષ્ઠ મેચો શોધીએ છીએ.",
+  "@describeItYourWay": {
+    "description": "Localized string for describeItYourWay"
+  },
+  "hide": "છુપાવો",
+  "@hide": {
+    "description": "Localized string for hide"
+  },
+  "hideTitleDescription": "આ શીર્ષક છુપાવવાથી તે ભવિષ્યમાં સ્પોટલાઇટ વિભાગમાં દેખાશે નહીં.",
+  "@hideTitleDescription": {
+    "description": "Localized string for hideTitleDescription"
+  },
+  "dontAskAgain": "ફરી પૂછશો નહીં",
+  "@dontAskAgain": {
+    "description": "Localized string for dontAskAgain"
+  },
+  "imdbNa": "આ એપ લેબલનો gu માં અનુવાદ કરો: IMDb NA",
+  "@imdbNa": {
+    "description": "Localized string for imdbNa"
+  },
+  "noDiscoverPicks": "હાલમાં કોઈ ડિસ્કવર પસંદગીઓ ઉપલબ્ધ નથી.",
+  "@noDiscoverPicks": {
+    "description": "Localized string for noDiscoverPicks"
+  },
+  "playPreview": "પ્રીવ્યૂ ચલાવો",
+  "@playPreview": {
+    "description": "Localized string for playPreview"
+  },
+  "recommendedForYou": "તમારા માટે ભલામણ કરેલ",
+  "@recommendedForYou": {
+    "description": "Localized string for recommendedForYou"
+  },
+  "spotlightCompleted": "સ્પોટલાઇટ પૂર્ણ",
+  "@spotlightCompleted": {
+    "description": "Localized string for spotlightCompleted"
+  },
+  "startAddingTitlesForRecommendations": "ભલામણો માટે શીર્ષકો ઉમેરવાનું શરૂ કરો",
+  "@startAddingTitlesForRecommendations": {
+    "description": "Localized string for startAddingTitlesForRecommendations"
+  },
+  "clearedAllChoices": "તમે તમારા ડિસ્કવર ફીડમાં બધા વિકલ્પો સ્વાઇપ કરીને સાફ કરી દીધા છે.",
+  "@clearedAllChoices": {
+    "description": "Localized string for clearedAllChoices"
+  },
+  "whatsPopular": "શું લોકપ્રિય છે",
+  "@whatsPopular": {
+    "description": "Localized string for whatsPopular"
+  },
+  "trending": "ટ્રેન્ડિંગ",
+  "@trending": {
+    "description": "Localized string for trending"
+  },
+  "nowPlaying": "હમણાં ચાલી રહ્યું છે",
+  "@nowPlaying": {
+    "description": "Localized string for nowPlaying"
+  },
+  "tvTrending": "ટીવી ટ્રેન્ડિંગ",
+  "@tvTrending": {
+    "description": "Localized string for tvTrending"
+  },
+  "discoverByMood": "મૂડ દ્વારા શોધો",
+  "@discoverByMood": {
+    "description": "Localized string for discoverByMood"
+  },
+  "needSomethingToWatchTonight": "આજે રાત્રે જોવા માટે કંઈક જોઈએ છે?",
+  "@needSomethingToWatchTonight": {
+    "description": "Localized string for needSomethingToWatchTonight"
+  },
+  "needAMovieForTonight": "આજ રાત માટે મૂવી જોઈએ છે?",
+  "@needAMovieForTonight": {
+    "description": "Localized string for needAMovieForTonight"
+  },
+  "tryAiShows": "AI શો અજમાવી જુઓ",
+  "@tryAiShows": {
+    "description": "Localized string for tryAiShows"
+  },
+  "tryAiMovies": "AI મૂવીઝ અજમાવી જુઓ",
+  "@tryAiMovies": {
+    "description": "Localized string for tryAiMovies"
+  },
+  "findShows": "શો શોધો",
+  "@findShows": {
+    "description": "Localized string for findShows"
+  },
+  "findMovies": "મૂવીઝ શોધો",
+  "@findMovies": {
+    "description": "Localized string for findMovies"
+  },
+  "couldNotLoadThisRail": "આ રેલ લોડ કરી શકાયું નથી",
+  "@couldNotLoadThisRail": {
+    "description": "Localized string for couldNotLoadThisRail"
+  },
+  "temporaryIssueLoadingRail": "આ રેલ લોડ કરવામાં કામચલાઉ સમસ્યા આવી હતી.",
+  "@temporaryIssueLoadingRail": {
+    "description": "Localized string for temporaryIssueLoadingRail"
+  },
+  "noTitlesHereYet": "અહીં હજુ સુધી કોઈ શીર્ષક નથી",
+  "@noTitlesHereYet": {
+    "description": "Localized string for noTitlesHereYet"
+  },
+  "noHiddenGemsForGenre": "આ શૈલી માટે હજુ સુધી કોઈ છુપાયેલા રત્નો મળ્યા નથી. બીજી શૈલી અજમાવી જુઓ.",
+  "@noHiddenGemsForGenre": {
+    "description": "Localized string for noHiddenGemsForGenre"
+  },
+  "tryAnotherFilter": "વધુ માહિતી માટે બીજું ફિલ્ટર અજમાવી જુઓ અથવા આ વિભાગ ખોલો.",
+  "@tryAnotherFilter": {
+    "description": "Localized string for tryAnotherFilter"
+  },
+  "seeAllFilters": "બધા ફિલ્ટર જુઓ",
+  "@seeAllFilters": {
+    "description": "Localized string for seeAllFilters"
+  },
+  "couldNotLoadCuratedPicks": "પસંદ કરેલા વિકલ્પો લોડ કરી શકાયા નથી",
+  "@couldNotLoadCuratedPicks": {
+    "description": "Localized string for couldNotLoadCuratedPicks"
+  },
+  "temporaryIssueLoadingCurated": "આજ રાતની ક્યુરેટેડ સૂચિ લોડ કરવામાં એક કામચલાઉ સમસ્યા આવી.",
+  "@temporaryIssueLoadingCurated": {
+    "description": "Localized string for temporaryIssueLoadingCurated"
+  },
+  "noCuratedPicksAvailable": "કોઈ પસંદ કરેલી પસંદગીઓ ઉપલબ્ધ નથી",
+  "@noCuratedPicksAvailable": {
+    "description": "Localized string for noCuratedPicksAvailable"
+  },
+  "tryAgainWhileRefresh": "આજે રાત્રે TMDB યાદી રિફ્રેશ કરીએ ત્યાં સુધી થોડીવારમાં ફરી પ્રયાસ કરો.",
+  "@tryAgainWhileRefresh": {
+    "description": "Localized string for tryAgainWhileRefresh"
+  },
+  "fromSpotlight": "સ્પોટલાઇટમાંથી",
+  "@fromSpotlight": {
+    "description": "Localized string for fromSpotlight"
+  },
+  "addShowsMoviesForRecommendations": "તમને ગમતા શીર્ષકો જોવા માટે તમારી વોચલિસ્ટ, મનપસંદ અથવા જોયેલી સૂચિમાં ટીવી શો/મૂવીઝ ઉમેરો.",
+  "@addShowsMoviesForRecommendations": {
+    "description": "Localized string for addShowsMoviesForRecommendations"
+  },
+  "allow": "મંજૂરી આપો",
+  "@allow": {
+    "description": "Localized string for allow"
+  },
+  "notNow": "હમણાં નહીં",
+  "@notNow": {
+    "description": "Localized string for notNow"
+  },
+  "allowAiDataSharingTitle": "AI ડેટા શેરિંગને મંજૂરી આપીએ?",
+  "@allowAiDataSharingTitle": {
+    "description": "Localized string for allowAiDataSharingTitle"
+  },
+  "allowAiDataSharingDescription": "\"Rekmend Tonight\" તમે મૂવી ભલામણ વિનંતી અને કામચલાઉ ક્વેરી-રિફાઇનમેન્ટ સંદર્ભ માટે લખો છો તે ટેક્સ્ટ Google Gemini અને OpenRouter ને મોકલે છે. તમારી સંપૂર્ણ લાઇબ્રેરી અને તમારા સાઇન-ઇન ઓળખપત્રો તે AI પ્રદાતાઓને મોકલવામાં આવતા નથી. AI ભલામણો માટે આ ડેટા શેરિંગને મંજૂરી આપીએ?",
+  "@allowAiDataSharingDescription": {
+    "description": "Localized string for allowAiDataSharingDescription"
+  },
+  "liveProgress": "લાઇવ પ્રગતિ",
+  "@liveProgress": {
+    "description": "Localized string for liveProgress"
+  },
+  "percentComplete": "{percent}% પૂર્ણ",
+  "@percentComplete": {
+    "description": "Localized string for percentComplete",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "describeIdealShowNight": "તમારા આદર્શ શો નાઇટનું વર્ણન કરો",
+  "@describeIdealShowNight": {
+    "description": "Localized string for describeIdealShowNight"
+  },
+  "describeIdealMovieNight": "તમારી આદર્શ મૂવી રાત્રિનું વર્ણન કરો",
+  "@describeIdealMovieNight": {
+    "description": "Localized string for describeIdealMovieNight"
+  },
+  "useNaturalLanguage": "કુદરતી ભાષાનો ઉપયોગ કરો. તમારે શું જોઈએ છે, શું ટાળવું જોઈએ, અને વૈકલ્પિક ભાષા/રનટાઇમ સંકેતોનો ઉલ્લેખ કરો.",
+  "@useNaturalLanguage": {
+    "description": "Localized string for useNaturalLanguage"
+  },
+  "listeningTapMicToStop": "સાંભળી રહ્યો છું... બંધ કરવા માટે ફરીથી માઇક પર ટેપ કરો.",
+  "@listeningTapMicToStop": {
+    "description": "Localized string for listeningTapMicToStop"
+  },
+  "voiceInputError": "વૉઇસ ઇનપુટ ભૂલ: {error}",
+  "@voiceInputError": {
+    "description": "Localized string for voiceInputError",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "tapMicToDictate": "તમારી વિનંતી લખવા માટે માઇક પર ટેપ કરો.",
+  "@tapMicToDictate": {
+    "description": "Localized string for tapMicToDictate"
+  },
+  "tapMicToEnableVoice": "વૉઇસ ઇનપુટ ચાલુ કરવા માટે માઇક પર ટૅપ કરો.",
+  "@tapMicToEnableVoice": {
+    "description": "Localized string for tapMicToEnableVoice"
+  },
+  "findingShows": "શો શોધી રહ્યા છીએ...",
+  "@findingShows": {
+    "description": "Localized string for findingShows"
+  },
+  "findingMovies": "મૂવીઝ શોધી રહ્યું છે...",
+  "@findingMovies": {
+    "description": "Localized string for findingMovies"
+  },
+  "tonightsLumiPicksFor": "આજ રાતના Lumi ના પસંદગીઓ: {prompt}",
+  "@tonightsLumiPicksFor": {
+    "description": "Localized string for tonightsLumiPicksFor",
+    "placeholders": {
+      "prompt": {
+        "type": "String"
+      }
+    }
+  },
+  "tonightsPicks": "આજ રાતની પસંદગીઓ",
+  "@tonightsPicks": {
+    "description": "Localized string for tonightsPicks"
+  },
+  "sharedFromLumi": "લુમી તરફથી શેર કરેલ",
+  "@sharedFromLumi": {
+    "description": "Localized string for sharedFromLumi"
+  },
+  "intent": "ઉદ્દેશ:",
+  "@intent": {
+    "description": "Localized string for intent"
+  },
+  "genreLabel": "શૈલી:",
+  "@genreLabel": {
+    "description": "Localized string for genreLabel"
+  },
+  "avoid": "ટાળો:",
+  "@avoid": {
+    "description": "Localized string for avoid"
+  },
+  "languageLabel": "ભાષા:",
+  "@languageLabel": {
+    "description": "Localized string for languageLabel"
+  },
+  "runtimeAtMost": "રનટાઇમ <= {minutes} મિનિટ",
+  "@runtimeAtMost": {
+    "description": "Localized string for runtimeAtMost",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "runtimeAtLeast": "રનટાઇમ >= {minutes} મિનિટ",
+  "@runtimeAtLeast": {
+    "description": "Localized string for runtimeAtLeast",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "yearLabel": "વર્ષ:",
+  "@yearLabel": {
+    "description": "Localized string for yearLabel"
+  },
+  "yearAfter": "{year} પછી",
+  "@yearAfter": {
+    "description": "Localized string for yearAfter",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "yearBefore": "{year} પહેલાં",
+  "@yearBefore": {
+    "description": "Localized string for yearBefore",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "like": "જેમ કે:",
+  "@like": {
+    "description": "Localized string for like"
+  },
+  "signal": "સિગ્નલ:",
+  "@signal": {
+    "description": "Localized string for signal"
+  },
+  "readingWatchedHistory": "તમારો જોયેલો ઇતિહાસ વાંચી રહ્યો છું...",
+  "@readingWatchedHistory": {
+    "description": "Localized string for readingWatchedHistory"
+  },
+  "findingTopGenres": "તમારા શ્રેષ્ઠ શૈલીઓ અને પેટર્ન શોધી રહ્યા છીએ...",
+  "@findingTopGenres": {
+    "description": "Localized string for findingTopGenres"
+  },
+  "buildingTrends": "માસિક અને રેટિંગ વલણો બનાવી રહ્યા છીએ...",
+  "@buildingTrends": {
+    "description": "Localized string for buildingTrends"
+  },
+  "writingInsights": "તમારી વ્યક્તિગત આંતરદૃષ્ટિ લખી રહ્યા છીએ...",
+  "@writingInsights": {
+    "description": "Localized string for writingInsights"
+  },
+  "applyFilters": "ફિલ્ટર્સ લાગુ કરો",
+  "@applyFilters": {
+    "description": "Localized string for applyFilters"
+  },
+  "includeNotRated": "રેટ ન કરેલ શામેલ કરો",
+  "@includeNotRated": {
+    "description": "Localized string for includeNotRated"
+  },
+  "errorLoadingTvGenres": "ટીવી શૈલીઓ લોડ કરવામાં ભૂલ",
+  "@errorLoadingTvGenres": {
+    "description": "Localized string for errorLoadingTvGenres"
+  },
+  "alsoKnownAs": "તરીકે પણ ઓળખાય છે",
+  "@alsoKnownAs": {
+    "description": "Localized string for alsoKnownAs"
+  },
+  "biography": "જીવનચરિત્ર",
+  "@biography": {
+    "description": "Localized string for biography"
+  },
+  "careerStatistics": "કારકિર્દી આંકડા",
+  "@careerStatistics": {
+    "description": "Localized string for careerStatistics"
+  },
+  "frequentlyCollaboratesWith": "વારંવાર સહયોગ કરે છે",
+  "@frequentlyCollaboratesWith": {
+    "description": "Localized string for frequentlyCollaboratesWith"
+  },
+  "notableQuotes": "નોંધપાત્ર અવતરણો",
+  "@notableQuotes": {
+    "description": "Localized string for notableQuotes"
+  },
+  "primaryRole": "પ્રાથમિક ભૂમિકા",
+  "@primaryRole": {
+    "description": "Localized string for primaryRole"
+  },
+  "averageRating": "સરેરાશ રેટિંગ",
+  "@averageRating": {
+    "description": "Localized string for averageRating"
+  },
+  "topGenre": "ટોચની શૈલી",
+  "@topGenre": {
+    "description": "Localized string for topGenre"
+  },
+  "peakBoxOffice": "પીક બોક્સ ઓફિસ",
+  "@peakBoxOffice": {
+    "description": "Localized string for peakBoxOffice"
+  },
+  "percentOfTitles": "{percent}% ટાઇટલ",
+  "@percentOfTitles": {
+    "description": "Localized string for percentOfTitles",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedTitleCount": "{count} શેર કરેલ શીર્ષક(ઓ)",
+  "@sharedTitleCount": {
+    "description": "Localized string for sharedTitleCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "billingOrder": "બિલ #{order}",
+  "@billingOrder": {
+    "description": "Localized string for billingOrder",
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "startTypingToSearch": "શોધવા માટે ટાઇપ કરવાનું શરૂ કરો",
+  "@startTypingToSearch": {
+    "description": "Localized string for startTypingToSearch"
+  },
+  "movieDiscoveryMadePersonal": "મૂવી શોધ, વ્યક્તિગત બનાવેલ",
+  "@movieDiscoveryMadePersonal": {
+    "description": "Localized string for movieDiscoveryMadePersonal"
+  },
+  "allNotes": "બધી નોંધો",
+  "@allNotes": {
+    "description": "Localized string for allNotes"
+  },
+  "viewPersonalizedInsights": "વ્યક્તિગત આંતરદૃષ્ટિ, ચાર્ટ અને વલણો જુઓ.",
+  "@viewPersonalizedInsights": {
+    "description": "Localized string for viewPersonalizedInsights"
+  },
+  "curatedCollections": "ક્યુરેટ કરેલા સંગ્રહો",
+  "@curatedCollections": {
+    "description": "Localized string for curatedCollections"
+  },
+  "list": "યાદી",
+  "@list": {
+    "description": "Localized string for list"
+  },
+  "openList": "યાદી ખોલો",
+  "@openList": {
+    "description": "Localized string for openList"
+  },
+  "thisListNoLongerExists": "આ સૂચિ હવે અસ્તિત્વમાં નથી.",
+  "@thisListNoLongerExists": {
+    "description": "Localized string for thisListNoLongerExists"
+  },
+  "listRenamed": "યાદીનું નામ બદલીને {name} કરવામાં આવ્યું.",
+  "@listRenamed": {
+    "description": "Localized string for listRenamed",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "listDeleted": "યાદી {name} કાઢી નાખી",
+  "@listDeleted": {
+    "description": "Localized string for listDeleted",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInWatchlist": "તમારી વોચલિસ્ટમાં {filter} નથી",
+  "@noFilterInWatchlist": {
+    "description": "Localized string for noFilterInWatchlist",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInFavourites": "તમારા મનપસંદમાં {filter} નથી",
+  "@noFilterInFavourites": {
+    "description": "Localized string for noFilterInFavourites",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInWatched": "જોયેલામાં {filter} નથી",
+  "@noFilterInWatched": {
+    "description": "Localized string for noFilterInWatched",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInThisList": "આ યાદીમાં {filter} નથી",
+  "@noFilterInThisList": {
+    "description": "Localized string for noFilterInThisList",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noListsWithFilter": "{filter} વાળી કોઈ યાદી નથી",
+  "@noListsWithFilter": {
+    "description": "Localized string for noListsWithFilter",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "importedInto": "\"{name}\" માં આયાત કરેલ",
+  "@importedInto": {
+    "description": "Localized string for importedInto",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotImportList": "સૂચિ આયાત કરી શકાઈ નથી",
+  "@couldNotImportList": {
+    "description": "Localized string for couldNotImportList"
+  },
+  "importing": "આયાત કરી રહ્યું છે...",
+  "@importing": {
+    "description": "Localized string for importing"
+  },
+  "couldNotLoadSharedList": "આ શેર કરેલી સૂચિ લોડ કરી શકાઈ નથી",
+  "@couldNotLoadSharedList": {
+    "description": "Localized string for couldNotLoadSharedList"
+  },
+  "editWatchedInfo": "જોયેલી માહિતી સંપાદિત કરો",
+  "@editWatchedInfo": {
+    "description": "Localized string for editWatchedInfo"
+  },
+  "watchDate": "જોવાની તારીખ",
+  "@watchDate": {
+    "description": "Localized string for watchDate"
+  },
+  "rewatchCount": "ફરીથી જોવાની સંખ્યા",
+  "@rewatchCount": {
+    "description": "Localized string for rewatchCount"
+  },
+  "watchedInfoUpdated": "જોયેલી માહિતી અપડેટ કરી",
+  "@watchedInfoUpdated": {
+    "description": "Localized string for watchedInfoUpdated"
+  },
+  "removedFromList": "{listName} માંથી દૂર કર્યું",
+  "@removedFromList": {
+    "description": "Localized string for removedFromList",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "addedToList": "{listName} માં ઉમેર્યું",
+  "@addedToList": {
+    "description": "Localized string for addedToList",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "addedToListAndWatchlist": "{listName} અને વોચલિસ્ટમાં ઉમેર્યું",
+  "@addedToListAndWatchlist": {
+    "description": "Localized string for addedToListAndWatchlist",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTrailersLikeThis": "આના જેવા વધુ ટ્રેલર",
+  "@moreTrailersLikeThis": {
+    "description": "Localized string for moreTrailersLikeThis"
+  },
+  "noDescriptionForTrailer": "આ ટ્રેલર માટે કોઈ વર્ણન ઉપલબ્ધ નથી.",
+  "@noDescriptionForTrailer": {
+    "description": "Localized string for noDescriptionForTrailer"
+  },
+  "closeTrailer": "ટ્રેલર બંધ કરો",
+  "@closeTrailer": {
+    "description": "Localized string for closeTrailer"
+  },
+  "recommendedSeries": "ભલામણ કરેલ શ્રેણી",
+  "@recommendedSeries": {
+    "description": "Localized string for recommendedSeries"
+  },
+  "recommendedMovie": "ભલામણ કરેલ મૂવી",
+  "@recommendedMovie": {
+    "description": "Localized string for recommendedMovie"
+  },
+  "notEnoughDataYet": "હજુ સુધી પૂરતો ડેટા નથી",
+  "@notEnoughDataYet": {
+    "description": "Localized string for notEnoughDataYet"
+  },
+  "addAndRateMoreTitles": "વિશ્લેષણો અનલૉક કરવા માટે ઓછામાં ઓછા {count} શીર્ષકો ઉમેરો અને રેટ કરો.",
+  "@addAndRateMoreTitles": {
+    "description": "Localized string for addAndRateMoreTitles",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "addMoreTitlesToUnlock": "તમારી પાસે {watchedCount}/{requiredCount} જોયેલા શીર્ષકો છે. વિશ્લેષણોને અનલૉક કરવા માટે {remaining} વધુ ઉમેરો.",
+  "@addMoreTitlesToUnlock": {
+    "description": "Localized string for addMoreTitlesToUnlock",
+    "placeholders": {
+      "watchedCount": {
+        "type": "String"
+      },
+      "requiredCount": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "moviesPerMonth": "દર મહિને મૂવીઝ",
+  "@moviesPerMonth": {
+    "description": "Localized string for moviesPerMonth"
+  },
+  "genreDistribution": "શૈલી વિતરણ",
+  "@genreDistribution": {
+    "description": "Localized string for genreDistribution"
+  },
+  "ratingTrends": "રેટિંગ વલણો",
+  "@ratingTrends": {
+    "description": "Localized string for ratingTrends"
+  },
+  "noData": "કોઈ ડેટા નથી",
+  "@noData": {
+    "description": "Localized string for noData"
+  },
+  "myLatestWatchAnalytics": "લુમી પર મારા નવીનતમ ઘડિયાળ વિશ્લેષણ",
+  "@myLatestWatchAnalytics": {
+    "description": "Localized string for myLatestWatchAnalytics"
+  },
+  "myWatchInsights": "લુમી પર મારી ઘડિયાળની આંતરદૃષ્ટિ",
+  "@myWatchInsights": {
+    "description": "Localized string for myWatchInsights"
+  },
+  "infographicsCard": "ઇન્ફોગ્રાફિક્સ કાર્ડ",
+  "@infographicsCard": {
+    "description": "Localized string for infographicsCard"
+  },
+  "watchInsightsSnapshot": "ઘડિયાળની આંતરદૃષ્ટિનો સ્નેપશોટ",
+  "@watchInsightsSnapshot": {
+    "description": "Localized string for watchInsightsSnapshot"
+  },
+  "availableOnceInsightsReady": "એકવાર આંતરદૃષ્ટિ તૈયાર થઈ જાય પછી ઉપલબ્ધ થશે",
+  "@availableOnceInsightsReady": {
+    "description": "Localized string for availableOnceInsightsReady"
+  },
+  "shareYourWatchInsights": "તમારા ઘડિયાળની જાણકારી કાર્ડ શેર કરો",
+  "@shareYourWatchInsights": {
+    "description": "Localized string for shareYourWatchInsights"
+  },
+  "recentlyWatchedVibe": "તાજેતરમાં જોયેલું વાઇબ",
+  "@recentlyWatchedVibe": {
+    "description": "Localized string for recentlyWatchedVibe"
+  },
+  "mixedAcrossGenres": "વિવિધ શૈલીઓમાં મિશ્રિત",
+  "@mixedAcrossGenres": {
+    "description": "Localized string for mixedAcrossGenres"
+  },
+  "moviesPerMonthShort": "મૂવીઝ / મહિનો",
+  "@moviesPerMonthShort": {
+    "description": "Localized string for moviesPerMonthShort"
+  },
+  "ratingTrend": "રેટિંગ ટ્રેન્ડ",
+  "@ratingTrend": {
+    "description": "Localized string for ratingTrend"
+  },
+  "balanced": "સંતુલિત",
+  "@balanced": {
+    "description": "Localized string for balanced"
+  },
+  "noWatchNextSuggestionsYet": "હજુ સુધી કોઈ વોચ-નેક્સ્ટ સૂચનો નથી.",
+  "@noWatchNextSuggestionsYet": {
+    "description": "Localized string for noWatchNextSuggestionsYet"
+  },
+  "upcomingFromLibrary": "તમારી લાઇબ્રેરીમાંથી આગામી",
+  "@upcomingFromLibrary": {
+    "description": "Localized string for upcomingFromLibrary"
+  },
+  "removeReminder": "રિમાઇન્ડર દૂર કરો",
+  "@removeReminder": {
+    "description": "Localized string for removeReminder"
+  },
+  "remindMe": "મને યાદ કરાવો",
+  "@remindMe": {
+    "description": "Localized string for remindMe"
+  },
+  "titleReleasesToday": "{title} આજે રિલીઝ થશે.",
+  "@titleReleasesToday": {
+    "description": "Localized string for titleReleasesToday",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "titleAirsSoon": "{title} {subtitle} ટૂંક સમયમાં પ્રસારિત થશે.",
+  "@titleAirsSoon": {
+    "description": "Localized string for titleAirsSoon",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "subtitle": {
+        "type": "String"
+      }
+    }
+  },
+  "controlPremiereAlerts": "પ્રીમિયર ચેતવણીઓ અને રિલીઝ રીમાઇન્ડર્સને નિયંત્રિત કરો.",
+  "@controlPremiereAlerts": {
+    "description": "Localized string for controlPremiereAlerts"
+  },
+  "upcomingReleasesCount": "તમારી લાઇબ્રેરીમાં {count} આગામી પ્રકાશનો.",
+  "@upcomingReleasesCount": {
+    "description": "Localized string for upcomingReleasesCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "sittingInWatchlist": "તમારી વોચલિસ્ટમાં {days} દિવસથી બેઠું છું",
+  "@sittingInWatchlist": {
+    "description": "Localized string for sittingInWatchlist",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "alreadyOnWatchlist": "તમારી વોચલિસ્ટમાં પહેલેથી જ છે",
+  "@alreadyOnWatchlist": {
+    "description": "Localized string for alreadyOnWatchlist"
+  },
+  "favouritedButNotWatched": "તમે આને મનપસંદ બનાવ્યું પણ હજુ સુધી તેને જોયું તરીકે ચિહ્નિત કર્યું નથી.",
+  "@favouritedButNotWatched": {
+    "description": "Localized string for favouritedButNotWatched"
+  },
+  "savedInListReady": "તમારી એક યાદીમાં સાચવેલ છે અને જોવા માટે તૈયાર છે",
+  "@savedInListReady": {
+    "description": "Localized string for savedInListReady"
+  },
+  "matchesTitlesYouTrack": "તમે પહેલાથી જ ટ્રેક કરેલા શીર્ષકો સાથે મેળ ખાય છે",
+  "@matchesTitlesYouTrack": {
+    "description": "Localized string for matchesTitlesYouTrack"
+  },
+  "noOfficialSite": "કોઈ સત્તાવાર સાઇટ નથી",
+  "@noOfficialSite": {
+    "description": "Localized string for noOfficialSite"
+  },
+  "episodeAiring": "એપિસોડ પ્રસારણ",
+  "@episodeAiring": {
+    "description": "Localized string for episodeAiring"
+  },
+  "general": "જનરલ",
+  "@general": {
+    "description": "Localized string for general"
+  },
+  "scheduledFor": "{date} માટે શેડ્યૂલ કરેલ",
+  "@scheduledFor": {
+    "description": "Localized string for scheduledFor",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "wasScheduledFor": "{date} માટે શેડ્યૂલ કરેલ હતું",
+  "@wasScheduledFor": {
+    "description": "Localized string for wasScheduledFor",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noOverviewAvailable": "કોઈ ઝાંખી ઉપલબ્ધ નથી.",
+  "@noOverviewAvailable": {
+    "description": "Localized string for noOverviewAvailable"
+  },
+  "searchHistoryCleared": "શોધ ઇતિહાસ સાફ કર્યો",
+  "@searchHistoryCleared": {
+    "description": "Localized string for searchHistoryCleared"
+  },
+  "visualMovieCard": "વિઝ્યુઅલ મૂવી કાર્ડ",
+  "@visualMovieCard": {
+    "description": "Localized string for visualMovieCard"
+  },
+  "smartLumiLink": "સ્માર્ટ લુમી લિંક",
+  "@smartLumiLink": {
+    "description": "Localized string for smartLumiLink"
+  },
+  "directTmdbLink": "ડાયરેક્ટ TMDB લિંક",
+  "@directTmdbLink": {
+    "description": "Localized string for directTmdbLink"
+  },
+  "recommendedOnLumi": "Lumi પર ભલામણ કરેલ: {title}",
+  "@recommendedOnLumi": {
+    "description": "Localized string for recommendedOnLumi",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "checkOutOnLumi": "Lumi પર {title} તપાસો!\n\n{link}\n\nLumi મેળવો: {appLink}",
+  "@checkOutOnLumi": {
+    "description": "Localized string for checkOutOnLumi",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      },
+      "appLink": {
+        "type": "String"
+      }
+    }
+  },
+  "checkOutOnTmdb": "TMDB પર {title} તપાસો: {link}",
+  "@checkOutOnTmdb": {
+    "description": "Localized string for checkOutOnTmdb",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseAlertTitle": "{title} રિલીઝ ચેતવણી",
+  "@releaseAlertTitle": {
+    "description": "Localized string for releaseAlertTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseAlertFullMessage": "{date} માટે રિલીઝ વોચ એલર્ટ સેટ કરેલ છે. જ્યારે તે બહાર આવશે ત્યારે અમે તમને સૂચિત કરીશું.",
+  "@releaseAlertFullMessage": {
+    "description": "Localized string for releaseAlertFullMessage",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseSuccessDialogContent": "\"{title}\" ડિજિટલી અથવા બ્લુ-રે/ડીવીડી પર રિલીઝ થતાંની સાથે જ અમે તમને જાણ કરીશું!",
+  "@releaseSuccessDialogContent": {
+    "description": "Localized string for releaseSuccessDialogContent",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "episodeAlreadyDueToAir": "આ એપિસોડ પહેલાથી જ પ્રસારિત થવાનો છે.",
+  "@episodeAlreadyDueToAir": {
+    "description": "Localized string for episodeAlreadyDueToAir"
+  },
+  "reminderSetSuccessfully": "રિમાઇન્ડર સફળતાપૂર્વક સેટ થયું",
+  "@reminderSetSuccessfully": {
+    "description": "Localized string for reminderSetSuccessfully"
+  },
+  "speechRecognitionNotAvailable": "આ ઉપકરણ પર વાણી ઓળખ ઉપલબ્ધ નથી.",
+  "@speechRecognitionNotAvailable": {
+    "description": "Localized string for speechRecognitionNotAvailable"
+  },
+  "describeShowMood": "તમે કયા શોના મૂડમાં છો તેનું વર્ણન કરો, અને અમે તમને ક્રમાંકિત યાદી પરત કરીશું.",
+  "@describeShowMood": {
+    "description": "Localized string for describeShowMood"
+  },
+  "describeMovieMood": "તમે કઈ ફિલ્મ જોવાના મૂડમાં છો તેનું વર્ણન કરો, અને અમે તમને ક્રમાંકિત યાદી આપીશું.",
+  "@describeMovieMood": {
+    "description": "Localized string for describeMovieMood"
+  },
+  "aiLauncherDescription": "કુદરતી ભાષાની વિનંતી લખો અથવા બોલો. Lumi એક AI પ્લાન બનાવે છે, વેક્ટર શોધ ચલાવે છે અને બહુવિધ શો/મૂવી પસંદગીઓ પરત કરે છે.",
+  "@aiLauncherDescription": {
+    "description": "Localized string for aiLauncherDescription"
+  },
+  "yearRange": "આ એપ્લિકેશન લેબલનો અનુવાદ gu માં કરો: {from}-{to}",
+  "@yearRange": {
+    "description": "Localized string for yearRange",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "remindersCountScheduled": "{count} રિમાઇન્ડર શેડ્યૂલ કરેલ છે.",
+  "@remindersCountScheduled": {
+    "description": "Localized string for remindersCountScheduled",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "regionAutoDetected": "આપમેળે શોધાયેલ: {region}",
+  "@regionAutoDetected": {
+    "description": "Localized string for regionAutoDetected",
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "regionSelected": "પસંદ કરેલ: {region}",
+  "@regionSelected": {
+    "description": "Localized string for regionSelected",
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "allLanguagesSubtitle": "બધી ભાષાઓ",
+  "@allLanguagesSubtitle": {
+    "description": "Localized string for allLanguagesSubtitle"
+  },
+  "currentlySetToLanguage": "હાલમાં {language} પર સેટ છે",
+  "@currentlySetToLanguage": {
+    "description": "Localized string for currentlySetToLanguage",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "availabilities": "ઉપલબ્ધતાઓ",
+  "@availabilities": {
+    "description": "Localized string for availabilities"
+  },
+  "mood": "મૂડ",
+  "@mood": {
+    "description": "Localized string for mood"
+  },
+  "people": "લોકો",
+  "@people": {
+    "description": "Localized string for people"
+  },
+  "ads": "જાહેરાતો",
+  "@ads": {
+    "description": "Localized string for ads"
+  },
+  "theatricalLimited": "થિયેટ્રિકલ લિમિટેડ",
+  "@theatricalLimited": {
+    "description": "Localized string for theatricalLimited"
+  },
+  "premier": "પ્રીમિયર",
+  "@premier": {
+    "description": "Localized string for premier"
+  },
+  "mediaType": "મીડિયા પ્રકાર",
+  "@mediaType": {
+    "description": "Localized string for mediaType"
+  },
+  "couldNotLoadAnalytics": "વિશ્લેષણ લોડ કરી શકાયું નથી",
+  "@couldNotLoadAnalytics": {
+    "description": "Localized string for couldNotLoadAnalytics"
+  },
+  "viewAllAwards": "બધું જુઓ",
+  "@viewAllAwards": {
+    "description": "Localized string for viewAllAwards"
+  },
+  "win": "જીત",
+  "@win": {
+    "description": "Localized string for win"
+  },
+  "wins": "જીત",
+  "@wins": {
+    "description": "Localized string for wins"
+  },
+  "nomination": "નામાંકન",
+  "@nomination": {
+    "description": "Localized string for nomination"
+  },
+  "nominations": "નામાંકન",
+  "@nominations": {
+    "description": "Localized string for nominations"
+  },
+  "sharedBy": "{name} દ્વારા શેર કરાયેલ",
+  "@sharedBy": {
+    "description": "Localized string for sharedBy",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "titleCount": "{count} શીર્ષક(ઓ)",
+  "@titleCount": {
+    "description": "Localized string for titleCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "savedTitlesAcrossLists": "તમારી યાદીઓમાં {count} સાચવેલા શીર્ષકો",
+  "@savedTitlesAcrossLists": {
+    "description": "Localized string for savedTitlesAcrossLists",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "curatedCollectionsSubtitle": "ક્યુરેટેડ સંગ્રહો જેને તમે ગોઠવી અને શેર કરી શકો છો.",
+  "@curatedCollectionsSubtitle": {
+    "description": "Localized string for curatedCollectionsSubtitle"
+  },
+  "shareListMessage": "\"{name}\" ને Lumi ({count} {itemLabel}) માં આયાત કરો: {link}",
+  "@shareListMessage": {
+    "description": "Localized string for shareListMessage",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      },
+      "itemLabel": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "notEnoughData": "પૂરતો ડેટા નથી",
+  "@notEnoughData": {
+    "description": "Localized string for notEnoughData"
+  },
+  "shareQuote": "Lumi પર \"{title}\" માંથી આ અવતરણ તપાસો!",
+  "@shareQuote": {
+    "description": "Localized string for shareQuote",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "shareMovieMessage": "Lumi પર ભલામણ કરેલ: {title}\n\n{link}",
+  "@shareMovieMessage": {
+    "description": "Localized string for shareMovieMessage",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "aiLauncherDescriptionShow": "કુદરતી ભાષાની વિનંતી લખો અથવા બોલો. Lumi એક AI પ્લાન બનાવે છે, વેક્ટર શોધ ચલાવે છે અને બહુવિધ શો પિક્સ પરત કરે છે.",
+  "@aiLauncherDescriptionShow": {
+    "description": "Localized string for aiLauncherDescriptionShow"
+  },
+  "aiLauncherDescriptionMovie": "કુદરતી ભાષાની વિનંતી લખો અથવા બોલો. Lumi એક AI પ્લાન બનાવે છે, વેક્ટર શોધ ચલાવે છે અને બહુવિધ મૂવી પિક્સ પરત કરે છે.",
+  "@aiLauncherDescriptionMovie": {
+    "description": "Localized string for aiLauncherDescriptionMovie"
+  },
+  "warmingUpMovieSearch": "તમારી મૂવી શોધને ગરમ કરી રહ્યા છીએ",
+  "@warmingUpMovieSearch": {
+    "description": "Localized string for warmingUpMovieSearch"
+  },
+  "connectingToRecommendationEngine": "ભલામણ એન્જિન સાથે કનેક્ટ થઈ રહ્યું છે",
+  "@connectingToRecommendationEngine": {
+    "description": "Localized string for connectingToRecommendationEngine"
+  },
+  "understandingYourTaste": "તમારા મૂડ શું છે તે સમજવું",
+  "@understandingYourTaste": {
+    "description": "Localized string for understandingYourTaste"
+  },
+  "buildingCustomSearch": "તમારી વિનંતીમાંથી કસ્ટમ શોધ બનાવી રહ્યા છીએ",
+  "@buildingCustomSearch": {
+    "description": "Localized string for buildingCustomSearch"
+  },
+  "tinyNetworkHiccup": "નેટવર્કમાં થોડી સમસ્યા, ફરી પ્રયાસ કરી રહ્યો છું.",
+  "@tinyNetworkHiccup": {
+    "description": "Localized string for tinyNetworkHiccup"
+  },
+  "planLocked": "પ્લાન લૉક થયો: શૈલી, શૈલી, ભાષા અને રનટાઇમ",
+  "@planLocked": {
+    "description": "Localized string for planLocked"
+  },
+  "scanningTmdb": "મજબૂત મેચ માટે TMDB સ્કેન કરી રહ્યું છે",
+  "@scanningTmdb": {
+    "description": "Localized string for scanningTmdb"
+  },
+  "collectingDetails": "ટોચની પસંદગીઓ માટે પોસ્ટર્સ, રેટિંગ્સ અને રનટાઇમ એકત્રિત કરવું",
+  "@collectingDetails": {
+    "description": "Localized string for collectingDetails"
+  },
+  "shortlistingPicksCount": "શોર્ટલિસ્ટિંગ પસંદગીઓ ({current}/{total})",
+  "@shortlistingPicksCount": {
+    "description": "Localized string for shortlistingPicksCount",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "shortlistingBestPicks": "શ્રેષ્ઠ પસંદગીઓનું શોર્ટલિસ્ટિંગ",
+  "@shortlistingBestPicks": {
+    "description": "Localized string for shortlistingBestPicks"
+  },
+  "finalPolish": "તમારી ભલામણો પર અંતિમ સુધારો",
+  "@finalPolish": {
+    "description": "Localized string for finalPolish"
+  },
+  "retryingAfterIssue": "કામચલાઉ સમસ્યા પછી ફરી પ્રયાસ કરી રહ્યા છીએ",
+  "@retryingAfterIssue": {
+    "description": "Localized string for retryingAfterIssue"
+  },
+  "regionUnitedStates": "સંયુક્ત રાજ્ય અમેરિકા",
+  "@regionUnitedStates": {
+    "description": "Region label for United States"
+  },
+  "regionIndia": "ભારત",
+  "@regionIndia": {
+    "description": "Region label for India"
+  },
+  "regionUnitedKingdom": "યુનાઇટેડ કિંગડમ",
+  "@regionUnitedKingdom": {
+    "description": "Region label for United Kingdom"
+  },
+  "regionCanada": "કેનેડા",
+  "@regionCanada": {
+    "description": "Region label for Canada"
+  },
+  "regionAustralia": "ઓસ્ટ્રેલિયા",
+  "@regionAustralia": {
+    "description": "Region label for Australia"
+  },
+  "regionNewZealand": "ન્યૂઝીલેન્ડ",
+  "@regionNewZealand": {
+    "description": "Region label for New Zealand"
+  },
+  "regionGermany": "જર્મની",
+  "@regionGermany": {
+    "description": "Region label for Germany"
+  },
+  "regionFrance": "ફ્રાન્સ",
+  "@regionFrance": {
+    "description": "Region label for France"
+  },
+  "regionSpain": "સ્પેન",
+  "@regionSpain": {
+    "description": "Region label for Spain"
+  },
+  "regionItaly": "ઇટાલી",
+  "@regionItaly": {
+    "description": "Region label for Italy"
+  },
+  "regionJapan": "જાપાન",
+  "@regionJapan": {
+    "description": "Region label for Japan"
+  },
+  "regionSouthKorea": "દક્ષિણ કોરિયા",
+  "@regionSouthKorea": {
+    "description": "Region label for South Korea"
+  },
+  "regionBrazil": "બ્રાઝિલ",
+  "@regionBrazil": {
+    "description": "Region label for Brazil"
+  },
+  "regionMexico": "મેક્સિકો",
+  "@regionMexico": {
+    "description": "Region label for Mexico"
+  },
+  "regionSingapore": "સિંગાપુર",
+  "@regionSingapore": {
+    "description": "Region label for Singapore"
+  },
+  "regionPhilippines": "ફિલિપાઇન્સ",
+  "@regionPhilippines": {
+    "description": "Region label for Philippines"
+  },
+  "regionIndonesia": "ઇન્ડોનેશિયા",
+  "@regionIndonesia": {
+    "description": "Region label for Indonesia"
+  },
+  "regionUnitedArabEmirates": "સંયુક્ત આરબ અમીરાત",
+  "@regionUnitedArabEmirates": {
+    "description": "Region label for United Arab Emirates"
+  },
+  "regionSaudiArabia": "સાઉદી અરેબિયા",
+  "@regionSaudiArabia": {
+    "description": "Region label for Saudi Arabia"
+  },
+  "regionTurkey": "તુર્કી",
+  "@regionTurkey": {
+    "description": "Region label for Turkey"
+  },
+  "regionAutoDetectedSubtitle": "સ્વતઃ શોધાયેલ પ્રદેશ: {regionLabel} ({regionCode}). સ્થાનિક મૂવી ક્વેરીઝ અને વોચ-પ્રોવાઇડર લુકઅપ્સ માટે ઓવરરાઇડ કરવા માટે એક પ્રદેશ પસંદ કરો.",
+  "@regionAutoDetectedSubtitle": {
+    "description": "Subtitle when region is auto-detected",
+    "placeholders": {
+      "regionLabel": {
+        "type": "String"
+      },
+      "regionCode": {
+        "type": "String"
+      }
+    }
+  },
+  "regionSelectedSubtitle": "પસંદ કરેલ પ્રદેશ: {regionLabel} ({regionCode}). સમર્થિત મૂવી ક્વેરીઝ અને વોચ-પ્રોવાઇડર લુકઅપ્સ આગલી વખતે આપમેળે આનો ફરીથી ઉપયોગ કરશે.",
+  "@regionSelectedSubtitle": {
+    "description": "Subtitle when region is manually selected",
+    "placeholders": {
+      "regionLabel": {
+        "type": "String"
+      },
+      "regionCode": {
+        "type": "String"
+      }
+    }
+  },
+  "syncSignInTooltip": "ક્લાઉડ સાથે સિંક કરવા માટે સાઇન ઇન કરો",
+  "@syncSignInTooltip": {
+    "description": "Tooltip prompting sign in to sync library"
+  },
+  "syncFailedTooltip": "સમન્વયન નિષ્ફળ ગયું. ફરી પ્રયાસ કરવા માટે ટૅપ કરો.",
+  "@syncFailedTooltip": {
+    "description": "Tooltip shown when library sync failed"
+  },
+  "syncedTooltip": "લાઇબ્રેરી ક્લાઉડ સાથે સમન્વયિત થઈ",
+  "@syncedTooltip": {
+    "description": "Tooltip shown when library is synced"
+  },
+  "shareQuoteTooltip": "ભાવ શેર કરો",
+  "@shareQuoteTooltip": {
+    "description": "Tooltip to share a quote"
+  },
+  "copyQuoteTooltip": "ક્વોટની નકલ કરો",
+  "@copyQuoteTooltip": {
+    "description": "Tooltip to copy a quote"
+  },
+  "quoteCopiedToast": "ક્વોટ ક્લિપબોર્ડ પર કૉપિ કર્યો",
+  "@quoteCopiedToast": {
+    "description": "Toast message after copying a quote"
+  },
+  "shareDialogueTooltip": "સંવાદ શેર કરો",
+  "@shareDialogueTooltip": {
+    "description": "Tooltip to share a dialogue"
+  },
+  "copyDialogueTooltip": "સંવાદની નકલ કરો",
+  "@copyDialogueTooltip": {
+    "description": "Tooltip to copy a dialogue"
+  },
+  "dialogueCopiedToast": "સંવાદ ક્લિપબોર્ડ પર કૉપિ કર્યો",
+  "@dialogueCopiedToast": {
+    "description": "Toast message after copying a dialogue"
+  },
+  "tvAirsInOneHourTitle": "{title} 1 કલાકમાં પ્રસારિત થાય છે",
+  "@tvAirsInOneHourTitle": {
+    "description": "Notification title for a TV episode airing in one hour",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "tvAirsInOneHourBody": "{episodeLabel} \"{episodeName}\" {localAirTime} વાગ્યે પ્રસારિત થાય છે.",
+  "@tvAirsInOneHourBody": {
+    "description": "Notification body for a TV episode airing in one hour",
+    "placeholders": {
+      "episodeLabel": {
+        "type": "String"
+      },
+      "episodeName": {
+        "type": "String"
+      },
+      "localAirTime": {
+        "type": "String"
+      }
+    }
+  },
+  "movieReleasesTodayTitle": "{title} આજે રિલીઝ થશે",
+  "@movieReleasesTodayTitle": {
+    "description": "Notification title for a movie releasing today",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "movieReleasesTodayBody": "તમારી લાઇબ્રેરીમાં એક ફિલ્મ {localDate} ના રોજ રિલીઝ થઈ રહી છે.",
+  "@movieReleasesTodayBody": {
+    "description": "Notification body for a movie releasing today",
+    "placeholders": {
+      "localDate": {
+        "type": "String"
+      }
+    }
+  },
+  "curatedNeoNoirNights": "નીઓ-નોઇર નાઇટ્સ",
+  "@curatedNeoNoirNights": {
+    "description": "Curated collection title"
+  },
+  "curatedPulsePoundingRush": "ધબકારા-ધબકારાનો ધસારો",
+  "@curatedPulsePoundingRush": {
+    "description": "Curated collection title"
+  },
+  "curatedFeelGoodEscape": "સારું લાગે તેવું એસ્કેપ",
+  "@curatedFeelGoodEscape": {
+    "description": "Curated collection title"
+  },
+  "curatedMindBenders": "મન-બેન્ડર્સ",
+  "@curatedMindBenders": {
+    "description": "Curated collection title"
+  },
+  "curatedEpicWorlds": "એપિક વર્લ્ડ્સ",
+  "@curatedEpicWorlds": {
+    "description": "Curated collection title"
+  },
+  "curatedHumanStories": "માનવ વાર્તાઓ",
+  "@curatedHumanStories": {
+    "description": "Curated collection title"
+  },
+  "curatedDarkDetectiveFiles": "ડાર્ક ડિટેક્ટીવ ફાઇલો",
+  "@curatedDarkDetectiveFiles": {
+    "description": "Curated collection title"
+  },
+  "curatedNeoNoirNightsDescription": "વરસાદથી ભીંજાયેલો તણાવ, નૈતિક રીતે ગ્રે લીડ્સ, અને વાતાવરણીય શહેરની વાર્તાઓ.",
+  "@curatedNeoNoirNightsDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedPulsePoundingRushDescription": "ઊંચા દાવ પર દોડ, વધતો ભય, અને શ્વાસ લેવાનો સમય ન મળતો ગતિ.",
+  "@curatedPulsePoundingRushDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedFeelGoodEscapeDescription": "આરામદાયક રાત્રિ માટે ગરમ વાર્તાઓ, ઉત્તેજક ચાપ અને આરામદાયક પસંદગીઓ.",
+  "@curatedFeelGoodEscapeDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedMindBendersDescription": "વાસ્તવિકતાને વિકૃત કરતી વિભાવનાઓ, વળાંકવાળા કાવતરાં અને મોટા વિચારવાળી વાર્તા કહેવાની રીત.",
+  "@curatedMindBendersDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedEpicWorldsDescription": "બિગ-બ્રહ્માંડ સાહસો, પૌરાણિક દાવ અને સિનેમેટિક સ્કેલ.",
+  "@curatedEpicWorldsDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedHumanStoriesDescription": "ભાવનાત્મક ખેંચાણ અને યાદગાર અભિનય સાથે પાત્ર-પ્રથમ નાટકો.",
+  "@curatedHumanStoriesDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedDarkDetectiveFilesDescription": "ઠંડા સંકેતો, સ્તરીય શંકાસ્પદો, અને ધીમી ગતિએ ચાલી રહેલી તપાસ.",
+  "@curatedDarkDetectiveFilesDescription": {
+    "description": "Curated collection description"
+  },
+  "appLanguage": "એપ્લિકેશન ભાષા",
+  "@appLanguage": {
+    "description": "App language setting title"
+  },
+  "appLanguageSystemDefault": "સિસ્ટમ ડિફોલ્ટ",
+  "@appLanguageSystemDefault": {
+    "description": "Label for using the system language"
+  },
+  "appLanguageSelectedSubtitle": "એપ્લિકેશન ભાષા {language} પર સેટ કરેલી છે. આ ફક્ત એપ્લિકેશન ઇન્ટરફેસમાં ફેરફાર કરે છે, મૂવી અને શોની ભાષામાં નહીં.",
+  "@appLanguageSelectedSubtitle": {
+    "description": "Subtitle when an app language is selected",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "appLanguageSystemSubtitle": "એપ્લિકેશન ભાષા તમારા ઉપકરણ સેટિંગ્સને અનુસરે છે. ઇન્ટરફેસને અલગ ભાષામાં રાખવા માટે તેને બદલો.",
+  "@appLanguageSystemSubtitle": {
+    "description": "Subtitle when app language follows system"
+  },
+  "contentLanguageAllSubtitle": "બધી ભાષાઓ. મૂવીઝ અને ટીવી ટેબ્સ વ્યાપક રહે છે, જ્યારે એક્સપ્લોર ઉપલબ્ધ હોય ત્યારે વધુ મજબૂત સ્થાનિક ફીટ પસંદ કરી શકે છે.",
+  "@contentLanguageAllSubtitle": {
+    "description": "Subtitle when content language is set to all languages"
+  },
+  "contentLanguageSelectedSubtitle": "હાલમાં {language} પર સેટ છે. મૂવીઝ અને ટીવી ટેબ્સ કડક રહેશે, જ્યારે એક્સપ્લોર આ ભાષાને પહેલા પસંદ કરશે.",
+  "@contentLanguageSelectedSubtitle": {
+    "description": "Subtitle when a specific content language is selected",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  }
+}

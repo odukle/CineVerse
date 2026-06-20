@@ -1,6 +1,7 @@
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/app/theme/theme_palette.dart';
 import 'package:cineverse/app/theme/theme_provider.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -19,9 +20,9 @@ class AppearanceScreen extends ConsumerWidget {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: const Text(
-            'Appearance',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          title: Text(
+            context.l10n.appearance,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           leading: IconButton(
             icon: const Icon(
@@ -75,7 +76,7 @@ class AppearanceScreen extends ConsumerWidget {
                       ),
                     ),
                     child: Text(
-                      'Theme presets',
+                      context.l10n.themePresets,
                       style: theme.textTheme.labelLarge?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
@@ -84,7 +85,7 @@ class AppearanceScreen extends ConsumerWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Choose your vibe',
+                    context.l10n.chooseYourVibe,
                     style: theme.textTheme.headlineSmall?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
@@ -92,7 +93,7 @@ class AppearanceScreen extends ConsumerWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Swap the app between cinematic personalities without changing any behavior.',
+                    context.l10n.appearanceDescription,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: Colors.white.withValues(alpha: 0.75),
                       height: 1.45,

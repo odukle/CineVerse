@@ -1,4 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
@@ -73,9 +74,9 @@ class _FullCastCrewScreenState extends State<FullCastCrewScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
-                  'Cast & Crew',
-                  style: TextStyle(
+                Text(
+                  context.l10n.fullCastAndCrew,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -127,7 +128,7 @@ class _FullCastCrewScreenState extends State<FullCastCrewScreen> {
                           });
                         },
                         decoration: InputDecoration(
-                          hintText: 'Search name or role...',
+                          hintText: context.l10n.searchNameOrRole,
                           hintStyle: TextStyle(
                             color: Colors.white.withValues(alpha: 0.5),
                           ),
@@ -214,15 +215,15 @@ class _FullCastCrewScreenState extends State<FullCastCrewScreen> {
                           fontWeight: FontWeight.w600,
                         ),
                         labelPadding: const EdgeInsets.symmetric(horizontal: 2),
-                        tabs: const <Tab>[
+                        tabs: <Tab>[
                           Tab(
                             child: SizedBox(
                               height: 28,
                               child: Center(
                                 child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10),
                                   child: Text(
-                                    'Cast',
+                                    context.l10n.cast,
                                     maxLines: 1,
                                     overflow: TextOverflow.fade,
                                     softWrap: false,
@@ -236,9 +237,9 @@ class _FullCastCrewScreenState extends State<FullCastCrewScreen> {
                               height: 28,
                               child: Center(
                                 child: Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10),
                                   child: Text(
-                                    'Crew',
+                                    context.l10n.crew,
                                     maxLines: 1,
                                     overflow: TextOverflow.fade,
                                     softWrap: false,
@@ -292,8 +293,8 @@ class _CreditGrid extends StatelessWidget {
       return Center(
         child: Text(
           query.isEmpty
-              ? 'No information available.'
-              : 'No results for "$query"',
+              ? context.l10n.noContentAvailableForThisSelection
+              : context.l10n.noResultsFound,
           style: const TextStyle(color: Colors.white54),
         ),
       );
@@ -318,7 +319,7 @@ class _CreditGrid extends StatelessWidget {
             releaseDate: isCast ? credit.characterName : credit.role,
             mediaType: GlobalMediaType.person,
           ),
-          sectionTitle: isCast ? 'Cast' : 'Crew',
+          sectionTitle: isCast ? context.l10n.cast : context.l10n.crew,
           width: 100,
         );
       },

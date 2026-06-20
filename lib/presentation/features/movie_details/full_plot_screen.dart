@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/data/models/omdb_title_details_dto.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/omdb_title_details_provider.dart';
 import 'package:cineverse/presentation/widgets/app_back_button.dart';
@@ -33,7 +34,7 @@ class FullPlotScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.cinemaGradientTop,
         leading: const AppBackButton(),
-        title: const Text('Full Plot'),
+        title: Text(context.l10n.fullPlot),
       ),
       body: detailsAsync.when(
         loading: () => _FullPlotLoadingState(title: fallbackTitle),
@@ -41,7 +42,7 @@ class FullPlotScreen extends ConsumerWidget {
           title: fallbackTitle,
           message: error is StateError
               ? error.message
-              : 'Could not load full plot right now.',
+              : context.l10n.errorLoadingGenres(error.toString()),
           onRetry: () => ref.invalidate(omdbTitleDetailsProvider(request)),
         ),
         data: (details) => _FullPlotContent(
@@ -152,9 +153,9 @@ class _FullPlotContent extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         _CardSection(
-          title: 'Full Plot (OMDb)',
+          title: context.l10n.fullPlot,
           child: Text(
-            details.plot ?? 'Full plot is unavailable for this title.',
+            details.plot ?? context.l10n.noReviewsYet,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: Colors.white.withValues(alpha: 0.92),
               height: 1.5,
@@ -179,16 +180,16 @@ class _FullPlotContent extends StatelessWidget {
             details.actors != null) ...[
           const SizedBox(height: 14),
           _CardSection(
-            title: 'Credits Snapshot',
+            title: context.l10n.userReviews,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (details.director != null)
-                  _InlineInfo(label: 'Director', value: details.director!),
+                  _InlineInfo(label: context.l10n.director, value: details.director!),
                 if (details.writer != null)
-                  _InlineInfo(label: 'Writer', value: details.writer!),
+                  _InlineInfo(label: context.l10n.writer, value: details.writer!),
                 if (details.actors != null)
-                  _InlineInfo(label: 'Actors', value: details.actors!),
+                  _InlineInfo(label: context.l10n.actors, value: details.actors!),
               ],
             ),
           ),
@@ -196,7 +197,7 @@ class _FullPlotContent extends StatelessWidget {
         if (details.awards != null) ...[
           const SizedBox(height: 14),
           _CardSection(
-            title: 'Awards',
+            title: context.l10n.filtered,
             child: Text(
               details.awards!,
               style: theme.textTheme.bodyMedium?.copyWith(
@@ -237,7 +238,7 @@ class _FullPlotLoadingState extends StatelessWidget {
             ),
             const SizedBox(height: 14),
             Text(
-              'Loading full plot for $title',
+              context.l10n.errorLoadingGenres(title),
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: Colors.white70,
@@ -296,7 +297,7 @@ class _FullPlotErrorState extends StatelessWidget {
             OutlinedButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Retry'),
+              label: Text(context.l10n.retry),
             ),
           ],
         ),

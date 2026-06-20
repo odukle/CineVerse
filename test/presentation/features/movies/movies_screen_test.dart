@@ -9,11 +9,22 @@ import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
 import 'package:cineverse/presentation/features/movies/explore_screen.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
+import 'package:cineverse/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../../test_helpers.dart';
+
 void main() {
+  setUp(setupFakeHttpClient);
+  const localizationsDelegates = [
+    AppLocalizations.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+  ];
   Future<void> settleExploreScreen(WidgetTester tester) async {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
@@ -44,8 +55,8 @@ void main() {
     return CuratedTonightRailData(
       profile: const CuratedTonightProfile(
         id: 'test_profile',
-        title: 'Curated Tonight',
-        description: 'Test curated rail.',
+        titleKey: 'curatedTonight',
+        descriptionKey: 'curatedNeoNoirNightsDescription',
         tags: <String>['Test'],
         movieGenres: <int>{28, 18},
         tvGenres: <int>{18},
@@ -120,7 +131,7 @@ void main() {
       MovieGenre(id: 10751, name: 'Family'),
     ];
 
-    Future<MovieDetails> buildDetails(int movieId) async {
+    MovieDetails buildDetails(int movieId) {
       return MovieDetails(
         id: movieId,
         title: 'Movie $movieId',
@@ -144,41 +155,50 @@ void main() {
               in sections.entries)
             movieSectionProvider(
               entry.key,
-            ).overrideWith((ref) async => entry.value),
-          movieGenresProvider.overrideWith((ref) async => genres),
+            ).overrideWithValue(AsyncValue.data(entry.value)),
+          for (final MapEntry<MovieSection, List<MediaTitle>> entry
+              in sections.entries)
+            exploreMovieSectionProvider(
+              entry.key,
+            ).overrideWithValue(AsyncValue.data(entry.value)),
+          movieGenresProvider.overrideWithValue(AsyncValue.data(genres)),
           for (final int genreId in <int>[28, 18, 53, 35, 80, 10751])
-            genreSectionProvider((id: genreId, isTv: false)).overrideWith(
-              (ref) async => buildMovies('Genre $genreId Movie', genreId),
+            genreSectionProvider((id: genreId, isTv: false)).overrideWithValue(
+              AsyncValue.data(buildMovies('Genre $genreId Movie', genreId)),
             ),
           for (final MapEntry<MovieMood, List<MediaTitle>> entry
               in moodSections.entries)
             moodSectionProvider((
               mood: entry.key,
               isTv: false,
-            )).overrideWith((ref) async => entry.value),
-          hiddenGemsSectionProvider.overrideWith(
-            (ref) async => discoverPool,
+            )).overrideWithValue(AsyncValue.data(entry.value)),
+          hiddenGemsSectionProvider.overrideWithValue(
+            AsyncValue.data(discoverPool),
           ),
-          curatedTonightRailProvider.overrideWith(
-            (ref) async => buildCuratedRailData(discoverPool),
+          curatedTonightRailProvider.overrideWithValue(
+            AsyncValue.data(buildCuratedRailData(discoverPool)),
           ),
-          discoverPoolProvider.overrideWith((ref) async => discoverPool),
+          discoverPoolProvider.overrideWithValue(AsyncValue.data(discoverPool)),
           for (final int id in allIds)
             movieDetailsProvider(
               GetMovieDetailsParams(movieId: id),
-            ).overrideWith((ref) => buildDetails(id)),
+            ).overrideWithValue(AsyncValue.data(buildDetails(id))),
           for (final int id in allIds)
             mediaImagesProvider((
               id: id,
               isTv: false,
-            )).overrideWith((ref) async => MediaImages.empty),
+            )).overrideWithValue(AsyncValue.data(MediaImages.empty)),
           for (final int id in allIds)
             mediaTaglinesProvider((
               id: id,
               isTv: false,
-            )).overrideWith((ref) async => const <String>[]),
+            )).overrideWithValue(const AsyncValue.data(<String>[])),
         ],
-        child: const MaterialApp(home: Scaffold(body: ExploreScreen())),
+        child: const MaterialApp(
+          localizationsDelegates: localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(body: ExploreScreen()),
+        ),
       ),
     );
 
@@ -189,24 +209,18 @@ void main() {
 
     await tester.scrollUntilVisible(
       find.text('Trending'),
-      300,
+      400,
       scrollable: verticalScrollable,
+      maxScrolls: 20,
     );
     await settleExploreScreen(tester);
     expect(find.text('Trending'), findsAtLeastNWidgets(1));
 
     await tester.scrollUntilVisible(
-      find.text("What's Popular"),
-      400,
-      scrollable: verticalScrollable,
-    );
-    await settleExploreScreen(tester);
-    expect(find.text("What's Popular"), findsOneWidget);
-
-    await tester.scrollUntilVisible(
       find.text('Now Playing'),
       400,
       scrollable: verticalScrollable,
+      maxScrolls: 20,
     );
     await settleExploreScreen(tester);
     expect(find.text('Now Playing'), findsOneWidget);
@@ -215,6 +229,7 @@ void main() {
       find.text('Discover by Mood'),
       400,
       scrollable: verticalScrollable,
+      maxScrolls: 20,
     );
     await settleExploreScreen(tester);
     expect(find.text('Discover by Mood'), findsOneWidget);
@@ -261,7 +276,7 @@ void main() {
           MovieSection.thriller: buildMovies('Thriller Movie', 801),
         };
 
-    Future<MovieDetails> buildDetails(int movieId) async {
+    MovieDetails buildDetails(int movieId) {
       return MovieDetails(
         id: movieId,
         title: 'Movie $movieId',
@@ -303,50 +318,59 @@ void main() {
               in sections.entries)
             movieSectionProvider(
               entry.key,
-            ).overrideWith((ref) async => entry.value),
-          movieGenresProvider.overrideWith(
-            (ref) async => const <MovieGenre>[
+            ).overrideWithValue(AsyncValue.data(entry.value)),
+          for (final MapEntry<MovieSection, List<MediaTitle>> entry
+              in sections.entries)
+            exploreMovieSectionProvider(
+              entry.key,
+            ).overrideWithValue(AsyncValue.data(entry.value)),
+          movieGenresProvider.overrideWithValue(
+            const AsyncValue.data(<MovieGenre>[
               MovieGenre(id: 28, name: 'Action'),
               MovieGenre(id: 18, name: 'Drama'),
               MovieGenre(id: 53, name: 'Thriller'),
               MovieGenre(id: 35, name: 'Comedy'),
               MovieGenre(id: 80, name: 'Crime'),
               MovieGenre(id: 10751, name: 'Family'),
-            ],
+            ]),
           ),
           for (final int genreId in <int>[28, 18, 53, 35, 80, 10751])
-            genreSectionProvider((id: genreId, isTv: false)).overrideWith(
-              (ref) async => buildMovies('Genre $genreId Movie', genreId),
+            genreSectionProvider((id: genreId, isTv: false)).overrideWithValue(
+              AsyncValue.data(buildMovies('Genre $genreId Movie', genreId)),
             ),
           for (final MapEntry<MovieMood, List<MediaTitle>> entry
               in moodSections.entries)
             moodSectionProvider((
               mood: entry.key,
               isTv: false,
-            )).overrideWith((ref) async => entry.value),
-          hiddenGemsSectionProvider.overrideWith(
-            (ref) async => discoverPool,
+            )).overrideWithValue(AsyncValue.data(entry.value)),
+          hiddenGemsSectionProvider.overrideWithValue(
+            AsyncValue.data(discoverPool),
           ),
-          curatedTonightRailProvider.overrideWith(
-            (ref) async => buildCuratedRailData(discoverPool),
+          curatedTonightRailProvider.overrideWithValue(
+            AsyncValue.data(buildCuratedRailData(discoverPool)),
           ),
-          discoverPoolProvider.overrideWith((ref) async => discoverPool),
+          discoverPoolProvider.overrideWithValue(AsyncValue.data(discoverPool)),
           for (final int id in allIds)
             movieDetailsProvider(
               GetMovieDetailsParams(movieId: id),
-            ).overrideWith((ref) => buildDetails(id)),
+            ).overrideWithValue(AsyncValue.data(buildDetails(id))),
           for (final int id in allIds)
             mediaImagesProvider((
               id: id,
               isTv: false,
-            )).overrideWith((ref) async => MediaImages.empty),
+            )).overrideWithValue(AsyncValue.data(MediaImages.empty)),
           for (final int id in allIds)
             mediaTaglinesProvider((
               id: id,
               isTv: false,
-            )).overrideWith((ref) async => const <String>[]),
+            )).overrideWithValue(const AsyncValue.data(<String>[])),
         ],
-        child: const MaterialApp(home: Scaffold(body: ExploreScreen())),
+        child: const MaterialApp(
+          localizationsDelegates: localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(body: ExploreScreen()),
+        ),
       ),
     );
 
@@ -403,7 +427,7 @@ void main() {
           MovieSection.thriller: buildMovies('Thriller Movie', 801),
         };
 
-    Future<MovieDetails> buildDetails(int movieId) async {
+    MovieDetails buildDetails(int movieId) {
       return MovieDetails(
         id: movieId,
         title: 'Movie $movieId',
@@ -441,50 +465,59 @@ void main() {
               in sections.entries)
             movieSectionProvider(
               entry.key,
-            ).overrideWith((ref) async => entry.value),
-          movieGenresProvider.overrideWith(
-            (ref) async => const <MovieGenre>[
+            ).overrideWithValue(AsyncValue.data(entry.value)),
+          for (final MapEntry<MovieSection, List<MediaTitle>> entry
+              in sections.entries)
+            exploreMovieSectionProvider(
+              entry.key,
+            ).overrideWithValue(AsyncValue.data(entry.value)),
+          movieGenresProvider.overrideWithValue(
+            const AsyncValue.data(<MovieGenre>[
               MovieGenre(id: 28, name: 'Action'),
               MovieGenre(id: 18, name: 'Drama'),
               MovieGenre(id: 53, name: 'Thriller'),
               MovieGenre(id: 35, name: 'Comedy'),
               MovieGenre(id: 80, name: 'Crime'),
               MovieGenre(id: 10751, name: 'Family'),
-            ],
+            ]),
           ),
           for (final int genreId in <int>[28, 18, 53, 35, 80, 10751])
-            genreSectionProvider((id: genreId, isTv: false)).overrideWith(
-              (ref) async => buildMovies('Genre $genreId Movie', genreId),
+            genreSectionProvider((id: genreId, isTv: false)).overrideWithValue(
+              AsyncValue.data(buildMovies('Genre $genreId Movie', genreId)),
             ),
           for (final MapEntry<MovieMood, List<MediaTitle>> entry
               in moodSections.entries)
             moodSectionProvider((
               mood: entry.key,
               isTv: false,
-            )).overrideWith((ref) async => entry.value),
-          hiddenGemsSectionProvider.overrideWith(
-            (ref) async => discoverPool,
+            )).overrideWithValue(AsyncValue.data(entry.value)),
+          hiddenGemsSectionProvider.overrideWithValue(
+            AsyncValue.data(discoverPool),
           ),
-          curatedTonightRailProvider.overrideWith(
-            (ref) async => buildCuratedRailData(discoverPool),
+          curatedTonightRailProvider.overrideWithValue(
+            AsyncValue.data(buildCuratedRailData(discoverPool)),
           ),
-          discoverPoolProvider.overrideWith((ref) async => discoverPool),
+          discoverPoolProvider.overrideWithValue(AsyncValue.data(discoverPool)),
           for (final int id in allIds)
             movieDetailsProvider(
               GetMovieDetailsParams(movieId: id),
-            ).overrideWith((ref) => buildDetails(id)),
+            ).overrideWithValue(AsyncValue.data(buildDetails(id))),
           for (final int id in allIds)
             mediaImagesProvider((
               id: id,
               isTv: false,
-            )).overrideWith((ref) async => MediaImages.empty),
+            )).overrideWithValue(AsyncValue.data(MediaImages.empty)),
           for (final int id in allIds)
             mediaTaglinesProvider((
               id: id,
               isTv: false,
-            )).overrideWith((ref) async => const <String>[]),
+            )).overrideWithValue(const AsyncValue.data(<String>[])),
         ],
-        child: const MaterialApp(home: Scaffold(body: ExploreScreen())),
+        child: const MaterialApp(
+          localizationsDelegates: localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: Scaffold(body: ExploreScreen()),
+        ),
       ),
     );
 

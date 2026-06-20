@@ -1,4 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/presentation/features/movie_details/widgets/movie_awards_helper.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class MovieAwardsScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Awards & Accolades',
+                context.l10n.awardsAndAccolades,
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -87,7 +88,7 @@ class MovieAwardsScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Accolade Summary',
+                          context.l10n.accoladeSummary,
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -133,7 +134,7 @@ class MovieAwardsScreen extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.only(left: 4, bottom: 12),
                     child: Text(
-                      'Accolade Details',
+                      context.l10n.accoladeDetails,
                       style: theme.textTheme.titleSmall?.copyWith(
                         color: Colors.white70,
                         fontWeight: FontWeight.bold,
@@ -150,7 +151,7 @@ class MovieAwardsScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 40),
                       alignment: Alignment.center,
                       child: Text(
-                        'No detailed awards info available.',
+                        context.l10n.noDetailedAwardsInfo,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: Colors.white38,
                         ),

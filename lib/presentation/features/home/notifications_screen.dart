@@ -1,4 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/presentation/features/home/providers/reminders_provider.dart';
 import 'package:cineverse/presentation/widgets/app_back_button.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
@@ -22,9 +23,9 @@ class NotificationsScreen extends ConsumerWidget {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           leading: const AppBackButton(),
-          title: const Text(
-            'Notifications',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+          title: Text(
+            context.l10n.notifications,
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
           ),
         ),
         body: remindersAsync.when(
@@ -33,7 +34,7 @@ class NotificationsScreen extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Text(
-                'Could not load reminders.\n$error',
+                context.l10n.couldNotLoadReminders(error.toString()),
                 textAlign: TextAlign.center,
                 style: const TextStyle(color: Colors.white70),
               ),
@@ -45,7 +46,7 @@ class NotificationsScreen extends ConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.all(24),
                   child: Text(
-                    'No reminders set yet.\nCreate one from Episode Tracker or Movie Details.',
+                    context.l10n.noRemindersSetYet,
                     textAlign: TextAlign.center,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: Colors.white70,
@@ -67,8 +68,8 @@ class NotificationsScreen extends ConsumerWidget {
                   'EEE, d MMM yyyy • hh:mm a',
                 ).format(reminder.notifyAt.toLocal());
                 final String subtitle = isOverdue
-                    ? 'Was scheduled for $schedule'
-                    : 'Scheduled for $schedule';
+                    ? context.l10n.wasScheduledFor(schedule)
+                    : context.l10n.scheduledFor(schedule);
 
                 return Container(
                   padding: const EdgeInsets.all(14),
@@ -103,8 +104,8 @@ class NotificationsScreen extends ConsumerWidget {
                             ),
                             child: Text(
                               reminder.type == ReminderType.episodeAiring
-                                  ? 'Episode Airing'
-                                  : 'General',
+                                  ? context.l10n.episodeAiring
+                                  : context.l10n.general,
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontSize: 11,
@@ -122,9 +123,9 @@ class NotificationsScreen extends ConsumerWidget {
                               size: 18,
                               color: Colors.white70,
                             ),
-                            label: const Text(
-                              'Dismiss',
-                              style: TextStyle(color: Colors.white70),
+                            label: Text(
+                              context.l10n.dismiss,
+                              style: const TextStyle(color: Colors.white70),
                             ),
                           ),
                         ],

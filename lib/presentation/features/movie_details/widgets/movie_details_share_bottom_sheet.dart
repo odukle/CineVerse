@@ -8,6 +8,7 @@ import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 
 import 'package:cineverse/presentation/features/movie_details/quote_share_editor_screen.dart';
 
@@ -55,6 +56,7 @@ class _MovieDetailsShareBottomSheetState
   final ScreenshotController _screenshotController = ScreenshotController();
 
   Future<void> _shareVisualCard() async {
+    final l10n = context.l10n;
     final imageBytes = await _screenshotController.captureFromWidget(
       _ShareableCard(details: widget.details, isTv: widget.isTv),
       context: context,
@@ -65,43 +67,47 @@ class _MovieDetailsShareBottomSheetState
     final file = await File('${tempDir.path}/cineverse_share.png').create();
     await file.writeAsBytes(imageBytes);
 
-    await Share.shareXFiles([
-      XFile(file.path),
-    ], text: 'Recommended on Lumi: ${widget.details.title}');
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      text: l10n.recommendedOnLumi(widget.details.title),
+    );
   }
 
   Future<void> _shareDeepLink() async {
+    final l10n = context.l10n;
     final AppConfig appConfig = AppConfig.fromEnvironment();
-    final Uri linkUri =
-        Uri.parse(
-          '${appConfig.effectiveMovieApiBaseUrl}/movies/${widget.details.id}',
-        ).replace(
-          queryParameters: <String, String>{
-            if (widget.isTv) 'isTv': 'true',
-            'title': widget.details.title,
-          },
-        );
+    final Uri linkUri = Uri.parse(
+      '${appConfig.effectiveMovieApiBaseUrl}/movies/${widget.details.id}',
+    ).replace(
+      queryParameters: <String, String>{
+        if (widget.isTv) 'isTv': 'true',
+        'title': widget.details.title,
+      },
+    );
     final storeLink = Platform.isAndroid
         ? 'https://play.google.com/store/apps/details?id=com.odukle.cineverse'
         : 'https://apps.apple.com/app/id6775792556';
 
-    final shareText =
-        'Check out "${widget.details.title}" on Lumi!\n\n'
-        '${linkUri.toString()}\n\n'
-        'Get Lumi: $storeLink';
-
-    await Share.share(shareText);
+    await Share.share(
+      l10n.checkOutOnLumi(
+        widget.details.title,
+        linkUri.toString(),
+        storeLink,
+      ),
+    );
   }
 
   Future<void> _shareDirectLink() async {
+    final l10n = context.l10n;
     final tmdbLink =
         'https://www.themoviedb.org/${widget.isTv ? 'tv' : 'movie'}/${widget.details.id}';
-    await Share.share('Check out "${widget.details.title}" on TMDB: $tmdbLink');
+    await Share.share(l10n.checkOutOnTmdb(widget.details.title, tmdbLink));
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = context.l10n;
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
@@ -123,7 +129,7 @@ class _MovieDetailsShareBottomSheetState
           ),
           const SizedBox(height: 24),
           Text(
-            'Share Movie',
+            l10n.shareMovie,
             style: theme.textTheme.titleLarge?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -132,8 +138,8 @@ class _MovieDetailsShareBottomSheetState
           const SizedBox(height: 24),
           _ShareOptionItem(
             icon: Icons.auto_awesome_rounded,
-            title: 'Visual Movie Card',
-            subtitle: 'Beautiful styled card for social stories',
+            title: l10n.visualMovieCard,
+            subtitle: l10n.beautifulStyledCardForStories,
             color: AppColors.cinemaAccent,
             onTap: () {
               Navigator.pop(context);
@@ -142,8 +148,8 @@ class _MovieDetailsShareBottomSheetState
           ),
           _ShareOptionItem(
             icon: Icons.link_rounded,
-            title: 'Smart Lumi Link',
-            subtitle: 'Clickable share link for WhatsApp and other apps',
+            title: l10n.smartLumiLink,
+            subtitle: l10n.clickableShareLink,
             color: Colors.blueAccent,
             onTap: () {
               Navigator.pop(context);
@@ -152,8 +158,8 @@ class _MovieDetailsShareBottomSheetState
           ),
           _ShareOptionItem(
             icon: Icons.format_quote_rounded,
-            title: "Share quotes",
-            subtitle: 'Place your favorite quote on a movie backdrop',
+            title: l10n.quotes,
+            subtitle: l10n.placeQuoteOnBackdrop,
             color: Colors.orangeAccent,
             onTap: () {
               Navigator.pop(context);
@@ -170,8 +176,8 @@ class _MovieDetailsShareBottomSheetState
           ),
           _ShareOptionItem(
             icon: Icons.open_in_new_rounded,
-            title: 'Direct TMDB Link',
-            subtitle: 'Standard link to movie database',
+            title: l10n.directTmdbLink,
+            subtitle: l10n.standardLinkToMovieDatabase,
             color: Colors.greenAccent,
             onTap: () {
               Navigator.pop(context);
@@ -386,9 +392,9 @@ class _ShareableCard extends StatelessWidget {
 
                 const Spacer(),
 
-                const Text(
-                  'DISCOVER ON LUMI',
-                  style: TextStyle(
+                Text(
+                  context.l10n.discoverOnLumi,
+                  style: const TextStyle(
                     color: Colors.white24,
                     fontSize: 10,
                     letterSpacing: 2,

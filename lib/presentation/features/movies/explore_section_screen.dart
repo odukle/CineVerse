@@ -1,4 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/presentation/features/movies/models/explore_models.dart';
 import 'package:cineverse/presentation/features/movies/providers/library_recommendations_provider.dart';
@@ -349,7 +350,7 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Error: $err', style: const TextStyle(color: Colors.white70)),
+            Text(context.l10n.errorGeneric(err.toString()), style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
@@ -375,7 +376,7 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
                   );
                 }
               },
-              child: const Text('Retry'),
+              child: Text(context.l10n.retry),
             ),
           ],
         ),
@@ -415,10 +416,10 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
               loadNextHiddenGemsPages(ref);
             });
           }
-          return const Center(
+          return Center(
             child: Text(
-              'No items found',
-              style: TextStyle(color: Colors.white70),
+              context.l10n.noItemsFound,
+              style: const TextStyle(color: Colors.white70),
             ),
           );
         }
@@ -447,7 +448,7 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
                   child: movies.isLoading
                       ? CircularProgressIndicator(color: AppColors.cinemaAccent)
                       : Text(
-                          'No more entries',
+                          context.l10n.noMoreEntries,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: Colors.white.withValues(alpha: 0.5),
                             fontWeight: FontWeight.bold,

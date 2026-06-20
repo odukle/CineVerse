@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
@@ -111,17 +112,18 @@ class _MediaPosterGridCardState extends ConsumerState<MediaPosterGridCard> {
           break;
         case SortField.popularity:
           subtitleText =
-              '${widget.movie.popularity.toStringAsFixed(1)} Popularity';
+              '${widget.movie.popularity.toStringAsFixed(1)} ${context.l10n.popularity}';
           break;
         case SortField.voteAverage:
           if (widget.movie.voteAverage != null &&
               widget.movie.voteAverage! > 0) {
             subtitleText =
-                '${widget.movie.voteAverage!.toStringAsFixed(1)} Rating';
+                '${widget.movie.voteAverage!.toStringAsFixed(1)} ${context.l10n.rating}';
           }
           break;
         case SortField.voteCount:
-          subtitleText = '${_formatCount(widget.movie.voteCount)} Votes';
+          subtitleText =
+              '${_formatCount(widget.movie.voteCount)} ${context.l10n.voteCount}';
           break;
         case SortField.releaseDate:
           subtitleText = widget.movie.releaseDate;
@@ -549,7 +551,7 @@ class _WatchlistUndoSnackBarContentState
       children: <Widget>[
         Expanded(
           child: Text(
-            'Removed from watchlist ($_remainingSeconds s)',
+            context.l10n.removedFromWatchlistCountdown(_remainingSeconds),
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w700,
@@ -562,7 +564,7 @@ class _WatchlistUndoSnackBarContentState
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
           },
           child: Text(
-            'UNDO',
+            context.l10n.undo,
             style: TextStyle(
               color: AppColors.cinemaAccent,
               fontWeight: FontWeight.w700,

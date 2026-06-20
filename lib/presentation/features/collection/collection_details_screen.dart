@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/data/providers/data_providers.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/movie_collection.dart';
@@ -48,7 +49,7 @@ class CollectionDetailsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Failed to load collection details',
+                  context.l10n.failedToLoadCollectionDetails,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.72),
                     fontSize: 16,
@@ -61,9 +62,9 @@ class CollectionDetailsScreen extends ConsumerWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.cinemaAccent,
                   ),
-                  child: const Text(
-                    'Retry',
-                    style: TextStyle(color: Colors.black),
+                  child: Text(
+                    context.l10n.retry,
+                    style: const TextStyle(color: Colors.black),
                   ),
                 ),
               ],
@@ -204,16 +205,16 @@ class _CollectionDetailsContent extends ConsumerWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Franchise Progress',
-                            style: TextStyle(
+                          Text(
+                            context.l10n.franchiseProgress,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 15,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           Text(
-                            '$watchedCount of ${collection.parts.length} Watched',
+                            '$watchedCount of ${collection.parts.length} ${context.l10n.watched}',
                             style: TextStyle(
                               color: AppColors.cinemaAccent,
                               fontSize: 14,
@@ -239,7 +240,7 @@ class _CollectionDetailsContent extends ConsumerWidget {
 
                 // Parts Title
                 Text(
-                  'Movies in this Collection',
+                  context.l10n.moviesInThisCollection,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -404,7 +405,7 @@ class _CollectionDetailsContent extends ConsumerWidget {
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    'Watched',
+                                    context.l10n.watched,
                                     style: TextStyle(
                                       color: AppColors.cinemaAccent,
                                       fontSize: 10,

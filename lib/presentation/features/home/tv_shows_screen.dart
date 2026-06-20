@@ -1,4 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/presentation/features/home/widgets/filter_chips_list.dart';
 import 'package:cineverse/presentation/features/home/widgets/media_grid.dart';
 import 'package:cineverse/presentation/features/movies/providers/filter_provider.dart';
@@ -93,16 +94,16 @@ class TvShowsScreen extends ConsumerWidget {
                             horizontal: 2,
                           ),
                           tabs: [
-                            const Tab(
+                            Tab(
                               child: SizedBox(
                                 height: 28,
                                 child: Center(
                                   child: Padding(
-                                    padding: EdgeInsets.symmetric(
+                                    padding: const EdgeInsets.symmetric(
                                       horizontal: 10,
                                     ),
                                     child: Text(
-                                      'Popular',
+                                      context.l10n.popular,
                                       maxLines: 1,
                                       overflow: TextOverflow.fade,
                                       softWrap: false,
@@ -155,7 +156,7 @@ class TvShowsScreen extends ConsumerWidget {
               child: CircularProgressIndicator(color: AppColors.cinemaAccent),
             ),
             error: (error, _) =>
-                Center(child: Text('Error loading genres: $error')),
+                Center(child: Text(context.l10n.errorLoadingGenres(error.toString()))),
           );
     return TabContentReveal(child: content);
   }

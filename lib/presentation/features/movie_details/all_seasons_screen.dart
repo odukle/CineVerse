@@ -1,11 +1,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
-import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:cineverse/presentation/widgets/app_back_button.dart';
-import 'package:flutter/material.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
+import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
@@ -37,9 +38,9 @@ class AllSeasonsScreen extends StatelessWidget {
                 showTitle,
                 style: const TextStyle(fontSize: 12, color: Colors.white70),
               ),
-              const Text(
-                'All Seasons',
-                style: TextStyle(
+              Text(
+                context.l10n.allSeasons,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
@@ -141,7 +142,7 @@ class _SeasonListItem extends StatelessWidget {
                       if (season.voteAverage != null && season.voteAverage! > 0)
                         const SizedBox(width: 8),
                       Text(
-                        '$year • ${season.episodeCount} Episodes',
+                        '$year • ${season.episodeCount} ${context.l10n.episodes}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,

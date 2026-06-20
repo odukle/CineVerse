@@ -4,6 +4,7 @@ import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 
 class QuotesCarousel extends ConsumerWidget {
@@ -35,7 +36,7 @@ class QuotesCarousel extends ConsumerWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Quotes',
+                        context.l10n.quotes,
                         style: theme.textTheme.titleLarge?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -53,7 +54,7 @@ class QuotesCarousel extends ConsumerWidget {
                           );
                         },
                         child: Text(
-                          'Explore',
+                          context.l10n.exploreLabel,
                           style: theme.textTheme.labelLarge?.copyWith(
                             color: AppColors.cinemaAccent,
                             fontWeight: FontWeight.bold,
@@ -63,7 +64,7 @@ class QuotesCarousel extends ConsumerWidget {
                     ],
                   ),
                   Text(
-                    'May include occasional mismatches due to lexical quote search.',
+                    context.l10n.mayIncludeMismatches,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(
@@ -120,7 +121,7 @@ class QuotesCarousel extends ConsumerWidget {
                           Padding(
                             padding: const EdgeInsets.only(top: 8),
                             child: Text(
-                              '— ${quote.character}',
+                              context.l10n.quoteCharacter(quote.character!),
                               style: theme.textTheme.labelMedium?.copyWith(
                                 color: AppColors.cinemaAccent,
                                 fontWeight: FontWeight.bold,

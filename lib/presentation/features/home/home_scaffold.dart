@@ -1,5 +1,6 @@
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/constants/app_constants.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/presentation/widgets/animated_dialog.dart';
 import 'package:cineverse/presentation/features/home/app_bottom_navigation_bar.dart';
 import 'package:cineverse/presentation/features/home/widgets/explore_media_type_toggle.dart';
@@ -31,7 +32,7 @@ class HomeScaffold extends ConsumerWidget {
     final bool isLibrary = currentTab == HomeTab.watchlist;
     final Widget? leadingContent = isMoviesOrTv
         ? _ChromeActionButton(
-            tooltip: 'Sort titles',
+            tooltip: context.l10n.tooltipSortTitles,
             icon: Icons.sort_rounded,
             onTap: () =>
                 _showSortSheet(context, ref, currentTab == HomeTab.tvShows),
@@ -64,23 +65,23 @@ class HomeScaffold extends ConsumerWidget {
               ),
             ),
             title: Text(
-              'Exit App',
+              context.l10n.exitApp,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            content: const Text(
-              'Are you sure you want to exit Lumi?',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
+            content: Text(
+              context.l10n.exitAppConfirmation,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
                 style: TextButton.styleFrom(foregroundColor: Colors.white60),
-                child: const Text(
-                  'Cancel',
-                  style: TextStyle(fontWeight: FontWeight.w600),
+                child: Text(
+                  context.l10n.cancel,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
               ),
               TextButton(
@@ -88,9 +89,9 @@ class HomeScaffold extends ConsumerWidget {
                 style: TextButton.styleFrom(
                   foregroundColor: AppColors.cinemaAccent,
                 ),
-                child: const Text(
-                  'Exit',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                child: Text(
+                  context.l10n.close,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
             ],
@@ -151,7 +152,7 @@ class HomeScaffold extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     _ChromeActionButton(
-                      tooltip: 'Search',
+                      tooltip: context.l10n.tooltipSearch,
                       icon: Icons.search_rounded,
                       onTap: () {
                         context.pushNamed(AppRoute.search.name);
@@ -160,7 +161,7 @@ class HomeScaffold extends ConsumerWidget {
                     if (isMoviesOrTv) const SizedBox(width: 10),
                     if (isMoviesOrTv)
                       _ChromeActionButton(
-                        tooltip: 'Filters',
+                        tooltip: context.l10n.tooltipFilters,
                         icon: Icons.tune_rounded,
                         onTap: () {
                           context.pushNamed(
@@ -271,9 +272,9 @@ class HomeScaffold extends ConsumerWidget {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              const Text(
-                                'Sort By',
-                                style: TextStyle(
+                              Text(
+                                context.l10n.sortBy,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 20,
                                   fontWeight: FontWeight.w800,
@@ -291,9 +292,9 @@ class HomeScaffold extends ConsumerWidget {
                                   ),
                                 ),
                                 child: SwitchListTile(
-                                  title: const Text(
-                                    'Descending Order',
-                                    style: TextStyle(
+                                  title: Text(
+                                    context.l10n.sortBy,
+                                    style: const TextStyle(
                                       color: Colors.white70,
                                       fontSize: 14,
                                     ),
@@ -416,9 +417,9 @@ class HomeScaffold extends ConsumerWidget {
                                       borderRadius: BorderRadius.circular(18),
                                     ),
                                   ),
-                                  child: const Text(
-                                    'Apply',
-                                    style: TextStyle(
+                                  child: Text(
+                                    context.l10n.apply,
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.w800,
                                     ),
                                   ),

@@ -1,4 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/data/providers/data_providers.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_filter.dart';
@@ -10,12 +11,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 enum KeywordMediaType {
-  all('All'),
-  movies('Movies'),
-  tvShows('TV Shows');
+  all,
+  movies,
+  tvShows;
 
-  const KeywordMediaType(this.label);
-  final String label;
+  const KeywordMediaType();
+
+  String label(BuildContext context) => switch (this) {
+    KeywordMediaType.all => context.l10n.all,
+    KeywordMediaType.movies => context.l10n.toggleMovies,
+    KeywordMediaType.tvShows => context.l10n.navTvShows,
+  };
 }
 
 class KeywordTitlesState {
@@ -134,7 +140,9 @@ class KeywordTitlesNotifier extends Notifier<KeywordTitlesState> {
       }
 
       state = state.copyWith(
-        results: page == 1 ? fetchedResults : [...state.results, ...fetchedResults],
+        results: page == 1
+            ? fetchedResults
+            : [...state.results, ...fetchedResults],
         page: page,
         isLoading: false,
         isLoadingMore: false,
@@ -193,9 +201,10 @@ class KeywordTitlesNotifier extends Notifier<KeywordTitlesState> {
   }
 }
 
-final keywordTitlesProvider = NotifierProvider.family<KeywordTitlesNotifier, KeywordTitlesState, int>(
-  KeywordTitlesNotifier.new,
-);
+final keywordTitlesProvider =
+    NotifierProvider.family<KeywordTitlesNotifier, KeywordTitlesState, int>(
+      KeywordTitlesNotifier.new,
+    );
 
 class KeywordTitlesScreen extends ConsumerStatefulWidget {
   const KeywordTitlesScreen({
@@ -208,7 +217,8 @@ class KeywordTitlesScreen extends ConsumerStatefulWidget {
   final String keywordName;
 
   @override
-  ConsumerState<KeywordTitlesScreen> createState() => _KeywordTitlesScreenState();
+  ConsumerState<KeywordTitlesScreen> createState() =>
+      _KeywordTitlesScreenState();
 }
 
 class _KeywordTitlesScreenState extends ConsumerState<KeywordTitlesScreen> {
@@ -217,8 +227,7 @@ class _KeywordTitlesScreenState extends ConsumerState<KeywordTitlesScreen> {
   @override
   void initState() {
     super.initState();
-    _scrollController = ScrollController()
-      ..addListener(_onScroll);
+    _scrollController = ScrollController()..addListener(_onScroll);
   }
 
   @override
@@ -243,13 +252,20 @@ class _KeywordTitlesScreenState extends ConsumerState<KeywordTitlesScreen> {
       appBar: AppBar(
         title: Text(
           '#${widget.keywordName}',
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
         ),
         centerTitle: true,
         backgroundColor: AppColors.cinemaGradientTop,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.white,
+          ),
           onPressed: () {
             HapticFeedback.selectionClick();
             context.pop();
@@ -260,34 +276,47 @@ class _KeywordTitlesScreenState extends ConsumerState<KeywordTitlesScreen> {
             icon: const Icon(Icons.sort_rounded, color: Colors.white),
             onSelected: (sortField) {
               HapticFeedback.selectionClick();
-              ref.read(keywordTitlesProvider(widget.keywordId).notifier).setSortField(sortField);
+              ref
+                  .read(keywordTitlesProvider(widget.keywordId).notifier)
+                  .setSortField(sortField);
             },
-            itemBuilder: (context) => [
-              SortField.popularity,
-              SortField.voteAverage,
-              SortField.releaseDate,
-              SortField.voteCount,
-            ]
-                .map((f) => PopupMenuItem(
-                      value: f,
-                      child: Row(
-                        children: [
-                          if (state.selectedSort == f)
-                            Icon(Icons.check_rounded, color: AppColors.cinemaAccent, size: 18)
-                          else
-                            const SizedBox(width: 18),
-                          const SizedBox(width: 8),
-                          Text(
-                            f.label,
-                            style: TextStyle(
-                              color: state.selectedSort == f ? Colors.white : Colors.white70,
-                              fontWeight: state.selectedSort == f ? FontWeight.bold : FontWeight.normal,
+            itemBuilder: (context) =>
+                [
+                      SortField.popularity,
+                      SortField.voteAverage,
+                      SortField.releaseDate,
+                      SortField.voteCount,
+                    ]
+                    .map(
+                      (f) => PopupMenuItem(
+                        value: f,
+                        child: Row(
+                          children: [
+                            if (state.selectedSort == f)
+                              Icon(
+                                Icons.check_rounded,
+                                color: AppColors.cinemaAccent,
+                                size: 18,
+                              )
+                            else
+                              const SizedBox(width: 18),
+                            const SizedBox(width: 8),
+                            Text(
+                              f.label,
+                              style: TextStyle(
+                                color: state.selectedSort == f
+                                    ? Colors.white
+                                    : Colors.white70,
+                                fontWeight: state.selectedSort == f
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ))
-                .toList(),
+                    )
+                    .toList(),
           ),
         ],
       ),
@@ -309,20 +338,32 @@ class _KeywordTitlesScreenState extends ConsumerState<KeywordTitlesScreen> {
                   return Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: ChoiceChip(
-                      label: Text(type.label),
+                      label: Text(type.label(context)),
                       selected: isSelected,
                       onSelected: (selected) {
                         if (selected) {
                           HapticFeedback.selectionClick();
-                          ref.read(keywordTitlesProvider(widget.keywordId).notifier).setMediaType(type);
+                          ref
+                              .read(
+                                keywordTitlesProvider(
+                                  widget.keywordId,
+                                ).notifier,
+                              )
+                              .setMediaType(type);
                         }
                       },
-                      backgroundColor: AppColors.cinemaSurface.withValues(alpha: 0.5),
+                      backgroundColor: AppColors.cinemaSurface.withValues(
+                        alpha: 0.5,
+                      ),
                       selectedColor: AppColors.cinemaAccent,
                       labelStyle: TextStyle(
-                        color: isSelected ? Colors.black : Colors.white.withValues(alpha: 0.7),
+                        color: isSelected
+                            ? Colors.black
+                            : Colors.white.withValues(alpha: 0.7),
                         fontSize: 12,
-                        fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                        fontWeight: isSelected
+                            ? FontWeight.w800
+                            : FontWeight.w600,
                       ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -338,9 +379,7 @@ class _KeywordTitlesScreenState extends ConsumerState<KeywordTitlesScreen> {
                 },
               ),
             ),
-            Expanded(
-              child: _buildContent(state),
-            ),
+            Expanded(child: _buildContent(state)),
           ],
         ),
       ),
@@ -361,17 +400,31 @@ class _KeywordTitlesScreenState extends ConsumerState<KeywordTitlesScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline_rounded, color: Colors.white30, size: 64),
+              const Icon(
+                Icons.error_outline_rounded,
+                color: Colors.white30,
+                size: 64,
+              ),
               const SizedBox(height: 16),
               Text(
                 state.error!,
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.72), fontSize: 16),
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.72),
+                  fontSize: 16,
+                ),
               ),
               const SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () => ref.read(keywordTitlesProvider(widget.keywordId).notifier).loadInitial(),
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.cinemaAccent),
-                child: const Text('Retry', style: TextStyle(color: Colors.black)),
+                onPressed: () => ref
+                    .read(keywordTitlesProvider(widget.keywordId).notifier)
+                    .loadInitial(),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.cinemaAccent,
+                ),
+                child: Text(
+                  context.l10n.retry,
+                  style: TextStyle(color: Colors.black),
+                ),
               ),
             ],
           ),
@@ -384,8 +437,11 @@ class _KeywordTitlesScreenState extends ConsumerState<KeywordTitlesScreen> {
     if (results.isEmpty) {
       return Center(
         child: Text(
-          'No titles found for this keyword',
-          style: TextStyle(color: Colors.white.withValues(alpha: 0.6), fontSize: 15),
+          context.l10n.noTitlesFoundForKeyword,
+          style: TextStyle(
+            color: Colors.white.withValues(alpha: 0.6),
+            fontSize: 15,
+          ),
         ),
       );
     }
@@ -437,10 +493,12 @@ class _KeywordTitlesScreenState extends ConsumerState<KeywordTitlesScreen> {
               child: Center(
                 child: TextButton(
                   onPressed: () {
-                    ref.read(keywordTitlesProvider(widget.keywordId).notifier).loadMore();
+                    ref
+                        .read(keywordTitlesProvider(widget.keywordId).notifier)
+                        .loadMore();
                   },
                   child: Text(
-                    'Load More',
+                    context.l10n.loadMore,
                     style: TextStyle(color: AppColors.cinemaAccent),
                   ),
                 ),
@@ -453,7 +511,7 @@ class _KeywordTitlesScreenState extends ConsumerState<KeywordTitlesScreen> {
               padding: const EdgeInsets.only(bottom: 32),
               child: Center(
                 child: Text(
-                  'No more titles found.',
+                  context.l10n.noMoreTitlesFound,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.4),
                     fontSize: 14,

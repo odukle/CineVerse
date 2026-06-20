@@ -1,4 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/library_item.dart';
@@ -52,7 +53,7 @@ class _AddToListDialogState extends State<AddToListDialog> {
             ),
           ),
           title: Text(
-            'Add to List',
+            context.l10n.lists,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -66,10 +67,10 @@ class _AddToListDialogState extends State<AddToListDialog> {
                 listsAsync.when(
                   data: (lists) {
                     if (lists.isEmpty) {
-                      return const Padding(
+                      return Padding(
                         padding: EdgeInsets.symmetric(vertical: 8.0),
                         child: Text(
-                          'No lists yet.',
+                          context.l10n.noItemsFound,
                           style: TextStyle(color: Colors.white54),
                         ),
                       );
@@ -114,7 +115,7 @@ class _AddToListDialogState extends State<AddToListDialog> {
                                 if (context.mounted) {
                                   ToastUtils.showToast(
                                     context,
-                                    'Removed from ${list.name}',
+                                    context.l10n.removedFromList(list.name),
                                   );
                                   Navigator.pop(context);
                                 }
@@ -124,8 +125,10 @@ class _AddToListDialogState extends State<AddToListDialog> {
                                   ToastUtils.showToast(
                                     context,
                                     _addToWatchlist
-                                        ? 'Added to ${list.name} and Watchlist'
-                                        : 'Added to ${list.name}',
+                                        ? context.l10n.addedToListAndWatchlist(
+                                            list.name,
+                                          )
+                                        : context.l10n.addedToList(list.name),
                                   );
                                   Navigator.pop(context);
                                 }
@@ -138,14 +141,14 @@ class _AddToListDialogState extends State<AddToListDialog> {
                   },
                   loading: () =>
                       const Center(child: CircularProgressIndicator()),
-                  error: (_, _) => const Text('Error loading lists'),
+                  error: (_, _) => Text(context.l10n.errorLoadingLists),
                 ),
                 const Divider(color: Colors.white10),
                 TextField(
                   controller: _newListNameController,
                   style: const TextStyle(color: Colors.white, fontSize: 14),
                   decoration: InputDecoration(
-                    hintText: 'Create new list...',
+                    hintText: context.l10n.importSharedList,
                     hintStyle: const TextStyle(color: Colors.white38),
                     filled: true,
                     fillColor: Colors.white.withValues(alpha: 0.03),
@@ -168,9 +171,9 @@ class _AddToListDialogState extends State<AddToListDialog> {
                 ),
                 const SizedBox(height: 16),
                 CheckboxListTile(
-                  title: const Text(
-                    'Also add to Watchlist',
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
+                  title: Text(
+                    context.l10n.watchlist,
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                   value: _addToWatchlist,
                   onChanged: (val) =>
@@ -186,8 +189,8 @@ class _AddToListDialogState extends State<AddToListDialog> {
             TextButton(
               onPressed: () => Navigator.pop(context),
               style: TextButton.styleFrom(foregroundColor: Colors.white60),
-              child: const Text(
-                'Cancel',
+              child: Text(
+                context.l10n.cancel,
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
@@ -206,8 +209,8 @@ class _AddToListDialogState extends State<AddToListDialog> {
                     ToastUtils.showToast(
                       context,
                       _addToWatchlist
-                          ? 'Added to $name and Watchlist'
-                          : 'Added to $name',
+                          ? context.l10n.addedToListAndWatchlist(name)
+                          : context.l10n.addedToList(name),
                     );
                     Navigator.pop(context);
                   }
@@ -226,8 +229,8 @@ class _AddToListDialogState extends State<AddToListDialog> {
                 ),
                 elevation: 0,
               ),
-              child: const Text(
-                'Create',
+              child: Text(
+                context.l10n.save,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -294,7 +297,7 @@ class _WatchedDialogState extends State<WatchedDialog> {
         side: BorderSide(color: Colors.white.withValues(alpha: 0.08), width: 1),
       ),
       title: Text(
-        isEditing ? 'Edit Watched Info' : 'Mark as Watched',
+        isEditing ? context.l10n.editWatchedInfo : context.l10n.watched,
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
           color: Colors.white,
           fontWeight: FontWeight.bold,
@@ -304,8 +307,8 @@ class _WatchedDialogState extends State<WatchedDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Rating (Optional)',
+          Text(
+            context.l10n.rating,
             style: TextStyle(color: Colors.white70, fontSize: 12),
           ),
           const SizedBox(height: 8),
@@ -346,8 +349,8 @@ class _WatchedDialogState extends State<WatchedDialog> {
                         ? Colors.white38
                         : Colors.white70,
                   ),
-                  child: const Text(
-                    'Unrated',
+                  child: Text(
+                    context.l10n.reset,
                     style: TextStyle(fontWeight: FontWeight.w600),
                   ),
                 ),
@@ -355,19 +358,19 @@ class _WatchedDialogState extends State<WatchedDialog> {
             ],
           ),
           if (_rating == 0)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(top: 4),
               child: Text(
-                'This will be saved as watched without a personal rating.',
+                context.l10n.savedAsWatchedWithoutRating,
                 style: TextStyle(color: Colors.white54, fontSize: 12),
               ),
             ),
-          const SizedBox(height: 16),
-          const Text(
-            'Watch Date',
+          SizedBox(height: 16),
+          Text(
+            context.l10n.watchDate,
             style: TextStyle(color: Colors.white70, fontSize: 12),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: 8),
           InkWell(
             onTap: () async {
               final picked = await showDatePicker(
@@ -405,9 +408,9 @@ class _WatchedDialogState extends State<WatchedDialog> {
               ),
             ),
           ),
-          const SizedBox(height: 16),
-          const Text(
-            'Rewatch Count',
+          SizedBox(height: 16),
+          Text(
+            context.l10n.rewatchCount,
             style: TextStyle(color: Colors.white70, fontSize: 12),
           ),
           Row(
@@ -445,8 +448,8 @@ class _WatchedDialogState extends State<WatchedDialog> {
                 _removeWatched(context, ref);
               },
               style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-              child: const Text(
-                'Remove',
+              child: Text(
+                context.l10n.delete,
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
@@ -454,8 +457,8 @@ class _WatchedDialogState extends State<WatchedDialog> {
         TextButton(
           onPressed: () => Navigator.pop(context),
           style: TextButton.styleFrom(foregroundColor: Colors.white60),
-          child: const Text(
-            'Cancel',
+          child: Text(
+            context.l10n.cancel,
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
@@ -472,7 +475,7 @@ class _WatchedDialogState extends State<WatchedDialog> {
               elevation: 0,
             ),
             child: Text(
-              isEditing ? 'Update' : 'Save',
+              isEditing ? context.l10n.save : context.l10n.save,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
@@ -502,7 +505,7 @@ class _WatchedDialogState extends State<WatchedDialog> {
     if (context.mounted) {
       ToastUtils.showToast(
         context,
-        isUpdate ? 'Watched info updated' : 'Marked as Watched',
+        isUpdate ? context.l10n.watchedInfoUpdated : context.l10n.watched,
       );
       Navigator.pop(context);
     }
@@ -522,22 +525,22 @@ class _WatchedDialogState extends State<WatchedDialog> {
             ),
           ),
           title: Text(
-            'Remove from Watched?',
+            context.l10n.delete,
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
           ),
-          content: const Text(
-            'Are you sure you want to remove this from your watched list?',
+          content: Text(
+            context.l10n.removeFromWatchedConfirmation,
             style: TextStyle(color: Colors.white70, fontSize: 14),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
               style: TextButton.styleFrom(foregroundColor: Colors.white60),
-              child: const Text(
-                'Cancel',
+              child: Text(
+                context.l10n.cancel,
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
@@ -550,13 +553,13 @@ class _WatchedDialogState extends State<WatchedDialog> {
                       widget.isTv ? GlobalMediaType.tv : GlobalMediaType.movie,
                     );
                 if (context.mounted) {
-                  ToastUtils.showToast(context, 'Removed from Watched');
+                  ToastUtils.showToast(context, context.l10n.delete);
                   Navigator.pop(context);
                 }
               },
               style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-              child: const Text(
-                'Remove',
+              child: Text(
+                context.l10n.delete,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
@@ -613,7 +616,7 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
           ),
         ),
         title: Text(
-          isEditing ? 'Edit Note' : 'Add Note',
+          isEditing ? context.l10n.notes : context.l10n.notes,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -625,7 +628,7 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
           autofocus: true,
           style: const TextStyle(color: Colors.white, fontSize: 14),
           decoration: InputDecoration(
-            hintText: 'Enter your note here...',
+            hintText: context.l10n.addNoteHint,
             hintStyle: const TextStyle(color: Colors.white38),
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.03),
@@ -647,8 +650,8 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(foregroundColor: Colors.white60),
-            child: const Text(
-              'Cancel',
+            child: Text(
+              context.l10n.cancel,
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
@@ -671,7 +674,7 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                               text,
                             );
                         if (context.mounted) {
-                          ToastUtils.showToast(context, 'Note updated');
+                          ToastUtils.showToast(context, context.l10n.save);
                           Navigator.pop(context);
                         }
                       } else {
@@ -679,7 +682,7 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                             .read(movieNotesActionsProvider)
                             .addNote(widget.mediaId, widget.mediaType, text);
                         if (context.mounted) {
-                          ToastUtils.showToast(context, 'Note added');
+                          ToastUtils.showToast(context, context.l10n.save);
                           Navigator.pop(context);
                         }
                       }
@@ -688,8 +691,8 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                         ToastUtils.showToast(
                           context,
                           isEditing
-                              ? 'Failed to update note'
-                              : 'Failed to add note',
+                              ? context.l10n.errorGeneric(e.toString())
+                              : context.l10n.errorGeneric(e.toString()),
                         );
                       }
                     } finally {
@@ -715,7 +718,7 @@ class _AddNoteDialogState extends State<AddNoteDialog> {
                     ),
                   )
                 : Text(
-                    isEditing ? 'Update' : 'Save',
+                    isEditing ? context.l10n.save : context.l10n.save,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
           ),
@@ -833,7 +836,7 @@ class MediaActionsBottomSheet extends ConsumerWidget {
             // Action items
             _ActionTile(
               icon: Icons.list_rounded,
-              title: 'Add to Lists',
+              title: context.l10n.lists,
               onTap: () {
                 Navigator.pop(context);
                 showAnimatedDialog(
@@ -848,7 +851,7 @@ class MediaActionsBottomSheet extends ConsumerWidget {
                   ? Icons.favorite_rounded
                   : Icons.favorite_outline_rounded,
               iconColor: isFav ? Colors.redAccent : Colors.white,
-              title: isFav ? 'Remove from Favourites' : 'Add to Favourites',
+              title: isFav ? context.l10n.favourites : context.l10n.favourites,
               onTap: () async {
                 Navigator.pop(context);
                 final item = FavouriteItem(
@@ -866,7 +869,7 @@ class MediaActionsBottomSheet extends ConsumerWidget {
                 if (context.mounted) {
                   ToastUtils.showToast(
                     context,
-                    isFav ? 'Removed from Favourites' : 'Added to Favourites',
+                    isFav ? context.l10n.favourites : context.l10n.favourites,
                   );
                 }
               },
@@ -877,8 +880,8 @@ class MediaActionsBottomSheet extends ConsumerWidget {
                   : Icons.bookmark_add_outlined,
               iconColor: isInWatchlist ? AppColors.cinemaAccent : Colors.white,
               title: isInWatchlist
-                  ? 'Remove from Watchlist'
-                  : 'Add to Watchlist',
+                  ? context.l10n.watchlist
+                  : context.l10n.watchlist,
               onTap: () async {
                 Navigator.pop(context);
                 final item = WatchlistItem(
@@ -895,8 +898,8 @@ class MediaActionsBottomSheet extends ConsumerWidget {
                   ToastUtils.showToast(
                     context,
                     isInWatchlist
-                        ? 'Removed from Watchlist'
-                        : 'Added to Watchlist',
+                        ? context.l10n.watchlist
+                        : context.l10n.watchlist,
                   );
                 }
               },
@@ -906,7 +909,7 @@ class MediaActionsBottomSheet extends ConsumerWidget {
                   ? Icons.check_circle_rounded
                   : Icons.check_circle_outline_rounded,
               iconColor: isWatched ? AppColors.cinemaAccent : Colors.white,
-              title: isWatched ? 'Edit Watched Status' : 'Mark as Watched',
+              title: isWatched ? context.l10n.watched : context.l10n.watched,
               onTap: () {
                 Navigator.pop(context);
                 showAnimatedDialog(
@@ -921,7 +924,7 @@ class MediaActionsBottomSheet extends ConsumerWidget {
             ),
             _ActionTile(
               icon: Icons.note_add_rounded,
-              title: 'Add Note',
+              title: context.l10n.notes,
               onTap: () {
                 Navigator.pop(context);
                 showAnimatedDialog(

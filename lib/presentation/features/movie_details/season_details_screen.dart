@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/tv_details_providers.dart';
 import 'package:cineverse/presentation/widgets/app_back_button.dart';
@@ -53,13 +54,13 @@ class SeasonDetailsScreen extends ConsumerWidget {
                     color: Colors.white,
                   ),
                 ),
-                loading: () => const Text(
-                  'Loading...',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+                loading: () => Text(
+                  context.l10n.loading,
+                  style: const TextStyle(fontSize: 18, color: Colors.white),
                 ),
-                error: (_, _) => const Text(
-                  'Error',
-                  style: TextStyle(fontSize: 18, color: Colors.redAccent),
+                error: (_, _) => Text(
+                  context.l10n.error,
+                  style: const TextStyle(fontSize: 18, color: Colors.redAccent),
                 ),
               ),
             ],
@@ -79,7 +80,7 @@ class SeasonDetailsScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Text(
-                      '${season.episodes.length} Eps',
+                      context.l10n.episodeCount(season.episodes.length),
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 10,
@@ -109,9 +110,9 @@ class SeasonDetailsScreen extends ConsumerWidget {
                     size: 48,
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Failed to load season details',
-                    style: TextStyle(
+                  Text(
+                    context.l10n.failedToLoadSeasonDetails,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -135,7 +136,7 @@ class SeasonDetailsScreen extends ConsumerWidget {
                       backgroundColor: AppColors.cinemaAccent,
                       foregroundColor: Colors.black,
                     ),
-                    child: Text('Retry'),
+                    child: Text(context.l10n.retry),
                   ),
                 ],
               ),
@@ -156,10 +157,10 @@ class _SeasonDetailsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (season.episodes.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          'No episodes found for this season.',
-          style: TextStyle(color: Colors.white54, fontSize: 16),
+          context.l10n.noEpisodesForSeason,
+          style: const TextStyle(color: Colors.white54, fontSize: 16),
         ),
       );
     }
@@ -299,7 +300,7 @@ class _EpisodeListItem extends StatelessWidget {
                             ),
                           if (runtimeStr.isNotEmpty)
                             Text(
-                              '• $runtimeStr',
+                              context.l10n.runtimeSeparator(runtimeStr),
                               style: const TextStyle(
                                 color: Colors.white54,
                                 fontSize: 11,

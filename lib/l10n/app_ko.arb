@@ -1,0 +1,3454 @@
+{
+  "@@locale": "ko",
+  "appName": "루미",
+  "@appName": {
+    "description": "The name of the application"
+  },
+  "navExplore": "탐색",
+  "@navExplore": {
+    "description": "Bottom navigation label for Explore tab"
+  },
+  "navMovies": "영화",
+  "@navMovies": {
+    "description": "Bottom navigation label for Movies tab"
+  },
+  "navTvShows": "TV 쇼",
+  "@navTvShows": {
+    "description": "Bottom navigation label for TV Shows tab"
+  },
+  "navLibrary": "도서관",
+  "@navLibrary": {
+    "description": "Bottom navigation label for Library/Watchlist tab"
+  },
+  "navAccount": "계정",
+  "@navAccount": {
+    "description": "Bottom navigation label for Account tab"
+  },
+  "searchHint": "영화, TV 프로그램, 회사 검색...",
+  "@searchHint": {
+    "description": "Search bar hint text"
+  },
+  "searchForPerson": "사람 검색...",
+  "@searchForPerson": {
+    "description": "Search person placeholder"
+  },
+  "searchLanguages": "언어 검색",
+  "@searchLanguages": {
+    "description": "Hint for language search input"
+  },
+  "searchNameOrRole": "이름 또는 역할 검색...",
+  "@searchNameOrRole": {
+    "description": "Search cast crew placeholder"
+  },
+  "retry": "재시도",
+  "@retry": {
+    "description": "Button label to retry a failed action"
+  },
+  "tryAgain": "다시 시도",
+  "@tryAgain": {
+    "description": "Alternative retry button label"
+  },
+  "clear": "지우기",
+  "@clear": {
+    "description": "Button label to clear content"
+  },
+  "cancel": "취소",
+  "@cancel": {
+    "description": "Button label to cancel an action"
+  },
+  "ok": "확인",
+  "@ok": {
+    "description": "Button label to confirm/acknowledge"
+  },
+  "save": "저장",
+  "@save": {
+    "description": "Button label to save content"
+  },
+  "delete": "삭제",
+  "@delete": {
+    "description": "Button label to delete content"
+  },
+  "share": "공유",
+  "@share": {
+    "description": "Button label to share content"
+  },
+  "undo": "실행 취소",
+  "@undo": {
+    "description": "Undo button"
+  },
+  "close": "닫기",
+  "@close": {
+    "description": "Button label to close a dialog/sheet"
+  },
+  "apply": "적용",
+  "@apply": {
+    "description": "Button label to apply filters"
+  },
+  "reset": "재설정",
+  "@reset": {
+    "description": "Button label to reset a state"
+  },
+  "done": "완료",
+  "@done": {
+    "description": "Button label for completion"
+  },
+  "signInWithGoogle": "Google로 로그인",
+  "@signInWithGoogle": {
+    "description": "Google sign-in button label"
+  },
+  "signInWithApple": "Apple로 로그인",
+  "@signInWithApple": {
+    "description": "Apple sign-in button label"
+  },
+  "signOut": "로그아웃",
+  "@signOut": {
+    "description": "Sign out button label"
+  },
+  "deleteAccount": "계정 삭제",
+  "@deleteAccount": {
+    "description": "Delete account button label"
+  },
+  "accountDeletedSuccessfully": "계정이 삭제되었습니다.",
+  "@accountDeletedSuccessfully": {
+    "description": "Snackbar message after account deletion"
+  },
+  "appearance": "모양",
+  "@appearance": {
+    "description": "Appearance settings title"
+  },
+  "appearanceSubtitle": "테마를 선택하고 앱 모양을 맞춤설정하세요.",
+  "@appearanceSubtitle": {
+    "description": "Appearance settings subtitle"
+  },
+  "notifications": "알림",
+  "@notifications": {
+    "description": "Notifications settings title"
+  },
+  "releaseCalendar": "출시 일정",
+  "@releaseCalendar": {
+    "description": "Release calendar title"
+  },
+  "hiddenTitles": "숨겨진 제목",
+  "@hiddenTitles": {
+    "description": "Hidden titles screen title"
+  },
+  "aiRecommendationsPrivacy": "AI 추천 개인 정보 보호",
+  "@aiRecommendationsPrivacy": {
+    "description": "AI consent settings title"
+  },
+  "contentRegion": "콘텐츠 영역",
+  "@contentRegion": {
+    "description": "Content region settings title"
+  },
+  "contentLanguage": "콘텐츠 언어",
+  "@contentLanguage": {
+    "description": "Content language settings title"
+  },
+  "watchlist": "관심 목록",
+  "@watchlist": {
+    "description": "Watchlist section title"
+  },
+  "notes": "메모",
+  "@notes": {
+    "description": "Notes section title"
+  },
+  "deleteNote": "메모 삭제",
+  "@deleteNote": {
+    "description": "Tooltip for delete note action"
+  },
+  "addNoteHint": "메모 추가...",
+  "@addNoteHint": {
+    "description": "Hint for note input field"
+  },
+  "addBriefNoteHint": "간단한 메모 추가(선택 사항)...",
+  "@addBriefNoteHint": {
+    "description": "Hint for brief note input"
+  },
+  "enterNewName": "새 이름 입력...",
+  "@enterNewName": {
+    "description": "Hint for rename input"
+  },
+  "importSharedList": "공유 목록 가져오기",
+  "@importSharedList": {
+    "description": "Import shared list screen title"
+  },
+  "discoverOnLumi": "LUMI에서 발견",
+  "@discoverOnLumi": {
+    "description": "Branding text on recommendation cards"
+  },
+  "filtered": "필터링됨",
+  "@filtered": {
+    "description": "Label for filtered genre chip"
+  },
+  "fullPlot": "전체 플롯",
+  "@fullPlot": {
+    "description": "Full plot dialog/button label"
+  },
+  "userReviews": "사용자 리뷰",
+  "@userReviews": {
+    "description": "User reviews section title"
+  },
+  "noReviewsYet": "아직 리뷰가 없습니다.",
+  "@noReviewsYet": {
+    "description": "Empty state message for reviews"
+  },
+  "openInYouTube": "YouTube에서 열기",
+  "@openInYouTube": {
+    "description": "Button to open video in YouTube"
+  },
+  "hiddenGems": "숨겨진 보석",
+  "@hiddenGems": {
+    "description": "Explore section title for hidden gems"
+  },
+  "resetSpotlight": "스포트라이트 재설정",
+  "@resetSpotlight": {
+    "description": "Button to reset spotlight selections"
+  },
+  "clearPreferences": "환경설정 지우기",
+  "@clearPreferences": {
+    "description": "Button to clear user preferences"
+  },
+  "refreshPicks": "추천 새로고침",
+  "@refreshPicks": {
+    "description": "Button to refresh recommendations"
+  },
+  "shareBoard": "보드 공유",
+  "@shareBoard": {
+    "description": "Button to share recommendation board"
+  },
+  "exploreDetails": "세부정보 탐색",
+  "@exploreDetails": {
+    "description": "Button to explore item details"
+  },
+  "searchWikiquotes": "Wikiquotes 검색",
+  "@searchWikiquotes": {
+    "description": "Wikiquotes search button"
+  },
+  "selectAQuote": "견적 선택",
+  "@selectAQuote": {
+    "description": "Quote selection dialog title"
+  },
+  "tooltipShareQuote": "견적 공유",
+  "@tooltipShareQuote": {
+    "description": "Tooltip for share quote button"
+  },
+  "tooltipCopyQuote": "견적 복사",
+  "@tooltipCopyQuote": {
+    "description": "Tooltip for copy quote button"
+  },
+  "tooltipShareDialogue": "대화 공유",
+  "@tooltipShareDialogue": {
+    "description": "Tooltip for share dialogue button"
+  },
+  "tooltipCopyDialogue": "대화 복사",
+  "@tooltipCopyDialogue": {
+    "description": "Tooltip for copy dialogue button"
+  },
+  "tooltipUnhide": "숨기기 취소",
+  "@tooltipUnhide": {
+    "description": "Tooltip for unhide title button"
+  },
+  "tooltipOpenPrivacyPolicy": "개인 정보 보호 정책 열기",
+  "@tooltipOpenPrivacyPolicy": {
+    "description": "Tooltip for privacy policy link"
+  },
+  "tooltipRefreshInsights": "통찰력 새로 고침",
+  "@tooltipRefreshInsights": {
+    "description": "Tooltip for refresh insights button"
+  },
+  "tooltipSortTitles": "제목 정렬",
+  "@tooltipSortTitles": {
+    "description": "Tooltip for sort button"
+  },
+  "tooltipSearch": "검색",
+  "@tooltipSearch": {
+    "description": "Tooltip for search button"
+  },
+  "tooltipFilters": "필터",
+  "@tooltipFilters": {
+    "description": "Tooltip for filters button"
+  },
+  "tooltipSaveToGallery": "갤러리에 저장",
+  "@tooltipSaveToGallery": {
+    "description": "Tooltip for save to gallery button"
+  },
+  "tooltipShare": "공유",
+  "@tooltipShare": {
+    "description": "Tooltip for share button"
+  },
+  "tooltipShareAnalytics": "분석 공유",
+  "@tooltipShareAnalytics": {
+    "description": "Tooltip for share analytics button"
+  },
+  "tooltipSetAiringReminder": "방송 알림 설정",
+  "@tooltipSetAiringReminder": {
+    "description": "Tooltip for airing reminder"
+  },
+  "tooltipLibrarySynced": "클라우드와 동기화된 라이브러리",
+  "@tooltipLibrarySynced": {
+    "description": "Tooltip when library sync is complete"
+  },
+  "noMoreEntries": "더 이상 참가 신청이 없습니다.",
+  "@noMoreEntries": {
+    "description": "Message shown when there are no more items to load"
+  },
+  "noItemsFound": "검색된 항목이 없습니다.",
+  "@noItemsFound": {
+    "description": "Message shown when no items are found"
+  },
+  "errorLoadingGenres": "장르 로드 오류: {error}",
+  "@errorLoadingGenres": {
+    "description": "Error message when genres fail to load",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorGeneric": "오류: {error}",
+  "@errorGeneric": {
+    "description": "Generic error message",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingLists": "목록 로드 오류",
+  "@errorLoadingLists": {
+    "description": "Error when lists fail to load"
+  },
+  "errorLoadingQuotes": "인용문 로드 실패: {error}",
+  "@errorLoadingQuotes": {
+    "description": "Error loading quotes"
+  },
+  "errorCouldNotShareAnalytics": "공유할 수 없음 분석 카드.",
+  "@errorCouldNotShareAnalytics": {
+    "description": "Snackbar error for analytics sharing failure"
+  },
+  "errorCouldNotShareRecommendations": "추천게시판을 공유할 수 없습니다.",
+  "@errorCouldNotShareRecommendations": {
+    "description": "Snackbar error for recommendation sharing failure"
+  },
+  "errorCouldNotShareInsights": "시계 통계를 공유할 수 없습니다.",
+  "@errorCouldNotShareInsights": {
+    "description": "Snackbar error for insights sharing failure"
+  },
+  "watchInsightsNotReady": "Watch 통계는 아직 준비되지 않았습니다.",
+  "@watchInsightsNotReady": {
+    "description": "Snackbar message when insights are still loading"
+  },
+  "titleRestoredToSpotlight": "\"{title}\"이 Spotlight로 복원됨",
+  "@titleRestoredToSpotlight": {
+    "description": "Snackbar when a title is restored to spotlight",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "titleHasBeenHidden": "\"{title}\"이 숨겨졌습니다",
+  "@titleHasBeenHidden": {
+    "description": "Snackbar when a title is hidden",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "hiddenDate": "숨겨진: {date}",
+  "@hiddenDate": {
+    "description": "Label showing when a title was hidden",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "moviesInThisCollection": "이 컬렉션의 영화",
+  "@moviesInThisCollection": {
+    "description": "Collection details section header"
+  },
+  "searchPlanReady": "검색 계획이 준비되었습니다",
+  "@searchPlanReady": {
+    "description": "Tonight watch progress message"
+  },
+  "hoursBeforeAirTime": "방송 시간 전 시간",
+  "@hoursBeforeAirTime": {
+    "description": "Hint for reminder time input"
+  },
+  "noUpcomingReleases": "예정된 릴리스가 없습니다",
+  "@noUpcomingReleases": {
+    "description": "Empty state for release calendar"
+  },
+  "noRemindersSet": "미리 알림이 설정되지 않았습니다",
+  "@noRemindersSet": {
+    "description": "Empty state for notifications"
+  },
+  "noHiddenTitles": "숨겨진 제목이 없습니다",
+  "@noHiddenTitles": {
+    "description": "Empty state for hidden titles"
+  },
+  "hiddenTitlesDescription": "스포트라이트 섹션에서 숨긴 타이틀은 여기에 표시되며, 언제든지 복원할 수 있습니다.",
+  "@hiddenTitlesDescription": {
+    "description": "Description for hidden titles screen"
+  },
+  "tvShow": "TV 프로그램",
+  "@tvShow": {
+    "description": "Label for TV show type"
+  },
+  "movie": "영화",
+  "@movie": {
+    "description": "Label for movie type"
+  },
+  "aiConsentGranted": "선택했습니다. 라이브러리 데이터는 추천을 개인화하는 데 사용됩니다.",
+  "@aiConsentGranted": {
+    "description": "Subtitle when AI consent is granted"
+  },
+  "aiConsentNotGranted": "귀하의 라이브러리 데이터는 귀하가 선택하지 않는 한 공유되지 않습니다.",
+  "@aiConsentNotGranted": {
+    "description": "Subtitle when AI consent is not granted"
+  },
+  "languageSettingExplanation": "영화 및 TV 탭에서는 이를 엄격하게 사용합니다. Explore는 먼저 이를 선호하고 레일이 희박해지면 뒤로 물러납니다.",
+  "@languageSettingExplanation": {
+    "description": "Explanation for content language setting"
+  },
+  "filterScreenTitle": "필터",
+  "@filterScreenTitle": {
+    "description": "Filter screen AppBar title"
+  },
+  "sortBy": "정렬 기준",
+  "@sortBy": {
+    "description": "Sort by label in filters"
+  },
+  "genres": "장르",
+  "@genres": {
+    "description": "Genres label in filters"
+  },
+  "year": "연도",
+  "@year": {
+    "description": "Year filter label"
+  },
+  "rating": "평가",
+  "@rating": {
+    "description": "Rating filter label"
+  },
+  "runtime": "런타임",
+  "@runtime": {
+    "description": "Runtime filter label"
+  },
+  "withPeople": "인물 포함",
+  "@withPeople": {
+    "description": "People filter label"
+  },
+  "voteCount": "투표 수",
+  "@voteCount": {
+    "description": "Vote count filter label"
+  },
+  "today": "오늘",
+  "@today": {
+    "description": "Localized string for today"
+  },
+  "tomorrow": "내일",
+  "@tomorrow": {
+    "description": "Label for tomorrow's date"
+  },
+  "yesterday": "어제",
+  "@yesterday": {
+    "description": "Label for yesterday's date"
+  },
+  "minutes": "분",
+  "@minutes": {
+    "description": "Abbreviation for minutes"
+  },
+  "hours": "시간",
+  "@hours": {
+    "description": "Abbreviation for hours"
+  },
+  "cast": "출연진",
+  "@cast": {
+    "description": "Cast section title"
+  },
+  "crew": "제작진",
+  "@crew": {
+    "description": "Crew section title"
+  },
+  "director": "F@ 출연진 @G@ 제작진 @H@ 감독",
+  "@director": {
+    "description": "Director label"
+  },
+  "seasons": "시즌",
+  "@seasons": {
+    "description": "Seasons label for TV shows"
+  },
+  "episodes": "에피소드",
+  "@episodes": {
+    "description": "Episodes label for TV shows"
+  },
+  "overview": "개요",
+  "@overview": {
+    "description": "Overview section title"
+  },
+  "similar": "유사한",
+  "@similar": {
+    "description": "Similar titles section"
+  },
+  "recommendations": "추천",
+  "@recommendations": {
+    "description": "Recommendations section"
+  },
+  "addedToWatchlist": "관심 목록에 추가됨",
+  "@addedToWatchlist": {
+    "description": "Snackbar after adding to watchlist"
+  },
+  "removedFromWatchlist": "관심 목록에서 제거됨",
+  "@removedFromWatchlist": {
+    "description": "Snackbar after removing from watchlist"
+  },
+  "popularity": "인기",
+  "@popularity": {
+    "description": "Sort option: popularity"
+  },
+  "releaseDate": "출시 날짜",
+  "@releaseDate": {
+    "description": "Sort option: release date"
+  },
+  "revenueLabel": "수익",
+  "@revenueLabel": {
+    "description": "Sort option: revenue"
+  },
+  "originalTitle": "원본 제목",
+  "@originalTitle": {
+    "description": "Sort option: original title"
+  },
+  "voteAverage": "투표 평균",
+  "@voteAverage": {
+    "description": "Sort option: vote average"
+  },
+  "favourites": "즐겨찾기",
+  "@favourites": {
+    "description": "Favourites section label"
+  },
+  "lists": "기울기",
+  "@lists": {
+    "description": "Localized string for lists"
+  },
+  "watched": "봤어요",
+  "@watched": {
+    "description": "Localized string for watched"
+  },
+  "all": "모두",
+  "@all": {
+    "description": "All filter option"
+  },
+  "tv": "TV",
+  "@tv": {
+    "description": "TV filter option"
+  },
+  "librarySubtitle": "컬렉션, 즐겨찾기, 메모, 시청 기록별로 모든 것을 정리하세요.",
+  "@librarySubtitle": {
+    "description": "Watchlist screen subtitle"
+  },
+  "selectRegion": "지역을 선택하세요",
+  "@selectRegion": {
+    "description": "Region selection dialog title"
+  },
+  "selectRegionDescription": "지역 인식 쿼리를 지원하는 TMDb 엔드포인트만 이 옵션을 사용합니다.",
+  "@selectRegionDescription": {
+    "description": "Region selection dialog description"
+  },
+  "useAutoDetectedRegion": "자동 감지된 영역 사용",
+  "@useAutoDetectedRegion": {
+    "description": "Button to use auto-detected region"
+  },
+  "reminderRemoved": "알림이 삭제되었습니다",
+  "@reminderRemoved": {
+    "description": "Localized string for reminderRemoved"
+  },
+  "releaseReminderSet": "{title}에 대한 릴리스 알림이 설정되었습니다.",
+  "@releaseReminderSet": {
+    "description": "Snackbar when a release reminder is set",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "episodeReminderSet": "{title} 에피소드에 대한 알림이 설정되었습니다.",
+  "@episodeReminderSet": {
+    "description": "Snackbar when an episode reminder is set",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "filteredResults": "필터링된 결과",
+  "@filteredResults": {
+    "description": "Filtered results label"
+  },
+  "genreResults": "장르별 결과",
+  "@genreResults": {
+    "description": "Genre results label"
+  },
+  "couldNotLoadContent": "콘텐츠를 불러올 수 없습니다. {error}",
+  "@couldNotLoadContent": {
+    "description": "Error when content fails to load",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noContentAvailableForThisSelection": "해당 항목에 대한 콘텐츠가 없습니다.",
+  "@noContentAvailableForThisSelection": {
+    "description": "Empty state when no content is available"
+  },
+  "writer": "작가",
+  "@writer": {
+    "description": "Writer label"
+  },
+  "actors": "배우들",
+  "@actors": {
+    "description": "Actors label"
+  },
+  "noteNotFound": "메모를 찾을 수 없습니다.",
+  "@noteNotFound": {
+    "description": "Error when note is not found"
+  },
+  "yourNotesCount": "귀하의 메모({count})",
+  "@yourNotesCount": {
+    "description": "Localized string for yourNotesCount",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noteDeleted": "메모 삭제됨",
+  "@noteDeleted": {
+    "description": "Localized string for noteDeleted"
+  },
+  "noteDeletedWithCount": "메모 삭제됨({count} s)",
+  "@noteDeletedWithCount": {
+    "description": "Localized string for noteDeletedWithCount",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loadMore": "더 보기",
+  "@loadMore": {
+    "description": "Load more button"
+  },
+  "noMoreProductionsFound": "더 이상 제작물을 찾을 수 없습니다.",
+  "@noMoreProductionsFound": {
+    "description": "No more productions in company details"
+  },
+  "noProductionsFound": "제작된 콘텐츠를 찾을 수 없습니다.",
+  "@noProductionsFound": {
+    "description": "No productions in company details"
+  },
+  "watchInsights": "이 앱 라벨을 ko로 번역하세요: Watch Insights",
+  "@watchInsights": {
+    "description": "Watch insights section title"
+  },
+  "analyzingWatchHistory": "시청 기록을 분석합니다...",
+  "@analyzingWatchHistory": {
+    "description": "Analyzing watch history loading text"
+  },
+  "manageHiddenTitlesDescription": "Spotlight 섹션에서 숨긴 타이틀을 관리하세요.",
+  "@manageHiddenTitlesDescription": {
+    "description": "Description for hidden titles management"
+  },
+  "tmdbLanguageMetadataNote": "이 모드에서 일부 항목이 드문드문 보일 수 있는데, 이는 해당 제목이 존재하지 않아서가 아니라 카탈로그의 일부에 대한 TMDB 언어 메타데이터가 불완전하기 때문입니다.",
+  "@tmdbLanguageMetadataNote": {
+    "description": "Note about TMDB language metadata sparseness"
+  },
+  "tmdbDisclaimer": "이 제품은 TMDB API를 사용하지만 TMDB의 승인이나 인증을 받지 않았습니다.",
+  "@tmdbDisclaimer": {
+    "description": "TMDB API disclaimer"
+  },
+  "useLocalLibraryForSync": "동기화에 로컬 라이브러리를 사용하시겠습니까?",
+  "@useLocalLibraryForSync": {
+    "description": "Ask user to use local library for sync"
+  },
+  "themePresets": "테마 사전 설정",
+  "@themePresets": {
+    "description": "Theme presets label"
+  },
+  "exitApp": "앱 종료",
+  "@exitApp": {
+    "description": "Exit app dialog title"
+  },
+  "popular": "인기 있는",
+  "@popular": {
+    "description": "Popular section label"
+  },
+  "couldNotLoadReminders": "미리 알림을 불러올 수 없습니다.\n\n{error}",
+  "@couldNotLoadReminders": {
+    "description": "Error loading reminders",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noRemindersSetYet": "아직 알림이 설정되지 않았습니다.\n에피소드 추적기 또는 영화 세부 정보에서 알림을 생성하세요.",
+  "@noRemindersSetYet": {
+    "description": "No reminders set yet"
+  },
+  "episodeSeasonEpisode": "에피소드 S{seasonNumber} • E{episodeNumber}",
+  "@episodeSeasonEpisode": {
+    "description": "Episode season and episode label",
+    "placeholders": {
+      "seasonNumber": {
+        "type": "int"
+      },
+      "episodeNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "movieRelease": "영화 개봉",
+  "@movieRelease": {
+    "description": "Movie release reminder label"
+  },
+  "voteAverageStars": "이 앱 라벨을 ko로 번역하세요: {voteAverage} ★",
+  "@voteAverageStars": {
+    "description": "Vote average with stars",
+    "placeholders": {
+      "voteAverage": {
+        "type": "String"
+      }
+    }
+  },
+  "addMoreTrackedContent": "시청 목록, 즐겨찾기 또는 기타 목록에 영화나 프로그램을 추가하세요.",
+  "@addMoreTrackedContent": {
+    "description": "Add more tracked content"
+  },
+  "fastPicksDescription": "이미 저장한 항목을 기반으로 빠르게 추천해 드립니다.",
+  "@fastPicksDescription": {
+    "description": "Fast picks based on saved content"
+  },
+  "releaseCalendarDescription": "영화 개봉일과 다음 TV 에피소드 방영 예정일을 한 번의 탭으로 알림을 받으세요.",
+  "@releaseCalendarDescription": {
+    "description": "Release calendar feature description"
+  },
+  "staleWatchlist": "오래된 관심 목록",
+  "@staleWatchlist": {
+    "description": "Stale watchlist label"
+  },
+  "tracked": "추적됨",
+  "@tracked": {
+    "description": "Tracked tab label"
+  },
+  "upcoming": "다가오는",
+  "@upcoming": {
+    "description": "Upcoming tab label"
+  },
+  "upcomingEmptyDescription": "추적 중인 영화의 개봉일이 확정되거나 프로그램의 새 에피소드 방영 일정이 잡히면 여기에 표시됩니다.",
+  "@upcomingEmptyDescription": {
+    "description": "Empty state for upcoming releases"
+  },
+  "howManyMoviesWatchedEachMonth": "한 달에 영화를 몇 편이나 보셨나요?",
+  "@howManyMoviesWatchedEachMonth": {
+    "description": "Chart description"
+  },
+  "howPersonalRatingsShifting": "개인 평점이 시간이 지남에 따라 어떻게 변화하는지 살펴보세요",
+  "@howPersonalRatingsShifting": {
+    "description": "Chart description"
+  },
+  "keepWatchingToBuildProfile": "계속 시청하시면 시각적 프로필을 구축하는 데 도움이 됩니다.",
+  "@keepWatchingToBuildProfile": {
+    "description": "Empty state for watch history"
+  },
+  "lumiWatchAnalytics": "루미 워치 분석",
+  "@lumiWatchAnalytics": {
+    "description": "Watch analytics branding"
+  },
+  "noGenreDistributionYet": "장르별 분류 정보가 아직 제공되지 않았습니다.",
+  "@noGenreDistributionYet": {
+    "description": "Empty state for genre distribution"
+  },
+  "noMovieWatchHistoryRecentMonths": "최근 몇 달간 영화 시청 기록이 없습니다.",
+  "@noMovieWatchHistoryRecentMonths": {
+    "description": "Empty state for monthly watch history"
+  },
+  "noRatingTrendDataYet": "아직 시청률 추이 데이터가 없습니다.",
+  "@noRatingTrendDataYet": {
+    "description": "Empty state for rating trend"
+  },
+  "preferredRuntime": "선호하는 런타임",
+  "@preferredRuntime": {
+    "description": "Preferred runtime label"
+  },
+  "preferredRuntimeLabel": "권장 실행 시간은 약 {minutes}분({label})입니다.",
+  "@preferredRuntimeLabel": {
+    "description": "Preferred runtime text",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "styledCardWithWatchStats": "시계 통계가 담긴 스타일리시한 카드",
+  "@styledCardWithWatchStats": {
+    "description": "Share option description"
+  },
+  "titlesAnalyzed": "분석된 제목",
+  "@titlesAnalyzed": {
+    "description": "Titles analyzed label"
+  },
+  "tryAgainAfterMoment": "잠시 후 다시 시도해 주세요.",
+  "@tryAgainAfterMoment": {
+    "description": "Retry suggestion"
+  },
+  "watchAnalytics": "분석 보기",
+  "@watchAnalytics": {
+    "description": "Watch analytics title"
+  },
+  "whatGenresDominateHistory": "당신의 시계 시청 기록에서 가장 많은 부분을 차지하는 장르는 무엇인가요?",
+  "@whatGenresDominateHistory": {
+    "description": "Genre distribution description"
+  },
+  "toggleMovies": "영화 산업",
+  "@toggleMovies": {
+    "description": "Movies toggle label"
+  },
+  "toggleTv": "TV",
+  "@toggleTv": {
+    "description": "TV toggle label"
+  },
+  "noMoreTitlesFound": "더 이상 제목을 찾을 수 없습니다.",
+  "@noMoreTitlesFound": {
+    "description": "No more titles in keyword screen"
+  },
+  "noTitlesFoundForKeyword": "해당 키워드로 검색된 제목이 없습니다.",
+  "@noTitlesFoundForKeyword": {
+    "description": "No titles for keyword"
+  },
+  "viewFull": "전체 보기",
+  "@viewFull": {
+    "description": "View full episode"
+  },
+  "accoladeDetails": "수상 내역",
+  "@accoladeDetails": {
+    "description": "Accolade details dialog title"
+  },
+  "noDetailedAwardsInfo": "수상 관련 상세 정보는 없습니다.",
+  "@noDetailedAwardsInfo": {
+    "description": "No awards details"
+  },
+  "alertSet": "경보 설정 완료!",
+  "@alertSet": {
+    "description": "Alert set confirmation"
+  },
+  "budget": "예산",
+  "@budget": {
+    "description": "Budget label"
+  },
+  "buy": "구입하다",
+  "@buy": {
+    "description": "Buy provider label"
+  },
+  "chooseBetweenHours": "1과 {maxHours} 중에서 선택하세요",
+  "@chooseBetweenHours": {
+    "description": "Hours input validation",
+    "placeholders": {
+      "maxHours": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteNoteConfirmationTitle": "메모를 삭제하시겠습니까?",
+  "@deleteNoteConfirmationTitle": {
+    "description": "Delete note dialog title"
+  },
+  "episodeReminder": "에피소드 알림",
+  "@episodeReminder": {
+    "description": "Episode reminder dialog title"
+  },
+  "facebook": "페이스북",
+  "@facebook": {
+    "description": "Facebook social link"
+  },
+  "free": "무료",
+  "@free": {
+    "description": "Free provider label"
+  },
+  "images": "이미지",
+  "@images": {
+    "description": "Images section title"
+  },
+  "instagram": "인스타그램",
+  "@instagram": {
+    "description": "Instagram social link"
+  },
+  "netProfit": "순이익",
+  "@netProfit": {
+    "description": "Net profit label"
+  },
+  "noNotesYet": "아직 댓글이 없습니다. 여러분의 생각을 남겨주세요!",
+  "@noNotesYet": {
+    "description": "No notes yet message"
+  },
+  "originalLanguage": "원어",
+  "@originalLanguage": {
+    "description": "Original language label"
+  },
+  "partOfCollection": "{collectionName}의 일부",
+  "@partOfCollection": {
+    "description": "Part of collection label",
+    "placeholders": {
+      "collectionName": {
+        "type": "String"
+      }
+    }
+  },
+  "roi": "투자수익률(ROI)",
+  "@roi": {
+    "description": "ROI label"
+  },
+  "releaseAlertSet": "{date}에 대한 릴리스 알림이 설정되었습니다.",
+  "@releaseAlertSet": {
+    "description": "Release alert set message",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rent": "임차료",
+  "@rent": {
+    "description": "Rent provider label"
+  },
+  "revenue": "수익",
+  "@revenue": {
+    "description": "Revenue label"
+  },
+  "seeAllReviews": "모두 보기 ({count})",
+  "@seeAllReviews": {
+    "description": "See all reviews button",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "setReminder": "알림 설정",
+  "@setReminder": {
+    "description": "Set reminder button"
+  },
+  "status": "상태",
+  "@status": {
+    "description": "Status label"
+  },
+  "stream": "개울",
+  "@stream": {
+    "description": "Stream provider label"
+  },
+  "tikTok": "틱톡",
+  "@tikTok": {
+    "description": "TikTok social link"
+  },
+  "twitterX": "엑스",
+  "@twitterX": {
+    "description": "X social link"
+  },
+  "yours": "당신 것",
+  "@yours": {
+    "description": "Yours label"
+  },
+  "youtube": "유튜브",
+  "@youtube": {
+    "description": "YouTube social link"
+  },
+  "durationDays": "디",
+  "@durationDays": {
+    "description": "Days abbreviation"
+  },
+  "durationHours": "시간",
+  "@durationHours": {
+    "description": "Hours abbreviation"
+  },
+  "durationMinutes": "중",
+  "@durationMinutes": {
+    "description": "Minutes abbreviation"
+  },
+  "durationSeconds": "에스",
+  "@durationSeconds": {
+    "description": "Seconds abbreviation"
+  },
+  "seasonRating": "이 앱 라벨을 ko로 번역하세요: ★ {score}%",
+  "@seasonRating": {
+    "description": "Season rating percentage",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "we": "우리",
+  "@we": {
+    "description": "Localized string for we"
+  },
+  "aspect16x9": "이 앱 라벨을 ko: 16:9로 번역하세요",
+  "@aspect16x9": {
+    "description": "16:9 aspect ratio"
+  },
+  "aspect9x16": "9시 16분",
+  "@aspect9x16": {
+    "description": "9:16 aspect ratio"
+  },
+  "background": "배경",
+  "@background": {
+    "description": "Background label"
+  },
+  "episodeCount": "이 앱 라벨을 ko로 번역하세요: {count} Eps",
+  "@episodeCount": {
+    "description": "Episode count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noEpisodesForSeason": "이번 시즌의 에피소드를 찾을 수 없습니다.",
+  "@noEpisodesForSeason": {
+    "description": "No episodes for season"
+  },
+  "beautifulStyledCardForStories": "사회적 이야기를 위한 아름다운 디자인의 카드",
+  "@beautifulStyledCardForStories": {
+    "description": "Share option description"
+  },
+  "clickableShareLink": "WhatsApp 및 기타 앱에서 공유 가능한 클릭 가능한 링크",
+  "@clickableShareLink": {
+    "description": "Share option description"
+  },
+  "placeQuoteOnBackdrop": "좋아하는 명언을 영화 배경에 넣어보세요",
+  "@placeQuoteOnBackdrop": {
+    "description": "Share option description"
+  },
+  "standardLinkToMovieDatabase": "영화 데이터베이스에 대한 표준 링크",
+  "@standardLinkToMovieDatabase": {
+    "description": "Share option description"
+  },
+  "exploreLabel": "탐구하다",
+  "@exploreLabel": {
+    "description": "Explore label"
+  },
+  "quoteCharacter": "이 앱 라벨을 ko로 번역하세요: — {character}",
+  "@quoteCharacter": {
+    "description": "Quote character attribution",
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "aiTonightWatch": "오늘 밤 AI 시청하기",
+  "@aiTonightWatch": {
+    "description": "AI tonight watch feature"
+  },
+  "aiQueryPlan": "AI 쿼리 계획",
+  "@aiQueryPlan": {
+    "description": "AI query plan label"
+  },
+  "airingToday": "오늘 방송되는",
+  "@airingToday": {
+    "description": "Airing today section"
+  },
+  "bigCrowdPleasers": "대중적인 인기를 얻으며 상승세를 타고 있는",
+  "@bigCrowdPleasers": {
+    "description": "Explore section subtitle"
+  },
+  "cinematic": "시네마틱",
+  "@cinematic": {
+    "description": "Mood label"
+  },
+  "comingSoon": "곧 출시 예정",
+  "@comingSoon": {
+    "description": "Coming soon section"
+  },
+  "currentTheatricalSlate": "현재 극장 개봉 예정작 및 가까운 시일 내에 개봉 예정작",
+  "@currentTheatricalSlate": {
+    "description": "Explore section subtitle"
+  },
+  "dark": "어두운",
+  "@dark": {
+    "description": "Mood label"
+  },
+  "discoverSpotlight": "스포트라이트를 만나보세요",
+  "@discoverSpotlight": {
+    "description": "Discover spotlight title"
+  },
+  "edgeOfYourSeat": "손에 땀을 쥐게 하는",
+  "@edgeOfYourSeat": {
+    "description": "Mood label"
+  },
+  "fastPaced": "빠른 속도",
+  "@fastPaced": {
+    "description": "Mood label"
+  },
+  "feelGood": "기분 좋은",
+  "@feelGood": {
+    "description": "Mood label"
+  },
+  "freshPicksContinuous": "새로운 추천 상품이 지속적으로 업데이트됩니다.",
+  "@freshPicksContinuous": {
+    "description": "Explore section subtitle"
+  },
+  "hideTitle": "제목 숨기기",
+  "@hideTitle": {
+    "description": "Hide title dialog title"
+  },
+  "highRatedSkipped": "평점은 높지만 시청자들이 가장 많이 건너뛰는 작품들",
+  "@highRatedSkipped": {
+    "description": "Explore section subtitle"
+  },
+  "hotNowAudience": "지금 시청자 피드에서 가장 인기 있는 콘텐츠입니다.",
+  "@hotNowAudience": {
+    "description": "Explore section subtitle"
+  },
+  "inTheaters": "극장에서 상영 중",
+  "@inTheaters": {
+    "description": "In theaters section"
+  },
+  "indie": "인디",
+  "@indie": {
+    "description": "Mood label"
+  },
+  "mindBending": "정신을 혼란스럽게 하는",
+  "@mindBending": {
+    "description": "Mood label"
+  },
+  "mostDiscussedShowsThisWeek": "이번 주 가장 많이 언급된 프로그램",
+  "@mostDiscussedShowsThisWeek": {
+    "description": "Explore section subtitle"
+  },
+  "multiplePicks": "여러 선택",
+  "@multiplePicks": {
+    "description": "Multiple picks feature chip"
+  },
+  "onTheAir": "방송 중",
+  "@onTheAir": {
+    "description": "On the air section"
+  },
+  "personalizedFromWatchBehavior": "사용자의 시계 사용 패턴을 기반으로 맞춤 설정됩니다.",
+  "@personalizedFromWatchBehavior": {
+    "description": "Explore section subtitle"
+  },
+  "pickAVibe": "원하는 분위기를 고르면 그에 맞는 제목을 바로 받아볼 수 있습니다.",
+  "@pickAVibe": {
+    "description": "Explore section subtitle"
+  },
+  "seeAll": "모두 보기",
+  "@seeAll": {
+    "description": "See all button"
+  },
+  "seriesCurrentlyAiring": "현재 방영 중인 에피소드가 있는 시리즈",
+  "@seriesCurrentlyAiring": {
+    "description": "Explore section subtitle"
+  },
+  "thisWeek": "이번 주",
+  "@thisWeek": {
+    "description": "This week filter"
+  },
+  "topRated": "최고 평점",
+  "@topRated": {
+    "description": "Top rated section"
+  },
+  "voiceInput": "음성 입력",
+  "@voiceInput": {
+    "description": "Voice input feature chip"
+  },
+  "matchPercent": "{matchPct}% 일치",
+  "@matchPercent": {
+    "description": "Match percentage",
+    "placeholders": {
+      "matchPct": {
+        "type": "String"
+      }
+    }
+  },
+  "runtimeMinutes": "{minutes} 분",
+  "@runtimeMinutes": {
+    "description": "Runtime in minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "examplePrompt": "예시: 영화 '인터스텔라' 같은 건데, SF는 아닌.",
+  "@examplePrompt": {
+    "description": "Example prompt hint"
+  },
+  "findingYourPerfectWatch": "완벽한 시계 찾기{dots}",
+  "@findingYourPerfectWatch": {
+    "description": "Finding recommendations loading",
+    "placeholders": {
+      "dots": {
+        "type": "String"
+      }
+    }
+  },
+  "moreLikeThis": "이와 유사한 콘텐츠 더 보기",
+  "@moreLikeThis": {
+    "description": "More like this button"
+  },
+  "notForMe": "저한테는 안 맞네요",
+  "@notForMe": {
+    "description": "Not for me button"
+  },
+  "recentQueries": "최근 검색어",
+  "@recentQueries": {
+    "description": "Recent queries section"
+  },
+  "shufflingIdeas": "아이디어를 섞어보는 중...",
+  "@shufflingIdeas": {
+    "description": "Shuffling ideas loading"
+  },
+  "tooMainstream": "너무 주류적이다",
+  "@tooMainstream": {
+    "description": "Too mainstream button"
+  },
+  "whatShouldIWatchTonight": "오늘 밤 뭐 볼까?",
+  "@whatShouldIWatchTonight": {
+    "description": "Tonight feature title"
+  },
+  "debugLogEntry": "이 앱 라벨을 ko로 번역하세요: [{time}] {message}",
+  "@debugLogEntry": {
+    "description": "Debug log entry",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "from": "에서",
+  "@from": {
+    "description": "From filter label"
+  },
+  "to": "에게",
+  "@to": {
+    "description": "To filter label"
+  },
+  "removedFromWatchlistCountdown": "관심 목록에서 삭제됨({seconds} s)",
+  "@removedFromWatchlistCountdown": {
+    "description": "Removed from watchlist with countdown",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "creditsCount": "{count} 크레딧",
+  "@creditsCount": {
+    "description": "Person credits count",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "acrossFilmography": "영화 작품 전반에 걸쳐",
+  "@acrossFilmography": {
+    "description": "Across filmography label"
+  },
+  "birthplace": "출생지",
+  "@birthplace": {
+    "description": "Birthplace label"
+  },
+  "born": "태어나다",
+  "@born": {
+    "description": "Born label"
+  },
+  "credits": "크레딧",
+  "@credits": {
+    "description": "Credits label"
+  },
+  "died": "죽었다",
+  "@died": {
+    "description": "Died label"
+  },
+  "knownFor": "~로 알려져 있음",
+  "@knownFor": {
+    "description": "Known for label"
+  },
+  "noSharedTitlesAvailable": "공유된 타이틀이 없습니다.",
+  "@noSharedTitlesAvailable": {
+    "description": "No shared titles available"
+  },
+  "photos": "사진",
+  "@photos": {
+    "description": "Photos section"
+  },
+  "personRating": "평가",
+  "@personRating": {
+    "description": "Rating column header"
+  },
+  "taggedImages": "태그된 이미지",
+  "@taggedImages": {
+    "description": "Tagged images section"
+  },
+  "website": "웹사이트",
+  "@website": {
+    "description": "Website link"
+  },
+  "noQuotesFound": "인용문을 찾을 수 없습니다.",
+  "@noQuotesFound": {
+    "description": "No quotes found"
+  },
+  "noSectionsFound": "섹션을 찾을 수 없습니다.",
+  "@noSectionsFound": {
+    "description": "No sections found"
+  },
+  "clearAll": "모두 지우기",
+  "@clearAll": {
+    "description": "Clear all button"
+  },
+  "noCollectionsFound": "컬렉션을 찾을 수 없습니다.",
+  "@noCollectionsFound": {
+    "description": "No collections found"
+  },
+  "noCompaniesFound": "회사 정보를 찾을 수 없습니다.",
+  "@noCompaniesFound": {
+    "description": "No companies found"
+  },
+  "noKeywordsFound": "키워드를 찾을 수 없습니다.",
+  "@noKeywordsFound": {
+    "description": "No keywords found"
+  },
+  "noMoreResultsFound": "더 이상 검색 결과가 없습니다.",
+  "@noMoreResultsFound": {
+    "description": "No more search results"
+  },
+  "noResultsFound": "검색 결과가 없습니다.",
+  "@noResultsFound": {
+    "description": "No search results"
+  },
+  "deleteListConfirmation": "{listName}을 정말로 삭제하시겠습니까?",
+  "@deleteListConfirmation": {
+    "description": "Delete list confirmation",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteListTitle": "삭제 목록?",
+  "@deleteListTitle": {
+    "description": "Delete list dialog title"
+  },
+  "everythingYouPlanToWatch": "다음에 시청할 영상 목록입니다.",
+  "@everythingYouPlanToWatch": {
+    "description": "Watchlist section description"
+  },
+  "finishedTitlesAndHistory": "완료한 타이틀과 함께 플레이 기록 및 통계를 확인하세요.",
+  "@finishedTitlesAndHistory": {
+    "description": "Watched section description"
+  },
+  "noListsCreatedYet": "아직 생성된 목록이 없습니다.",
+  "@noListsCreatedYet": {
+    "description": "No lists created"
+  },
+  "noNotesFound": "메모를 찾을 수 없습니다.",
+  "@noNotesFound": {
+    "description": "Localized string for noNotesFound"
+  },
+  "renameList": "목록 이름 변경",
+  "@renameList": {
+    "description": "Rename list dialog title"
+  },
+  "titlesYouNeverWantToLose": "절대 잃고 싶지 않은 타이틀들.",
+  "@titlesYouNeverWantToLose": {
+    "description": "Favourites section description"
+  },
+  "yourThoughtsReactions": "여러분의 생각, 반응, 그리고 알림 사항입니다.",
+  "@yourThoughtsReactions": {
+    "description": "Notes section description"
+  },
+  "imageCounter": "이 앱 라벨을 ko로 번역하세요: {current} / {total}",
+  "@imageCounter": {
+    "description": "Image counter",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "removeFromWatchedConfirmation": "시청 목록에서 이 항목을 삭제하시겠습니까?",
+  "@removeFromWatchedConfirmation": {
+    "description": "Remove from watched confirmation"
+  },
+  "savedAsWatchedWithoutRating": "이 영상은 개인 평점 없이 시청한 것으로 저장됩니다.",
+  "@savedAsWatchedWithoutRating": {
+    "description": "Saved as watched without rating"
+  },
+  "noAdditionalRecommendationTrailers": "추가 추천 예고편을 찾을 수 없습니다.",
+  "@noAdditionalRecommendationTrailers": {
+    "description": "No recommendation trailers"
+  },
+  "sharedListItemsCount": "이 앱 라벨을 ko로 번역하세요: {count} {itemLabel}",
+  "@sharedListItemsCount": {
+    "description": "Shared list items count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "itemLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidSharedListLink": "해당 링크는 유효하지 않거나, 만료되었거나, 더 이상 접속할 수 없을 수 있습니다.",
+  "@invalidSharedListLink": {
+    "description": "Invalid shared list link"
+  },
+  "noTitlesAvailableToImport": "현재 수입 가능한 타이틀이 없습니다.",
+  "@noTitlesAvailableToImport": {
+    "description": "No titles to import"
+  },
+  "allLanguages": "모든 언어",
+  "@allLanguages": {
+    "description": "Language name: All Languages"
+  },
+  "arabic": "아라비아 말",
+  "@arabic": {
+    "description": "Language name: Arabic"
+  },
+  "bengali": "벵골 사람",
+  "@bengali": {
+    "description": "Language name: Bengali"
+  },
+  "chinese": "중국인",
+  "@chinese": {
+    "description": "Language name: Chinese"
+  },
+  "english": "영어",
+  "@english": {
+    "description": "Language name: English"
+  },
+  "french": "프랑스 국민",
+  "@french": {
+    "description": "Language name: French"
+  },
+  "german": "독일 사람",
+  "@german": {
+    "description": "Language name: German"
+  },
+  "gujarati": "구자라트어",
+  "@gujarati": {
+    "description": "Language name: Gujarati"
+  },
+  "hindi": "힌디 어",
+  "@hindi": {
+    "description": "Language name: Hindi"
+  },
+  "indonesian": "인도네시아 인",
+  "@indonesian": {
+    "description": "Language name: Indonesian"
+  },
+  "italian": "이탈리아 사람",
+  "@italian": {
+    "description": "Language name: Italian"
+  },
+  "japanese": "일본어",
+  "@japanese": {
+    "description": "Language name: Japanese"
+  },
+  "kannada": "칸나다어",
+  "@kannada": {
+    "description": "Language name: Kannada"
+  },
+  "korean": "한국인",
+  "@korean": {
+    "description": "Language name: Korean"
+  },
+  "malayalam": "말라얄람어",
+  "@malayalam": {
+    "description": "Language name: Malayalam"
+  },
+  "marathi": "마라티어",
+  "@marathi": {
+    "description": "Language name: Marathi"
+  },
+  "persian": "페르시아 인",
+  "@persian": {
+    "description": "Language name: Persian"
+  },
+  "polish": "광택",
+  "@polish": {
+    "description": "Language name: Polish"
+  },
+  "portuguese": "포르투갈 인",
+  "@portuguese": {
+    "description": "Language name: Portuguese"
+  },
+  "punjabi": "펀자브어",
+  "@punjabi": {
+    "description": "Language name: Punjabi"
+  },
+  "russian": "러시아인",
+  "@russian": {
+    "description": "Language name: Russian"
+  },
+  "spanish": "스페인 사람",
+  "@spanish": {
+    "description": "Language name: Spanish"
+  },
+  "swedish": "스웨덴어",
+  "@swedish": {
+    "description": "Language name: Swedish"
+  },
+  "tamil": "타밀 사람",
+  "@tamil": {
+    "description": "Language name: Tamil"
+  },
+  "telugu": "텔루구어",
+  "@telugu": {
+    "description": "Language name: Telugu"
+  },
+  "thai": "태국",
+  "@thai": {
+    "description": "Language name: Thai"
+  },
+  "turkish": "터키어",
+  "@turkish": {
+    "description": "Language name: Turkish"
+  },
+  "urdu": "우르두어",
+  "@urdu": {
+    "description": "Language name: Urdu"
+  },
+  "vietnamese": "베트남 사람",
+  "@vietnamese": {
+    "description": "Language name: Vietnamese"
+  },
+  "failedToLoadCollectionDetails": "컬렉션 세부 정보를 불러오는 데 실패했습니다.",
+  "@failedToLoadCollectionDetails": {
+    "description": "Localized string for failedToLoadCollectionDetails"
+  },
+  "franchiseProgress": "프랜차이즈 발전",
+  "@franchiseProgress": {
+    "description": "Localized string for franchiseProgress"
+  },
+  "officialSite": "공식 사이트",
+  "@officialSite": {
+    "description": "Localized string for officialSite"
+  },
+  "productions": "프로덕션",
+  "@productions": {
+    "description": "Localized string for productions"
+  },
+  "productionCompany": "제작사",
+  "@productionCompany": {
+    "description": "Localized string for productionCompany"
+  },
+  "failedToLoadCompanyInfo": "회사 정보를 불러오는 데 실패했습니다.",
+  "@failedToLoadCompanyInfo": {
+    "description": "Localized string for failedToLoadCompanyInfo"
+  },
+  "profile": "윤곽",
+  "@profile": {
+    "description": "Localized string for profile"
+  },
+  "guestViewer": "게스트 시청자",
+  "@guestViewer": {
+    "description": "Localized string for guestViewer"
+  },
+  "yourProfileSyncStateRegionPreferences": "사용자 프로필, 동기화 상태, 지역 및 시각적 설정이 모두 여기에 저장됩니다.",
+  "@yourProfileSyncStateRegionPreferences": {
+    "description": "Localized string for yourProfileSyncStateRegionPreferences"
+  },
+  "signInToSync": "로그인하여 시청 목록, 평점 및 선호 사항을 동기화하세요.",
+  "@signInToSync": {
+    "description": "Localized string for signInToSync"
+  },
+  "signedInAndSyncing": "로그인 후 클라우드와 동기화 중입니다.",
+  "@signedInAndSyncing": {
+    "description": "Localized string for signedInAndSyncing"
+  },
+  "developedBy": "개발자:",
+  "@developedBy": {
+    "description": "Localized string for developedBy"
+  },
+  "couldNotAnalyzeWatchHistory": "지금은 시청 기록을 분석할 수 없습니다.",
+  "@couldNotAnalyzeWatchHistory": {
+    "description": "Localized string for couldNotAnalyzeWatchHistory"
+  },
+  "includeLocalLibrary": "지역 도서관 포함",
+  "@includeLocalLibrary": {
+    "description": "Localized string for includeLocalLibrary"
+  },
+  "useCloudOnly": "클라우드 전용 사용",
+  "@useCloudOnly": {
+    "description": "Localized string for useCloudOnly"
+  },
+  "localLibrarySyncDescription": "이 기기에는 이미 로컬 라이브러리에 저장된 도서가 있습니다. 로그인한 라이브러리에 추가하거나, 로컬 라이브러리 데이터를 클라우드 라이브러리 데이터로 교체하세요.",
+  "@localLibrarySyncDescription": {
+    "description": "Localized string for localLibrarySyncDescription"
+  },
+  "mergedLocalTitles": "로그인한 라이브러리에 로컬 타이틀을 통합했습니다.",
+  "@mergedLocalTitles": {
+    "description": "Localized string for mergedLocalTitles"
+  },
+  "replacedLocalLibrary": "로컬 라이브러리 데이터를 클라우드 라이브러리 데이터로 교체했습니다.",
+  "@replacedLocalLibrary": {
+    "description": "Localized string for replacedLocalLibrary"
+  },
+  "deleteAccountConfirmation": "이렇게 하면 Lumi 계정과 동기화된 클라우드 데이터가 영구적으로 삭제됩니다. 기기에 저장된 로컬 데이터는 앱 데이터를 별도로 삭제하지 않는 한 유지됩니다.",
+  "@deleteAccountConfirmation": {
+    "description": "Localized string for deleteAccountConfirmation"
+  },
+  "signedOutAndCleared": "이 기기에서 로그아웃하고 로컬 라이브러리를 삭제했습니다.",
+  "@signedOutAndCleared": {
+    "description": "Localized string for signedOutAndCleared"
+  },
+  "keepLocalLibrary": "지역 도서관을 계속 이용하세요",
+  "@keepLocalLibrary": {
+    "description": "Localized string for keepLocalLibrary"
+  },
+  "clearLocalLibrary": "클리어 로컬 라이브러리",
+  "@clearLocalLibrary": {
+    "description": "Localized string for clearLocalLibrary"
+  },
+  "signOutChoiceDescription": "로그아웃 후 이 기기에 로컬 라이브러리를 유지할지 여부를 선택하세요.",
+  "@signOutChoiceDescription": {
+    "description": "Localized string for signOutChoiceDescription"
+  },
+  "disable": "장애를 입히다",
+  "@disable": {
+    "description": "Localized string for disable"
+  },
+  "aiRecommendationsEnabled": "AI 추천 데이터 공유 기능이 활성화되었습니다.",
+  "@aiRecommendationsEnabled": {
+    "description": "Localized string for aiRecommendationsEnabled"
+  },
+  "aiRecommendationsDisabled": "AI 추천 데이터 공유가 비활성화되었습니다.",
+  "@aiRecommendationsDisabled": {
+    "description": "Localized string for aiRecommendationsDisabled"
+  },
+  "reviewAndManageConsent": "AI 제공업체에 라이브러리 데이터를 전송하기 위한 동의를 검토하고 관리합니다.",
+  "@reviewAndManageConsent": {
+    "description": "Localized string for reviewAndManageConsent"
+  },
+  "aiRecommendationsEnabledSubtitle": "활성화됨. 오늘 밤 추천 기능은 사용자의 도서관 요약 정보와 최근 검색 내역을 AI 제공업체에 전송할 수 있습니다.",
+  "@aiRecommendationsEnabledSubtitle": {
+    "description": "Localized string for aiRecommendationsEnabledSubtitle"
+  },
+  "basedOnWatchedTitles": "{count}개의 시청한 타이틀을 기준으로 함",
+  "@basedOnWatchedTitles": {
+    "description": "Localized string for basedOnWatchedTitles",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lastUpdated": "최종 업데이트: {date}",
+  "@lastUpdated": {
+    "description": "Localized string for lastUpdated",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseYourVibe": "원하는 분위기를 선택하세요",
+  "@chooseYourVibe": {
+    "description": "Localized string for chooseYourVibe"
+  },
+  "appearanceDescription": "앱의 동작 방식을 변경하지 않고 영화 속 캐릭터처럼 앱을 전환할 수 있습니다.",
+  "@appearanceDescription": {
+    "description": "Localized string for appearanceDescription"
+  },
+  "exitAppConfirmation": "Lumi를 종료하시겠습니까?",
+  "@exitAppConfirmation": {
+    "description": "Localized string for exitAppConfirmation"
+  },
+  "dismiss": "해고하다",
+  "@dismiss": {
+    "description": "Localized string for dismiss"
+  },
+  "generatingWatchAnalytics": "Watch 분석 생성",
+  "@generatingWatchAnalytics": {
+    "description": "Localized string for generatingWatchAnalytics"
+  },
+  "thisUsuallyTakesAFewSeconds": "이 과정은 보통 몇 초 정도 소요됩니다.",
+  "@thisUsuallyTakesAFewSeconds": {
+    "description": "Localized string for thisUsuallyTakesAFewSeconds"
+  },
+  "yourScreenStory": "당신의 스크린 스토리",
+  "@yourScreenStory": {
+    "description": "Localized string for yourScreenStory"
+  },
+  "snapshotOfHowAndWhatYouWatch": "당신이 무엇을 어떻게 시청하는지에 대한 간략한 개요",
+  "@snapshotOfHowAndWhatYouWatch": {
+    "description": "Localized string for snapshotOfHowAndWhatYouWatch"
+  },
+  "yourFavoriteGenres": "당신이 좋아하는 장르",
+  "@yourFavoriteGenres": {
+    "description": "Localized string for yourFavoriteGenres"
+  },
+  "genrePerformanceHighestRated": "장르별 성과 (최고 평점)",
+  "@genrePerformanceHighestRated": {
+    "description": "Localized string for genrePerformanceHighestRated"
+  },
+  "personalizedViewingPatterns": "개인 맞춤형 시청 패턴",
+  "@personalizedViewingPatterns": {
+    "description": "Localized string for personalizedViewingPatterns"
+  },
+  "builtWithLumi": "Lumi로 제작되었습니다",
+  "@builtWithLumi": {
+    "description": "Localized string for builtWithLumi"
+  },
+  "sharedWithLumi": "루미와 공유함",
+  "@sharedWithLumi": {
+    "description": "Localized string for sharedWithLumi"
+  },
+  "shareAnalytics": "공유 분석",
+  "@shareAnalytics": {
+    "description": "Localized string for shareAnalytics"
+  },
+  "analyzedTitlesUpdated": "{count} 제목 분석 완료 • {date} 업데이트 완료",
+  "@analyzedTitlesUpdated": {
+    "description": "Localized string for analyzedTitlesUpdated",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "allSeasons": "모든 계절",
+  "@allSeasons": {
+    "description": "Localized string for allSeasons"
+  },
+  "castAndCrew": "출연진 및 제작진",
+  "@castAndCrew": {
+    "description": "Localized string for castAndCrew"
+  },
+  "featuredCrew": "주요 출연진",
+  "@featuredCrew": {
+    "description": "Localized string for featuredCrew"
+  },
+  "stills": "스틸컷",
+  "@stills": {
+    "description": "Localized string for stills"
+  },
+  "accoladeSummary": "수상 내역 요약",
+  "@accoladeSummary": {
+    "description": "Localized string for accoladeSummary"
+  },
+  "awardsAndAccolades": "수상 및 표창",
+  "@awardsAndAccolades": {
+    "description": "Localized string for awardsAndAccolades"
+  },
+  "unableToLoadMovieDetails": "영화 정보를 불러올 수 없습니다",
+  "@unableToLoadMovieDetails": {
+    "description": "Localized string for unableToLoadMovieDetails"
+  },
+  "overviewUnavailable": "이 작품에 대한 개요를 사용할 수 없습니다.",
+  "@overviewUnavailable": {
+    "description": "Localized string for overviewUnavailable"
+  },
+  "openCompletePlot": "OMDb에서 전체 줄거리 및 추가 메타데이터를 확인하세요.",
+  "@openCompletePlot": {
+    "description": "Localized string for openCompletePlot"
+  },
+  "noOverviewForSeason": "이번 시즌에 대한 개요는 제공되지 않습니다.",
+  "@noOverviewForSeason": {
+    "description": "Localized string for noOverviewForSeason"
+  },
+  "userScore": "사용자 평점",
+  "@userScore": {
+    "description": "Localized string for userScore"
+  },
+  "playTrailer": "예고편 재생",
+  "@playTrailer": {
+    "description": "Localized string for playTrailer"
+  },
+  "whereToWatch": "어디서 시청할 수 있나요?",
+  "@whereToWatch": {
+    "description": "Localized string for whereToWatch"
+  },
+  "availabilityDataByJustWatch": "JustWatch에서 제공하는 이용 가능 여부 데이터입니다.",
+  "@availabilityDataByJustWatch": {
+    "description": "Localized string for availabilityDataByJustWatch"
+  },
+  "reminderSaved": "알림이 저장되었습니다",
+  "@reminderSaved": {
+    "description": "Localized string for reminderSaved"
+  },
+  "reminderForTitle": "{title}님께 드리는 알림입니다",
+  "@reminderForTitle": {
+    "description": "Localized string for reminderForTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "pleaseSelectFutureTime": "미래의 시간을 선택해 주세요.",
+  "@pleaseSelectFutureTime": {
+    "description": "Localized string for pleaseSelectFutureTime"
+  },
+  "notifyAt": "다음 주소로 알리세요",
+  "@notifyAt": {
+    "description": "Localized string for notifyAt"
+  },
+  "notifyHoursBeforeAiring": "방송 몇 시간 전에 알려줘야 하나요?",
+  "@notifyHoursBeforeAiring": {
+    "description": "Localized string for notifyHoursBeforeAiring"
+  },
+  "enterNumberBetween": "1부터 {maxHours} 사이의 숫자를 입력하세요.",
+  "@enterNumberBetween": {
+    "description": "Localized string for enterNumberBetween",
+    "placeholders": {
+      "maxHours": {
+        "type": "String"
+      }
+    }
+  },
+  "set": "세트",
+  "@set": {
+    "description": "Localized string for set"
+  },
+  "selectedReminderTimePassed": "선택하신 알림 시간이 이미 지났습니다.",
+  "@selectedReminderTimePassed": {
+    "description": "Localized string for selectedReminderTimePassed"
+  },
+  "episodeReminderSaved": "{date} 에피소드 알림이 저장되었습니다.",
+  "@episodeReminderSaved": {
+    "description": "Localized string for episodeReminderSaved",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "areYouSureDeleteNote": "이 메모를 정말 삭제하시겠습니까?",
+  "@areYouSureDeleteNote": {
+    "description": "Localized string for areYouSureDeleteNote"
+  },
+  "noteAdded": "메모 추가됨",
+  "@noteAdded": {
+    "description": "Localized string for noteAdded"
+  },
+  "lastSeason": "지난 시즌",
+  "@lastSeason": {
+    "description": "Localized string for lastSeason"
+  },
+  "currentSeason": "현재 시즌",
+  "@currentSeason": {
+    "description": "Localized string for currentSeason"
+  },
+  "viewAllSeasons": "모든 계절 보기",
+  "@viewAllSeasons": {
+    "description": "Localized string for viewAllSeasons"
+  },
+  "removedFromFavourites": "즐겨찾기에서 삭제됨",
+  "@removedFromFavourites": {
+    "description": "Localized string for removedFromFavourites"
+  },
+  "addedToFavourites": "즐겨찾기에 추가됨",
+  "@addedToFavourites": {
+    "description": "Localized string for addedToFavourites"
+  },
+  "awardsAndNominations": "수상 및 후보 지명",
+  "@awardsAndNominations": {
+    "description": "Localized string for awardsAndNominations"
+  },
+  "viewAll": "모두 보기",
+  "@viewAll": {
+    "description": "Localized string for viewAll"
+  },
+  "boxOfficeFinancials": "박스오피스 재무 정보",
+  "@boxOfficeFinancials": {
+    "description": "Localized string for boxOfficeFinancials"
+  },
+  "successMeter": "성공률 측정기",
+  "@successMeter": {
+    "description": "Localized string for successMeter"
+  },
+  "blockbuster": "블록버스터",
+  "@blockbuster": {
+    "description": "Localized string for blockbuster"
+  },
+  "hit": "때리다",
+  "@hit": {
+    "description": "Localized string for hit"
+  },
+  "breakEven": "손익분기점",
+  "@breakEven": {
+    "description": "Localized string for breakEven"
+  },
+  "underperformer": "실적 부진자",
+  "@underperformer": {
+    "description": "Localized string for underperformer"
+  },
+  "boxOfficeBomb": "흥행 참패",
+  "@boxOfficeBomb": {
+    "description": "Localized string for boxOfficeBomb"
+  },
+  "episodeTracker": "에피소드 추적기",
+  "@episodeTracker": {
+    "description": "Localized string for episodeTracker"
+  },
+  "setAiringReminder": "방송 알림 설정",
+  "@setAiringReminder": {
+    "description": "Localized string for setAiringReminder"
+  },
+  "nextEpisodeCountdown": "다음 에피소드 카운트다운",
+  "@nextEpisodeCountdown": {
+    "description": "Localized string for nextEpisodeCountdown"
+  },
+  "nextEpisode": "다음 에피소드",
+  "@nextEpisode": {
+    "description": "Localized string for nextEpisode"
+  },
+  "lastEpisodeToAir": "마지막 회 방송",
+  "@lastEpisodeToAir": {
+    "description": "Localized string for lastEpisodeToAir"
+  },
+  "unknown": "알려지지 않은",
+  "@unknown": {
+    "description": "Localized string for unknown"
+  },
+  "contentAdvisory": "콘텐츠 자문",
+  "@contentAdvisory": {
+    "description": "Localized string for contentAdvisory"
+  },
+  "violence": "폭행",
+  "@violence": {
+    "description": "Localized string for violence"
+  },
+  "sexAndNudity": "성 및 노출",
+  "@sexAndNudity": {
+    "description": "Localized string for sexAndNudity"
+  },
+  "foulLanguage": "언어",
+  "@foulLanguage": {
+    "description": "Localized string for foulLanguage"
+  },
+  "substances": "물질",
+  "@substances": {
+    "description": "Localized string for substances"
+  },
+  "fearAndHorror": "공포와 호러",
+  "@fearAndHorror": {
+    "description": "Localized string for fearAndHorror"
+  },
+  "familyFriendly": "가족 친화적",
+  "@familyFriendly": {
+    "description": "Localized string for familyFriendly"
+  },
+  "generalAudience": "일반 관객",
+  "@generalAudience": {
+    "description": "Localized string for generalAudience"
+  },
+  "releaseTimeline": "출시 일정",
+  "@releaseTimeline": {
+    "description": "Localized string for releaseTimeline"
+  },
+  "notifyMe": "알림 받기",
+  "@notifyMe": {
+    "description": "Localized string for notifyMe"
+  },
+  "theatricalRelease": "극장 개봉",
+  "@theatricalRelease": {
+    "description": "Localized string for theatricalRelease"
+  },
+  "digitalStreaming": "디지털/스트리밍",
+  "@digitalStreaming": {
+    "description": "Localized string for digitalStreaming"
+  },
+  "physicalRelease": "실물 (블루레이/DVD)",
+  "@physicalRelease": {
+    "description": "Localized string for physicalRelease"
+  },
+  "awesome": "엄청난",
+  "@awesome": {
+    "description": "Localized string for awesome"
+  },
+  "keywordsAndThemes": "키워드 및 테마",
+  "@keywordsAndThemes": {
+    "description": "Localized string for keywordsAndThemes"
+  },
+  "videosAndBehindTheScenes": "영상 및 비하인드 스토리",
+  "@videosAndBehindTheScenes": {
+    "description": "Localized string for videosAndBehindTheScenes"
+  },
+  "productionStudios": "프로덕션 스튜디오",
+  "@productionStudios": {
+    "description": "Localized string for productionStudios"
+  },
+  "fetchingWatchLink": "시계 링크 가져오는 중",
+  "@fetchingWatchLink": {
+    "description": "Localized string for fetchingWatchLink"
+  },
+  "findingBestProviderPage": "이 게임에 가장 적합한 제공업체 페이지를 찾고 있습니다.",
+  "@findingBestProviderPage": {
+    "description": "Localized string for findingBestProviderPage"
+  },
+  "episodeCode": "S{season}E{episode}",
+  "@episodeCode": {
+    "description": "Localized string for episodeCode",
+    "placeholders": {
+      "season": {
+        "type": "String"
+      },
+      "episode": {
+        "type": "String"
+      }
+    }
+  },
+  "error": "오류",
+  "@error": {
+    "description": "Localized string for error"
+  },
+  "failedToLoadSeasonDetails": "시즌 세부 정보를 불러오는 데 실패했습니다.",
+  "@failedToLoadSeasonDetails": {
+    "description": "Localized string for failedToLoadSeasonDetails"
+  },
+  "loading": "로딩 중...",
+  "@loading": {
+    "description": "Localized string for loading"
+  },
+  "runtimeSeparator": "이 앱 라벨을 ko로 번역하세요: • {runtime}",
+  "@runtimeSeparator": {
+    "description": "Localized string for runtimeSeparator",
+    "placeholders": {
+      "runtime": {
+        "type": "String"
+      }
+    }
+  },
+  "fullCastAndCrew": "전체 출연진 및 제작진",
+  "@fullCastAndCrew": {
+    "description": "Localized string for fullCastAndCrew"
+  },
+  "shareMovie": "영화 공유하기",
+  "@shareMovie": {
+    "description": "Localized string for shareMovie"
+  },
+  "quotes": "인용 부호",
+  "@quotes": {
+    "description": "Localized string for quotes"
+  },
+  "mayIncludeMismatches": "어휘 인용 검색으로 인해 간혹 불일치가 발생할 수 있습니다.",
+  "@mayIncludeMismatches": {
+    "description": "Localized string for mayIncludeMismatches"
+  },
+  "movieApiConfigurationRequired": "영화 API 구성이 필요합니다",
+  "@movieApiConfigurationRequired": {
+    "description": "Localized string for movieApiConfigurationRequired"
+  },
+  "addMovieProxyBaseUrl": "앱을 TMDB 프록시에 연결하려면 MOVIE_PROXY_BASE_URL을 추가하세요.",
+  "@addMovieProxyBaseUrl": {
+    "description": "Localized string for addMovieProxyBaseUrl"
+  },
+  "cinematicPicksContext": "즉각적인 분위기를 느낄 수 있는 영화 같은 장면들을 골라보세요. 또 다른 깜짝 카드를 위해 주사위를 굴려보세요.",
+  "@cinematicPicksContext": {
+    "description": "Localized string for cinematicPicksContext"
+  },
+  "curatedTonight": "오늘 밤 엄선된 콘텐츠",
+  "@curatedTonight": {
+    "description": "Localized string for curatedTonight"
+  },
+  "curatedTonightTitle": "오늘 밤 엄선된 콘텐츠: {title}",
+  "@curatedTonightTitle": {
+    "description": "Localized string for curatedTonightTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "describeItYourWay": "원하는 방식으로 설명해 주세요.\n저희가 가장 적합한 결과를 찾아드립니다.",
+  "@describeItYourWay": {
+    "description": "Localized string for describeItYourWay"
+  },
+  "hide": "숨다",
+  "@hide": {
+    "description": "Localized string for hide"
+  },
+  "hideTitleDescription": "이 제목을 숨기면 향후 스포트라이트 섹션에 표시되지 않습니다.",
+  "@hideTitleDescription": {
+    "description": "Localized string for hideTitleDescription"
+  },
+  "dontAskAgain": "다시 묻지 마세요",
+  "@dontAskAgain": {
+    "description": "Localized string for dontAskAgain"
+  },
+  "imdbNa": "IMDb 해당 없음",
+  "@imdbNa": {
+    "description": "Localized string for imdbNa"
+  },
+  "noDiscoverPicks": "현재 추천 상품이 없습니다.",
+  "@noDiscoverPicks": {
+    "description": "Localized string for noDiscoverPicks"
+  },
+  "playPreview": "플레이 미리보기",
+  "@playPreview": {
+    "description": "Localized string for playPreview"
+  },
+  "recommendedForYou": "추천 콘텐츠",
+  "@recommendedForYou": {
+    "description": "Localized string for recommendedForYou"
+  },
+  "spotlightCompleted": "스포트라이트 완료",
+  "@spotlightCompleted": {
+    "description": "Localized string for spotlightCompleted"
+  },
+  "startAddingTitlesForRecommendations": "추천 항목에 제목을 추가해 보세요",
+  "@startAddingTitlesForRecommendations": {
+    "description": "Localized string for startAddingTitlesForRecommendations"
+  },
+  "clearedAllChoices": "스와이프하여 디스커버 피드의 모든 항목을 지웠습니다.",
+  "@clearedAllChoices": {
+    "description": "Localized string for clearedAllChoices"
+  },
+  "whatsPopular": "인기 있는 것",
+  "@whatsPopular": {
+    "description": "Localized string for whatsPopular"
+  },
+  "trending": "인기 급상승",
+  "@trending": {
+    "description": "Localized string for trending"
+  },
+  "nowPlaying": "지금 재생 중",
+  "@nowPlaying": {
+    "description": "Localized string for nowPlaying"
+  },
+  "tvTrending": "TV 인기",
+  "@tvTrending": {
+    "description": "Localized string for tvTrending"
+  },
+  "discoverByMood": "기분별로 찾아보세요",
+  "@discoverByMood": {
+    "description": "Localized string for discoverByMood"
+  },
+  "needSomethingToWatchTonight": "오늘 밤 볼 만한 거 찾으세요?",
+  "@needSomethingToWatchTonight": {
+    "description": "Localized string for needSomethingToWatchTonight"
+  },
+  "needAMovieForTonight": "오늘 밤 볼 영화 필요하세요?",
+  "@needAMovieForTonight": {
+    "description": "Localized string for needAMovieForTonight"
+  },
+  "tryAiShows": "AI 쇼를 시청해 보세요",
+  "@tryAiShows": {
+    "description": "Localized string for tryAiShows"
+  },
+  "tryAiMovies": "AI 영화를 시도해 보세요",
+  "@tryAiMovies": {
+    "description": "Localized string for tryAiMovies"
+  },
+  "findShows": "쇼 찾기",
+  "@findShows": {
+    "description": "Localized string for findShows"
+  },
+  "findMovies": "영화 찾기",
+  "@findMovies": {
+    "description": "Localized string for findMovies"
+  },
+  "couldNotLoadThisRail": "이 레일을 로드할 수 없습니다.",
+  "@couldNotLoadThisRail": {
+    "description": "Localized string for couldNotLoadThisRail"
+  },
+  "temporaryIssueLoadingRail": "이 레일을 적재하는 데 일시적인 문제가 발생했습니다.",
+  "@temporaryIssueLoadingRail": {
+    "description": "Localized string for temporaryIssueLoadingRail"
+  },
+  "noTitlesHereYet": "아직 제목이 없습니다",
+  "@noTitlesHereYet": {
+    "description": "Localized string for noTitlesHereYet"
+  },
+  "noHiddenGemsForGenre": "이 장르에서는 아직 숨겨진 명작을 찾지 못했습니다. 다른 장르를 시도해 보세요.",
+  "@noHiddenGemsForGenre": {
+    "description": "Localized string for noHiddenGemsForGenre"
+  },
+  "tryAnotherFilter": "다른 필터를 사용하거나 이 섹션을 열어 더 폭넓은 검색 결과를 확인해 보세요.",
+  "@tryAnotherFilter": {
+    "description": "Localized string for tryAnotherFilter"
+  },
+  "seeAllFilters": "모든 필터 보기",
+  "@seeAllFilters": {
+    "description": "Localized string for seeAllFilters"
+  },
+  "couldNotLoadCuratedPicks": "엄선된 추천 항목을 불러올 수 없습니다.",
+  "@couldNotLoadCuratedPicks": {
+    "description": "Localized string for couldNotLoadCuratedPicks"
+  },
+  "temporaryIssueLoadingCurated": "오늘 밤 엄선된 목록을 불러오는 데 일시적인 문제가 발생했습니다.",
+  "@temporaryIssueLoadingCurated": {
+    "description": "Localized string for temporaryIssueLoadingCurated"
+  },
+  "noCuratedPicksAvailable": "추천 상품이 없습니다.",
+  "@noCuratedPicksAvailable": {
+    "description": "Localized string for noCuratedPicksAvailable"
+  },
+  "tryAgainWhileRefresh": "오늘 밤 TMDB 목록을 새로 고치는 동안 잠시 후에 다시 시도해 주세요.",
+  "@tryAgainWhileRefresh": {
+    "description": "Localized string for tryAgainWhileRefresh"
+  },
+  "fromSpotlight": "스포트라이트에서",
+  "@fromSpotlight": {
+    "description": "Localized string for fromSpotlight"
+  },
+  "addShowsMoviesForRecommendations": "TV 프로그램/영화를 시청 목록, 즐겨찾기 또는 시청 완료 목록에 추가하여 좋아할 만한 작품들을 확인해 보세요.",
+  "@addShowsMoviesForRecommendations": {
+    "description": "Localized string for addShowsMoviesForRecommendations"
+  },
+  "allow": "허용하다",
+  "@allow": {
+    "description": "Localized string for allow"
+  },
+  "notNow": "지금은 안 돼",
+  "@notNow": {
+    "description": "Localized string for notNow"
+  },
+  "allowAiDataSharingTitle": "AI 데이터 공유를 허용하시겠습니까?",
+  "@allowAiDataSharingTitle": {
+    "description": "Localized string for allowAiDataSharingTitle"
+  },
+  "allowAiDataSharingDescription": "오늘 밤 추천 기능은 영화 추천 요청을 위해 입력한 텍스트와 임시 검색어 입력 정보를 Google Gemini 및 OpenRouter로 전송합니다. 사용자의 전체 라이브러리 정보와 로그인 정보는 이러한 AI 제공업체로 전송되지 않습니다. AI 추천을 위해 데이터 공유를 허용하시겠습니까?",
+  "@allowAiDataSharingDescription": {
+    "description": "Localized string for allowAiDataSharingDescription"
+  },
+  "liveProgress": "실시간 진행 상황",
+  "@liveProgress": {
+    "description": "Localized string for liveProgress"
+  },
+  "percentComplete": "{percent}% 완료",
+  "@percentComplete": {
+    "description": "Localized string for percentComplete",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "describeIdealShowNight": "당신이 생각하는 이상적인 공연 관람 환경을 묘사해 보세요.",
+  "@describeIdealShowNight": {
+    "description": "Localized string for describeIdealShowNight"
+  },
+  "describeIdealMovieNight": "당신이 생각하는 이상적인 영화 감상 시간을 묘사해 보세요.",
+  "@describeIdealMovieNight": {
+    "description": "Localized string for describeIdealMovieNight"
+  },
+  "useNaturalLanguage": "자연어를 사용하세요. 원하는 것, 피해야 할 것, 그리고 선택적으로 언어/실행 시간 힌트를 언급하세요.",
+  "@useNaturalLanguage": {
+    "description": "Localized string for useNaturalLanguage"
+  },
+  "listeningTapMicToStop": "듣는 중입니다... 마이크를 다시 탭하면 멈춥니다.",
+  "@listeningTapMicToStop": {
+    "description": "Localized string for listeningTapMicToStop"
+  },
+  "voiceInputError": "음성 입력 오류: {error}",
+  "@voiceInputError": {
+    "description": "Localized string for voiceInputError",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "tapMicToDictate": "마이크를 탭하여 요청 사항을 음성으로 전달하세요.",
+  "@tapMicToDictate": {
+    "description": "Localized string for tapMicToDictate"
+  },
+  "tapMicToEnableVoice": "마이크를 탭하여 음성 입력을 활성화하세요.",
+  "@tapMicToEnableVoice": {
+    "description": "Localized string for tapMicToEnableVoice"
+  },
+  "findingShows": "쇼 찾기...",
+  "@findingShows": {
+    "description": "Localized string for findingShows"
+  },
+  "findingMovies": "영화 찾기...",
+  "@findingMovies": {
+    "description": "Localized string for findingMovies"
+  },
+  "tonightsLumiPicksFor": "오늘 밤 Lumi 추천 제품: {prompt}",
+  "@tonightsLumiPicksFor": {
+    "description": "Localized string for tonightsLumiPicksFor",
+    "placeholders": {
+      "prompt": {
+        "type": "String"
+      }
+    }
+  },
+  "tonightsPicks": "오늘 밤의 추천",
+  "@tonightsPicks": {
+    "description": "Localized string for tonightsPicks"
+  },
+  "sharedFromLumi": "Lumi에서 공유함",
+  "@sharedFromLumi": {
+    "description": "Localized string for sharedFromLumi"
+  },
+  "intent": "의지:",
+  "@intent": {
+    "description": "Localized string for intent"
+  },
+  "genreLabel": "장르:",
+  "@genreLabel": {
+    "description": "Localized string for genreLabel"
+  },
+  "avoid": "피하다:",
+  "@avoid": {
+    "description": "Localized string for avoid"
+  },
+  "languageLabel": "언어:",
+  "@languageLabel": {
+    "description": "Localized string for languageLabel"
+  },
+  "runtimeAtMost": "실행 시간 <= {minutes}분",
+  "@runtimeAtMost": {
+    "description": "Localized string for runtimeAtMost",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "runtimeAtLeast": "실행 시간 >= {minutes}분",
+  "@runtimeAtLeast": {
+    "description": "Localized string for runtimeAtLeast",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "yearLabel": "년도:",
+  "@yearLabel": {
+    "description": "Localized string for yearLabel"
+  },
+  "yearAfter": "{year} 이후",
+  "@yearAfter": {
+    "description": "Localized string for yearAfter",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "yearBefore": "{year} 이전",
+  "@yearBefore": {
+    "description": "Localized string for yearBefore",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "like": "좋다:",
+  "@like": {
+    "description": "Localized string for like"
+  },
+  "signal": "신호:",
+  "@signal": {
+    "description": "Localized string for signal"
+  },
+  "readingWatchedHistory": "시청 기록을 읽는 중...",
+  "@readingWatchedHistory": {
+    "description": "Localized string for readingWatchedHistory"
+  },
+  "findingTopGenres": "내가 가장 좋아하는 장르와 패턴을 찾아보세요...",
+  "@findingTopGenres": {
+    "description": "Localized string for findingTopGenres"
+  },
+  "buildingTrends": "월별 및 평점 추세 분석...",
+  "@buildingTrends": {
+    "description": "Localized string for buildingTrends"
+  },
+  "writingInsights": "나만의 개인적인 생각을 적어보세요...",
+  "@writingInsights": {
+    "description": "Localized string for writingInsights"
+  },
+  "applyFilters": "필터 적용",
+  "@applyFilters": {
+    "description": "Localized string for applyFilters"
+  },
+  "includeNotRated": "평가되지 않음 포함",
+  "@includeNotRated": {
+    "description": "Localized string for includeNotRated"
+  },
+  "errorLoadingTvGenres": "TV 장르 불러오기 오류",
+  "@errorLoadingTvGenres": {
+    "description": "Localized string for errorLoadingTvGenres"
+  },
+  "alsoKnownAs": "다른 이름으로는 다음과 같습니다.",
+  "@alsoKnownAs": {
+    "description": "Localized string for alsoKnownAs"
+  },
+  "biography": "전기",
+  "@biography": {
+    "description": "Localized string for biography"
+  },
+  "careerStatistics": "경력 통계",
+  "@careerStatistics": {
+    "description": "Localized string for careerStatistics"
+  },
+  "frequentlyCollaboratesWith": "자주 협업하는 대상",
+  "@frequentlyCollaboratesWith": {
+    "description": "Localized string for frequentlyCollaboratesWith"
+  },
+  "notableQuotes": "주목할 만한 명언",
+  "@notableQuotes": {
+    "description": "Localized string for notableQuotes"
+  },
+  "primaryRole": "주요 역할",
+  "@primaryRole": {
+    "description": "Localized string for primaryRole"
+  },
+  "averageRating": "평균 평점",
+  "@averageRating": {
+    "description": "Localized string for averageRating"
+  },
+  "topGenre": "인기 장르",
+  "@topGenre": {
+    "description": "Localized string for topGenre"
+  },
+  "peakBoxOffice": "최고 박스오피스",
+  "@peakBoxOffice": {
+    "description": "Localized string for peakBoxOffice"
+  },
+  "percentOfTitles": "{percent}%의 제목",
+  "@percentOfTitles": {
+    "description": "Localized string for percentOfTitles",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedTitleCount": "{count} 공유 제목(들)",
+  "@sharedTitleCount": {
+    "description": "Localized string for sharedTitleCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "billingOrder": "청구 번호 #{order}",
+  "@billingOrder": {
+    "description": "Localized string for billingOrder",
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "startTypingToSearch": "검색하려면 입력을 시작하세요.",
+  "@startTypingToSearch": {
+    "description": "Localized string for startTypingToSearch"
+  },
+  "movieDiscoveryMadePersonal": "개인적인 경험으로 거듭난 영화 발견",
+  "@movieDiscoveryMadePersonal": {
+    "description": "Localized string for movieDiscoveryMadePersonal"
+  },
+  "allNotes": "모든 메모",
+  "@allNotes": {
+    "description": "Localized string for allNotes"
+  },
+  "viewPersonalizedInsights": "개인 맞춤형 분석 정보, 차트 및 추세를 확인하세요.",
+  "@viewPersonalizedInsights": {
+    "description": "Localized string for viewPersonalizedInsights"
+  },
+  "curatedCollections": "엄선된 컬렉션",
+  "@curatedCollections": {
+    "description": "Localized string for curatedCollections"
+  },
+  "list": "목록",
+  "@list": {
+    "description": "Localized string for list"
+  },
+  "openList": "오픈 리스트",
+  "@openList": {
+    "description": "Localized string for openList"
+  },
+  "thisListNoLongerExists": "이 목록은 더 이상 존재하지 않습니다.",
+  "@thisListNoLongerExists": {
+    "description": "Localized string for thisListNoLongerExists"
+  },
+  "listRenamed": "목록 이름이 {name}으로 변경되었습니다.",
+  "@listRenamed": {
+    "description": "Localized string for listRenamed",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "listDeleted": "목록 {name}이 삭제되었습니다.",
+  "@listDeleted": {
+    "description": "Localized string for listDeleted",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInWatchlist": "관심 목록에 {filter}이 없습니다.",
+  "@noFilterInWatchlist": {
+    "description": "Localized string for noFilterInWatchlist",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInFavourites": "즐겨찾기에 {filter}이 없습니다.",
+  "@noFilterInFavourites": {
+    "description": "Localized string for noFilterInFavourites",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInWatched": "{filter}은 시청하지 않았습니다.",
+  "@noFilterInWatched": {
+    "description": "Localized string for noFilterInWatched",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInThisList": "이 목록에는 {filter}이 없습니다.",
+  "@noFilterInThisList": {
+    "description": "Localized string for noFilterInThisList",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noListsWithFilter": "{filter}이 포함된 목록이 없습니다.",
+  "@noListsWithFilter": {
+    "description": "Localized string for noListsWithFilter",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "importedInto": "\"{name}\"으로 수입됨",
+  "@importedInto": {
+    "description": "Localized string for importedInto",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotImportList": "목록을 가져올 수 없습니다.",
+  "@couldNotImportList": {
+    "description": "Localized string for couldNotImportList"
+  },
+  "importing": "가져오는 중...",
+  "@importing": {
+    "description": "Localized string for importing"
+  },
+  "couldNotLoadSharedList": "공유 목록을 불러올 수 없습니다.",
+  "@couldNotLoadSharedList": {
+    "description": "Localized string for couldNotLoadSharedList"
+  },
+  "editWatchedInfo": "시청 정보 수정",
+  "@editWatchedInfo": {
+    "description": "Localized string for editWatchedInfo"
+  },
+  "watchDate": "시계 날짜",
+  "@watchDate": {
+    "description": "Localized string for watchDate"
+  },
+  "rewatchCount": "다시보기 횟수",
+  "@rewatchCount": {
+    "description": "Localized string for rewatchCount"
+  },
+  "watchedInfoUpdated": "시청 정보가 업데이트되었습니다.",
+  "@watchedInfoUpdated": {
+    "description": "Localized string for watchedInfoUpdated"
+  },
+  "removedFromList": "{listName}에서 제거됨",
+  "@removedFromList": {
+    "description": "Localized string for removedFromList",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "addedToList": "{listName}에 추가되었습니다.",
+  "@addedToList": {
+    "description": "Localized string for addedToList",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "addedToListAndWatchlist": "{listName} 및 관심 목록에 추가되었습니다.",
+  "@addedToListAndWatchlist": {
+    "description": "Localized string for addedToListAndWatchlist",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTrailersLikeThis": "이와 유사한 예고편 더 보기",
+  "@moreTrailersLikeThis": {
+    "description": "Localized string for moreTrailersLikeThis"
+  },
+  "noDescriptionForTrailer": "이 예고편에 대한 설명이 없습니다.",
+  "@noDescriptionForTrailer": {
+    "description": "Localized string for noDescriptionForTrailer"
+  },
+  "closeTrailer": "트레일러 닫기",
+  "@closeTrailer": {
+    "description": "Localized string for closeTrailer"
+  },
+  "recommendedSeries": "추천 시리즈",
+  "@recommendedSeries": {
+    "description": "Localized string for recommendedSeries"
+  },
+  "recommendedMovie": "추천 영화",
+  "@recommendedMovie": {
+    "description": "Localized string for recommendedMovie"
+  },
+  "notEnoughDataYet": "아직 데이터가 충분하지 않습니다.",
+  "@notEnoughDataYet": {
+    "description": "Localized string for notEnoughDataYet"
+  },
+  "addAndRateMoreTitles": "분석 기능을 사용하려면 최소 {count}개의 타이틀을 추가하고 평가해 주세요.",
+  "@addAndRateMoreTitles": {
+    "description": "Localized string for addAndRateMoreTitles",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "addMoreTitlesToUnlock": "시청하신 타이틀은 {watchedCount}/{requiredCount}개입니다. 분석 기능을 사용하려면 {remaining}개를 더 추가하세요.",
+  "@addMoreTitlesToUnlock": {
+    "description": "Localized string for addMoreTitlesToUnlock",
+    "placeholders": {
+      "watchedCount": {
+        "type": "String"
+      },
+      "requiredCount": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "moviesPerMonth": "월별 영화 편수",
+  "@moviesPerMonth": {
+    "description": "Localized string for moviesPerMonth"
+  },
+  "genreDistribution": "장르 분포",
+  "@genreDistribution": {
+    "description": "Localized string for genreDistribution"
+  },
+  "ratingTrends": "평점 추세",
+  "@ratingTrends": {
+    "description": "Localized string for ratingTrends"
+  },
+  "noData": "데이터 없음",
+  "@noData": {
+    "description": "Localized string for noData"
+  },
+  "myLatestWatchAnalytics": "Lumi에서 확인한 최신 시계 분석 정보입니다.",
+  "@myLatestWatchAnalytics": {
+    "description": "Localized string for myLatestWatchAnalytics"
+  },
+  "myWatchInsights": "Lumi에 대한 제 시계 관련 의견입니다.",
+  "@myWatchInsights": {
+    "description": "Localized string for myWatchInsights"
+  },
+  "infographicsCard": "인포그래픽 카드",
+  "@infographicsCard": {
+    "description": "Localized string for infographicsCard"
+  },
+  "watchInsightsSnapshot": "시계 인사이트 스냅샷",
+  "@watchInsightsSnapshot": {
+    "description": "Localized string for watchInsightsSnapshot"
+  },
+  "availableOnceInsightsReady": "분석 결과가 준비되는 대로 이용 가능합니다.",
+  "@availableOnceInsightsReady": {
+    "description": "Localized string for availableOnceInsightsReady"
+  },
+  "shareYourWatchInsights": "시계에 대한 인사이트를 공유하세요",
+  "@shareYourWatchInsights": {
+    "description": "Localized string for shareYourWatchInsights"
+  },
+  "recentlyWatchedVibe": "최근 시청한 영상 Vibe",
+  "@recentlyWatchedVibe": {
+    "description": "Localized string for recentlyWatchedVibe"
+  },
+  "mixedAcrossGenres": "다양한 장르가 혼합되어 있습니다.",
+  "@mixedAcrossGenres": {
+    "description": "Localized string for mixedAcrossGenres"
+  },
+  "moviesPerMonthShort": "영화 편수 / 월",
+  "@moviesPerMonthShort": {
+    "description": "Localized string for moviesPerMonthShort"
+  },
+  "ratingTrend": "평점 추세",
+  "@ratingTrend": {
+    "description": "Localized string for ratingTrend"
+  },
+  "balanced": "균형 잡힌",
+  "@balanced": {
+    "description": "Localized string for balanced"
+  },
+  "noWatchNextSuggestionsYet": "아직 다음에 볼 콘텐츠 추천이 없습니다.",
+  "@noWatchNextSuggestionsYet": {
+    "description": "Localized string for noWatchNextSuggestionsYet"
+  },
+  "upcomingFromLibrary": "도서관에서 곧 출시될 예정",
+  "@upcomingFromLibrary": {
+    "description": "Localized string for upcomingFromLibrary"
+  },
+  "removeReminder": "알림 제거",
+  "@removeReminder": {
+    "description": "Localized string for removeReminder"
+  },
+  "remindMe": "다시 알려주세요",
+  "@remindMe": {
+    "description": "Localized string for remindMe"
+  },
+  "titleReleasesToday": "{title}이 오늘 출시됩니다.",
+  "@titleReleasesToday": {
+    "description": "Localized string for titleReleasesToday",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "titleAirsSoon": "{title} {subtitle}이 곧 방영됩니다.",
+  "@titleAirsSoon": {
+    "description": "Localized string for titleAirsSoon",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "subtitle": {
+        "type": "String"
+      }
+    }
+  },
+  "controlPremiereAlerts": "출시 알림 및 릴리스 미리 알림을 관리하세요.",
+  "@controlPremiereAlerts": {
+    "description": "Localized string for controlPremiereAlerts"
+  },
+  "upcomingReleasesCount": "라이브러리 전체에서 곧 출시될 {count}개의 릴리스를 확인하세요.",
+  "@upcomingReleasesCount": {
+    "description": "Localized string for upcomingReleasesCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "sittingInWatchlist": "관심 목록에 {days}일 동안 머물러 있습니다.",
+  "@sittingInWatchlist": {
+    "description": "Localized string for sittingInWatchlist",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "alreadyOnWatchlist": "이미 관심 목록에 추가했습니다",
+  "@alreadyOnWatchlist": {
+    "description": "Localized string for alreadyOnWatchlist"
+  },
+  "favouritedButNotWatched": "이 게시물을 즐겨찾기에 추가했지만 아직 시청 완료로 표시하지는 않았습니다.",
+  "@favouritedButNotWatched": {
+    "description": "Localized string for favouritedButNotWatched"
+  },
+  "savedInListReady": "내 목록에 저장되어 시청할 준비가 되었습니다.",
+  "@savedInListReady": {
+    "description": "Localized string for savedInListReady"
+  },
+  "matchesTitlesYouTrack": "이미 추적 중인 제목과 일치합니다.",
+  "@matchesTitlesYouTrack": {
+    "description": "Localized string for matchesTitlesYouTrack"
+  },
+  "noOfficialSite": "공식 사이트 없음",
+  "@noOfficialSite": {
+    "description": "Localized string for noOfficialSite"
+  },
+  "episodeAiring": "에피소드 방영",
+  "@episodeAiring": {
+    "description": "Localized string for episodeAiring"
+  },
+  "general": "일반적인",
+  "@general": {
+    "description": "Localized string for general"
+  },
+  "scheduledFor": "{date}에 예정됨",
+  "@scheduledFor": {
+    "description": "Localized string for scheduledFor",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "wasScheduledFor": "{date}으로 예정되어 있었습니다.",
+  "@wasScheduledFor": {
+    "description": "Localized string for wasScheduledFor",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noOverviewAvailable": "개요를 사용할 수 없습니다.",
+  "@noOverviewAvailable": {
+    "description": "Localized string for noOverviewAvailable"
+  },
+  "searchHistoryCleared": "검색 기록이 삭제되었습니다.",
+  "@searchHistoryCleared": {
+    "description": "Localized string for searchHistoryCleared"
+  },
+  "visualMovieCard": "비주얼 무비 카드",
+  "@visualMovieCard": {
+    "description": "Localized string for visualMovieCard"
+  },
+  "smartLumiLink": "스마트 루미 링크",
+  "@smartLumiLink": {
+    "description": "Localized string for smartLumiLink"
+  },
+  "directTmdbLink": "TMDB 직접 링크",
+  "@directTmdbLink": {
+    "description": "Localized string for directTmdbLink"
+  },
+  "recommendedOnLumi": "Lumi에서 추천: {title}",
+  "@recommendedOnLumi": {
+    "description": "Localized string for recommendedOnLumi",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "checkOutOnLumi": "Lumi에서 {title}을 확인해 보세요!\n\n{link}\n\nLumi 다운로드: {appLink}",
+  "@checkOutOnLumi": {
+    "description": "Localized string for checkOutOnLumi",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      },
+      "appLink": {
+        "type": "String"
+      }
+    }
+  },
+  "checkOutOnTmdb": "TMDB에서 {title}을 확인해 보세요: {link}",
+  "@checkOutOnTmdb": {
+    "description": "Localized string for checkOutOnTmdb",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseAlertTitle": "{title} 릴리스 알림",
+  "@releaseAlertTitle": {
+    "description": "Localized string for releaseAlertTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseAlertFullMessage": "{date} 릴리스 알림이 설정되었습니다. 릴리스가 완료되면 알려드리겠습니다.",
+  "@releaseAlertFullMessage": {
+    "description": "Localized string for releaseAlertFullMessage",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseSuccessDialogContent": "\"{title}\"이 디지털 또는 블루레이/DVD로 출시되는 즉시 알려드리겠습니다!",
+  "@releaseSuccessDialogContent": {
+    "description": "Localized string for releaseSuccessDialogContent",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "episodeAlreadyDueToAir": "이번 에피소드는 이미 방영 예정입니다.",
+  "@episodeAlreadyDueToAir": {
+    "description": "Localized string for episodeAlreadyDueToAir"
+  },
+  "reminderSetSuccessfully": "알림이 성공적으로 설정되었습니다.",
+  "@reminderSetSuccessfully": {
+    "description": "Localized string for reminderSetSuccessfully"
+  },
+  "speechRecognitionNotAvailable": "이 기기에서는 음성 인식 기능을 사용할 수 없습니다.",
+  "@speechRecognitionNotAvailable": {
+    "description": "Localized string for speechRecognitionNotAvailable"
+  },
+  "describeShowMood": "어떤 프로그램을 보고 싶은지 설명해 주시면, 순위별로 목록을 보내드리겠습니다.",
+  "@describeShowMood": {
+    "description": "Localized string for describeShowMood"
+  },
+  "describeMovieMood": "어떤 영화를 보고 싶은지 설명해 주시면, 순위별로 목록을 보내드리겠습니다.",
+  "@describeMovieMood": {
+    "description": "Localized string for describeMovieMood"
+  },
+  "aiLauncherDescription": "자연어로 요청하거나 말하세요. Lumi는 AI 기반 검색 계획을 수립하고 벡터 검색을 실행하여 여러 개의 프로그램/영화 추천작을 제공합니다.",
+  "@aiLauncherDescription": {
+    "description": "Localized string for aiLauncherDescription"
+  },
+  "yearRange": "이 앱 라벨을 ko로 번역하세요: {from}-{to}",
+  "@yearRange": {
+    "description": "Localized string for yearRange",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "remindersCountScheduled": "{count} 알림이 예약되었습니다.",
+  "@remindersCountScheduled": {
+    "description": "Localized string for remindersCountScheduled",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "regionAutoDetected": "자동 감지됨: {region}",
+  "@regionAutoDetected": {
+    "description": "Localized string for regionAutoDetected",
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "regionSelected": "선택됨: {region}",
+  "@regionSelected": {
+    "description": "Localized string for regionSelected",
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "allLanguagesSubtitle": "모든 언어",
+  "@allLanguagesSubtitle": {
+    "description": "Localized string for allLanguagesSubtitle"
+  },
+  "currentlySetToLanguage": "현재 {language}으로 설정되어 있습니다.",
+  "@currentlySetToLanguage": {
+    "description": "Localized string for currentlySetToLanguage",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "availabilities": "이용 가능 여부",
+  "@availabilities": {
+    "description": "Localized string for availabilities"
+  },
+  "mood": "분위기",
+  "@mood": {
+    "description": "Localized string for mood"
+  },
+  "people": "사람들",
+  "@people": {
+    "description": "Localized string for people"
+  },
+  "ads": "광고",
+  "@ads": {
+    "description": "Localized string for ads"
+  },
+  "theatricalLimited": "극장 유한회사",
+  "@theatricalLimited": {
+    "description": "Localized string for theatricalLimited"
+  },
+  "premier": "수상",
+  "@premier": {
+    "description": "Localized string for premier"
+  },
+  "mediaType": "미디어 유형",
+  "@mediaType": {
+    "description": "Localized string for mediaType"
+  },
+  "couldNotLoadAnalytics": "분석 정보를 불러올 수 없습니다.",
+  "@couldNotLoadAnalytics": {
+    "description": "Localized string for couldNotLoadAnalytics"
+  },
+  "viewAllAwards": "모두 보기",
+  "@viewAllAwards": {
+    "description": "Localized string for viewAllAwards"
+  },
+  "win": "이기다",
+  "@win": {
+    "description": "Localized string for win"
+  },
+  "wins": "승리",
+  "@wins": {
+    "description": "Localized string for wins"
+  },
+  "nomination": "지명",
+  "@nomination": {
+    "description": "Localized string for nomination"
+  },
+  "nominations": "후보 지명",
+  "@nominations": {
+    "description": "Localized string for nominations"
+  },
+  "sharedBy": "{name}님이 공유함",
+  "@sharedBy": {
+    "description": "Localized string for sharedBy",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "titleCount": "{count} 제목(들)",
+  "@titleCount": {
+    "description": "Localized string for titleCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "savedTitlesAcrossLists": "{count}은 목록 전체에 저장된 제목입니다.",
+  "@savedTitlesAcrossLists": {
+    "description": "Localized string for savedTitlesAcrossLists",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "curatedCollectionsSubtitle": "엄선된 컬렉션을 정리하고 공유할 수 있습니다.",
+  "@curatedCollectionsSubtitle": {
+    "description": "Localized string for curatedCollectionsSubtitle"
+  },
+  "shareListMessage": "Lumi로 \"{name}\" 가져오기 ({count} {itemLabel}): {link}",
+  "@shareListMessage": {
+    "description": "Localized string for shareListMessage",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      },
+      "itemLabel": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "notEnoughData": "데이터가 부족합니다",
+  "@notEnoughData": {
+    "description": "Localized string for notEnoughData"
+  },
+  "shareQuote": "Lumi의 \"{title}\"님이 남긴 이 글을 확인해 보세요!",
+  "@shareQuote": {
+    "description": "Localized string for shareQuote",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "shareMovieMessage": "Lumi 추천 제품: {title}\n\n{link}",
+  "@shareMovieMessage": {
+    "description": "Localized string for shareMovieMessage",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "aiLauncherDescriptionShow": "자연어로 요청하거나 말하세요. Lumi는 AI 기반 계획을 수립하고 벡터 검색을 실행하여 여러 개의 프로그램 추천을 제공합니다.",
+  "@aiLauncherDescriptionShow": {
+    "description": "Localized string for aiLauncherDescriptionShow"
+  },
+  "aiLauncherDescriptionMovie": "자연어로 요청하거나 말하세요. Lumi는 AI 기반 계획을 수립하고 벡터 탐색을 실행하여 여러 영화를 추천합니다.",
+  "@aiLauncherDescriptionMovie": {
+    "description": "Localized string for aiLauncherDescriptionMovie"
+  },
+  "warmingUpMovieSearch": "영화 검색을 위한 워밍업",
+  "@warmingUpMovieSearch": {
+    "description": "Localized string for warmingUpMovieSearch"
+  },
+  "connectingToRecommendationEngine": "추천 엔진에 연결 중",
+  "@connectingToRecommendationEngine": {
+    "description": "Localized string for connectingToRecommendationEngine"
+  },
+  "understandingYourTaste": "당신이 어떤 기분인지 파악하기",
+  "@understandingYourTaste": {
+    "description": "Localized string for understandingYourTaste"
+  },
+  "buildingCustomSearch": "귀하의 요청을 바탕으로 맞춤 검색을 생성합니다.",
+  "@buildingCustomSearch": {
+    "description": "Localized string for buildingCustomSearch"
+  },
+  "tinyNetworkHiccup": "네트워크에 약간의 문제가 발생했습니다. 다시 시도해 보겠습니다.",
+  "@tinyNetworkHiccup": {
+    "description": "Localized string for tinyNetworkHiccup"
+  },
+  "planLocked": "장르, 스타일, 언어, 러닝타임 모두 확정되었습니다.",
+  "@planLocked": {
+    "description": "Localized string for planLocked"
+  },
+  "scanningTmdb": "TMDB에서 유사한 항목을 검색합니다.",
+  "@scanningTmdb": {
+    "description": "Localized string for scanningTmdb"
+  },
+  "collectingDetails": "최고의 작품들을 위해 포스터, 평점, 상영 시간을 수집했습니다.",
+  "@collectingDetails": {
+    "description": "Localized string for collectingDetails"
+  },
+  "shortlistingPicksCount": "최종 후보 선정 ({current}/{total})",
+  "@shortlistingPicksCount": {
+    "description": "Localized string for shortlistingPicksCount",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "shortlistingBestPicks": "최고의 제품들을 추려내기",
+  "@shortlistingBestPicks": {
+    "description": "Localized string for shortlistingBestPicks"
+  },
+  "finalPolish": "추천 사항에 대한 최종 다듬기",
+  "@finalPolish": {
+    "description": "Localized string for finalPolish"
+  },
+  "retryingAfterIssue": "일시적인 문제 발생 후 재시도합니다",
+  "@retryingAfterIssue": {
+    "description": "Localized string for retryingAfterIssue"
+  },
+  "regionUnitedStates": "미국",
+  "@regionUnitedStates": {
+    "description": "Region label for United States"
+  },
+  "regionIndia": "인도",
+  "@regionIndia": {
+    "description": "Region label for India"
+  },
+  "regionUnitedKingdom": "영국",
+  "@regionUnitedKingdom": {
+    "description": "Region label for United Kingdom"
+  },
+  "regionCanada": "캐나다",
+  "@regionCanada": {
+    "description": "Region label for Canada"
+  },
+  "regionAustralia": "호주",
+  "@regionAustralia": {
+    "description": "Region label for Australia"
+  },
+  "regionNewZealand": "뉴질랜드",
+  "@regionNewZealand": {
+    "description": "Region label for New Zealand"
+  },
+  "regionGermany": "독일",
+  "@regionGermany": {
+    "description": "Region label for Germany"
+  },
+  "regionFrance": "프랑스",
+  "@regionFrance": {
+    "description": "Region label for France"
+  },
+  "regionSpain": "스페인",
+  "@regionSpain": {
+    "description": "Region label for Spain"
+  },
+  "regionItaly": "이탈리아",
+  "@regionItaly": {
+    "description": "Region label for Italy"
+  },
+  "regionJapan": "일본",
+  "@regionJapan": {
+    "description": "Region label for Japan"
+  },
+  "regionSouthKorea": "대한민국",
+  "@regionSouthKorea": {
+    "description": "Region label for South Korea"
+  },
+  "regionBrazil": "브라질",
+  "@regionBrazil": {
+    "description": "Region label for Brazil"
+  },
+  "regionMexico": "멕시코",
+  "@regionMexico": {
+    "description": "Region label for Mexico"
+  },
+  "regionSingapore": "싱가포르",
+  "@regionSingapore": {
+    "description": "Region label for Singapore"
+  },
+  "regionPhilippines": "필리핀 제도",
+  "@regionPhilippines": {
+    "description": "Region label for Philippines"
+  },
+  "regionIndonesia": "인도네시아 공화국",
+  "@regionIndonesia": {
+    "description": "Region label for Indonesia"
+  },
+  "regionUnitedArabEmirates": "아랍에미리트",
+  "@regionUnitedArabEmirates": {
+    "description": "Region label for United Arab Emirates"
+  },
+  "regionSaudiArabia": "사우디아라비아",
+  "@regionSaudiArabia": {
+    "description": "Region label for Saudi Arabia"
+  },
+  "regionTurkey": "칠면조",
+  "@regionTurkey": {
+    "description": "Region label for Turkey"
+  },
+  "regionAutoDetectedSubtitle": "자동 감지된 지역: {regionLabel} ({regionCode}). 현지화된 영화 검색 및 시청 제공업체 조회를 위해 재정의할 지역을 선택하세요.",
+  "@regionAutoDetectedSubtitle": {
+    "description": "Subtitle when region is auto-detected",
+    "placeholders": {
+      "regionLabel": {
+        "type": "String"
+      },
+      "regionCode": {
+        "type": "String"
+      }
+    }
+  },
+  "regionSelectedSubtitle": "선택된 지역: {regionLabel} ({regionCode}). 지원되는 영화 검색 및 시청 제공업체 조회 시 다음에 이 지역이 자동으로 재사용됩니다.",
+  "@regionSelectedSubtitle": {
+    "description": "Subtitle when region is manually selected",
+    "placeholders": {
+      "regionLabel": {
+        "type": "String"
+      },
+      "regionCode": {
+        "type": "String"
+      }
+    }
+  },
+  "syncSignInTooltip": "클라우드와 동기화하려면 로그인하세요.",
+  "@syncSignInTooltip": {
+    "description": "Tooltip prompting sign in to sync library"
+  },
+  "syncFailedTooltip": "동기화에 실패했습니다. 다시 시도하려면 탭하세요.",
+  "@syncFailedTooltip": {
+    "description": "Tooltip shown when library sync failed"
+  },
+  "syncedTooltip": "클라우드와 동기화된 라이브러리",
+  "@syncedTooltip": {
+    "description": "Tooltip shown when library is synced"
+  },
+  "shareQuoteTooltip": "인용문 공유",
+  "@shareQuoteTooltip": {
+    "description": "Tooltip to share a quote"
+  },
+  "copyQuoteTooltip": "견적서 복사",
+  "@copyQuoteTooltip": {
+    "description": "Tooltip to copy a quote"
+  },
+  "quoteCopiedToast": "인용문이 클립보드에 복사되었습니다.",
+  "@quoteCopiedToast": {
+    "description": "Toast message after copying a quote"
+  },
+  "shareDialogueTooltip": "대화 공유",
+  "@shareDialogueTooltip": {
+    "description": "Tooltip to share a dialogue"
+  },
+  "copyDialogueTooltip": "대화 내용을 복사합니다",
+  "@copyDialogueTooltip": {
+    "description": "Tooltip to copy a dialogue"
+  },
+  "dialogueCopiedToast": "대화 내용이 클립보드에 복사되었습니다.",
+  "@dialogueCopiedToast": {
+    "description": "Toast message after copying a dialogue"
+  },
+  "tvAirsInOneHourTitle": "{title}은 1시간 후에 방송됩니다.",
+  "@tvAirsInOneHourTitle": {
+    "description": "Notification title for a TV episode airing in one hour",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "tvAirsInOneHourBody": "{episodeLabel} \"{episodeName}\"은 {localAirTime}에 방송됩니다.",
+  "@tvAirsInOneHourBody": {
+    "description": "Notification body for a TV episode airing in one hour",
+    "placeholders": {
+      "episodeLabel": {
+        "type": "String"
+      },
+      "episodeName": {
+        "type": "String"
+      },
+      "localAirTime": {
+        "type": "String"
+      }
+    }
+  },
+  "movieReleasesTodayTitle": "{title}이 오늘 출시됩니다",
+  "@movieReleasesTodayTitle": {
+    "description": "Notification title for a movie releasing today",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "movieReleasesTodayBody": "라이브러리에 있는 영화가 {localDate}에 개봉합니다.",
+  "@movieReleasesTodayBody": {
+    "description": "Notification body for a movie releasing today",
+    "placeholders": {
+      "localDate": {
+        "type": "String"
+      }
+    }
+  },
+  "curatedNeoNoirNights": "네오 누아르 나이트",
+  "@curatedNeoNoirNights": {
+    "description": "Curated collection title"
+  },
+  "curatedPulsePoundingRush": "심장을 뛰게 하는 질주",
+  "@curatedPulsePoundingRush": {
+    "description": "Curated collection title"
+  },
+  "curatedFeelGoodEscape": "기분 좋은 탈출",
+  "@curatedFeelGoodEscape": {
+    "description": "Curated collection title"
+  },
+  "curatedMindBenders": "마인드벤더스",
+  "@curatedMindBenders": {
+    "description": "Curated collection title"
+  },
+  "curatedEpicWorlds": "에픽 월드",
+  "@curatedEpicWorlds": {
+    "description": "Curated collection title"
+  },
+  "curatedHumanStories": "인간 이야기",
+  "@curatedHumanStories": {
+    "description": "Curated collection title"
+  },
+  "curatedDarkDetectiveFiles": "다크 디텍티브 파일즈",
+  "@curatedDarkDetectiveFiles": {
+    "description": "Curated collection title"
+  },
+  "curatedNeoNoirNightsDescription": "비에 젖은 긴장감, 도덕적으로 모호한 주인공들, 그리고 분위기 있는 도시 이야기.",
+  "@curatedNeoNoirNightsDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedPulsePoundingRushDescription": "숨 막히는 추격전, 점점 고조되는 위험, 숨 쉴 틈도 없는 긴장감.",
+  "@curatedPulsePoundingRushDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedFeelGoodEscapeDescription": "따뜻한 이야기, 희망적인 전개, 편안한 밤을 위한 위안이 되는 추천 콘텐츠.",
+  "@curatedFeelGoodEscapeDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedMindBendersDescription": "현실을 뒤흔드는 개념, 예측 불가능한 줄거리, 그리고 심오한 주제를 다룬 스토리텔링.",
+  "@curatedMindBendersDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedEpicWorldsDescription": "광대한 우주를 배경으로 한 모험, 신화적인 긴장감, 그리고 영화 같은 스케일.",
+  "@curatedEpicWorldsDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedHumanStoriesDescription": "인물 중심의 드라마로, 감동적인 스토리와 기억에 남는 연기를 선보입니다.",
+  "@curatedHumanStoriesDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedDarkDetectiveFilesDescription": "확실한 단서, 얽히고설킨 용의자들, 그리고 더디게 진행되는 수사.",
+  "@curatedDarkDetectiveFilesDescription": {
+    "description": "Curated collection description"
+  },
+  "appLanguage": "앱 언어",
+  "@appLanguage": {
+    "description": "App language setting title"
+  },
+  "appLanguageSystemDefault": "시스템 기본값",
+  "@appLanguageSystemDefault": {
+    "description": "Label for using the system language"
+  },
+  "appLanguageSelectedSubtitle": "앱 언어가 {language}으로 설정되었습니다. 이는 앱 인터페이스만 변경하며 영화 및 프로그램 언어는 변경되지 않습니다.",
+  "@appLanguageSelectedSubtitle": {
+    "description": "Subtitle when an app language is selected",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "appLanguageSystemSubtitle": "앱 언어는 기기 설정에 따라 적용됩니다. 다른 언어로 인터페이스를 유지하려면 설정을 변경하세요.",
+  "@appLanguageSystemSubtitle": {
+    "description": "Subtitle when app language follows system"
+  },
+  "contentLanguageAllSubtitle": "모든 언어를 지원합니다. 영화 및 TV 탭은 광범위한 콘텐츠를 제공하며, 탐색 탭에서는 가능한 경우 해당 지역 콘텐츠에 더 적합한 결과를 우선적으로 보여줍니다.",
+  "@contentLanguageAllSubtitle": {
+    "description": "Subtitle when content language is set to all languages"
+  },
+  "contentLanguageSelectedSubtitle": "현재 {language}으로 설정되어 있습니다. 영화 및 TV 탭은 이 설정을 그대로 유지하지만, 탐색 탭에서는 이 언어를 우선적으로 사용합니다.",
+  "@contentLanguageSelectedSubtitle": {
+    "description": "Subtitle when a specific content language is selected",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  }
+}

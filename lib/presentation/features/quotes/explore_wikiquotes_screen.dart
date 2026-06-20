@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/presentation/providers/quotes_provider.dart';
 import 'package:cineverse/domain/repositories/quotes_repository.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
@@ -51,10 +52,10 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                 leading: const AppBackButton(),
                 title: Text(title),
               ),
-              body: const Center(
+              body: Center(
                 child: Text(
-                  'No quotes found.',
-                  style: TextStyle(color: Colors.white70),
+                  context.l10n.noQuotesFound,
+                  style: const TextStyle(color: Colors.white70),
                 ),
               ),
             );
@@ -70,10 +71,10 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                 leading: const AppBackButton(),
                 title: Text(title),
               ),
-              body: const Center(
+              body: Center(
                 child: Text(
-                  'No sections found.',
-                  style: TextStyle(color: Colors.white70),
+                  context.l10n.noSectionsFound,
+                  style: const TextStyle(color: Colors.white70),
                 ),
               ),
             );
@@ -234,7 +235,7 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
           ),
           body: Center(
             child: Text(
-              'Error loading quotes.',
+              context.l10n.errorLoadingQuotes(e),
               style: TextStyle(color: theme.colorScheme.error),
             ),
           ),
@@ -309,12 +310,12 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                if (content.character != null)
+                if (content.character case final character?)
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: Text(
-                        '— ${content.character}',
+                        context.l10n.quoteCharacter(character),
                         style: theme.textTheme.labelMedium?.copyWith(
                           color: AppColors.cinemaAccent,
                           fontWeight: FontWeight.bold,
@@ -347,7 +348,7 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                     ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    tooltip: 'Share quote',
+                    tooltip: context.l10n.shareQuoteTooltip,
                   ),
                 const SizedBox(width: 8),
                 IconButton(
@@ -356,7 +357,7 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                         ? '"${content.text}" — ${content.character}'
                         : content.text;
                     Clipboard.setData(ClipboardData(text: textToCopy));
-                    ToastUtils.showToast(context, 'Quote copied to clipboard');
+                    ToastUtils.showToast(context, context.l10n.quoteCopiedToast);
                   },
                   icon: const Icon(
                     Icons.copy_rounded,
@@ -365,7 +366,7 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                   ),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                  tooltip: 'Copy quote',
+                  tooltip: context.l10n.copyQuoteTooltip,
                 ),
               ],
             ),
@@ -440,7 +441,7 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                       ),
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(),
-                      tooltip: 'Share dialogue',
+                      tooltip: context.l10n.shareDialogueTooltip,
                     ),
                   const SizedBox(width: 8),
                   IconButton(
@@ -455,7 +456,7 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                       Clipboard.setData(ClipboardData(text: dialogueText));
                       ToastUtils.showToast(
                         context,
-                        'Dialogue copied to clipboard',
+                        context.l10n.dialogueCopiedToast,
                       );
                     },
                     icon: const Icon(
@@ -465,7 +466,7 @@ class ExploreWikiquotesScreen extends ConsumerWidget {
                     ),
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),
-                    tooltip: 'Copy dialogue',
+                    tooltip: context.l10n.copyDialogueTooltip,
                   ),
                 ],
               ),

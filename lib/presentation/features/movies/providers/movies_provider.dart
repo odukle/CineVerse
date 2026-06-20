@@ -2,16 +2,17 @@ import 'dart:math' as math;
 
 import 'package:cineverse/core/config/region_preferences.dart';
 import 'package:cineverse/data/providers/data_providers.dart';
+import 'package:cineverse/domain/entities/media_filter.dart';
 import 'package:cineverse/domain/entities/media_images.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_genre.dart';
 import 'package:cineverse/domain/entities/movie_mood.dart';
 import 'package:cineverse/domain/entities/movie_section.dart';
-import 'package:cineverse/domain/entities/media_filter.dart';
-import 'package:cineverse/domain/usecases/get_movie_section_use_case.dart';
 import 'package:cineverse/domain/usecases/discover_media_use_case.dart';
-import 'package:cineverse/presentation/features/movies/providers/filter_provider.dart';
+import 'package:cineverse/domain/usecases/get_movie_section_use_case.dart';
+import 'package:cineverse/l10n/app_localizations.dart';
 import 'package:cineverse/presentation/features/movies/providers/explore_provider.dart';
+import 'package:cineverse/presentation/features/movies/providers/filter_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/hidden_titles_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,48 +24,24 @@ class MediaFilterOption {
   final MovieSection section;
 }
 
-final movieFilterOptions = Provider<List<MediaFilterOption>>(
-  (ref) => const [
-    MediaFilterOption(label: 'Popular', section: MovieSection.popular),
-    MediaFilterOption(label: 'Top Rated', section: MovieSection.topRated),
-    MediaFilterOption(label: 'In Theaters', section: MovieSection.nowPlaying),
-    MediaFilterOption(label: 'Coming Soon', section: MovieSection.upcoming),
-    MediaFilterOption(label: 'Filtered', section: MovieSection.discover),
-  ],
-);
+List<MediaFilterOption> movieFilterOptions(AppLocalizations l10n) => [
+  MediaFilterOption(label: l10n.popular, section: MovieSection.popular),
+  MediaFilterOption(label: l10n.topRated, section: MovieSection.topRated),
+  MediaFilterOption(label: l10n.inTheaters, section: MovieSection.nowPlaying),
+  MediaFilterOption(label: l10n.comingSoon, section: MovieSection.upcoming),
+  MediaFilterOption(label: l10n.filtered, section: MovieSection.discover),
+];
 
-final tvFilterOptions = Provider<List<MediaFilterOption>>(
-  (ref) => const [
-    MediaFilterOption(label: 'Popular', section: MovieSection.tvPopular),
-    MediaFilterOption(label: 'Top Rated', section: MovieSection.tvTopRated),
-    MediaFilterOption(label: 'On The Air', section: MovieSection.tvOnTheAir),
-    MediaFilterOption(
-      label: 'Airing Today',
-      section: MovieSection.tvAiringToday,
-    ),
-    MediaFilterOption(label: 'Filtered', section: MovieSection.tvDiscover),
-  ],
-);
-
-final selectedMovieFilterProvider =
-    NotifierProvider<SelectedMovieFilter, MediaFilterOption>(
-      SelectedMovieFilter.new,
-    );
-
-class SelectedMovieFilter extends Notifier<MediaFilterOption> {
-  @override
-  MediaFilterOption build() => ref.watch(movieFilterOptions).first;
-  void setFilter(MediaFilterOption option) => state = option;
-}
-
-final selectedTvFilterProvider =
-    NotifierProvider<SelectedTvFilter, MediaFilterOption>(SelectedTvFilter.new);
-
-class SelectedTvFilter extends Notifier<MediaFilterOption> {
-  @override
-  MediaFilterOption build() => ref.watch(tvFilterOptions).first;
-  void setFilter(MediaFilterOption option) => state = option;
-}
+List<MediaFilterOption> tvFilterOptions(AppLocalizations l10n) => [
+  MediaFilterOption(label: l10n.popular, section: MovieSection.tvPopular),
+  MediaFilterOption(label: l10n.topRated, section: MovieSection.tvTopRated),
+  MediaFilterOption(label: l10n.onTheAir, section: MovieSection.tvOnTheAir),
+  MediaFilterOption(
+    label: l10n.airingToday,
+    section: MovieSection.tvAiringToday,
+  ),
+  MediaFilterOption(label: l10n.filtered, section: MovieSection.tvDiscover),
+];
 
 class SelectedMovieGenreId extends Notifier<int?> {
   @override
@@ -113,49 +90,48 @@ class ContentLanguageOption {
       nativeLabel == null ? label : '$label · $nativeLabel';
 }
 
-const List<ContentLanguageOption>
-contentLanguageOptions = <ContentLanguageOption>[
-  ContentLanguageOption(code: null, label: 'All Languages'),
-  ContentLanguageOption(code: 'ar', label: 'Arabic', nativeLabel: 'العربية'),
-  ContentLanguageOption(code: 'bn', label: 'Bengali', nativeLabel: 'বাংলা'),
-  ContentLanguageOption(code: 'en', label: 'English'),
-  ContentLanguageOption(code: 'fa', label: 'Persian', nativeLabel: 'فارسی'),
-  ContentLanguageOption(code: 'fr', label: 'French', nativeLabel: 'Français'),
-  ContentLanguageOption(code: 'de', label: 'German', nativeLabel: 'Deutsch'),
-  ContentLanguageOption(code: 'gu', label: 'Gujarati', nativeLabel: 'ગુજરાતી'),
-  ContentLanguageOption(code: 'hi', label: 'Hindi', nativeLabel: 'हिन्दी'),
+List<ContentLanguageOption> contentLanguageOptions(AppLocalizations l10n) => <ContentLanguageOption>[
+  ContentLanguageOption(code: null, label: l10n.allLanguages),
+  ContentLanguageOption(code: 'ar', label: l10n.arabic, nativeLabel: 'العربية'),
+  ContentLanguageOption(code: 'bn', label: l10n.bengali, nativeLabel: 'বাংলা'),
+  ContentLanguageOption(code: 'en', label: l10n.english),
+  ContentLanguageOption(code: 'fa', label: l10n.persian, nativeLabel: 'فارسی'),
+  ContentLanguageOption(code: 'fr', label: l10n.french, nativeLabel: 'Français'),
+  ContentLanguageOption(code: 'de', label: l10n.german, nativeLabel: 'Deutsch'),
+  ContentLanguageOption(code: 'gu', label: l10n.gujarati, nativeLabel: 'ગુજરાતી'),
+  ContentLanguageOption(code: 'hi', label: l10n.hindi, nativeLabel: 'हिन्दी'),
   ContentLanguageOption(
     code: 'id',
-    label: 'Indonesian',
+    label: l10n.indonesian,
     nativeLabel: 'Bahasa Indonesia',
   ),
-  ContentLanguageOption(code: 'it', label: 'Italian', nativeLabel: 'Italiano'),
-  ContentLanguageOption(code: 'ja', label: 'Japanese', nativeLabel: '日本語'),
-  ContentLanguageOption(code: 'kn', label: 'Kannada', nativeLabel: 'ಕನ್ನಡ'),
-  ContentLanguageOption(code: 'ko', label: 'Korean', nativeLabel: '한국어'),
-  ContentLanguageOption(code: 'ml', label: 'Malayalam', nativeLabel: 'മലയാളം'),
-  ContentLanguageOption(code: 'mr', label: 'Marathi', nativeLabel: 'मराठी'),
-  ContentLanguageOption(code: 'pa', label: 'Punjabi', nativeLabel: 'ਪੰਜਾਬੀ'),
-  ContentLanguageOption(code: 'pl', label: 'Polish', nativeLabel: 'Polski'),
+  ContentLanguageOption(code: 'it', label: l10n.italian, nativeLabel: 'Italiano'),
+  ContentLanguageOption(code: 'ja', label: l10n.japanese, nativeLabel: '日本語'),
+  ContentLanguageOption(code: 'kn', label: l10n.kannada, nativeLabel: 'ಕನ್ನಡ'),
+  ContentLanguageOption(code: 'ko', label: l10n.korean, nativeLabel: '한국어'),
+  ContentLanguageOption(code: 'ml', label: l10n.malayalam, nativeLabel: 'മലയാളം'),
+  ContentLanguageOption(code: 'mr', label: l10n.marathi, nativeLabel: 'मराठी'),
+  ContentLanguageOption(code: 'pa', label: l10n.punjabi, nativeLabel: 'ਪੰਜਾਬੀ'),
+  ContentLanguageOption(code: 'pl', label: l10n.polish, nativeLabel: 'Polski'),
   ContentLanguageOption(
     code: 'pt',
-    label: 'Portuguese',
+    label: l10n.portuguese,
     nativeLabel: 'Português',
   ),
-  ContentLanguageOption(code: 'ru', label: 'Russian', nativeLabel: 'Русский'),
-  ContentLanguageOption(code: 'es', label: 'Spanish', nativeLabel: 'Español'),
-  ContentLanguageOption(code: 'sv', label: 'Swedish', nativeLabel: 'Svenska'),
-  ContentLanguageOption(code: 'ta', label: 'Tamil', nativeLabel: 'தமிழ்'),
-  ContentLanguageOption(code: 'te', label: 'Telugu', nativeLabel: 'తెలుగు'),
-  ContentLanguageOption(code: 'th', label: 'Thai', nativeLabel: 'ไทย'),
-  ContentLanguageOption(code: 'tr', label: 'Turkish', nativeLabel: 'Türkçe'),
-  ContentLanguageOption(code: 'ur', label: 'Urdu', nativeLabel: 'اردو'),
+  ContentLanguageOption(code: 'ru', label: l10n.russian, nativeLabel: 'Русский'),
+  ContentLanguageOption(code: 'es', label: l10n.spanish, nativeLabel: 'Español'),
+  ContentLanguageOption(code: 'sv', label: l10n.swedish, nativeLabel: 'Svenska'),
+  ContentLanguageOption(code: 'ta', label: l10n.tamil, nativeLabel: 'தமிழ்'),
+  ContentLanguageOption(code: 'te', label: l10n.telugu, nativeLabel: 'తెలుగు'),
+  ContentLanguageOption(code: 'th', label: l10n.thai, nativeLabel: 'ไทย'),
+  ContentLanguageOption(code: 'tr', label: l10n.turkish, nativeLabel: 'Türkçe'),
+  ContentLanguageOption(code: 'ur', label: l10n.urdu, nativeLabel: 'اردو'),
   ContentLanguageOption(
     code: 'vi',
-    label: 'Vietnamese',
+    label: l10n.vietnamese,
     nativeLabel: 'Tiếng Việt',
   ),
-  ContentLanguageOption(code: 'zh', label: 'Chinese', nativeLabel: '中文'),
+  ContentLanguageOption(code: 'zh', label: l10n.chinese, nativeLabel: '中文'),
 ];
 
 class ContentLanguageNotifier extends Notifier<String?> {
@@ -191,15 +167,16 @@ final contentLanguageProvider =
       ContentLanguageNotifier.new,
     );
 
-final selectedContentLanguageOptionProvider = Provider<ContentLanguageOption>((
-  ref,
+ContentLanguageOption selectedContentLanguageOption(
+  AppLocalizations l10n,
+  String? code,
 ) {
-  final String? code = ref.watch(contentLanguageProvider);
-  return contentLanguageOptions.firstWhere(
+  final options = contentLanguageOptions(l10n);
+  return options.firstWhere(
     (option) => option.code == code,
-    orElse: () => contentLanguageOptions.first,
+    orElse: () => options.first,
   );
-});
+}
 
 final getMovieSectionUseCaseProvider = Provider<GetMovieSectionUseCase>((ref) {
   return GetMovieSectionUseCase(ref.watch(mediaRepositoryProvider));
@@ -1017,8 +994,8 @@ _curatedTonightCache = {};
 class CuratedTonightProfile {
   const CuratedTonightProfile({
     required this.id,
-    required this.title,
-    required this.description,
+    required this.titleKey,
+    required this.descriptionKey,
     required this.tags,
     required this.movieGenres,
     required this.tvGenres,
@@ -1031,8 +1008,8 @@ class CuratedTonightProfile {
   });
 
   final String id;
-  final String title;
-  final String description;
+  final String titleKey;
+  final String descriptionKey;
   final List<String> tags;
   final Set<int> movieGenres;
   final Set<int> tvGenres;
@@ -1062,9 +1039,8 @@ const List<CuratedTonightProfile>
 _curatedTonightProfiles = <CuratedTonightProfile>[
   CuratedTonightProfile(
     id: 'neo_noir_nights',
-    title: 'Neo-noir Nights',
-    description:
-        'Rain-soaked tension, morally gray leads, and atmospheric city stories.',
+    titleKey: 'curatedNeoNoirNights',
+    descriptionKey: 'curatedNeoNoirNightsDescription',
     tags: <String>['Crime', 'Thriller', 'Atmospheric'],
     movieGenres: <int>{80, 53, 18},
     tvGenres: <int>{80, 9648, 18},
@@ -1077,9 +1053,8 @@ _curatedTonightProfiles = <CuratedTonightProfile>[
   ),
   CuratedTonightProfile(
     id: 'pulse_pounding',
-    title: 'Pulse-Pounding Rush',
-    description:
-        'High-stakes chases, escalating danger, and no-time-to-breathe pacing.',
+    titleKey: 'curatedPulsePoundingRush',
+    descriptionKey: 'curatedPulsePoundingRushDescription',
     tags: <String>['Action', 'Suspense', 'Fast-paced'],
     movieGenres: <int>{28, 53, 12},
     tvGenres: <int>{10759, 80, 9648},
@@ -1092,9 +1067,8 @@ _curatedTonightProfiles = <CuratedTonightProfile>[
   ),
   CuratedTonightProfile(
     id: 'feel_good_escape',
-    title: 'Feel-Good Escape',
-    description:
-        'Warm stories, uplifting arcs, and comforting picks for a relaxed night.',
+    titleKey: 'curatedFeelGoodEscape',
+    descriptionKey: 'curatedFeelGoodEscapeDescription',
     tags: <String>['Feel-good', 'Heartwarming', 'Comfort'],
     movieGenres: <int>{35, 10749, 10751},
     tvGenres: <int>{35, 10751, 10766},
@@ -1107,9 +1081,8 @@ _curatedTonightProfiles = <CuratedTonightProfile>[
   ),
   CuratedTonightProfile(
     id: 'mind_benders',
-    title: 'Mind-Benders',
-    description:
-        'Reality-warping concepts, twisty plotting, and big-idea storytelling.',
+    titleKey: 'curatedMindBenders',
+    descriptionKey: 'curatedMindBendersDescription',
     tags: <String>['Sci-fi', 'Mystery', 'Twists'],
     movieGenres: <int>{878, 9648, 53},
     tvGenres: <int>{10765, 9648, 18},
@@ -1122,8 +1095,8 @@ _curatedTonightProfiles = <CuratedTonightProfile>[
   ),
   CuratedTonightProfile(
     id: 'epic_worlds',
-    title: 'Epic Worlds',
-    description: 'Big-universe adventures, mythic stakes, and cinematic scale.',
+    titleKey: 'curatedEpicWorlds',
+    descriptionKey: 'curatedEpicWorldsDescription',
     tags: <String>['Epic', 'Adventure', 'Fantasy'],
     movieGenres: <int>{14, 12, 28},
     tvGenres: <int>{10765, 10759, 18},
@@ -1136,9 +1109,8 @@ _curatedTonightProfiles = <CuratedTonightProfile>[
   ),
   CuratedTonightProfile(
     id: 'human_stories',
-    title: 'Human Stories',
-    description:
-        'Character-first dramas with emotional pull and memorable performances.',
+    titleKey: 'curatedHumanStories',
+    descriptionKey: 'curatedHumanStoriesDescription',
     tags: <String>['Drama', 'Character-led', 'Emotional'],
     movieGenres: <int>{18, 10749},
     tvGenres: <int>{18, 10766},
@@ -1151,8 +1123,8 @@ _curatedTonightProfiles = <CuratedTonightProfile>[
   ),
   CuratedTonightProfile(
     id: 'dark_detective',
-    title: 'Dark Detective Files',
-    description: 'Cold clues, layered suspects, and slow-burn investigations.',
+    titleKey: 'curatedDarkDetectiveFiles',
+    descriptionKey: 'curatedDarkDetectiveFilesDescription',
     tags: <String>['Detective', 'Mystery', 'Crime'],
     movieGenres: <int>{80, 9648, 53},
     tvGenres: <int>{80, 9648, 18},
@@ -1173,6 +1145,32 @@ int _calendarDayKey(DateTime now) {
 CuratedTonightProfile _profileForDay(int dayKey) {
   final int index = dayKey % _curatedTonightProfiles.length;
   return _curatedTonightProfiles[index];
+}
+
+String curatedTonightTitleFor(AppLocalizations l10n, String titleKey) {
+  return switch (titleKey) {
+    'curatedNeoNoirNights' => l10n.curatedNeoNoirNights,
+    'curatedPulsePoundingRush' => l10n.curatedPulsePoundingRush,
+    'curatedFeelGoodEscape' => l10n.curatedFeelGoodEscape,
+    'curatedMindBenders' => l10n.curatedMindBenders,
+    'curatedEpicWorlds' => l10n.curatedEpicWorlds,
+    'curatedHumanStories' => l10n.curatedHumanStories,
+    'curatedDarkDetectiveFiles' => l10n.curatedDarkDetectiveFiles,
+    _ => titleKey,
+  };
+}
+
+String curatedTonightDescriptionFor(AppLocalizations l10n, String descriptionKey) {
+  return switch (descriptionKey) {
+    'curatedNeoNoirNightsDescription' => l10n.curatedNeoNoirNightsDescription,
+    'curatedPulsePoundingRushDescription' => l10n.curatedPulsePoundingRushDescription,
+    'curatedFeelGoodEscapeDescription' => l10n.curatedFeelGoodEscapeDescription,
+    'curatedMindBendersDescription' => l10n.curatedMindBendersDescription,
+    'curatedEpicWorldsDescription' => l10n.curatedEpicWorldsDescription,
+    'curatedHumanStoriesDescription' => l10n.curatedHumanStoriesDescription,
+    'curatedDarkDetectiveFilesDescription' => l10n.curatedDarkDetectiveFilesDescription,
+    _ => descriptionKey,
+  };
 }
 
 List<MediaTitle> _seededShuffle(List<MediaTitle> input, int seed) {

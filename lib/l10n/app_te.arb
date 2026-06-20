@@ -1,0 +1,3454 @@
+{
+  "@@locale": "te",
+  "appName": "లూమి",
+  "@appName": {
+    "description": "The name of the application"
+  },
+  "navExplore": "అన్వేషించండి",
+  "@navExplore": {
+    "description": "Bottom navigation label for Explore tab"
+  },
+  "navMovies": "సినిమాలు",
+  "@navMovies": {
+    "description": "Bottom navigation label for Movies tab"
+  },
+  "navTvShows": "టీవీ కార్యక్రమాలు",
+  "@navTvShows": {
+    "description": "Bottom navigation label for TV Shows tab"
+  },
+  "navLibrary": "లైబ్రరీ",
+  "@navLibrary": {
+    "description": "Bottom navigation label for Library/Watchlist tab"
+  },
+  "navAccount": "ఖాతా",
+  "@navAccount": {
+    "description": "Bottom navigation label for Account tab"
+  },
+  "searchHint": "చలనచిత్రాలు, టీవీ కార్యక్రమాలు, కంపెనీలను శోధించండి...",
+  "@searchHint": {
+    "description": "Search bar hint text"
+  },
+  "searchForPerson": "ఒక వ్యక్తి కోసం వెతకండి...",
+  "@searchForPerson": {
+    "description": "Search person placeholder"
+  },
+  "searchLanguages": "భాషలను శోధించండి",
+  "@searchLanguages": {
+    "description": "Hint for language search input"
+  },
+  "searchNameOrRole": "పేరు లేదా పాత్రను వెతకండి...",
+  "@searchNameOrRole": {
+    "description": "Search cast crew placeholder"
+  },
+  "retry": "మళ్లీ ప్రయత్నించండి",
+  "@retry": {
+    "description": "Button label to retry a failed action"
+  },
+  "tryAgain": "మళ్లీ ప్రయత్నించండి",
+  "@tryAgain": {
+    "description": "Alternative retry button label"
+  },
+  "clear": "క్లియర్",
+  "@clear": {
+    "description": "Button label to clear content"
+  },
+  "cancel": "రద్దు చేయి",
+  "@cancel": {
+    "description": "Button label to cancel an action"
+  },
+  "ok": "సరే",
+  "@ok": {
+    "description": "Button label to confirm/acknowledge"
+  },
+  "save": "సేవ్ చేయండి",
+  "@save": {
+    "description": "Button label to save content"
+  },
+  "delete": "తొలగించు",
+  "@delete": {
+    "description": "Button label to delete content"
+  },
+  "share": "షేర్ చేయండి",
+  "@share": {
+    "description": "Button label to share content"
+  },
+  "undo": "అన్డు",
+  "@undo": {
+    "description": "Undo button"
+  },
+  "close": "మూసివేయి",
+  "@close": {
+    "description": "Button label to close a dialog/sheet"
+  },
+  "apply": "వర్తించు",
+  "@apply": {
+    "description": "Button label to apply filters"
+  },
+  "reset": "రీసెట్",
+  "@reset": {
+    "description": "Button label to reset a state"
+  },
+  "done": "పూర్తయింది",
+  "@done": {
+    "description": "Button label for completion"
+  },
+  "signInWithGoogle": "Googleతో సైన్ ఇన్ చేయండి",
+  "@signInWithGoogle": {
+    "description": "Google sign-in button label"
+  },
+  "signInWithApple": "Appleతో సైన్ ఇన్ చేయండి",
+  "@signInWithApple": {
+    "description": "Apple sign-in button label"
+  },
+  "signOut": "సైన్ అవుట్",
+  "@signOut": {
+    "description": "Sign out button label"
+  },
+  "deleteAccount": "ఖాతాని తొలగించండి",
+  "@deleteAccount": {
+    "description": "Delete account button label"
+  },
+  "accountDeletedSuccessfully": "ఖాతా విజయవంతంగా తొలగించబడింది.",
+  "@accountDeletedSuccessfully": {
+    "description": "Snackbar message after account deletion"
+  },
+  "appearance": "స్వరూపం",
+  "@appearance": {
+    "description": "Appearance settings title"
+  },
+  "appearanceSubtitle": "మీ థీమ్‌ను ఎంచుకోండి మరియు యాప్ రూపాన్ని అనుకూలీకరించండి.",
+  "@appearanceSubtitle": {
+    "description": "Appearance settings subtitle"
+  },
+  "notifications": "నోటిఫికేషన్‌లు",
+  "@notifications": {
+    "description": "Notifications settings title"
+  },
+  "releaseCalendar": "విడుదల క్యాలెండర్",
+  "@releaseCalendar": {
+    "description": "Release calendar title"
+  },
+  "hiddenTitles": "దాచబడిన శీర్షికలు",
+  "@hiddenTitles": {
+    "description": "Hidden titles screen title"
+  },
+  "aiRecommendationsPrivacy": "AI సిఫార్సులు గోప్యత",
+  "@aiRecommendationsPrivacy": {
+    "description": "AI consent settings title"
+  },
+  "contentRegion": "కంటెంట్ ప్రాంతం",
+  "@contentRegion": {
+    "description": "Content region settings title"
+  },
+  "contentLanguage": "కంటెంట్ భాష",
+  "@contentLanguage": {
+    "description": "Content language settings title"
+  },
+  "watchlist": "వాచ్‌లిస్ట్",
+  "@watchlist": {
+    "description": "Watchlist section title"
+  },
+  "notes": "గమనికలు",
+  "@notes": {
+    "description": "Notes section title"
+  },
+  "deleteNote": "గమనికను తొలగించండి",
+  "@deleteNote": {
+    "description": "Tooltip for delete note action"
+  },
+  "addNoteHint": "గమనికను జోడించండి...",
+  "@addNoteHint": {
+    "description": "Hint for note input field"
+  },
+  "addBriefNoteHint": "సంక్షిప్త గమనికను జోడించండి (ఐచ్ఛికం)...",
+  "@addBriefNoteHint": {
+    "description": "Hint for brief note input"
+  },
+  "enterNewName": "కొత్త పేరును నమోదు చేయండి...",
+  "@enterNewName": {
+    "description": "Hint for rename input"
+  },
+  "importSharedList": "భాగస్వామ్య జాబితాను దిగుమతి చేయండి",
+  "@importSharedList": {
+    "description": "Import shared list screen title"
+  },
+  "discoverOnLumi": "LUMIలో కనుగొనండి",
+  "@discoverOnLumi": {
+    "description": "Branding text on recommendation cards"
+  },
+  "filtered": "ఫిల్టర్ చేయబడింది",
+  "@filtered": {
+    "description": "Label for filtered genre chip"
+  },
+  "fullPlot": "పూర్తి ప్లాట్",
+  "@fullPlot": {
+    "description": "Full plot dialog/button label"
+  },
+  "userReviews": "వినియోగదారు సమీక్షలు",
+  "@userReviews": {
+    "description": "User reviews section title"
+  },
+  "noReviewsYet": "ఇంకా సమీక్షలు లేవు.",
+  "@noReviewsYet": {
+    "description": "Empty state message for reviews"
+  },
+  "openInYouTube": "YouTubeలో తెరవండి",
+  "@openInYouTube": {
+    "description": "Button to open video in YouTube"
+  },
+  "hiddenGems": "దాచిన రత్నాలు",
+  "@hiddenGems": {
+    "description": "Explore section title for hidden gems"
+  },
+  "resetSpotlight": "స్పాట్‌లైట్‌ని రీసెట్ చేయండి",
+  "@resetSpotlight": {
+    "description": "Button to reset spotlight selections"
+  },
+  "clearPreferences": "ప్రాధాన్యతలను క్లియర్ చేయండి",
+  "@clearPreferences": {
+    "description": "Button to clear user preferences"
+  },
+  "refreshPicks": "రిఫ్రెష్ పిక్స్",
+  "@refreshPicks": {
+    "description": "Button to refresh recommendations"
+  },
+  "shareBoard": "షేర్ బోర్డ్",
+  "@shareBoard": {
+    "description": "Button to share recommendation board"
+  },
+  "exploreDetails": "వివరాలను అన్వేషించండి",
+  "@exploreDetails": {
+    "description": "Button to explore item details"
+  },
+  "searchWikiquotes": "వికీకోట్‌లను శోధించండి",
+  "@searchWikiquotes": {
+    "description": "Wikiquotes search button"
+  },
+  "selectAQuote": "కోట్‌ని ఎంచుకోండి",
+  "@selectAQuote": {
+    "description": "Quote selection dialog title"
+  },
+  "tooltipShareQuote": "షేర్ కోట్",
+  "@tooltipShareQuote": {
+    "description": "Tooltip for share quote button"
+  },
+  "tooltipCopyQuote": "కోట్ కాపీ",
+  "@tooltipCopyQuote": {
+    "description": "Tooltip for copy quote button"
+  },
+  "tooltipShareDialogue": "డైలాగ్‌ను భాగస్వామ్యం చేయండి",
+  "@tooltipShareDialogue": {
+    "description": "Tooltip for share dialogue button"
+  },
+  "tooltipCopyDialogue": "డైలాగ్‌ని కాపీ చేయండి",
+  "@tooltipCopyDialogue": {
+    "description": "Tooltip for copy dialogue button"
+  },
+  "tooltipUnhide": "దాచిపెట్టు",
+  "@tooltipUnhide": {
+    "description": "Tooltip for unhide title button"
+  },
+  "tooltipOpenPrivacyPolicy": "గోప్యతా విధానాన్ని తెరవండి",
+  "@tooltipOpenPrivacyPolicy": {
+    "description": "Tooltip for privacy policy link"
+  },
+  "tooltipRefreshInsights": "అంతర్దృష్టులను రిఫ్రెష్ చేయండి",
+  "@tooltipRefreshInsights": {
+    "description": "Tooltip for refresh insights button"
+  },
+  "tooltipSortTitles": "శీర్షికలను క్రమబద్ధీకరించండి",
+  "@tooltipSortTitles": {
+    "description": "Tooltip for sort button"
+  },
+  "tooltipSearch": "శోధించండి",
+  "@tooltipSearch": {
+    "description": "Tooltip for search button"
+  },
+  "tooltipFilters": "ఫిల్టర్లు",
+  "@tooltipFilters": {
+    "description": "Tooltip for filters button"
+  },
+  "tooltipSaveToGallery": "గ్యాలరీకి సేవ్ చేయండి",
+  "@tooltipSaveToGallery": {
+    "description": "Tooltip for save to gallery button"
+  },
+  "tooltipShare": "షేర్ చేయండి",
+  "@tooltipShare": {
+    "description": "Tooltip for share button"
+  },
+  "tooltipShareAnalytics": "విశ్లేషణలను భాగస్వామ్యం చేయండి",
+  "@tooltipShareAnalytics": {
+    "description": "Tooltip for share analytics button"
+  },
+  "tooltipSetAiringReminder": "ప్రసార రిమైండర్‌ని సెట్ చేయండి",
+  "@tooltipSetAiringReminder": {
+    "description": "Tooltip for airing reminder"
+  },
+  "tooltipLibrarySynced": "లైబ్రరీ క్లౌడ్‌తో సమకాలీకరించబడింది",
+  "@tooltipLibrarySynced": {
+    "description": "Tooltip when library sync is complete"
+  },
+  "noMoreEntries": "ఇకపై ఎంట్రీలు లేవు",
+  "@noMoreEntries": {
+    "description": "Message shown when there are no more items to load"
+  },
+  "noItemsFound": "ఏ వస్తువులూ కనుగొనబడలేదు",
+  "@noItemsFound": {
+    "description": "Message shown when no items are found"
+  },
+  "errorLoadingGenres": "జానర్‌లను లోడ్ చేయడంలో లోపం: {error}",
+  "@errorLoadingGenres": {
+    "description": "Error message when genres fail to load",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorGeneric": "లోపం: {error}",
+  "@errorGeneric": {
+    "description": "Generic error message",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingLists": "జాబితాలను లోడ్ చేయడంలో లోపం",
+  "@errorLoadingLists": {
+    "description": "Error when lists fail to load"
+  },
+  "errorLoadingQuotes": "కోట్‌లను లోడ్ చేయడంలో విఫలమైంది: {error}",
+  "@errorLoadingQuotes": {
+    "description": "Error loading quotes"
+  },
+  "errorCouldNotShareAnalytics": "Analytics కార్డ్‌ని భాగస్వామ్యం చేయడం సాధ్యపడలేదు.",
+  "@errorCouldNotShareAnalytics": {
+    "description": "Snackbar error for analytics sharing failure"
+  },
+  "errorCouldNotShareRecommendations": "సిఫార్సు బోర్డును భాగస్వామ్యం చేయడం సాధ్యపడలేదు.",
+  "@errorCouldNotShareRecommendations": {
+    "description": "Snackbar error for recommendation sharing failure"
+  },
+  "errorCouldNotShareInsights": "వాచ్ అంతర్దృష్టులను భాగస్వామ్యం చేయడం సాధ్యపడలేదు.",
+  "@errorCouldNotShareInsights": {
+    "description": "Snackbar error for insights sharing failure"
+  },
+  "watchInsightsNotReady": "వాచ్ అంతర్దృష్టులు ఇంకా సిద్ధంగా లేవు.",
+  "@watchInsightsNotReady": {
+    "description": "Snackbar message when insights are still loading"
+  },
+  "titleRestoredToSpotlight": "\"{title}\" స్పాట్‌లైట్‌కి పునరుద్ధరించబడింది",
+  "@titleRestoredToSpotlight": {
+    "description": "Snackbar when a title is restored to spotlight",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "titleHasBeenHidden": "\"{title}\" దాచబడింది",
+  "@titleHasBeenHidden": {
+    "description": "Snackbar when a title is hidden",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "hiddenDate": "దాచబడింది: {date}",
+  "@hiddenDate": {
+    "description": "Label showing when a title was hidden",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "moviesInThisCollection": "ఈ సేకరణలో సినిమాలు",
+  "@moviesInThisCollection": {
+    "description": "Collection details section header"
+  },
+  "searchPlanReady": "శోధన ప్లాన్ సిద్ధంగా ఉంది",
+  "@searchPlanReady": {
+    "description": "Tonight watch progress message"
+  },
+  "hoursBeforeAirTime": "ప్రసార సమయానికి ముందు",
+  "@hoursBeforeAirTime": {
+    "description": "Hint for reminder time input"
+  },
+  "noUpcomingReleases": "రాబోయే విడుదలలు లేవు",
+  "@noUpcomingReleases": {
+    "description": "Empty state for release calendar"
+  },
+  "noRemindersSet": "రిమైండర్‌లు సెట్ చేయబడలేదు",
+  "@noRemindersSet": {
+    "description": "Empty state for notifications"
+  },
+  "noHiddenTitles": "దాచిన శీర్షికలు లేవు",
+  "@noHiddenTitles": {
+    "description": "Empty state for hidden titles"
+  },
+  "hiddenTitlesDescription": "మీరు స్పాట్‌లైట్ విభాగం నుండి దాచిపెట్టిన శీర్షికలు ఇక్కడ కనిపిస్తాయి మరియు మీరు వాటిని ఎప్పుడైనా పునరుద్ధరించగలరు.",
+  "@hiddenTitlesDescription": {
+    "description": "Description for hidden titles screen"
+  },
+  "tvShow": "టీవీ షో",
+  "@tvShow": {
+    "description": "Label for TV show type"
+  },
+  "movie": "సినిమా",
+  "@movie": {
+    "description": "Label for movie type"
+  },
+  "aiConsentGranted": "మీరు లైబ్రాని సిఫార్సు చేసిన వ్యక్తిగత డేటాను ఎంచుకోవడానికి మీరు సిఫార్సు చేసారు.",
+  "@aiConsentGranted": {
+    "description": "Subtitle when AI consent is granted"
+  },
+  "aiConsentNotGranted": "మీరు ఎంపిక చేసుకుంటే తప్ప మీ లైబ్రరీ డేటా ఎప్పటికీ భాగస్వామ్యం చేయబడదు.",
+  "@aiConsentNotGranted": {
+    "description": "Subtitle when AI consent is not granted"
+  },
+  "languageSettingExplanation": "సినిమాలు మరియు టీవీ ట్యాబ్‌లు దీన్ని ఖచ్చితంగా ఉపయోగిస్తాయి. ఎక్స్‌ప్లోర్ మొదట దాన్ని ఇష్టపడుతుంది మరియు రైలు తక్కువగా ఉన్నప్పుడు వెనక్కి తగ్గుతుంది.",
+  "@languageSettingExplanation": {
+    "description": "Explanation for content language setting"
+  },
+  "filterScreenTitle": "ఫిల్టర్‌లు",
+  "@filterScreenTitle": {
+    "description": "Filter screen AppBar title"
+  },
+  "sortBy": "క్రమపరచు",
+  "@sortBy": {
+    "description": "Sort by label in filters"
+  },
+  "genres": "జెనర్‌ల వారీగా క్రమీకరించు",
+  "@genres": {
+    "description": "Genres label in filters"
+  },
+  "year": "సంవత్సరం",
+  "@year": {
+    "description": "Year filter label"
+  },
+  "rating": "రేటింగ్",
+  "@rating": {
+    "description": "Rating filter label"
+  },
+  "runtime": "రన్‌టైమ్",
+  "@runtime": {
+    "description": "Runtime filter label"
+  },
+  "withPeople": "వ్యక్తులతో",
+  "@withPeople": {
+    "description": "People filter label"
+  },
+  "voteCount": "ఓట్ కౌంట్",
+  "@voteCount": {
+    "description": "Vote count filter label"
+  },
+  "today": "ఈరోజు",
+  "@today": {
+    "description": "Localized string for today"
+  },
+  "tomorrow": "రేపు",
+  "@tomorrow": {
+    "description": "Label for tomorrow's date"
+  },
+  "yesterday": "నిన్న",
+  "@yesterday": {
+    "description": "Label for yesterday's date"
+  },
+  "minutes": "నిమి",
+  "@minutes": {
+    "description": "Abbreviation for minutes"
+  },
+  "hours": "హెచ్",
+  "@hours": {
+    "description": "Abbreviation for hours"
+  },
+  "cast": "తారాగణం",
+  "@cast": {
+    "description": "Cast section title"
+  },
+  "crew": "సిబ్బంది",
+  "@crew": {
+    "description": "Crew section title"
+  },
+  "director": "దర్శకుడు",
+  "@director": {
+    "description": "Director label"
+  },
+  "seasons": "సీజన్లు",
+  "@seasons": {
+    "description": "Seasons label for TV shows"
+  },
+  "episodes": "ఎపిసోడ్‌లు",
+  "@episodes": {
+    "description": "Episodes label for TV shows"
+  },
+  "overview": "అవలోకనం",
+  "@overview": {
+    "description": "Overview section title"
+  },
+  "similar": "ఇలాంటి",
+  "@similar": {
+    "description": "Similar titles section"
+  },
+  "recommendations": "సిఫార్సులు",
+  "@recommendations": {
+    "description": "Recommendations section"
+  },
+  "addedToWatchlist": "వీక్షణ జాబితాకు జోడించబడింది",
+  "@addedToWatchlist": {
+    "description": "Snackbar after adding to watchlist"
+  },
+  "removedFromWatchlist": "వీక్షణ జాబితా నుండి తీసివేయబడింది",
+  "@removedFromWatchlist": {
+    "description": "Snackbar after removing from watchlist"
+  },
+  "popularity": "ప్రజాదరణ",
+  "@popularity": {
+    "description": "Sort option: popularity"
+  },
+  "releaseDate": "విడుదల తేదీ",
+  "@releaseDate": {
+    "description": "Sort option: release date"
+  },
+  "revenueLabel": "రాబడి",
+  "@revenueLabel": {
+    "description": "Sort option: revenue"
+  },
+  "originalTitle": "అసలు శీర్షిక",
+  "@originalTitle": {
+    "description": "Sort option: original title"
+  },
+  "voteAverage": "ఓటు సగటు",
+  "@voteAverage": {
+    "description": "Sort option: vote average"
+  },
+  "favourites": "ఇష్టమైనవి",
+  "@favourites": {
+    "description": "Favourites section label"
+  },
+  "lists": "జాబితాలు",
+  "@lists": {
+    "description": "Localized string for lists"
+  },
+  "watched": "చూశారు",
+  "@watched": {
+    "description": "Localized string for watched"
+  },
+  "all": "అన్నీ",
+  "@all": {
+    "description": "All filter option"
+  },
+  "tv": "టీవీ",
+  "@tv": {
+    "description": "TV filter option"
+  },
+  "librarySubtitle": "కలెక్షన్, ఫేవరెట్స్, నోట్స్ మరియు వాచ్ హిస్టరీ ప్రకారం అన్నింటినీ క్రమబద్ధంగా ఉంచండి.",
+  "@librarySubtitle": {
+    "description": "Watchlist screen subtitle"
+  },
+  "selectRegion": "ప్రాంతాన్ని ఎంచుకోండి",
+  "@selectRegion": {
+    "description": "Region selection dialog title"
+  },
+  "selectRegionDescription": "ప్రాంత-అవగాహన ప్రశ్నలకు మద్దతు ఇచ్చే TMDb ఎండ్‌పాయింట్‌లు మాత్రమే ఈ ఎంపికను ఉపయోగిస్తాయి.",
+  "@selectRegionDescription": {
+    "description": "Region selection dialog description"
+  },
+  "useAutoDetectedRegion": "స్వయంచాలకంగా గుర్తించబడిన ప్రాంతాన్ని ఉపయోగించండి",
+  "@useAutoDetectedRegion": {
+    "description": "Button to use auto-detected region"
+  },
+  "reminderRemoved": "రిమైండర్ తొలగించబడింది",
+  "@reminderRemoved": {
+    "description": "Localized string for reminderRemoved"
+  },
+  "releaseReminderSet": "{title} కోసం విడుదల రిమైండర్ సెట్ చేయబడింది.",
+  "@releaseReminderSet": {
+    "description": "Snackbar when a release reminder is set",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "episodeReminderSet": "{title} కోసం ఎపిసోడ్ రిమైండర్ సెట్ చేయబడింది.",
+  "@episodeReminderSet": {
+    "description": "Snackbar when an episode reminder is set",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "filteredResults": "ఫిల్టర్ చేయబడిన ఫలితాలు",
+  "@filteredResults": {
+    "description": "Filtered results label"
+  },
+  "genreResults": "శైలి ఫలితాలు",
+  "@genreResults": {
+    "description": "Genre results label"
+  },
+  "couldNotLoadContent": "కంటెంట్‌ను లోడ్ చేయలేకపోయింది. {error}",
+  "@couldNotLoadContent": {
+    "description": "Error when content fails to load",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noContentAvailableForThisSelection": "ఈ ఎంపిక కోసం కంటెంట్ అందుబాటులో లేదు.",
+  "@noContentAvailableForThisSelection": {
+    "description": "Empty state when no content is available"
+  },
+  "writer": "రచయిత",
+  "@writer": {
+    "description": "Writer label"
+  },
+  "actors": "నటులు",
+  "@actors": {
+    "description": "Actors label"
+  },
+  "noteNotFound": "గమనిక కనుగొనబడలేదు.",
+  "@noteNotFound": {
+    "description": "Error when note is not found"
+  },
+  "yourNotesCount": "మీ గమనికలు ({count})",
+  "@yourNotesCount": {
+    "description": "Localized string for yourNotesCount",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noteDeleted": "గమనిక తొలగించబడింది",
+  "@noteDeleted": {
+    "description": "Localized string for noteDeleted"
+  },
+  "noteDeletedWithCount": "గమనిక తొలగించబడింది ({count} సెకన్లు)",
+  "@noteDeletedWithCount": {
+    "description": "Localized string for noteDeletedWithCount",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loadMore": "మరిన్నింటిని లోడ్ చేయండి",
+  "@loadMore": {
+    "description": "Load more button"
+  },
+  "noMoreProductionsFound": "మరిన్ని ప్రొడక్షన్‌లు కనుగొనబడలేదు.",
+  "@noMoreProductionsFound": {
+    "description": "No more productions in company details"
+  },
+  "noProductionsFound": "ఏ నిర్మాణాలూ కనుగొనబడలేదు.",
+  "@noProductionsFound": {
+    "description": "No productions in company details"
+  },
+  "watchInsights": "వీక్షణ అంతర్దృష్టులు",
+  "@watchInsights": {
+    "description": "Watch insights section title"
+  },
+  "analyzingWatchHistory": "మీ వీక్షణ చరిత్రను విశ్లేషిస్తోంది...",
+  "@analyzingWatchHistory": {
+    "description": "Analyzing watch history loading text"
+  },
+  "manageHiddenTitlesDescription": "స్పాట్‌లైట్ విభాగం నుండి మీరు దాచిపెట్టిన శీర్షికలను నిర్వహించండి.",
+  "@manageHiddenTitlesDescription": {
+    "description": "Description for hidden titles management"
+  },
+  "tmdbLanguageMetadataNote": "ఈ మోడ్‌లో కొన్ని రైల్స్ విరళంగా కనిపించవచ్చు, ఎందుకంటే కేటలాగ్‌లోని కొన్ని భాగాలకు TMDB భాషా మెటాడేటా అసంపూర్ణంగా ఉంటుంది, అంతేగానీ ఆ శీర్షికలు లేవని కాదు.",
+  "@tmdbLanguageMetadataNote": {
+    "description": "Note about TMDB language metadata sparseness"
+  },
+  "tmdbDisclaimer": "ఈ ఉత్పత్తి TMDB APIని ఉపయోగిస్తుంది, కానీ TMDB ద్వారా ఆమోదించబడలేదు లేదా ధృవీకరించబడలేదు.",
+  "@tmdbDisclaimer": {
+    "description": "TMDB API disclaimer"
+  },
+  "useLocalLibraryForSync": "సింక్ కోసం స్థానిక లైబ్రరీని ఉపయోగించాలా?",
+  "@useLocalLibraryForSync": {
+    "description": "Ask user to use local library for sync"
+  },
+  "themePresets": "థీమ్ ప్రీసెట్‌లు",
+  "@themePresets": {
+    "description": "Theme presets label"
+  },
+  "exitApp": "యాప్ నుండి నిష్క్రమించండి",
+  "@exitApp": {
+    "description": "Exit app dialog title"
+  },
+  "popular": "జనాదరణ పొందిన",
+  "@popular": {
+    "description": "Popular section label"
+  },
+  "couldNotLoadReminders": "రిమైండర్‌లను లోడ్ చేయలేకపోయాము.\n\n{error}",
+  "@couldNotLoadReminders": {
+    "description": "Error loading reminders",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noRemindersSetYet": "ఇంకా రిమైండర్‌లు ఏవీ సెట్ చేయలేదు.\n\nఎపిసోడ్ ట్రాకర్ లేదా మూవీ డీటెయిల్స్ నుండి ఒకదాన్ని సృష్టించండి.",
+  "@noRemindersSetYet": {
+    "description": "No reminders set yet"
+  },
+  "episodeSeasonEpisode": "ఎపిసోడ్ S{seasonNumber} • E{episodeNumber}",
+  "@episodeSeasonEpisode": {
+    "description": "Episode season and episode label",
+    "placeholders": {
+      "seasonNumber": {
+        "type": "int"
+      },
+      "episodeNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "movieRelease": "సినిమా విడుదల",
+  "@movieRelease": {
+    "description": "Movie release reminder label"
+  },
+  "voteAverageStars": "ఈ యాప్ లేబుల్‌ను దీనికి అనువదించండి: {voteAverage} ★",
+  "@voteAverageStars": {
+    "description": "Vote average with stars",
+    "placeholders": {
+      "voteAverage": {
+        "type": "String"
+      }
+    }
+  },
+  "addMoreTrackedContent": "మీ వాచ్‌లిస్ట్, ఫేవరెట్స్ లేదా జాబితాలకు మరిన్ని సినిమాలు లేదా షోలను జోడించండి.",
+  "@addMoreTrackedContent": {
+    "description": "Add more tracked content"
+  },
+  "fastPicksDescription": "మీరు ఇప్పటికే సేవ్ చేసుకున్న వాటి ఆధారంగా వేగవంతమైన ఎంపికలు.",
+  "@fastPicksDescription": {
+    "description": "Fast picks based on saved content"
+  },
+  "releaseCalendarDescription": "సినిమా విడుదలలు మరియు తదుపరి టీవీ ఎపిసోడ్‌ల కోసం ఒకే ట్యాప్‌తో రిమైండర్‌లు.",
+  "@releaseCalendarDescription": {
+    "description": "Release calendar feature description"
+  },
+  "staleWatchlist": "పాత వాచ్‌లిస్ట్",
+  "@staleWatchlist": {
+    "description": "Stale watchlist label"
+  },
+  "tracked": "ట్రాక్ చేయబడింది",
+  "@tracked": {
+    "description": "Tracked tab label"
+  },
+  "upcoming": "రాబోయే",
+  "@upcoming": {
+    "description": "Upcoming tab label"
+  },
+  "upcomingEmptyDescription": "ట్రాక్ చేయబడిన సినిమాలకు విడుదల తేదీలు ఖరారైనప్పుడు లేదా షోలకు కొత్త ఎపిసోడ్‌లు షెడ్యూల్ చేయబడినప్పుడు, అవి ఇక్కడ కనిపిస్తాయి.",
+  "@upcomingEmptyDescription": {
+    "description": "Empty state for upcoming releases"
+  },
+  "howManyMoviesWatchedEachMonth": "మీరు ప్రతి నెలా ఎన్ని సినిమాలు చూశారు",
+  "@howManyMoviesWatchedEachMonth": {
+    "description": "Chart description"
+  },
+  "howPersonalRatingsShifting": "కాలక్రమేణా మీ వ్యక్తిగత రేటింగ్‌లు ఎలా మారుతున్నాయి",
+  "@howPersonalRatingsShifting": {
+    "description": "Chart description"
+  },
+  "keepWatchingToBuildProfile": "మీ దృశ్య రూపాన్ని మెరుగుపరచుకోవడానికి చూస్తూ ఉండండి.",
+  "@keepWatchingToBuildProfile": {
+    "description": "Empty state for watch history"
+  },
+  "lumiWatchAnalytics": "లూమి వాచ్ విశ్లేషణలు",
+  "@lumiWatchAnalytics": {
+    "description": "Watch analytics branding"
+  },
+  "noGenreDistributionYet": "ఇంకా జానర్ల వారీగా విభజన అందుబాటులో లేదు.",
+  "@noGenreDistributionYet": {
+    "description": "Empty state for genre distribution"
+  },
+  "noMovieWatchHistoryRecentMonths": "గత కొన్ని నెలలుగా సినిమాలు చూసిన చరిత్ర లేదు.",
+  "@noMovieWatchHistoryRecentMonths": {
+    "description": "Empty state for monthly watch history"
+  },
+  "noRatingTrendDataYet": "రేటింగ్ ట్రెండ్ డేటా ఇంకా అందుబాటులో లేదు.",
+  "@noRatingTrendDataYet": {
+    "description": "Empty state for rating trend"
+  },
+  "preferredRuntime": "ప్రాధాన్య రన్‌టైమ్",
+  "@preferredRuntime": {
+    "description": "Preferred runtime label"
+  },
+  "preferredRuntimeLabel": "ప్రాధాన్యత ఇవ్వబడిన రన్‌టైమ్ ~{minutes} నిమిషాలు ({label})",
+  "@preferredRuntimeLabel": {
+    "description": "Preferred runtime text",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "styledCardWithWatchStats": "మీ వాచ్ గణాంకాలతో కూడిన స్టైల్డ్ కార్డ్",
+  "@styledCardWithWatchStats": {
+    "description": "Share option description"
+  },
+  "titlesAnalyzed": "విశ్లేషించబడిన శీర్షికలు",
+  "@titlesAnalyzed": {
+    "description": "Titles analyzed label"
+  },
+  "tryAgainAfterMoment": "కొద్దిసేపటి తర్వాత మళ్ళీ ప్రయత్నించండి.",
+  "@tryAgainAfterMoment": {
+    "description": "Retry suggestion"
+  },
+  "watchAnalytics": "వాచ్ అనలిటిక్స్",
+  "@watchAnalytics": {
+    "description": "Watch analytics title"
+  },
+  "whatGenresDominateHistory": "మీరు చూసిన వాటిలో ఏ జానర్‌లు ఎక్కువగా ఉన్నాయి?",
+  "@whatGenresDominateHistory": {
+    "description": "Genre distribution description"
+  },
+  "toggleMovies": "సినిమాలు",
+  "@toggleMovies": {
+    "description": "Movies toggle label"
+  },
+  "toggleTv": "టీవీ",
+  "@toggleTv": {
+    "description": "TV toggle label"
+  },
+  "noMoreTitlesFound": "మరిన్ని శీర్షికలు కనుగొనబడలేదు.",
+  "@noMoreTitlesFound": {
+    "description": "No more titles in keyword screen"
+  },
+  "noTitlesFoundForKeyword": "ఈ కీవర్డ్ కోసం శీర్షికలు ఏవీ కనుగొనబడలేదు",
+  "@noTitlesFoundForKeyword": {
+    "description": "No titles for keyword"
+  },
+  "viewFull": "పూర్తి వీక్షణ",
+  "@viewFull": {
+    "description": "View full episode"
+  },
+  "accoladeDetails": "ప్రశంసా వివరాలు",
+  "@accoladeDetails": {
+    "description": "Accolade details dialog title"
+  },
+  "noDetailedAwardsInfo": "అవార్డుల గురించిన వివరణాత్మక సమాచారం అందుబాటులో లేదు.",
+  "@noDetailedAwardsInfo": {
+    "description": "No awards details"
+  },
+  "alertSet": "హెచ్చరిక సెట్ చేయబడింది!",
+  "@alertSet": {
+    "description": "Alert set confirmation"
+  },
+  "budget": "బడ్జెట్",
+  "@budget": {
+    "description": "Budget label"
+  },
+  "buy": "కొనండి",
+  "@buy": {
+    "description": "Buy provider label"
+  },
+  "chooseBetweenHours": "1 మరియు {maxHours} ల మధ్య ఎంచుకోండి",
+  "@chooseBetweenHours": {
+    "description": "Hours input validation",
+    "placeholders": {
+      "maxHours": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteNoteConfirmationTitle": "నోట్‌ను తొలగించాలా?",
+  "@deleteNoteConfirmationTitle": {
+    "description": "Delete note dialog title"
+  },
+  "episodeReminder": "ఎపిసోడ్ రిమైండర్",
+  "@episodeReminder": {
+    "description": "Episode reminder dialog title"
+  },
+  "facebook": "ఫేస్‌బుక్",
+  "@facebook": {
+    "description": "Facebook social link"
+  },
+  "free": "ఉచితం",
+  "@free": {
+    "description": "Free provider label"
+  },
+  "images": "చిత్రాలు",
+  "@images": {
+    "description": "Images section title"
+  },
+  "instagram": "ఇన్‌స్టాగ్రామ్",
+  "@instagram": {
+    "description": "Instagram social link"
+  },
+  "netProfit": "నికర లాభం",
+  "@netProfit": {
+    "description": "Net profit label"
+  },
+  "noNotesYet": "ఇంకా వ్యాఖ్యలు లేవు. మీ ఆలోచనలను జోడించండి!",
+  "@noNotesYet": {
+    "description": "No notes yet message"
+  },
+  "originalLanguage": "అసలు భాష",
+  "@originalLanguage": {
+    "description": "Original language label"
+  },
+  "partOfCollection": "{collectionName}లో భాగం",
+  "@partOfCollection": {
+    "description": "Part of collection label",
+    "placeholders": {
+      "collectionName": {
+        "type": "String"
+      }
+    }
+  },
+  "roi": "ROI",
+  "@roi": {
+    "description": "ROI label"
+  },
+  "releaseAlertSet": "{date} కోసం విడుదల వాచ్ హెచ్చరిక సెట్ చేయబడింది.",
+  "@releaseAlertSet": {
+    "description": "Release alert set message",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rent": "అద్దె",
+  "@rent": {
+    "description": "Rent provider label"
+  },
+  "revenue": "ఆదాయం",
+  "@revenue": {
+    "description": "Revenue label"
+  },
+  "seeAllReviews": "అన్నింటినీ చూడండి ({count})",
+  "@seeAllReviews": {
+    "description": "See all reviews button",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "setReminder": "రిమైండర్‌ను సెట్ చేయండి",
+  "@setReminder": {
+    "description": "Set reminder button"
+  },
+  "status": "స్థితి",
+  "@status": {
+    "description": "Status label"
+  },
+  "stream": "స్ట్రీమ్",
+  "@stream": {
+    "description": "Stream provider label"
+  },
+  "tikTok": "టిక్‌టాక్",
+  "@tikTok": {
+    "description": "TikTok social link"
+  },
+  "twitterX": "X",
+  "@twitterX": {
+    "description": "X social link"
+  },
+  "yours": "మీ",
+  "@yours": {
+    "description": "Yours label"
+  },
+  "youtube": "యూట్యూబ్",
+  "@youtube": {
+    "description": "YouTube social link"
+  },
+  "durationDays": "డి",
+  "@durationDays": {
+    "description": "Days abbreviation"
+  },
+  "durationHours": "హెచ్",
+  "@durationHours": {
+    "description": "Hours abbreviation"
+  },
+  "durationMinutes": "ఎమ్",
+  "@durationMinutes": {
+    "description": "Minutes abbreviation"
+  },
+  "durationSeconds": "లు",
+  "@durationSeconds": {
+    "description": "Seconds abbreviation"
+  },
+  "seasonRating": "ఈ యాప్ లేబుల్‌ను దీనికి అనువదించండి: ★ {score}%",
+  "@seasonRating": {
+    "description": "Season rating percentage",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "we": "మేము",
+  "@we": {
+    "description": "Localized string for we"
+  },
+  "aspect16x9": "ఈ యాప్ లేబుల్‌ను te: 16:9 గా అనువదించండి",
+  "@aspect16x9": {
+    "description": "16:9 aspect ratio"
+  },
+  "aspect9x16": "ఈ యాప్ లేబుల్‌ను te: 9:16 గా అనువదించండి",
+  "@aspect9x16": {
+    "description": "9:16 aspect ratio"
+  },
+  "background": "బిజి",
+  "@background": {
+    "description": "Background label"
+  },
+  "episodeCount": "ఈ యాప్ లేబుల్‌ను te: {count} Eps గా అనువదించండి",
+  "@episodeCount": {
+    "description": "Episode count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noEpisodesForSeason": "ఈ సీజన్‌కు సంబంధించిన ఎపిసోడ్‌లు ఏవీ కనుగొనబడలేదు.",
+  "@noEpisodesForSeason": {
+    "description": "No episodes for season"
+  },
+  "beautifulStyledCardForStories": "సామాజిక కథనాల కోసం అందంగా రూపొందించిన కార్డు",
+  "@beautifulStyledCardForStories": {
+    "description": "Share option description"
+  },
+  "clickableShareLink": "వాట్సాప్ మరియు ఇతర యాప్‌ల కోసం క్లిక్ చేయగల షేర్ లింక్",
+  "@clickableShareLink": {
+    "description": "Share option description"
+  },
+  "placeQuoteOnBackdrop": "మీకు ఇష్టమైన కొటేషన్‌ను సినిమా బ్యాక్‌డ్రాప్‌పై ఉంచండి",
+  "@placeQuoteOnBackdrop": {
+    "description": "Share option description"
+  },
+  "standardLinkToMovieDatabase": "సినిమా డేటాబేస్‌కు ప్రామాణిక లింక్",
+  "@standardLinkToMovieDatabase": {
+    "description": "Share option description"
+  },
+  "exploreLabel": "అన్వేషించండి",
+  "@exploreLabel": {
+    "description": "Explore label"
+  },
+  "quoteCharacter": "ఈ యాప్ లేబుల్‌ను దీనికి అనువదించండి: — {character}",
+  "@quoteCharacter": {
+    "description": "Quote character attribution",
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "aiTonightWatch": "AI టునైట్ వాచ్",
+  "@aiTonightWatch": {
+    "description": "AI tonight watch feature"
+  },
+  "aiQueryPlan": "AI ప్రశ్న ప్రణాళిక",
+  "@aiQueryPlan": {
+    "description": "AI query plan label"
+  },
+  "airingToday": "ఈరోజు ప్రసారం",
+  "@airingToday": {
+    "description": "Airing today section"
+  },
+  "bigCrowdPleasers": "బలమైన ఊపుతో ప్రేక్షకులను బాగా ఆకట్టుకుంటున్నవి",
+  "@bigCrowdPleasers": {
+    "description": "Explore section subtitle"
+  },
+  "cinematic": "సినిమాటిక్",
+  "@cinematic": {
+    "description": "Mood label"
+  },
+  "comingSoon": "త్వరలో వస్తుంది",
+  "@comingSoon": {
+    "description": "Coming soon section"
+  },
+  "currentTheatricalSlate": "ప్రస్తుత థియేట్రికల్ జాబితా మరియు సమీప భవిష్యత్తు విడుదలలు",
+  "@currentTheatricalSlate": {
+    "description": "Explore section subtitle"
+  },
+  "dark": "చీకటి",
+  "@dark": {
+    "description": "Mood label"
+  },
+  "discoverSpotlight": "డిస్కవర్ స్పాట్‌లైట్",
+  "@discoverSpotlight": {
+    "description": "Discover spotlight title"
+  },
+  "edgeOfYourSeat": "సీటు అంచున కూర్చోవడం",
+  "@edgeOfYourSeat": {
+    "description": "Mood label"
+  },
+  "fastPaced": "వేగవంతమైన",
+  "@fastPaced": {
+    "description": "Mood label"
+  },
+  "feelGood": "మంచి అనుభూతి",
+  "@feelGood": {
+    "description": "Mood label"
+  },
+  "freshPicksContinuous": "కొత్తగా ఎంపిక చేసినవి నిరంతరం అప్‌డేట్ చేయబడతాయి",
+  "@freshPicksContinuous": {
+    "description": "Explore section subtitle"
+  },
+  "hideTitle": "శీర్షికను దాచండి",
+  "@hideTitle": {
+    "description": "Hide title dialog title"
+  },
+  "highRatedSkipped": "అధిక రేటింగ్ ఉన్న టైటిల్స్‌ను చాలా మంది వీక్షకులు దాటవేస్తారు",
+  "@highRatedSkipped": {
+    "description": "Explore section subtitle"
+  },
+  "hotNowAudience": "ప్రస్తుతం ప్రేక్షకుల ఫీడ్‌లో ట్రెండింగ్‌లో ఉంది",
+  "@hotNowAudience": {
+    "description": "Explore section subtitle"
+  },
+  "inTheaters": "థియేటర్లలో",
+  "@inTheaters": {
+    "description": "In theaters section"
+  },
+  "indie": "ఇండీ",
+  "@indie": {
+    "description": "Mood label"
+  },
+  "mindBending": "మనసును కదిలించేది",
+  "@mindBending": {
+    "description": "Mood label"
+  },
+  "mostDiscussedShowsThisWeek": "ఈ వారం అత్యధికంగా చర్చించబడిన కార్యక్రమాలు",
+  "@mostDiscussedShowsThisWeek": {
+    "description": "Explore section subtitle"
+  },
+  "multiplePicks": "బహుళ ఎంపికలు",
+  "@multiplePicks": {
+    "description": "Multiple picks feature chip"
+  },
+  "onTheAir": "ఆన్ ది ఎయిర్",
+  "@onTheAir": {
+    "description": "On the air section"
+  },
+  "personalizedFromWatchBehavior": "మీ వాచ్ ప్రవర్తన నుండి వ్యక్తిగతీకరించబడింది",
+  "@personalizedFromWatchBehavior": {
+    "description": "Explore section subtitle"
+  },
+  "pickAVibe": "మీకు నచ్చిన వైబ్‌ను ఎంచుకోండి మరియు దానికి సరిపోయే టైటిల్స్‌ను తక్షణమే పొందండి",
+  "@pickAVibe": {
+    "description": "Explore section subtitle"
+  },
+  "seeAll": "అన్నీ చూడండి",
+  "@seeAll": {
+    "description": "See all button"
+  },
+  "seriesCurrentlyAiring": "ప్రస్తుతం యాక్టివ్ ఎపిసోడ్‌లతో ప్రసారం అవుతున్న సిరీస్",
+  "@seriesCurrentlyAiring": {
+    "description": "Explore section subtitle"
+  },
+  "thisWeek": "ఈ వారం",
+  "@thisWeek": {
+    "description": "This week filter"
+  },
+  "topRated": "అగ్రశ్రేణి రేటింగ్",
+  "@topRated": {
+    "description": "Top rated section"
+  },
+  "voiceInput": "వాయిస్ ఇన్‌పుట్",
+  "@voiceInput": {
+    "description": "Voice input feature chip"
+  },
+  "matchPercent": "{matchPct}% మ్యాచ్",
+  "@matchPercent": {
+    "description": "Match percentage",
+    "placeholders": {
+      "matchPct": {
+        "type": "String"
+      }
+    }
+  },
+  "runtimeMinutes": "{minutes} నిమిషాలు",
+  "@runtimeMinutes": {
+    "description": "Runtime in minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "examplePrompt": "ఉదాహరణ: ఇంటర్‌స్టెల్లార్ లాంటిది, కానీ సైన్స్ ఫిక్షన్ కాదు.",
+  "@examplePrompt": {
+    "description": "Example prompt hint"
+  },
+  "findingYourPerfectWatch": "మీకు సరిగ్గా సరిపోయే వాచ్‌ను కనుగొనడం{dots}",
+  "@findingYourPerfectWatch": {
+    "description": "Finding recommendations loading",
+    "placeholders": {
+      "dots": {
+        "type": "String"
+      }
+    }
+  },
+  "moreLikeThis": "ఇలాంటివి మరిన్ని",
+  "@moreLikeThis": {
+    "description": "More like this button"
+  },
+  "notForMe": "నాకు కాదు",
+  "@notForMe": {
+    "description": "Not for me button"
+  },
+  "recentQueries": "ఇటీవలి ప్రశ్నలు",
+  "@recentQueries": {
+    "description": "Recent queries section"
+  },
+  "shufflingIdeas": "ఆలోచనలను మార్చుకోవడం...",
+  "@shufflingIdeas": {
+    "description": "Shuffling ideas loading"
+  },
+  "tooMainstream": "చాలా సాధారణమైనది",
+  "@tooMainstream": {
+    "description": "Too mainstream button"
+  },
+  "whatShouldIWatchTonight": "ఈ రాత్రి నేను ఏమి చూడాలి?",
+  "@whatShouldIWatchTonight": {
+    "description": "Tonight feature title"
+  },
+  "debugLogEntry": "ఈ యాప్ లేబుల్‌ను దీనికి అనువదించండి: [{time}] {message}",
+  "@debugLogEntry": {
+    "description": "Debug log entry",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "from": "నుండి",
+  "@from": {
+    "description": "From filter label"
+  },
+  "to": "కి",
+  "@to": {
+    "description": "To filter label"
+  },
+  "removedFromWatchlistCountdown": "వాచ్‌లిస్ట్ నుండి తొలగించబడింది ({seconds} సెకన్లు)",
+  "@removedFromWatchlistCountdown": {
+    "description": "Removed from watchlist with countdown",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "creditsCount": "{count} క్రెడిట్స్",
+  "@creditsCount": {
+    "description": "Person credits count",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "acrossFilmography": "ఫిల్మోగ్రఫీ అంతటా",
+  "@acrossFilmography": {
+    "description": "Across filmography label"
+  },
+  "birthplace": "జన్మస్థలం",
+  "@birthplace": {
+    "description": "Birthplace label"
+  },
+  "born": "పుట్టింది",
+  "@born": {
+    "description": "Born label"
+  },
+  "credits": "క్రెడిట్స్",
+  "@credits": {
+    "description": "Credits label"
+  },
+  "died": "మరణించారు",
+  "@died": {
+    "description": "Died label"
+  },
+  "knownFor": "ప్రసిద్ధి చెందింది",
+  "@knownFor": {
+    "description": "Known for label"
+  },
+  "noSharedTitlesAvailable": "భాగస్వామ్య శీర్షికలు అందుబాటులో లేవు.",
+  "@noSharedTitlesAvailable": {
+    "description": "No shared titles available"
+  },
+  "photos": "ఫోటోలు",
+  "@photos": {
+    "description": "Photos section"
+  },
+  "personRating": "రేటింగ్",
+  "@personRating": {
+    "description": "Rating column header"
+  },
+  "taggedImages": "ట్యాగ్ చేయబడిన చిత్రాలు",
+  "@taggedImages": {
+    "description": "Tagged images section"
+  },
+  "website": "వెబ్‌సైట్",
+  "@website": {
+    "description": "Website link"
+  },
+  "noQuotesFound": "కొటేషన్లు ఏవీ కనుగొనబడలేదు.",
+  "@noQuotesFound": {
+    "description": "No quotes found"
+  },
+  "noSectionsFound": "విభాగాలు ఏవీ కనుగొనబడలేదు.",
+  "@noSectionsFound": {
+    "description": "No sections found"
+  },
+  "clearAll": "అన్నింటినీ తొలగించండి",
+  "@clearAll": {
+    "description": "Clear all button"
+  },
+  "noCollectionsFound": "సేకరణలు ఏవీ కనుగొనబడలేదు",
+  "@noCollectionsFound": {
+    "description": "No collections found"
+  },
+  "noCompaniesFound": "ఏ కంపెనీలూ కనుగొనబడలేదు",
+  "@noCompaniesFound": {
+    "description": "No companies found"
+  },
+  "noKeywordsFound": "కీలకపదాలు ఏవీ కనుగొనబడలేదు",
+  "@noKeywordsFound": {
+    "description": "No keywords found"
+  },
+  "noMoreResultsFound": "మరిన్ని ఫలితాలు కనుగొనబడలేదు.",
+  "@noMoreResultsFound": {
+    "description": "No more search results"
+  },
+  "noResultsFound": "ఫలితాలు ఏవీ కనుగొనబడలేదు",
+  "@noResultsFound": {
+    "description": "No search results"
+  },
+  "deleteListConfirmation": "మీరు {listName}ను తొలగించాలనుకుంటున్నారని ఖచ్చితంగా అనుకుంటున్నారా?",
+  "@deleteListConfirmation": {
+    "description": "Delete list confirmation",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteListTitle": "జాబితాను తొలగించాలా?",
+  "@deleteListTitle": {
+    "description": "Delete list dialog title"
+  },
+  "everythingYouPlanToWatch": "మీరు తర్వాత చూడాలనుకుంటున్నవన్నీ.",
+  "@everythingYouPlanToWatch": {
+    "description": "Watchlist section description"
+  },
+  "finishedTitlesAndHistory": "పూర్తి చేసిన టైటిల్స్‌తో పాటు మీ చరిత్ర మరియు గణాంకాలు.",
+  "@finishedTitlesAndHistory": {
+    "description": "Watched section description"
+  },
+  "noListsCreatedYet": "ఇంకా జాబితాలు ఏవీ సృష్టించబడలేదు.",
+  "@noListsCreatedYet": {
+    "description": "No lists created"
+  },
+  "noNotesFound": "గమనికలు ఏవీ కనుగొనబడలేదు",
+  "@noNotesFound": {
+    "description": "Localized string for noNotesFound"
+  },
+  "renameList": "జాబితా పేరు మార్చండి",
+  "@renameList": {
+    "description": "Rename list dialog title"
+  },
+  "titlesYouNeverWantToLose": "మీరు ఎప్పటికీ కోల్పోకూడదనుకునే బిరుదులు.",
+  "@titlesYouNeverWantToLose": {
+    "description": "Favourites section description"
+  },
+  "yourThoughtsReactions": "మీ ఆలోచనలు, ప్రతిచర్యలు మరియు జ్ఞాపికలు.",
+  "@yourThoughtsReactions": {
+    "description": "Notes section description"
+  },
+  "imageCounter": "ఈ యాప్ లేబుల్‌ను దీనికి అనువదించండి: {current} / {total}",
+  "@imageCounter": {
+    "description": "Image counter",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "removeFromWatchedConfirmation": "మీరు దీన్ని మీ వీక్షణా జాబితా నుండి తీసివేయాలనుకుంటున్నారా?",
+  "@removeFromWatchedConfirmation": {
+    "description": "Remove from watched confirmation"
+  },
+  "savedAsWatchedWithoutRating": "వ్యక్తిగత రేటింగ్ లేకుండా ఇది చూసినట్లుగా సేవ్ చేయబడుతుంది.",
+  "@savedAsWatchedWithoutRating": {
+    "description": "Saved as watched without rating"
+  },
+  "noAdditionalRecommendationTrailers": "అదనపు సిఫార్సు ట్రైలర్‌లు ఏవీ కనుగొనబడలేదు.",
+  "@noAdditionalRecommendationTrailers": {
+    "description": "No recommendation trailers"
+  },
+  "sharedListItemsCount": "ఈ యాప్ లేబుల్‌ను దీనికి అనువదించండి: {count} {itemLabel}",
+  "@sharedListItemsCount": {
+    "description": "Shared list items count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "itemLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidSharedListLink": "లింక్ చెల్లనిదిగా, గడువు ముగిసినదిగా లేదా ఇకపై అందుబాటులో లేనిదిగా ఉండవచ్చు.",
+  "@invalidSharedListLink": {
+    "description": "Invalid shared list link"
+  },
+  "noTitlesAvailableToImport": "దిగుమతి చేసుకోవడానికి టైటిల్స్ ఏవీ అందుబాటులో లేవు.",
+  "@noTitlesAvailableToImport": {
+    "description": "No titles to import"
+  },
+  "allLanguages": "అన్ని భాషలు",
+  "@allLanguages": {
+    "description": "Language name: All Languages"
+  },
+  "arabic": "అరబిక్",
+  "@arabic": {
+    "description": "Language name: Arabic"
+  },
+  "bengali": "బెంగాలీ",
+  "@bengali": {
+    "description": "Language name: Bengali"
+  },
+  "chinese": "చైనీస్",
+  "@chinese": {
+    "description": "Language name: Chinese"
+  },
+  "english": "ఇంగ్లీష్",
+  "@english": {
+    "description": "Language name: English"
+  },
+  "french": "ఫ్రెంచ్",
+  "@french": {
+    "description": "Language name: French"
+  },
+  "german": "జర్మన్",
+  "@german": {
+    "description": "Language name: German"
+  },
+  "gujarati": "గుజరాతీ",
+  "@gujarati": {
+    "description": "Language name: Gujarati"
+  },
+  "hindi": "హిందీ",
+  "@hindi": {
+    "description": "Language name: Hindi"
+  },
+  "indonesian": "ఇండోనేషియన్",
+  "@indonesian": {
+    "description": "Language name: Indonesian"
+  },
+  "italian": "ఇటాలియన్",
+  "@italian": {
+    "description": "Language name: Italian"
+  },
+  "japanese": "జపనీస్",
+  "@japanese": {
+    "description": "Language name: Japanese"
+  },
+  "kannada": "కన్నడ",
+  "@kannada": {
+    "description": "Language name: Kannada"
+  },
+  "korean": "కొరియన్",
+  "@korean": {
+    "description": "Language name: Korean"
+  },
+  "malayalam": "మలయాళం",
+  "@malayalam": {
+    "description": "Language name: Malayalam"
+  },
+  "marathi": "మరాఠీ",
+  "@marathi": {
+    "description": "Language name: Marathi"
+  },
+  "persian": "పర్షియన్",
+  "@persian": {
+    "description": "Language name: Persian"
+  },
+  "polish": "పోలిష్",
+  "@polish": {
+    "description": "Language name: Polish"
+  },
+  "portuguese": "పోర్చుగీస్",
+  "@portuguese": {
+    "description": "Language name: Portuguese"
+  },
+  "punjabi": "పంజాబీ",
+  "@punjabi": {
+    "description": "Language name: Punjabi"
+  },
+  "russian": "రష్యన్",
+  "@russian": {
+    "description": "Language name: Russian"
+  },
+  "spanish": "స్పానిష్",
+  "@spanish": {
+    "description": "Language name: Spanish"
+  },
+  "swedish": "స్వీడిష్",
+  "@swedish": {
+    "description": "Language name: Swedish"
+  },
+  "tamil": "తమిళం",
+  "@tamil": {
+    "description": "Language name: Tamil"
+  },
+  "telugu": "తెలుగు",
+  "@telugu": {
+    "description": "Language name: Telugu"
+  },
+  "thai": "థాయ్",
+  "@thai": {
+    "description": "Language name: Thai"
+  },
+  "turkish": "టర్కిష్",
+  "@turkish": {
+    "description": "Language name: Turkish"
+  },
+  "urdu": "ఉర్దూ",
+  "@urdu": {
+    "description": "Language name: Urdu"
+  },
+  "vietnamese": "వియత్నామీస్",
+  "@vietnamese": {
+    "description": "Language name: Vietnamese"
+  },
+  "failedToLoadCollectionDetails": "సేకరణ వివరాలను లోడ్ చేయడంలో విఫలమైంది",
+  "@failedToLoadCollectionDetails": {
+    "description": "Localized string for failedToLoadCollectionDetails"
+  },
+  "franchiseProgress": "ఫ్రాంచైజ్ పురోగతి",
+  "@franchiseProgress": {
+    "description": "Localized string for franchiseProgress"
+  },
+  "officialSite": "అధికారిక సైట్",
+  "@officialSite": {
+    "description": "Localized string for officialSite"
+  },
+  "productions": "ప్రొడక్షన్స్",
+  "@productions": {
+    "description": "Localized string for productions"
+  },
+  "productionCompany": "ఉత్పత్తి సంస్థ",
+  "@productionCompany": {
+    "description": "Localized string for productionCompany"
+  },
+  "failedToLoadCompanyInfo": "కంపెనీ సమాచారాన్ని లోడ్ చేయడంలో విఫలమైంది",
+  "@failedToLoadCompanyInfo": {
+    "description": "Localized string for failedToLoadCompanyInfo"
+  },
+  "profile": "ప్రొఫైల్",
+  "@profile": {
+    "description": "Localized string for profile"
+  },
+  "guestViewer": "అతిథి వీక్షకుడు",
+  "@guestViewer": {
+    "description": "Localized string for guestViewer"
+  },
+  "yourProfileSyncStateRegionPreferences": "మీ ప్రొఫైల్, సింక్ స్థితి, ప్రాంతం మరియు దృశ్య ప్రాధాన్యతలు అన్నీ ఇక్కడే ఉంటాయి.",
+  "@yourProfileSyncStateRegionPreferences": {
+    "description": "Localized string for yourProfileSyncStateRegionPreferences"
+  },
+  "signInToSync": "మీ వాచ్‌లిస్ట్, రేటింగ్‌లు మరియు ప్రాధాన్యతలను సింక్ చేయడానికి సైన్ ఇన్ చేయండి.",
+  "@signInToSync": {
+    "description": "Localized string for signInToSync"
+  },
+  "signedInAndSyncing": "సైన్ ఇన్ చేసి క్లౌడ్‌కు సింక్ చేస్తున్నాను.",
+  "@signedInAndSyncing": {
+    "description": "Localized string for signedInAndSyncing"
+  },
+  "developedBy": "అభివృద్ధి చేసినవారు",
+  "@developedBy": {
+    "description": "Localized string for developedBy"
+  },
+  "couldNotAnalyzeWatchHistory": "ప్రస్తుతానికి వీక్షణ చరిత్రను విశ్లేషించలేకపోతున్నాము.",
+  "@couldNotAnalyzeWatchHistory": {
+    "description": "Localized string for couldNotAnalyzeWatchHistory"
+  },
+  "includeLocalLibrary": "స్థానిక గ్రంథాలయాన్ని చేర్చండి",
+  "@includeLocalLibrary": {
+    "description": "Localized string for includeLocalLibrary"
+  },
+  "useCloudOnly": "క్లౌడ్‌ను మాత్రమే ఉపయోగించండి",
+  "@useCloudOnly": {
+    "description": "Localized string for useCloudOnly"
+  },
+  "localLibrarySyncDescription": "ఈ పరికరంలో ఇప్పటికే స్థానిక లైబ్రరీ శీర్షికలు ఉన్నాయి. వాటిని మీరు సైన్-ఇన్ చేసిన లైబ్రరీలో చేర్చండి, లేదా స్థానిక లైబ్రరీ డేటాను మీ క్లౌడ్ లైబ్రరీతో భర్తీ చేయండి.",
+  "@localLibrarySyncDescription": {
+    "description": "Localized string for localLibrarySyncDescription"
+  },
+  "mergedLocalTitles": "స్థానిక శీర్షికలు మీ సైన్-ఇన్ లైబ్రరీలో విలీనం చేయబడ్డాయి.",
+  "@mergedLocalTitles": {
+    "description": "Localized string for mergedLocalTitles"
+  },
+  "replacedLocalLibrary": "స్థానిక లైబ్రరీ డేటాను మీ క్లౌడ్ లైబ్రరీతో భర్తీ చేయడం జరిగింది.",
+  "@replacedLocalLibrary": {
+    "description": "Localized string for replacedLocalLibrary"
+  },
+  "deleteAccountConfirmation": "ఇది మీ Lumi ఖాతాను మరియు సింక్ చేయబడిన క్లౌడ్ డేటాను శాశ్వతంగా తొలగిస్తుంది. మీరు యాప్ డేటాను విడిగా తీసివేస్తే తప్ప, ఈ పరికరంలోని స్థానిక డేటా అలాగే ఉంటుంది.",
+  "@deleteAccountConfirmation": {
+    "description": "Localized string for deleteAccountConfirmation"
+  },
+  "signedOutAndCleared": "ఈ పరికరం నుండి సైన్ అవుట్ చేసి, స్థానిక లైబ్రరీని క్లియర్ చేసాను.",
+  "@signedOutAndCleared": {
+    "description": "Localized string for signedOutAndCleared"
+  },
+  "keepLocalLibrary": "స్థానిక గ్రంథాలయాన్ని నిర్వహించండి",
+  "@keepLocalLibrary": {
+    "description": "Localized string for keepLocalLibrary"
+  },
+  "clearLocalLibrary": "స్థానిక గ్రంథాలయాన్ని క్లియర్ చేయండి",
+  "@clearLocalLibrary": {
+    "description": "Localized string for clearLocalLibrary"
+  },
+  "signOutChoiceDescription": "సైన్ అవుట్ చేసిన తర్వాత ఈ పరికరంలో స్థానిక లైబ్రరీని ఉంచాలా వద్దా అని ఎంచుకోండి.",
+  "@signOutChoiceDescription": {
+    "description": "Localized string for signOutChoiceDescription"
+  },
+  "disable": "నిలిపివేయండి",
+  "@disable": {
+    "description": "Localized string for disable"
+  },
+  "aiRecommendationsEnabled": "AI సిఫార్సుల డేటా షేరింగ్ ప్రారంభించబడింది.",
+  "@aiRecommendationsEnabled": {
+    "description": "Localized string for aiRecommendationsEnabled"
+  },
+  "aiRecommendationsDisabled": "AI సిఫార్సుల డేటా భాగస్వామ్యం నిలిపివేయబడింది.",
+  "@aiRecommendationsDisabled": {
+    "description": "Localized string for aiRecommendationsDisabled"
+  },
+  "reviewAndManageConsent": "AI ప్రొవైడర్లకు లైబ్రరీ డేటాను పంపడానికి సమ్మతిని సమీక్షించండి మరియు నిర్వహించండి.",
+  "@reviewAndManageConsent": {
+    "description": "Localized string for reviewAndManageConsent"
+  },
+  "aiRecommendationsEnabledSubtitle": "ప్రారంభించబడింది. రికమెండ్ టునైట్ మీ లైబ్రరీ సారాంశాన్ని మరియు ఇటీవలి ప్రశ్నలను AI ప్రొవైడర్లకు పంపవచ్చు.",
+  "@aiRecommendationsEnabledSubtitle": {
+    "description": "Localized string for aiRecommendationsEnabledSubtitle"
+  },
+  "basedOnWatchedTitles": "{count} వీక్షించిన శీర్షికల ఆధారంగా",
+  "@basedOnWatchedTitles": {
+    "description": "Localized string for basedOnWatchedTitles",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lastUpdated": "చివరిగా నవీకరించబడింది: {date}",
+  "@lastUpdated": {
+    "description": "Localized string for lastUpdated",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseYourVibe": "మీ వైబ్‌ను ఎంచుకోండి",
+  "@chooseYourVibe": {
+    "description": "Localized string for chooseYourVibe"
+  },
+  "appearanceDescription": "ప్రవర్తనలో ఎలాంటి మార్పు చేయకుండానే యాప్‌ను సినిమాటిక్ వ్యక్తిత్వాల మధ్య మార్చుకోండి.",
+  "@appearanceDescription": {
+    "description": "Localized string for appearanceDescription"
+  },
+  "exitAppConfirmation": "మీరు నిజంగా లూమీ నుండి నిష్క్రమించాలనుకుంటున్నారా?",
+  "@exitAppConfirmation": {
+    "description": "Localized string for exitAppConfirmation"
+  },
+  "dismiss": "కొట్టివేయండి",
+  "@dismiss": {
+    "description": "Localized string for dismiss"
+  },
+  "generatingWatchAnalytics": "వాచ్ అనలిటిక్స్‌ను రూపొందించడం",
+  "@generatingWatchAnalytics": {
+    "description": "Localized string for generatingWatchAnalytics"
+  },
+  "thisUsuallyTakesAFewSeconds": "దీనికి సాధారణంగా కొన్ని సెకన్లు పడుతుంది.",
+  "@thisUsuallyTakesAFewSeconds": {
+    "description": "Localized string for thisUsuallyTakesAFewSeconds"
+  },
+  "yourScreenStory": "మీ స్క్రీన్ స్టోరీ",
+  "@yourScreenStory": {
+    "description": "Localized string for yourScreenStory"
+  },
+  "snapshotOfHowAndWhatYouWatch": "మీరు ఎలా మరియు ఏమి చూస్తారో తెలిపే ఒక సంగ్రహావలోకనం",
+  "@snapshotOfHowAndWhatYouWatch": {
+    "description": "Localized string for snapshotOfHowAndWhatYouWatch"
+  },
+  "yourFavoriteGenres": "మీకు ఇష్టమైన శైలులు",
+  "@yourFavoriteGenres": {
+    "description": "Localized string for yourFavoriteGenres"
+  },
+  "genrePerformanceHighestRated": "శైలి పనితీరు (అత్యధిక రేటింగ్ పొందినది)",
+  "@genrePerformanceHighestRated": {
+    "description": "Localized string for genrePerformanceHighestRated"
+  },
+  "personalizedViewingPatterns": "వ్యక్తిగతీకరించిన వీక్షణ నమూనాలు",
+  "@personalizedViewingPatterns": {
+    "description": "Localized string for personalizedViewingPatterns"
+  },
+  "builtWithLumi": "లూమితో నిర్మించబడింది",
+  "@builtWithLumi": {
+    "description": "Localized string for builtWithLumi"
+  },
+  "sharedWithLumi": "లూమితో పంచుకోబడింది",
+  "@sharedWithLumi": {
+    "description": "Localized string for sharedWithLumi"
+  },
+  "shareAnalytics": "షేర్ అనలిటిక్స్",
+  "@shareAnalytics": {
+    "description": "Localized string for shareAnalytics"
+  },
+  "analyzedTitlesUpdated": "{count} శీర్షికలు విశ్లేషించబడ్డాయి • {date} నవీకరించబడింది",
+  "@analyzedTitlesUpdated": {
+    "description": "Localized string for analyzedTitlesUpdated",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "allSeasons": "అన్ని సీజన్లు",
+  "@allSeasons": {
+    "description": "Localized string for allSeasons"
+  },
+  "castAndCrew": "తారాగణం & సిబ్బంది",
+  "@castAndCrew": {
+    "description": "Localized string for castAndCrew"
+  },
+  "featuredCrew": "ఫీచర్డ్ క్రూ",
+  "@featuredCrew": {
+    "description": "Localized string for featuredCrew"
+  },
+  "stills": "నిశ్చల చిత్రాలు",
+  "@stills": {
+    "description": "Localized string for stills"
+  },
+  "accoladeSummary": "ప్రశంసల సారాంశం",
+  "@accoladeSummary": {
+    "description": "Localized string for accoladeSummary"
+  },
+  "awardsAndAccolades": "అవార్డులు & ప్రశంసలు",
+  "@awardsAndAccolades": {
+    "description": "Localized string for awardsAndAccolades"
+  },
+  "unableToLoadMovieDetails": "సినిమా వివరాలను లోడ్ చేయలేకపోయింది",
+  "@unableToLoadMovieDetails": {
+    "description": "Localized string for unableToLoadMovieDetails"
+  },
+  "overviewUnavailable": "ఈ శీర్షికకు అవలోకనం అందుబాటులో లేదు.",
+  "@overviewUnavailable": {
+    "description": "Localized string for overviewUnavailable"
+  },
+  "openCompletePlot": "OMDb నుండి పూర్తి ప్లాట్ మరియు అదనపు మెటాడేటాను తెరవండి.",
+  "@openCompletePlot": {
+    "description": "Localized string for openCompletePlot"
+  },
+  "noOverviewForSeason": "ఈ సీజన్‌కు సంబంధించిన అవలోకనం అందుబాటులో లేదు.",
+  "@noOverviewForSeason": {
+    "description": "Localized string for noOverviewForSeason"
+  },
+  "userScore": "వినియోగదారు స్కోర్",
+  "@userScore": {
+    "description": "Localized string for userScore"
+  },
+  "playTrailer": "ట్రైలర్ ప్లే చేయండి",
+  "@playTrailer": {
+    "description": "Localized string for playTrailer"
+  },
+  "whereToWatch": "ఎక్కడ చూడాలి",
+  "@whereToWatch": {
+    "description": "Localized string for whereToWatch"
+  },
+  "availabilityDataByJustWatch": "జస్ట్‌వాచ్ అందించిన లభ్యత సమాచారం.",
+  "@availabilityDataByJustWatch": {
+    "description": "Localized string for availabilityDataByJustWatch"
+  },
+  "reminderSaved": "రిమైండర్ సేవ్ చేయబడింది",
+  "@reminderSaved": {
+    "description": "Localized string for reminderSaved"
+  },
+  "reminderForTitle": "{title} కోసం రిమైండర్",
+  "@reminderForTitle": {
+    "description": "Localized string for reminderForTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "pleaseSelectFutureTime": "దయచేసి భవిష్యత్తు సమయాన్ని ఎంచుకోండి",
+  "@pleaseSelectFutureTime": {
+    "description": "Localized string for pleaseSelectFutureTime"
+  },
+  "notifyAt": "ఇక్కడ తెలియజేయండి",
+  "@notifyAt": {
+    "description": "Localized string for notifyAt"
+  },
+  "notifyHoursBeforeAiring": "ప్రసారానికి ఎన్ని గంటల ముందు తెలియజేయాలి?",
+  "@notifyHoursBeforeAiring": {
+    "description": "Localized string for notifyHoursBeforeAiring"
+  },
+  "enterNumberBetween": "1 మరియు {maxHours} మధ్య ఒక సంఖ్యను నమోదు చేయండి",
+  "@enterNumberBetween": {
+    "description": "Localized string for enterNumberBetween",
+    "placeholders": {
+      "maxHours": {
+        "type": "String"
+      }
+    }
+  },
+  "set": "సెట్",
+  "@set": {
+    "description": "Localized string for set"
+  },
+  "selectedReminderTimePassed": "ఎంచుకున్న రిమైండర్ సమయం ఇప్పటికే గడిచిపోయింది",
+  "@selectedReminderTimePassed": {
+    "description": "Localized string for selectedReminderTimePassed"
+  },
+  "episodeReminderSaved": "{date} కోసం ఎపిసోడ్ రిమైండర్ సేవ్ చేయబడింది",
+  "@episodeReminderSaved": {
+    "description": "Localized string for episodeReminderSaved",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "areYouSureDeleteNote": "మీరు నిజంగా ఈ నోట్‌ను తొలగించాలనుకుంటున్నారా?",
+  "@areYouSureDeleteNote": {
+    "description": "Localized string for areYouSureDeleteNote"
+  },
+  "noteAdded": "గమనిక జోడించబడింది",
+  "@noteAdded": {
+    "description": "Localized string for noteAdded"
+  },
+  "lastSeason": "గత సీజన్",
+  "@lastSeason": {
+    "description": "Localized string for lastSeason"
+  },
+  "currentSeason": "ప్రస్తుత సీజన్",
+  "@currentSeason": {
+    "description": "Localized string for currentSeason"
+  },
+  "viewAllSeasons": "అన్ని సీజన్‌లను వీక్షించండి",
+  "@viewAllSeasons": {
+    "description": "Localized string for viewAllSeasons"
+  },
+  "removedFromFavourites": "ఇష్టమైన వాటి నుండి తొలగించబడింది",
+  "@removedFromFavourites": {
+    "description": "Localized string for removedFromFavourites"
+  },
+  "addedToFavourites": "ఇష్టమైన వాటికి జోడించబడింది",
+  "@addedToFavourites": {
+    "description": "Localized string for addedToFavourites"
+  },
+  "awardsAndNominations": "అవార్డులు & నామినేషన్లు",
+  "@awardsAndNominations": {
+    "description": "Localized string for awardsAndNominations"
+  },
+  "viewAll": "అన్నింటినీ చూడండి",
+  "@viewAll": {
+    "description": "Localized string for viewAll"
+  },
+  "boxOfficeFinancials": "బాక్స్ ఆఫీస్ ఫైనాన్షియల్స్",
+  "@boxOfficeFinancials": {
+    "description": "Localized string for boxOfficeFinancials"
+  },
+  "successMeter": "విజయ మీటర్",
+  "@successMeter": {
+    "description": "Localized string for successMeter"
+  },
+  "blockbuster": "బ్లాక్‌బస్టర్",
+  "@blockbuster": {
+    "description": "Localized string for blockbuster"
+  },
+  "hit": "హిట్",
+  "@hit": {
+    "description": "Localized string for hit"
+  },
+  "breakEven": "బ్రేక్-ఈవెన్",
+  "@breakEven": {
+    "description": "Localized string for breakEven"
+  },
+  "underperformer": "తక్కువ పనితీరు కనబరిచేవాడు",
+  "@underperformer": {
+    "description": "Localized string for underperformer"
+  },
+  "boxOfficeBomb": "బాక్స్ ఆఫీస్ బాంబ్",
+  "@boxOfficeBomb": {
+    "description": "Localized string for boxOfficeBomb"
+  },
+  "episodeTracker": "ఎపిసోడ్ ట్రాకర్",
+  "@episodeTracker": {
+    "description": "Localized string for episodeTracker"
+  },
+  "setAiringReminder": "ప్రసార రిమైండర్‌ను సెట్ చేయండి",
+  "@setAiringReminder": {
+    "description": "Localized string for setAiringReminder"
+  },
+  "nextEpisodeCountdown": "తదుపరి ఎపిసోడ్ కౌంట్‌డౌన్",
+  "@nextEpisodeCountdown": {
+    "description": "Localized string for nextEpisodeCountdown"
+  },
+  "nextEpisode": "తదుపరి ఎపిసోడ్",
+  "@nextEpisode": {
+    "description": "Localized string for nextEpisode"
+  },
+  "lastEpisodeToAir": "ప్రసారం కానున్న చివరి ఎపిసోడ్",
+  "@lastEpisodeToAir": {
+    "description": "Localized string for lastEpisodeToAir"
+  },
+  "unknown": "తెలియదు",
+  "@unknown": {
+    "description": "Localized string for unknown"
+  },
+  "contentAdvisory": "కంటెంట్ సలహా",
+  "@contentAdvisory": {
+    "description": "Localized string for contentAdvisory"
+  },
+  "violence": "హింస",
+  "@violence": {
+    "description": "Localized string for violence"
+  },
+  "sexAndNudity": "సెక్స్ & నగ్నత్వం",
+  "@sexAndNudity": {
+    "description": "Localized string for sexAndNudity"
+  },
+  "foulLanguage": "భాష",
+  "@foulLanguage": {
+    "description": "Localized string for foulLanguage"
+  },
+  "substances": "పదార్థాలు",
+  "@substances": {
+    "description": "Localized string for substances"
+  },
+  "fearAndHorror": "భయం & భీభత్సం",
+  "@fearAndHorror": {
+    "description": "Localized string for fearAndHorror"
+  },
+  "familyFriendly": "కుటుంబ స్నేహపూర్వక",
+  "@familyFriendly": {
+    "description": "Localized string for familyFriendly"
+  },
+  "generalAudience": "సాధారణ ప్రేక్షకులు",
+  "@generalAudience": {
+    "description": "Localized string for generalAudience"
+  },
+  "releaseTimeline": "విడుదల కాలక్రమం",
+  "@releaseTimeline": {
+    "description": "Localized string for releaseTimeline"
+  },
+  "notifyMe": "నాకు తెలియజేయండి",
+  "@notifyMe": {
+    "description": "Localized string for notifyMe"
+  },
+  "theatricalRelease": "థియేట్రికల్ విడుదల",
+  "@theatricalRelease": {
+    "description": "Localized string for theatricalRelease"
+  },
+  "digitalStreaming": "డిజిటల్ / స్ట్రీమింగ్",
+  "@digitalStreaming": {
+    "description": "Localized string for digitalStreaming"
+  },
+  "physicalRelease": "భౌతిక (బ్లూ-రే / DVD)",
+  "@physicalRelease": {
+    "description": "Localized string for physicalRelease"
+  },
+  "awesome": "అద్భుతం",
+  "@awesome": {
+    "description": "Localized string for awesome"
+  },
+  "keywordsAndThemes": "కీలకపదాలు & థీమ్‌లు",
+  "@keywordsAndThemes": {
+    "description": "Localized string for keywordsAndThemes"
+  },
+  "videosAndBehindTheScenes": "వీడియోలు & తెర వెనుక దృశ్యాలు",
+  "@videosAndBehindTheScenes": {
+    "description": "Localized string for videosAndBehindTheScenes"
+  },
+  "productionStudios": "ప్రొడక్షన్ స్టూడియోలు",
+  "@productionStudios": {
+    "description": "Localized string for productionStudios"
+  },
+  "fetchingWatchLink": "వాచ్ లింక్‌ను పొందుతోంది",
+  "@fetchingWatchLink": {
+    "description": "Localized string for fetchingWatchLink"
+  },
+  "findingBestProviderPage": "ఈ శీర్షిక కోసం ఉత్తమ ప్రొవైడర్ పేజీని కనుగొనడం.",
+  "@findingBestProviderPage": {
+    "description": "Localized string for findingBestProviderPage"
+  },
+  "episodeCode": "S{season}E{episode}",
+  "@episodeCode": {
+    "description": "Localized string for episodeCode",
+    "placeholders": {
+      "season": {
+        "type": "String"
+      },
+      "episode": {
+        "type": "String"
+      }
+    }
+  },
+  "error": "లోపం",
+  "@error": {
+    "description": "Localized string for error"
+  },
+  "failedToLoadSeasonDetails": "సీజన్ వివరాలను లోడ్ చేయడంలో విఫలమైంది",
+  "@failedToLoadSeasonDetails": {
+    "description": "Localized string for failedToLoadSeasonDetails"
+  },
+  "loading": "లోడ్ అవుతోంది...",
+  "@loading": {
+    "description": "Localized string for loading"
+  },
+  "runtimeSeparator": "ఈ యాప్ లేబుల్‌ను దీనికి అనువదించండి: • {runtime}",
+  "@runtimeSeparator": {
+    "description": "Localized string for runtimeSeparator",
+    "placeholders": {
+      "runtime": {
+        "type": "String"
+      }
+    }
+  },
+  "fullCastAndCrew": "పూర్తి తారాగణం & సిబ్బంది",
+  "@fullCastAndCrew": {
+    "description": "Localized string for fullCastAndCrew"
+  },
+  "shareMovie": "సినిమాను పంచుకోండి",
+  "@shareMovie": {
+    "description": "Localized string for shareMovie"
+  },
+  "quotes": "ఉల్లేఖనాలు",
+  "@quotes": {
+    "description": "Localized string for quotes"
+  },
+  "mayIncludeMismatches": "పద ఉల్లేఖన శోధన కారణంగా అప్పుడప్పుడు సరిపోలనివి ఉండవచ్చు.",
+  "@mayIncludeMismatches": {
+    "description": "Localized string for mayIncludeMismatches"
+  },
+  "movieApiConfigurationRequired": "మూవీ API కాన్ఫిగరేషన్ అవసరం",
+  "@movieApiConfigurationRequired": {
+    "description": "Localized string for movieApiConfigurationRequired"
+  },
+  "addMovieProxyBaseUrl": "యాప్‌ను TMDB ప్రాక్సీకి కనెక్ట్ చేయడానికి MOVIE_PROXY_BASE_URLను జోడించండి.",
+  "@addMovieProxyBaseUrl": {
+    "description": "Localized string for addMovieProxyBaseUrl"
+  },
+  "cinematicPicksContext": "తక్షణ అనుభూతినిచ్చే సినిమాటిక్ ఎంపికలు. మరో ఆశ్చర్యకరమైన కార్డ్ కోసం రోల్ చేయండి.",
+  "@cinematicPicksContext": {
+    "description": "Localized string for cinematicPicksContext"
+  },
+  "curatedTonight": "క్యూరేటెడ్ టునైట్",
+  "@curatedTonight": {
+    "description": "Localized string for curatedTonight"
+  },
+  "curatedTonightTitle": "ఈ రాత్రి క్యూరేట్ చేయబడింది: {title}",
+  "@curatedTonightTitle": {
+    "description": "Localized string for curatedTonightTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "describeItYourWay": "మీకు నచ్చిన విధంగా వివరించండి.\n\nమేము ఉత్తమమైన సరిపోలికలను కనుగొంటాము.",
+  "@describeItYourWay": {
+    "description": "Localized string for describeItYourWay"
+  },
+  "hide": "దాచు",
+  "@hide": {
+    "description": "Localized string for hide"
+  },
+  "hideTitleDescription": "ఈ టైటిల్‌ను దాచడం వల్ల భవిష్యత్తులో ఇది స్పాట్‌లైట్ విభాగంలో కనిపించదు.",
+  "@hideTitleDescription": {
+    "description": "Localized string for hideTitleDescription"
+  },
+  "dontAskAgain": "మళ్ళీ అడగవద్దు",
+  "@dontAskAgain": {
+    "description": "Localized string for dontAskAgain"
+  },
+  "imdbNa": "ఈ యాప్ లేబుల్‌ను దీనికి అనువదించండి: IMDb NA",
+  "@imdbNa": {
+    "description": "Localized string for imdbNa"
+  },
+  "noDiscoverPicks": "ప్రస్తుతం డిస్కవర్ పిక్స్ ఏవీ అందుబాటులో లేవు.",
+  "@noDiscoverPicks": {
+    "description": "Localized string for noDiscoverPicks"
+  },
+  "playPreview": "నాటక ప్రదర్శన ప్రివ్యూ",
+  "@playPreview": {
+    "description": "Localized string for playPreview"
+  },
+  "recommendedForYou": "మీ కోసం సిఫార్సు చేయబడింది",
+  "@recommendedForYou": {
+    "description": "Localized string for recommendedForYou"
+  },
+  "spotlightCompleted": "స్పాట్‌లైట్ పూర్తయింది",
+  "@spotlightCompleted": {
+    "description": "Localized string for spotlightCompleted"
+  },
+  "startAddingTitlesForRecommendations": "సిఫార్సుల కోసం శీర్షికలను జోడించడం ప్రారంభించండి",
+  "@startAddingTitlesForRecommendations": {
+    "description": "Localized string for startAddingTitlesForRecommendations"
+  },
+  "clearedAllChoices": "మీరు మీ డిస్కవర్ ఫీడ్‌లోని అన్ని ఎంపికలను స్వైప్ చేసి తొలగించారు.",
+  "@clearedAllChoices": {
+    "description": "Localized string for clearedAllChoices"
+  },
+  "whatsPopular": "జనాదరణ పొందినవి ఏమిటి",
+  "@whatsPopular": {
+    "description": "Localized string for whatsPopular"
+  },
+  "trending": "ట్రెండింగ్",
+  "@trending": {
+    "description": "Localized string for trending"
+  },
+  "nowPlaying": "ఇప్పుడు ప్లే అవుతోంది",
+  "@nowPlaying": {
+    "description": "Localized string for nowPlaying"
+  },
+  "tvTrending": "టీవీ ట్రెండింగ్",
+  "@tvTrending": {
+    "description": "Localized string for tvTrending"
+  },
+  "discoverByMood": "మూడ్ ద్వారా కనుగొనండి",
+  "@discoverByMood": {
+    "description": "Localized string for discoverByMood"
+  },
+  "needSomethingToWatchTonight": "ఈ రాత్రి చూడటానికి ఏమైనా కావాలా?",
+  "@needSomethingToWatchTonight": {
+    "description": "Localized string for needSomethingToWatchTonight"
+  },
+  "needAMovieForTonight": "ఈ రాత్రికి సినిమా కావాలా?",
+  "@needAMovieForTonight": {
+    "description": "Localized string for needAMovieForTonight"
+  },
+  "tryAiShows": "AI షోలను ప్రయత్నించండి",
+  "@tryAiShows": {
+    "description": "Localized string for tryAiShows"
+  },
+  "tryAiMovies": "AI సినిమాలను ప్రయత్నించండి",
+  "@tryAiMovies": {
+    "description": "Localized string for tryAiMovies"
+  },
+  "findShows": "షోలను కనుగొనండి",
+  "@findShows": {
+    "description": "Localized string for findShows"
+  },
+  "findMovies": "సినిమాలను కనుగొనండి",
+  "@findMovies": {
+    "description": "Localized string for findMovies"
+  },
+  "couldNotLoadThisRail": "ఈ రైలును లోడ్ చేయలేకపోయాను",
+  "@couldNotLoadThisRail": {
+    "description": "Localized string for couldNotLoadThisRail"
+  },
+  "temporaryIssueLoadingRail": "ఈ రైలును లోడ్ చేయడంలో తాత్కాలిక సమస్య ఏర్పడింది.",
+  "@temporaryIssueLoadingRail": {
+    "description": "Localized string for temporaryIssueLoadingRail"
+  },
+  "noTitlesHereYet": "ఇక్కడ ఇంకా శీర్షికలు లేవు",
+  "@noTitlesHereYet": {
+    "description": "Localized string for noTitlesHereYet"
+  },
+  "noHiddenGemsForGenre": "ఈ జానర్‌లో ఇంకా దాగి ఉన్న ఆణిముత్యాలేవీ కనుగొనబడలేదు. వేరే జానర్‌ను ప్రయత్నించండి.",
+  "@noHiddenGemsForGenre": {
+    "description": "Localized string for noHiddenGemsForGenre"
+  },
+  "tryAnotherFilter": "మరింత విస్తృతమైన అన్వేషణ కోసం వేరొక ఫిల్టర్‌ను ప్రయత్నించండి లేదా ఈ విభాగాన్ని తెరవండి.",
+  "@tryAnotherFilter": {
+    "description": "Localized string for tryAnotherFilter"
+  },
+  "seeAllFilters": "అన్ని ఫిల్టర్‌లను చూడండి",
+  "@seeAllFilters": {
+    "description": "Localized string for seeAllFilters"
+  },
+  "couldNotLoadCuratedPicks": "ఎంపిక చేసిన వాటిని లోడ్ చేయలేకపోయాను",
+  "@couldNotLoadCuratedPicks": {
+    "description": "Localized string for couldNotLoadCuratedPicks"
+  },
+  "temporaryIssueLoadingCurated": "ఈ రాత్రికి ఎంపిక చేసిన జాబితాను లోడ్ చేయడంలో తాత్కాలిక సమస్య ఏర్పడింది.",
+  "@temporaryIssueLoadingCurated": {
+    "description": "Localized string for temporaryIssueLoadingCurated"
+  },
+  "noCuratedPicksAvailable": "ఎంపిక చేసినవి ఏవీ అందుబాటులో లేవు",
+  "@noCuratedPicksAvailable": {
+    "description": "Localized string for noCuratedPicksAvailable"
+  },
+  "tryAgainWhileRefresh": "మేము ఈ రాత్రి TMDB జాబితాను రిఫ్రెష్ చేసేలోపు, కాసేపట్లో మళ్ళీ ప్రయత్నించండి.",
+  "@tryAgainWhileRefresh": {
+    "description": "Localized string for tryAgainWhileRefresh"
+  },
+  "fromSpotlight": "స్పాట్‌లైట్ నుండి",
+  "@fromSpotlight": {
+    "description": "Localized string for fromSpotlight"
+  },
+  "addShowsMoviesForRecommendations": "మీకు నచ్చగల టైటిల్స్‌ను చూడటానికి టీవీ షోలు/సినిమాలను మీ వాచ్‌లిస్ట్, ఫేవరెట్స్ లేదా వాచ్డ్ లిస్ట్‌కు జోడించండి.",
+  "@addShowsMoviesForRecommendations": {
+    "description": "Localized string for addShowsMoviesForRecommendations"
+  },
+  "allow": "అనుమతించు",
+  "@allow": {
+    "description": "Localized string for allow"
+  },
+  "notNow": "ఇప్పుడు కాదు",
+  "@notNow": {
+    "description": "Localized string for notNow"
+  },
+  "allowAiDataSharingTitle": "AI డేటా షేరింగ్‌ను అనుమతించాలా?",
+  "@allowAiDataSharingTitle": {
+    "description": "Localized string for allowAiDataSharingTitle"
+  },
+  "allowAiDataSharingDescription": "రికమెండ్ టునైట్, మీరు సినిమా సిఫార్సు అభ్యర్థన కోసం టైప్ చేసే టెక్స్ట్‌ను మరియు తాత్కాలిక క్వెరీ-రిఫైన్‌మెంట్ కాంటెక్స్ట్‌ను గూగుల్ జెమిని మరియు ఓపెన్‌రౌటర్‌కు పంపుతుంది. మీ పూర్తి లైబ్రరీ మరియు మీ సైన్-ఇన్ ఆధారాలు ఆ AI ప్రొవైడర్లకు పంపబడవు. AI సిఫార్సుల కోసం ఈ డేటా షేరింగ్‌ను అనుమతించాలా?",
+  "@allowAiDataSharingDescription": {
+    "description": "Localized string for allowAiDataSharingDescription"
+  },
+  "liveProgress": "ప్రత్యక్ష పురోగతి",
+  "@liveProgress": {
+    "description": "Localized string for liveProgress"
+  },
+  "percentComplete": "{percent}% పూర్తయింది",
+  "@percentComplete": {
+    "description": "Localized string for percentComplete",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "describeIdealShowNight": "మీకు ఆదర్శవంతమైన ప్రదర్శన రాత్రిని వివరించండి",
+  "@describeIdealShowNight": {
+    "description": "Localized string for describeIdealShowNight"
+  },
+  "describeIdealMovieNight": "మీకు ఆదర్శవంతమైన సినిమా రాత్రిని వివరించండి",
+  "@describeIdealMovieNight": {
+    "description": "Localized string for describeIdealMovieNight"
+  },
+  "useNaturalLanguage": "సహజమైన భాషను ఉపయోగించండి. మీకు ఏమి కావాలో, వేటిని నివారించాలో, మరియు ఐచ్ఛిక భాష/రన్‌టైమ్ సూచనలను పేర్కొనండి.",
+  "@useNaturalLanguage": {
+    "description": "Localized string for useNaturalLanguage"
+  },
+  "listeningTapMicToStop": "వింటున్నాను... ఆపడానికి మైక్‌ను మళ్లీ నొక్కండి.",
+  "@listeningTapMicToStop": {
+    "description": "Localized string for listeningTapMicToStop"
+  },
+  "voiceInputError": "వాయిస్ ఇన్‌పుట్ లోపం: {error}",
+  "@voiceInputError": {
+    "description": "Localized string for voiceInputError",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "tapMicToDictate": "మీ అభ్యర్థనను చెప్పడానికి మైక్‌ను ట్యాప్ చేయండి.",
+  "@tapMicToDictate": {
+    "description": "Localized string for tapMicToDictate"
+  },
+  "tapMicToEnableVoice": "వాయిస్ ఇన్‌పుట్‌ను ప్రారంభించడానికి మైక్‌ను ట్యాప్ చేయండి.",
+  "@tapMicToEnableVoice": {
+    "description": "Localized string for tapMicToEnableVoice"
+  },
+  "findingShows": "షోలను కనుగొనడం...",
+  "@findingShows": {
+    "description": "Localized string for findingShows"
+  },
+  "findingMovies": "సినిమాలను కనుగొనడం...",
+  "@findingMovies": {
+    "description": "Localized string for findingMovies"
+  },
+  "tonightsLumiPicksFor": "ఈ రాత్రి లూమి ఎంపికలు: {prompt}",
+  "@tonightsLumiPicksFor": {
+    "description": "Localized string for tonightsLumiPicksFor",
+    "placeholders": {
+      "prompt": {
+        "type": "String"
+      }
+    }
+  },
+  "tonightsPicks": "ఈ రాత్రి ఎంపికలు",
+  "@tonightsPicks": {
+    "description": "Localized string for tonightsPicks"
+  },
+  "sharedFromLumi": "లూమి నుండి పంచుకోబడింది",
+  "@sharedFromLumi": {
+    "description": "Localized string for sharedFromLumi"
+  },
+  "intent": "ఉద్దేశం:",
+  "@intent": {
+    "description": "Localized string for intent"
+  },
+  "genreLabel": "శైలి:",
+  "@genreLabel": {
+    "description": "Localized string for genreLabel"
+  },
+  "avoid": "నివారించండి:",
+  "@avoid": {
+    "description": "Localized string for avoid"
+  },
+  "languageLabel": "భాష:",
+  "@languageLabel": {
+    "description": "Localized string for languageLabel"
+  },
+  "runtimeAtMost": "రన్‌టైమ్ <= {minutes} నిమిషాలు",
+  "@runtimeAtMost": {
+    "description": "Localized string for runtimeAtMost",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "runtimeAtLeast": "రన్‌టైమ్ >= {minutes} నిమిషాలు",
+  "@runtimeAtLeast": {
+    "description": "Localized string for runtimeAtLeast",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "yearLabel": "సంవత్సరం:",
+  "@yearLabel": {
+    "description": "Localized string for yearLabel"
+  },
+  "yearAfter": "{year} తరువాత",
+  "@yearAfter": {
+    "description": "Localized string for yearAfter",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "yearBefore": "{year}కు ముందు",
+  "@yearBefore": {
+    "description": "Localized string for yearBefore",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "like": "ఇష్టం:",
+  "@like": {
+    "description": "Localized string for like"
+  },
+  "signal": "సిగ్నల్:",
+  "@signal": {
+    "description": "Localized string for signal"
+  },
+  "readingWatchedHistory": "మీరు చూసిన చరిత్రను చదవడం...",
+  "@readingWatchedHistory": {
+    "description": "Localized string for readingWatchedHistory"
+  },
+  "findingTopGenres": "మీ ప్రధాన శైలులు మరియు నమూనాలను కనుగొనడం...",
+  "@findingTopGenres": {
+    "description": "Localized string for findingTopGenres"
+  },
+  "buildingTrends": "నెలవారీ మరియు రేటింగ్ ట్రెండ్‌లను రూపొందించడం...",
+  "@buildingTrends": {
+    "description": "Localized string for buildingTrends"
+  },
+  "writingInsights": "మీ వ్యక్తిగత అంతర్దృష్టులను రాయడం...",
+  "@writingInsights": {
+    "description": "Localized string for writingInsights"
+  },
+  "applyFilters": "ఫిల్టర్‌లను వర్తింపజేయండి",
+  "@applyFilters": {
+    "description": "Localized string for applyFilters"
+  },
+  "includeNotRated": "రేటింగ్ చేయని వాటిని చేర్చండి",
+  "@includeNotRated": {
+    "description": "Localized string for includeNotRated"
+  },
+  "errorLoadingTvGenres": "టీవీ జానర్‌లను లోడ్ చేయడంలో లోపం",
+  "@errorLoadingTvGenres": {
+    "description": "Localized string for errorLoadingTvGenres"
+  },
+  "alsoKnownAs": "దీనిని కూడా అంటారు",
+  "@alsoKnownAs": {
+    "description": "Localized string for alsoKnownAs"
+  },
+  "biography": "జీవిత చరిత్ర",
+  "@biography": {
+    "description": "Localized string for biography"
+  },
+  "careerStatistics": "వృత్తి గణాంకాలు",
+  "@careerStatistics": {
+    "description": "Localized string for careerStatistics"
+  },
+  "frequentlyCollaboratesWith": "తరచుగా సహకరిస్తారు",
+  "@frequentlyCollaboratesWith": {
+    "description": "Localized string for frequentlyCollaboratesWith"
+  },
+  "notableQuotes": "ప్రముఖ ఉల్లేఖనాలు",
+  "@notableQuotes": {
+    "description": "Localized string for notableQuotes"
+  },
+  "primaryRole": "ప్రాథమిక పాత్ర",
+  "@primaryRole": {
+    "description": "Localized string for primaryRole"
+  },
+  "averageRating": "సగటు రేటింగ్",
+  "@averageRating": {
+    "description": "Localized string for averageRating"
+  },
+  "topGenre": "టాప్ జానర్",
+  "@topGenre": {
+    "description": "Localized string for topGenre"
+  },
+  "peakBoxOffice": "పీక్ బాక్స్ ఆఫీస్",
+  "@peakBoxOffice": {
+    "description": "Localized string for peakBoxOffice"
+  },
+  "percentOfTitles": "{percent}% శీర్షికలు",
+  "@percentOfTitles": {
+    "description": "Localized string for percentOfTitles",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedTitleCount": "{count} భాగస్వామ్య శీర్షిక(లు)",
+  "@sharedTitleCount": {
+    "description": "Localized string for sharedTitleCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "billingOrder": "బిల్లు సంఖ్య #{order}",
+  "@billingOrder": {
+    "description": "Localized string for billingOrder",
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "startTypingToSearch": "వెతకడానికి టైప్ చేయడం ప్రారంభించండి",
+  "@startTypingToSearch": {
+    "description": "Localized string for startTypingToSearch"
+  },
+  "movieDiscoveryMadePersonal": "వ్యక్తిగతమైన సినిమా ఆవిష్కరణ",
+  "@movieDiscoveryMadePersonal": {
+    "description": "Localized string for movieDiscoveryMadePersonal"
+  },
+  "allNotes": "అన్ని గమనికలు",
+  "@allNotes": {
+    "description": "Localized string for allNotes"
+  },
+  "viewPersonalizedInsights": "వ్యక్తిగతీకరించిన అంతర్దృష్టులు, చార్ట్‌లు మరియు ట్రెండ్‌లను వీక్షించండి.",
+  "@viewPersonalizedInsights": {
+    "description": "Localized string for viewPersonalizedInsights"
+  },
+  "curatedCollections": "క్యూరేటెడ్ సేకరణలు",
+  "@curatedCollections": {
+    "description": "Localized string for curatedCollections"
+  },
+  "list": "జాబితా",
+  "@list": {
+    "description": "Localized string for list"
+  },
+  "openList": "జాబితాను తెరవండి",
+  "@openList": {
+    "description": "Localized string for openList"
+  },
+  "thisListNoLongerExists": "ఈ జాబితా ఇకపై ఉనికిలో లేదు",
+  "@thisListNoLongerExists": {
+    "description": "Localized string for thisListNoLongerExists"
+  },
+  "listRenamed": "జాబితా పేరు {name}గా మార్చబడింది",
+  "@listRenamed": {
+    "description": "Localized string for listRenamed",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "listDeleted": "జాబితా {name} తొలగించబడింది",
+  "@listDeleted": {
+    "description": "Localized string for listDeleted",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInWatchlist": "మీ వాచ్‌లిస్ట్‌లో {filter} లేదు",
+  "@noFilterInWatchlist": {
+    "description": "Localized string for noFilterInWatchlist",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInFavourites": "మీ ఫేవరెట్స్‌లో {filter} లేదు",
+  "@noFilterInFavourites": {
+    "description": "Localized string for noFilterInFavourites",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInWatched": "చూసిన వాటిలో {filter} లేదు",
+  "@noFilterInWatched": {
+    "description": "Localized string for noFilterInWatched",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInThisList": "ఈ జాబితాలో {filter} లేదు",
+  "@noFilterInThisList": {
+    "description": "Localized string for noFilterInThisList",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noListsWithFilter": "{filter}తో జాబితాలు లేవు",
+  "@noListsWithFilter": {
+    "description": "Localized string for noListsWithFilter",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "importedInto": "\"{name}\" లోకి దిగుమతి చేయబడింది",
+  "@importedInto": {
+    "description": "Localized string for importedInto",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotImportList": "జాబితాను దిగుమతి చేయలేకపోయింది",
+  "@couldNotImportList": {
+    "description": "Localized string for couldNotImportList"
+  },
+  "importing": "దిగుమతి అవుతోంది...",
+  "@importing": {
+    "description": "Localized string for importing"
+  },
+  "couldNotLoadSharedList": "ఈ భాగస్వామ్య జాబితాను లోడ్ చేయలేకపోయింది",
+  "@couldNotLoadSharedList": {
+    "description": "Localized string for couldNotLoadSharedList"
+  },
+  "editWatchedInfo": "చూసిన సమాచారాన్ని సవరించండి",
+  "@editWatchedInfo": {
+    "description": "Localized string for editWatchedInfo"
+  },
+  "watchDate": "తేదీని చూడండి",
+  "@watchDate": {
+    "description": "Localized string for watchDate"
+  },
+  "rewatchCount": "తిరిగి చూసిన వారి సంఖ్య",
+  "@rewatchCount": {
+    "description": "Localized string for rewatchCount"
+  },
+  "watchedInfoUpdated": "వీక్షించిన సమాచారం నవీకరించబడింది",
+  "@watchedInfoUpdated": {
+    "description": "Localized string for watchedInfoUpdated"
+  },
+  "removedFromList": "{listName} నుండి తొలగించబడింది",
+  "@removedFromList": {
+    "description": "Localized string for removedFromList",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "addedToList": "{listName}కు జోడించబడింది",
+  "@addedToList": {
+    "description": "Localized string for addedToList",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "addedToListAndWatchlist": "{listName} మరియు వాచ్‌లిస్ట్‌కు జోడించబడింది",
+  "@addedToListAndWatchlist": {
+    "description": "Localized string for addedToListAndWatchlist",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTrailersLikeThis": "ఇలాంటి మరిన్ని ట్రైలర్లు",
+  "@moreTrailersLikeThis": {
+    "description": "Localized string for moreTrailersLikeThis"
+  },
+  "noDescriptionForTrailer": "ఈ ట్రైలర్‌కు వివరణ అందుబాటులో లేదు.",
+  "@noDescriptionForTrailer": {
+    "description": "Localized string for noDescriptionForTrailer"
+  },
+  "closeTrailer": "ట్రైలర్‌ను మూసివేయండి",
+  "@closeTrailer": {
+    "description": "Localized string for closeTrailer"
+  },
+  "recommendedSeries": "సిఫార్సు చేయబడిన సిరీస్",
+  "@recommendedSeries": {
+    "description": "Localized string for recommendedSeries"
+  },
+  "recommendedMovie": "సిఫార్సు చేయబడిన సినిమా",
+  "@recommendedMovie": {
+    "description": "Localized string for recommendedMovie"
+  },
+  "notEnoughDataYet": "ఇంకా తగినంత డేటా లేదు",
+  "@notEnoughDataYet": {
+    "description": "Localized string for notEnoughDataYet"
+  },
+  "addAndRateMoreTitles": "విశ్లేషణలను అన్‌లాక్ చేయడానికి కనీసం {count} టైటిల్‌లను జోడించి, రేట్ చేయండి.",
+  "@addAndRateMoreTitles": {
+    "description": "Localized string for addAndRateMoreTitles",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "addMoreTitlesToUnlock": "మీరు {watchedCount}/{requiredCount} టైటిల్స్ చూశారు. అనలిటిక్స్‌ను అన్‌లాక్ చేయడానికి {remaining} మరిన్ని జోడించండి.",
+  "@addMoreTitlesToUnlock": {
+    "description": "Localized string for addMoreTitlesToUnlock",
+    "placeholders": {
+      "watchedCount": {
+        "type": "String"
+      },
+      "requiredCount": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "moviesPerMonth": "నెలకు సినిమాలు",
+  "@moviesPerMonth": {
+    "description": "Localized string for moviesPerMonth"
+  },
+  "genreDistribution": "శైలి పంపిణీ",
+  "@genreDistribution": {
+    "description": "Localized string for genreDistribution"
+  },
+  "ratingTrends": "రేటింగ్ ట్రెండ్‌లు",
+  "@ratingTrends": {
+    "description": "Localized string for ratingTrends"
+  },
+  "noData": "డేటా లేదు",
+  "@noData": {
+    "description": "Localized string for noData"
+  },
+  "myLatestWatchAnalytics": "లూమిలో నా తాజా వాచ్ విశ్లేషణలు",
+  "@myLatestWatchAnalytics": {
+    "description": "Localized string for myLatestWatchAnalytics"
+  },
+  "myWatchInsights": "లూమి వాచ్‌పై నా అభిప్రాయాలు",
+  "@myWatchInsights": {
+    "description": "Localized string for myWatchInsights"
+  },
+  "infographicsCard": "ఇన్ఫోగ్రాఫిక్స్ కార్డ్",
+  "@infographicsCard": {
+    "description": "Localized string for infographicsCard"
+  },
+  "watchInsightsSnapshot": "వాచ్ ఇన్‌సైట్స్ స్నాప్‌షాట్",
+  "@watchInsightsSnapshot": {
+    "description": "Localized string for watchInsightsSnapshot"
+  },
+  "availableOnceInsightsReady": "అంతర్దృష్టులు సిద్ధమైన తర్వాత అందుబాటులో ఉంటాయి",
+  "@availableOnceInsightsReady": {
+    "description": "Localized string for availableOnceInsightsReady"
+  },
+  "shareYourWatchInsights": "మీ వాచ్ ఇన్‌సైట్స్ కార్డ్‌ను పంచుకోండి",
+  "@shareYourWatchInsights": {
+    "description": "Localized string for shareYourWatchInsights"
+  },
+  "recentlyWatchedVibe": "ఇటీవల చూసిన వైబ్",
+  "@recentlyWatchedVibe": {
+    "description": "Localized string for recentlyWatchedVibe"
+  },
+  "mixedAcrossGenres": "వివిధ శైలుల మిశ్రమం",
+  "@mixedAcrossGenres": {
+    "description": "Localized string for mixedAcrossGenres"
+  },
+  "moviesPerMonthShort": "సినిమాలు / నెల",
+  "@moviesPerMonthShort": {
+    "description": "Localized string for moviesPerMonthShort"
+  },
+  "ratingTrend": "రేటింగ్ ట్రెండ్",
+  "@ratingTrend": {
+    "description": "Localized string for ratingTrend"
+  },
+  "balanced": "సమతుల్యమైన",
+  "@balanced": {
+    "description": "Localized string for balanced"
+  },
+  "noWatchNextSuggestionsYet": "తదుపరి చూడటానికి సూచనలు ఇంకా లేవు",
+  "@noWatchNextSuggestionsYet": {
+    "description": "Localized string for noWatchNextSuggestionsYet"
+  },
+  "upcomingFromLibrary": "మీ లైబ్రరీ నుండి రాబోయేవి",
+  "@upcomingFromLibrary": {
+    "description": "Localized string for upcomingFromLibrary"
+  },
+  "removeReminder": "రిమైండర్‌ను తొలగించండి",
+  "@removeReminder": {
+    "description": "Localized string for removeReminder"
+  },
+  "remindMe": "నాకు గుర్తు చేయండి",
+  "@remindMe": {
+    "description": "Localized string for remindMe"
+  },
+  "titleReleasesToday": "{title} ఈరోజు విడుదల అవుతుంది.",
+  "@titleReleasesToday": {
+    "description": "Localized string for titleReleasesToday",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "titleAirsSoon": "{title} {subtitle} త్వరలో ప్రసారం కానుంది.",
+  "@titleAirsSoon": {
+    "description": "Localized string for titleAirsSoon",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "subtitle": {
+        "type": "String"
+      }
+    }
+  },
+  "controlPremiereAlerts": "ప్రీమియర్ హెచ్చరికలు మరియు విడుదల రిమైండర్‌లను నియంత్రించండి.",
+  "@controlPremiereAlerts": {
+    "description": "Localized string for controlPremiereAlerts"
+  },
+  "upcomingReleasesCount": "మీ లైబ్రరీ అంతటా {count} రాబోయే విడుదల(లు).",
+  "@upcomingReleasesCount": {
+    "description": "Localized string for upcomingReleasesCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "sittingInWatchlist": "{days} రోజులుగా మీ వాచ్‌లిస్ట్‌లో ఉంది",
+  "@sittingInWatchlist": {
+    "description": "Localized string for sittingInWatchlist",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "alreadyOnWatchlist": "ఇప్పటికే మీ వాచ్‌లిస్ట్‌లో ఉంది",
+  "@alreadyOnWatchlist": {
+    "description": "Localized string for alreadyOnWatchlist"
+  },
+  "favouritedButNotWatched": "మీరు దీన్ని ఫేవరెట్ చేసారు కానీ ఇంకా చూసినట్టుగా గుర్తించలేదు",
+  "@favouritedButNotWatched": {
+    "description": "Localized string for favouritedButNotWatched"
+  },
+  "savedInListReady": "మీ జాబితాలలో ఒకదానిలో సేవ్ చేయబడింది మరియు చూడటానికి సిద్ధంగా ఉంది",
+  "@savedInListReady": {
+    "description": "Localized string for savedInListReady"
+  },
+  "matchesTitlesYouTrack": "మీరు ఇప్పటికే ట్రాక్ చేస్తున్న టైటిల్‌లతో సరిపోలుతుంది",
+  "@matchesTitlesYouTrack": {
+    "description": "Localized string for matchesTitlesYouTrack"
+  },
+  "noOfficialSite": "అధికారిక సైట్ లేదు",
+  "@noOfficialSite": {
+    "description": "Localized string for noOfficialSite"
+  },
+  "episodeAiring": "ఎపిసోడ్ ప్రసారం",
+  "@episodeAiring": {
+    "description": "Localized string for episodeAiring"
+  },
+  "general": "జనరల్",
+  "@general": {
+    "description": "Localized string for general"
+  },
+  "scheduledFor": "{date} కోసం షెడ్యూల్ చేయబడింది",
+  "@scheduledFor": {
+    "description": "Localized string for scheduledFor",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "wasScheduledFor": "{date} కోసం షెడ్యూల్ చేయబడింది",
+  "@wasScheduledFor": {
+    "description": "Localized string for wasScheduledFor",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noOverviewAvailable": "అవలోకనం అందుబాటులో లేదు.",
+  "@noOverviewAvailable": {
+    "description": "Localized string for noOverviewAvailable"
+  },
+  "searchHistoryCleared": "శోధన చరిత్ర తొలగించబడింది",
+  "@searchHistoryCleared": {
+    "description": "Localized string for searchHistoryCleared"
+  },
+  "visualMovieCard": "విజువల్ మూవీ కార్డ్",
+  "@visualMovieCard": {
+    "description": "Localized string for visualMovieCard"
+  },
+  "smartLumiLink": "స్మార్ట్ లూమి లింక్",
+  "@smartLumiLink": {
+    "description": "Localized string for smartLumiLink"
+  },
+  "directTmdbLink": "ప్రత్యక్ష TMDB లింక్",
+  "@directTmdbLink": {
+    "description": "Localized string for directTmdbLink"
+  },
+  "recommendedOnLumi": "లూమిలో సిఫార్సు చేయబడింది: {title}",
+  "@recommendedOnLumi": {
+    "description": "Localized string for recommendedOnLumi",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "checkOutOnLumi": "లూమిలో {title}ని చూడండి!\n\n{link}\n\nలూమిని పొందండి: {appLink}",
+  "@checkOutOnLumi": {
+    "description": "Localized string for checkOutOnLumi",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      },
+      "appLink": {
+        "type": "String"
+      }
+    }
+  },
+  "checkOutOnTmdb": "TMDBలో {title}ని చూడండి: {link}",
+  "@checkOutOnTmdb": {
+    "description": "Localized string for checkOutOnTmdb",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseAlertTitle": "{title} విడుదల హెచ్చరిక",
+  "@releaseAlertTitle": {
+    "description": "Localized string for releaseAlertTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseAlertFullMessage": "{date} కోసం విడుదల వాచ్ అలర్ట్ సెట్ చేయబడింది. అది విడుదలైనప్పుడు మేము మీకు తెలియజేస్తాము.",
+  "@releaseAlertFullMessage": {
+    "description": "Localized string for releaseAlertFullMessage",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseSuccessDialogContent": "\"{title}\" డిజిటల్‌గా లేదా బ్లూ-రే/డివిడిలో విడుదలైన వెంటనే మేము మీకు తెలియజేస్తాము!",
+  "@releaseSuccessDialogContent": {
+    "description": "Localized string for releaseSuccessDialogContent",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "episodeAlreadyDueToAir": "ఈ ఎపిసోడ్ ఇప్పటికే ప్రసారం కానుంది",
+  "@episodeAlreadyDueToAir": {
+    "description": "Localized string for episodeAlreadyDueToAir"
+  },
+  "reminderSetSuccessfully": "రిమైండర్ విజయవంతంగా సెట్ చేయబడింది",
+  "@reminderSetSuccessfully": {
+    "description": "Localized string for reminderSetSuccessfully"
+  },
+  "speechRecognitionNotAvailable": "ఈ పరికరంలో స్పీచ్ రికగ్నిషన్ అందుబాటులో లేదు.",
+  "@speechRecognitionNotAvailable": {
+    "description": "Localized string for speechRecognitionNotAvailable"
+  },
+  "describeShowMood": "మీరు ఏ షో చూడాలనుకుంటున్నారో వివరించండి, మేము మీకు ర్యాంకుల జాబితాను అందిస్తాము.",
+  "@describeShowMood": {
+    "description": "Localized string for describeShowMood"
+  },
+  "describeMovieMood": "మీకు ఏ సినిమా చూడాలని ఉందో వివరించండి, మేము మీకు ర్యాంకుల జాబితాను అందిస్తాము.",
+  "@describeMovieMood": {
+    "description": "Localized string for describeMovieMood"
+  },
+  "aiLauncherDescription": "సహజ భాషలో ఒక అభ్యర్థనను టైప్ చేయండి లేదా మాట్లాడండి. లూమి ఒక AI ప్రణాళికను రూపొందించి, వెక్టర్ శోధనను నిర్వహించి, బహుళ షో/సినిమా ఎంపికలను తిరిగి ఇస్తుంది.",
+  "@aiLauncherDescription": {
+    "description": "Localized string for aiLauncherDescription"
+  },
+  "yearRange": "ఈ యాప్ లేబుల్‌ను దీనికి అనువదించండి: {from}-{to}",
+  "@yearRange": {
+    "description": "Localized string for yearRange",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "remindersCountScheduled": "{count} రిమైండర్(లు) షెడ్యూల్ చేయబడ్డాయి.",
+  "@remindersCountScheduled": {
+    "description": "Localized string for remindersCountScheduled",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "regionAutoDetected": "స్వయంచాలకంగా గుర్తించబడింది: {region}",
+  "@regionAutoDetected": {
+    "description": "Localized string for regionAutoDetected",
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "regionSelected": "ఎంపిక చేయబడింది: {region}",
+  "@regionSelected": {
+    "description": "Localized string for regionSelected",
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "allLanguagesSubtitle": "అన్ని భాషలు",
+  "@allLanguagesSubtitle": {
+    "description": "Localized string for allLanguagesSubtitle"
+  },
+  "currentlySetToLanguage": "ప్రస్తుతం {language} కు సెట్ చేయబడింది",
+  "@currentlySetToLanguage": {
+    "description": "Localized string for currentlySetToLanguage",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "availabilities": "లభ్యతలు",
+  "@availabilities": {
+    "description": "Localized string for availabilities"
+  },
+  "mood": "మానసిక స్థితి",
+  "@mood": {
+    "description": "Localized string for mood"
+  },
+  "people": "ప్రజలు",
+  "@people": {
+    "description": "Localized string for people"
+  },
+  "ads": "ప్రకటనలు",
+  "@ads": {
+    "description": "Localized string for ads"
+  },
+  "theatricalLimited": "థియేట్రికల్ లిమిటెడ్",
+  "@theatricalLimited": {
+    "description": "Localized string for theatricalLimited"
+  },
+  "premier": "ప్రీమియర్",
+  "@premier": {
+    "description": "Localized string for premier"
+  },
+  "mediaType": "మీడియా రకం",
+  "@mediaType": {
+    "description": "Localized string for mediaType"
+  },
+  "couldNotLoadAnalytics": "విశ్లేషణలను లోడ్ చేయలేకపోయింది",
+  "@couldNotLoadAnalytics": {
+    "description": "Localized string for couldNotLoadAnalytics"
+  },
+  "viewAllAwards": "అన్నింటినీ చూడండి",
+  "@viewAllAwards": {
+    "description": "Localized string for viewAllAwards"
+  },
+  "win": "గెలుపు",
+  "@win": {
+    "description": "Localized string for win"
+  },
+  "wins": "విజయాలు",
+  "@wins": {
+    "description": "Localized string for wins"
+  },
+  "nomination": "నామినేషన్",
+  "@nomination": {
+    "description": "Localized string for nomination"
+  },
+  "nominations": "నామినేషన్లు",
+  "@nominations": {
+    "description": "Localized string for nominations"
+  },
+  "sharedBy": "{name} ద్వారా పంచుకోబడింది",
+  "@sharedBy": {
+    "description": "Localized string for sharedBy",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "titleCount": "{count} శీర్షిక(లు)",
+  "@titleCount": {
+    "description": "Localized string for titleCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "savedTitlesAcrossLists": "{count} మీ జాబితాలన్నింటిలో సేవ్ చేయబడిన శీర్షికలు",
+  "@savedTitlesAcrossLists": {
+    "description": "Localized string for savedTitlesAcrossLists",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "curatedCollectionsSubtitle": "మీరు నిర్వహించుకుని, పంచుకోగలిగే ఎంపిక చేసిన సేకరణలు.",
+  "@curatedCollectionsSubtitle": {
+    "description": "Localized string for curatedCollectionsSubtitle"
+  },
+  "shareListMessage": "Lumi లోకి \"{name}\" ను దిగుమతి చేయండి ({count} {itemLabel}): {link}",
+  "@shareListMessage": {
+    "description": "Localized string for shareListMessage",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      },
+      "itemLabel": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "notEnoughData": "తగినంత డేటా లేదు",
+  "@notEnoughData": {
+    "description": "Localized string for notEnoughData"
+  },
+  "shareQuote": "Lumiలో \"{title}\" నుండి ఈ కొటేషన్‌ను చూడండి!",
+  "@shareQuote": {
+    "description": "Localized string for shareQuote",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "shareMovieMessage": "లూమిలో సిఫార్సు చేయబడింది: {title}\n\n{link}",
+  "@shareMovieMessage": {
+    "description": "Localized string for shareMovieMessage",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "aiLauncherDescriptionShow": "సహజ భాషలో ఒక అభ్యర్థనను టైప్ చేయండి లేదా మాట్లాడండి. లూమి ఒక AI ప్రణాళికను రూపొందించి, వెక్టర్ శోధనను నిర్వహించి, బహుళ ప్రదర్శన ఎంపికలను తిరిగి ఇస్తుంది.",
+  "@aiLauncherDescriptionShow": {
+    "description": "Localized string for aiLauncherDescriptionShow"
+  },
+  "aiLauncherDescriptionMovie": "సహజ భాషలో ఒక అభ్యర్థనను టైప్ చేయండి లేదా మాట్లాడండి. లూమి ఒక AI ప్రణాళికను రూపొందించి, వెక్టర్ శోధనను అమలు చేసి, పలు సినిమా ఎంపికలను తిరిగి ఇస్తుంది.",
+  "@aiLauncherDescriptionMovie": {
+    "description": "Localized string for aiLauncherDescriptionMovie"
+  },
+  "warmingUpMovieSearch": "మీ సినిమా అన్వేషణను వేడెక్కించడం",
+  "@warmingUpMovieSearch": {
+    "description": "Localized string for warmingUpMovieSearch"
+  },
+  "connectingToRecommendationEngine": "సిఫార్సు ఇంజిన్‌కు కనెక్ట్ అవుతోంది",
+  "@connectingToRecommendationEngine": {
+    "description": "Localized string for connectingToRecommendationEngine"
+  },
+  "understandingYourTaste": "మీరు ఎలాంటి మానసిక స్థితిలో ఉన్నారో అర్థం చేసుకోవడం",
+  "@understandingYourTaste": {
+    "description": "Localized string for understandingYourTaste"
+  },
+  "buildingCustomSearch": "మీ అభ్యర్థన నుండి అనుకూల శోధనను రూపొందించడం",
+  "@buildingCustomSearch": {
+    "description": "Localized string for buildingCustomSearch"
+  },
+  "tinyNetworkHiccup": "చిన్న నెట్‌వర్క్ అంతరాయం, మళ్ళీ ప్రయత్నిస్తున్నాను",
+  "@tinyNetworkHiccup": {
+    "description": "Localized string for tinyNetworkHiccup"
+  },
+  "planLocked": "ప్రణాళిక ఖరారు చేయబడింది: జానర్, శైలి, భాష మరియు నిడివి",
+  "@planLocked": {
+    "description": "Localized string for planLocked"
+  },
+  "scanningTmdb": "బలమైన సరిపోలికల కోసం TMDBని స్కాన్ చేస్తోంది",
+  "@scanningTmdb": {
+    "description": "Localized string for scanningTmdb"
+  },
+  "collectingDetails": "అగ్రశ్రేణి ఎంపికల కోసం పోస్టర్‌లు, రేటింగ్‌లు మరియు రన్‌టైమ్‌ను సేకరించడం",
+  "@collectingDetails": {
+    "description": "Localized string for collectingDetails"
+  },
+  "shortlistingPicksCount": "షార్ట్‌లిస్టింగ్ ఎంపికలు ({current}/{total})",
+  "@shortlistingPicksCount": {
+    "description": "Localized string for shortlistingPicksCount",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "shortlistingBestPicks": "ఉత్తమ ఎంపికలను షార్ట్‌లిస్ట్ చేయడం",
+  "@shortlistingBestPicks": {
+    "description": "Localized string for shortlistingBestPicks"
+  },
+  "finalPolish": "మీ సిఫార్సులకు తుది మెరుగులు దిద్దడం",
+  "@finalPolish": {
+    "description": "Localized string for finalPolish"
+  },
+  "retryingAfterIssue": "తాత్కాలిక సమస్య తర్వాత మళ్లీ ప్రయత్నిస్తున్నాను",
+  "@retryingAfterIssue": {
+    "description": "Localized string for retryingAfterIssue"
+  },
+  "regionUnitedStates": "యునైటెడ్ స్టేట్స్",
+  "@regionUnitedStates": {
+    "description": "Region label for United States"
+  },
+  "regionIndia": "భారతదేశం",
+  "@regionIndia": {
+    "description": "Region label for India"
+  },
+  "regionUnitedKingdom": "యునైటెడ్ కింగ్‌డమ్",
+  "@regionUnitedKingdom": {
+    "description": "Region label for United Kingdom"
+  },
+  "regionCanada": "కెనడా",
+  "@regionCanada": {
+    "description": "Region label for Canada"
+  },
+  "regionAustralia": "ఆస్ట్రేలియా",
+  "@regionAustralia": {
+    "description": "Region label for Australia"
+  },
+  "regionNewZealand": "న్యూజిలాండ్",
+  "@regionNewZealand": {
+    "description": "Region label for New Zealand"
+  },
+  "regionGermany": "జర్మనీ",
+  "@regionGermany": {
+    "description": "Region label for Germany"
+  },
+  "regionFrance": "ఫ్రాన్స్",
+  "@regionFrance": {
+    "description": "Region label for France"
+  },
+  "regionSpain": "స్పెయిన్",
+  "@regionSpain": {
+    "description": "Region label for Spain"
+  },
+  "regionItaly": "ఇటలీ",
+  "@regionItaly": {
+    "description": "Region label for Italy"
+  },
+  "regionJapan": "జపాన్",
+  "@regionJapan": {
+    "description": "Region label for Japan"
+  },
+  "regionSouthKorea": "దక్షిణ కొరియా",
+  "@regionSouthKorea": {
+    "description": "Region label for South Korea"
+  },
+  "regionBrazil": "బ్రెజిల్",
+  "@regionBrazil": {
+    "description": "Region label for Brazil"
+  },
+  "regionMexico": "మెక్సికో",
+  "@regionMexico": {
+    "description": "Region label for Mexico"
+  },
+  "regionSingapore": "సింగపూర్",
+  "@regionSingapore": {
+    "description": "Region label for Singapore"
+  },
+  "regionPhilippines": "ఫిలిప్పీన్స్",
+  "@regionPhilippines": {
+    "description": "Region label for Philippines"
+  },
+  "regionIndonesia": "ఇండోనేషియా",
+  "@regionIndonesia": {
+    "description": "Region label for Indonesia"
+  },
+  "regionUnitedArabEmirates": "యునైటెడ్ అరబ్ ఎమిరేట్స్",
+  "@regionUnitedArabEmirates": {
+    "description": "Region label for United Arab Emirates"
+  },
+  "regionSaudiArabia": "సౌదీ అరేబియా",
+  "@regionSaudiArabia": {
+    "description": "Region label for Saudi Arabia"
+  },
+  "regionTurkey": "టర్కీ",
+  "@regionTurkey": {
+    "description": "Region label for Turkey"
+  },
+  "regionAutoDetectedSubtitle": "స్వయంచాలకంగా గుర్తించబడిన ప్రాంతం: {regionLabel} ({regionCode}). స్థానికీకరించిన సినిమా ప్రశ్నలు మరియు వాచ్-ప్రొవైడర్ శోధనల కోసం అధిగమించడానికి ఒక ప్రాంతాన్ని ఎంచుకోండి.",
+  "@regionAutoDetectedSubtitle": {
+    "description": "Subtitle when region is auto-detected",
+    "placeholders": {
+      "regionLabel": {
+        "type": "String"
+      },
+      "regionCode": {
+        "type": "String"
+      }
+    }
+  },
+  "regionSelectedSubtitle": "ఎంచుకున్న ప్రాంతం: {regionLabel} ({regionCode}). మద్దతు ఉన్న సినిమా క్వెరీలు మరియు వాచ్-ప్రొవైడర్ లుకప్‌లు తదుపరిసారి దీన్ని స్వయంచాలకంగా తిరిగి ఉపయోగిస్తాయి.",
+  "@regionSelectedSubtitle": {
+    "description": "Subtitle when region is manually selected",
+    "placeholders": {
+      "regionLabel": {
+        "type": "String"
+      },
+      "regionCode": {
+        "type": "String"
+      }
+    }
+  },
+  "syncSignInTooltip": "క్లౌడ్‌తో సింక్ చేయడానికి సైన్ ఇన్ చేయండి",
+  "@syncSignInTooltip": {
+    "description": "Tooltip prompting sign in to sync library"
+  },
+  "syncFailedTooltip": "సింక్ విఫలమైంది. మళ్లీ ప్రయత్నించడానికి నొక్కండి.",
+  "@syncFailedTooltip": {
+    "description": "Tooltip shown when library sync failed"
+  },
+  "syncedTooltip": "క్లౌడ్‌తో సమకాలీకరించబడిన లైబ్రరీ",
+  "@syncedTooltip": {
+    "description": "Tooltip shown when library is synced"
+  },
+  "shareQuoteTooltip": "షేర్ కోట్",
+  "@shareQuoteTooltip": {
+    "description": "Tooltip to share a quote"
+  },
+  "copyQuoteTooltip": "ఉల్లేఖనాన్ని కాపీ చేయండి",
+  "@copyQuoteTooltip": {
+    "description": "Tooltip to copy a quote"
+  },
+  "quoteCopiedToast": "ఉల్లేఖనం క్లిప్‌బోర్డ్‌కు కాపీ చేయబడింది",
+  "@quoteCopiedToast": {
+    "description": "Toast message after copying a quote"
+  },
+  "shareDialogueTooltip": "సంభాషణను పంచుకోండి",
+  "@shareDialogueTooltip": {
+    "description": "Tooltip to share a dialogue"
+  },
+  "copyDialogueTooltip": "డైలాగ్‌ను కాపీ చేయండి",
+  "@copyDialogueTooltip": {
+    "description": "Tooltip to copy a dialogue"
+  },
+  "dialogueCopiedToast": "సంభాషణ క్లిప్‌బోర్డ్‌కు కాపీ చేయబడింది",
+  "@dialogueCopiedToast": {
+    "description": "Toast message after copying a dialogue"
+  },
+  "tvAirsInOneHourTitle": "{title} 1 గంటలో ప్రసారం అవుతుంది",
+  "@tvAirsInOneHourTitle": {
+    "description": "Notification title for a TV episode airing in one hour",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "tvAirsInOneHourBody": "{episodeLabel} \"{episodeName}\" {localAirTime} లో ప్రసారం అవుతుంది.",
+  "@tvAirsInOneHourBody": {
+    "description": "Notification body for a TV episode airing in one hour",
+    "placeholders": {
+      "episodeLabel": {
+        "type": "String"
+      },
+      "episodeName": {
+        "type": "String"
+      },
+      "localAirTime": {
+        "type": "String"
+      }
+    }
+  },
+  "movieReleasesTodayTitle": "{title} ఈరోజు విడుదల అవుతుంది",
+  "@movieReleasesTodayTitle": {
+    "description": "Notification title for a movie releasing today",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "movieReleasesTodayBody": "మీ లైబ్రరీలోని ఒక సినిమా {localDate}న విడుదల అవుతోంది.",
+  "@movieReleasesTodayBody": {
+    "description": "Notification body for a movie releasing today",
+    "placeholders": {
+      "localDate": {
+        "type": "String"
+      }
+    }
+  },
+  "curatedNeoNoirNights": "నియో-నోయిర్ నైట్స్",
+  "@curatedNeoNoirNights": {
+    "description": "Curated collection title"
+  },
+  "curatedPulsePoundingRush": "గుండె దడదడలాడే ఉరవడి",
+  "@curatedPulsePoundingRush": {
+    "description": "Curated collection title"
+  },
+  "curatedFeelGoodEscape": "ఆహ్లాదకరమైన విహారం",
+  "@curatedFeelGoodEscape": {
+    "description": "Curated collection title"
+  },
+  "curatedMindBenders": "మైండ్-బెండర్స్",
+  "@curatedMindBenders": {
+    "description": "Curated collection title"
+  },
+  "curatedEpicWorlds": "ఎపిక్ వరల్డ్స్",
+  "@curatedEpicWorlds": {
+    "description": "Curated collection title"
+  },
+  "curatedHumanStories": "మానవ కథలు",
+  "@curatedHumanStories": {
+    "description": "Curated collection title"
+  },
+  "curatedDarkDetectiveFiles": "డార్క్ డిటెక్టివ్ ఫైల్స్",
+  "@curatedDarkDetectiveFiles": {
+    "description": "Curated collection title"
+  },
+  "curatedNeoNoirNightsDescription": "వర్షంలో తడిసిన ఉత్కంఠ, నైతికంగా సందిగ్ధమైన నాయకులు మరియు వాతావరణాన్ని తలపించే నగర కథలు.",
+  "@curatedNeoNoirNightsDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedPulsePoundingRushDescription": "ఉత్కంఠభరితమైన ఛేజ్‌లు, తీవ్రమవుతున్న ప్రమాదం, మరియు ఊపిరి పీల్చుకోవడానికి కూడా సమయం లేని వేగం.",
+  "@curatedPulsePoundingRushDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedFeelGoodEscapeDescription": "హృద్యమైన కథలు, ఉత్తేజపరిచే కథాంశాలు మరియు ప్రశాంతమైన రాత్రి కోసం ఓదార్పునిచ్చే ఎంపికలు.",
+  "@curatedFeelGoodEscapeDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedMindBendersDescription": "వాస్తవికతను వక్రీకరించే భావనలు, మెలికలతో కూడిన కథనం, మరియు గొప్ప ఆలోచనలతో కూడిన కథనం.",
+  "@curatedMindBendersDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedEpicWorldsDescription": "విశాల విశ్వ సాహసాలు, పౌరాణిక పందాలు మరియు సినిమాటిక్ స్థాయి.",
+  "@curatedEpicWorldsDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedHumanStoriesDescription": "భావోద్వేగాలను రేకెత్తించే, గుర్తుండిపోయే నటనలతో కూడిన, పాత్రలకే ప్రాధాన్యతనిచ్చే డ్రామాలు.",
+  "@curatedHumanStoriesDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedDarkDetectiveFilesDescription": "చల్లారిన ఆధారాలు, అనేక కోణాల్లో అనుమానితులు, మరియు నెమ్మదిగా సాగే దర్యాప్తులు.",
+  "@curatedDarkDetectiveFilesDescription": {
+    "description": "Curated collection description"
+  },
+  "appLanguage": "యాప్ భాష",
+  "@appLanguage": {
+    "description": "App language setting title"
+  },
+  "appLanguageSystemDefault": "సిస్టమ్ డిఫాల్ట్",
+  "@appLanguageSystemDefault": {
+    "description": "Label for using the system language"
+  },
+  "appLanguageSelectedSubtitle": "యాప్ భాష {language}గా సెట్ చేయబడింది. ఇది యాప్ ఇంటర్‌ఫేస్‌ను మాత్రమే మారుస్తుంది, సినిమా మరియు షో భాషను కాదు.",
+  "@appLanguageSelectedSubtitle": {
+    "description": "Subtitle when an app language is selected",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "appLanguageSystemSubtitle": "యాప్ భాష మీ పరికర సెట్టింగ్‌లను అనుసరిస్తుంది. ఇంటర్‌ఫేస్‌ను వేరే భాషలో ఉంచడానికి దాన్ని మార్చండి.",
+  "@appLanguageSystemSubtitle": {
+    "description": "Subtitle when app language follows system"
+  },
+  "contentLanguageAllSubtitle": "అన్ని భాషలు. సినిమాలు మరియు టీవీ ట్యాబ్‌లు విస్తృతంగా ఉంటాయి, అయితే అందుబాటులో ఉన్నప్పుడు ఎక్స్‌ప్లోర్ ఇప్పటికీ మరింత బలమైన స్థానిక అనుకూలతలకు ప్రాధాన్యత ఇవ్వగలదు.",
+  "@contentLanguageAllSubtitle": {
+    "description": "Subtitle when content language is set to all languages"
+  },
+  "contentLanguageSelectedSubtitle": "ప్రస్తుతం {language}కి సెట్ చేయబడింది. సినిమాలు మరియు టీవీ ట్యాబ్‌లు యథాతథంగా ఉంటాయి, అయితే ఎక్స్‌ప్లోర్ మొదట ఈ భాషకు ప్రాధాన్యత ఇస్తుంది.",
+  "@contentLanguageSelectedSubtitle": {
+    "description": "Subtitle when a specific content language is selected",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  }
+}

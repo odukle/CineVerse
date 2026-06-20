@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/presentation/features/home/providers/watch_history_analytics_provider.dart';
 import 'package:cineverse/presentation/features/home/providers/watch_history_insights_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/watched_provider.dart';
@@ -54,14 +55,14 @@ class WatchHistoryAnalyticsScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
-          title: const Text(
-            'Watch Analytics',
+          title: Text(
+            context.l10n.watchAnalytics,
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
           ),
           actions: <Widget>[
             if (analyticsValue != null)
               IconButton(
-                tooltip: 'Share analytics',
+                tooltip: context.l10n.tooltipShareAnalytics,
                 onPressed: () {
                   HapticFeedback.selectionClick();
                   WatchAnalyticsShareBottomSheet.show(
@@ -78,9 +79,9 @@ class WatchHistoryAnalyticsScreen extends ConsumerWidget {
         body: analyticsAsync.when(
           loading: () => const _AnalyticsLoadingState(),
           error: (_, _) => _AnalyticsMessage(
-            title: 'Could not load analytics',
-            subtitle: 'Try again after a moment.',
-            actionLabel: 'Retry',
+            title: context.l10n.errorGeneric('Could not load analytics'),
+            subtitle: context.l10n.tryAgainAfterMoment,
+            actionLabel: context.l10n.retry,
             onTap: () {
               HapticFeedback.selectionClick();
               ref.invalidate(watchHistoryAnalyticsProvider);
@@ -91,10 +92,16 @@ class WatchHistoryAnalyticsScreen extends ConsumerWidget {
               final int remaining =
                   kMinimumWatchedItemsForInsights - watchedCount;
               return _AnalyticsMessage(
-                title: 'Not enough data yet',
+                title: context.l10n.notEnoughDataYet,
                 subtitle: watchedCount <= 0
-                    ? 'Add and rate at least $kMinimumWatchedItemsForInsights titles to unlock analytics.'
-                    : 'You have $watchedCount/$kMinimumWatchedItemsForInsights watched titles. Add $remaining more to unlock analytics.',
+                    ? context.l10n.addAndRateMoreTitles(
+                        kMinimumWatchedItemsForInsights.toString(),
+                      )
+                    : context.l10n.addMoreTitlesToUnlock(
+                        watchedCount.toString(),
+                        kMinimumWatchedItemsForInsights.toString(),
+                        remaining.toString(),
+                      ),
               );
             }
 
@@ -111,7 +118,9 @@ class WatchHistoryAnalyticsScreen extends ConsumerWidget {
                       children: [
                         _AnimatedCard(
                           delay: 40,
-                          child: _WatchHistoryInsightsSection(insights: insights),
+                          child: _WatchHistoryInsightsSection(
+                            insights: insights,
+                          ),
                         ),
                         const SizedBox(height: 14),
                       ],
@@ -161,12 +170,7 @@ class _AnalyticsLoadingState extends StatefulWidget {
 }
 
 class _AnalyticsLoadingStateState extends State<_AnalyticsLoadingState> {
-  static const List<String> _steps = <String>[
-    'Reading your watched history...',
-    'Finding your top genres and patterns...',
-    'Building monthly and rating trends...',
-    'Writing your personalized insights...',
-  ];
+  static const int _kStepCount = 4;
 
   Timer? _timer;
   int _index = 0;
@@ -179,7 +183,7 @@ class _AnalyticsLoadingStateState extends State<_AnalyticsLoadingState> {
         return;
       }
       setState(() {
-        _index = (_index + 1) % _steps.length;
+        _index = (_index + 1) % _kStepCount;
       });
     });
   }
@@ -193,6 +197,12 @@ class _AnalyticsLoadingStateState extends State<_AnalyticsLoadingState> {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
+    final List<String> steps = <String>[
+      context.l10n.readingWatchedHistory,
+      context.l10n.findingTopGenres,
+      context.l10n.buildingTrends,
+      context.l10n.writingInsights,
+    ];
     return Center(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -228,7 +238,7 @@ class _AnalyticsLoadingStateState extends State<_AnalyticsLoadingState> {
                   ),
                   const SizedBox(width: 12),
                   Text(
-                    'Generating Watch Analytics',
+                    context.l10n.generatingWatchAnalytics,
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
@@ -254,7 +264,7 @@ class _AnalyticsLoadingStateState extends State<_AnalyticsLoadingState> {
                   );
                 },
                 child: Text(
-                  _steps[_index],
+                  steps[_index],
                   key: ValueKey<int>(_index),
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: Colors.white.withValues(alpha: 0.9),
@@ -270,8 +280,8 @@ class _AnalyticsLoadingStateState extends State<_AnalyticsLoadingState> {
                   height: 7,
                   child: TweenAnimationBuilder<double>(
                     tween: Tween<double>(
-                      begin: (_index % _steps.length) / _steps.length,
-                      end: ((_index + 1) % _steps.length) / _steps.length,
+                      begin: (_index % _kStepCount) / _kStepCount,
+                      end: ((_index + 1) % _kStepCount) / _kStepCount,
                     ),
                     duration: const Duration(milliseconds: 1100),
                     curve: Curves.easeInOutCubic,
@@ -289,7 +299,7 @@ class _AnalyticsLoadingStateState extends State<_AnalyticsLoadingState> {
               ),
               const SizedBox(height: 10),
               Text(
-                'This usually takes a few seconds.',
+                context.l10n.thisUsuallyTakesAFewSeconds,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: Colors.white.withValues(alpha: 0.62),
                   fontWeight: FontWeight.w500,
@@ -315,7 +325,7 @@ class _HeaderSummary extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          'Overview',
+          context.l10n.overview,
           style: theme.textTheme.titleLarge?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.w700,
@@ -323,7 +333,10 @@ class _HeaderSummary extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          'Analyzed ${analytics.analyzedTitlesCount} titles • Updated ${_formatTimestamp(analytics.generatedAt)}',
+          context.l10n.analyzedTitlesUpdated(
+            '${analytics.analyzedTitlesCount}',
+            _formatTimestamp(analytics.generatedAt),
+          ),
           style: theme.textTheme.bodySmall?.copyWith(
             color: Colors.white.withValues(alpha: 0.68),
           ),
@@ -342,9 +355,7 @@ class _MoviesPerMonthChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     if (data.isEmpty) {
-      return const _NoChartData(
-        label: 'No movie watch history for recent months.',
-      );
+      return _NoChartData(label: context.l10n.noMovieWatchHistoryRecentMonths);
     }
 
     final double maxY =
@@ -354,8 +365,8 @@ class _MoviesPerMonthChart extends StatelessWidget {
         1;
 
     return _ChartShell(
-      title: 'Movies Per Month',
-      subtitle: 'How many movies you watched each month',
+      title: context.l10n.moviesPerMonth,
+      subtitle: context.l10n.howManyMoviesWatchedEachMonth,
       child: SizedBox(
         height: 240,
         child: BarChart(
@@ -445,7 +456,7 @@ class _GenreDistributionChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (data.isEmpty) {
-      return const _NoChartData(label: 'No genre distribution available yet.');
+      return _NoChartData(label: context.l10n.noGenreDistributionYet);
     }
 
     final int total = data.fold<int>(0, (sum, d) => sum + d.count);
@@ -460,8 +471,8 @@ class _GenreDistributionChart extends StatelessWidget {
     ];
 
     return _ChartShell(
-      title: 'Genre Distribution',
-      subtitle: 'What genres dominate your watch history',
+      title: context.l10n.genreDistribution,
+      subtitle: context.l10n.whatGenresDominateHistory,
       child: Column(
         children: <Widget>[
           SizedBox(
@@ -533,12 +544,12 @@ class _RatingTrendChart extends StatelessWidget {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     if (data.isEmpty) {
-      return const _NoChartData(label: 'No rating trend data available yet.');
+      return _NoChartData(label: context.l10n.noRatingTrendDataYet);
     }
 
     return _ChartShell(
-      title: 'Rating Trends',
-      subtitle: 'How your personal ratings are shifting over time',
+      title: context.l10n.ratingTrends,
+      subtitle: context.l10n.howPersonalRatingsShifting,
       child: SizedBox(
         height: 240,
         child: LineChart(
@@ -690,7 +701,7 @@ class _NoChartData extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return _ChartShell(
-      title: 'No Data',
+      title: context.l10n.noData,
       subtitle: label,
       child: const SizedBox(height: 80),
     );
@@ -821,17 +832,19 @@ class _WatchAnalyticsShareBottomSheetState
   Future<void> _shareVisualCard() async {
     if (_isSharing) return;
     setState(() => _isSharing = true);
+    final l10n = context.l10n;
     try {
-      final Uint8List imageBytes = await _screenshotController.captureFromWidget(
-        _AnalyticsShareableCard(
-          analytics: widget.analytics,
-          insights: widget.insights,
-          posterPaths: widget.posterPaths,
-        ),
-        context: context,
-        delay: const Duration(milliseconds: 350),
-        targetSize: const Size(1080, 1920),
-      );
+      final Uint8List imageBytes = await _screenshotController
+          .captureFromWidget(
+            _AnalyticsShareableCard(
+              analytics: widget.analytics,
+              insights: widget.insights,
+              posterPaths: widget.posterPaths,
+            ),
+            context: context,
+            delay: const Duration(milliseconds: 350),
+            targetSize: const Size(1080, 1920),
+          );
 
       final Directory tempDir = await getTemporaryDirectory();
       final File file = await File(
@@ -839,14 +852,13 @@ class _WatchAnalyticsShareBottomSheetState
       ).create();
       await file.writeAsBytes(imageBytes);
 
-      await Share.shareXFiles(
-        <XFile>[XFile(file.path)],
-        text: 'My latest watch analytics on Lumi',
-      );
+      await Share.shareXFiles(<XFile>[
+        XFile(file.path),
+      ], text: l10n.myLatestWatchAnalytics);
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not share analytics card.')),
+        SnackBar(content: Text(l10n.errorCouldNotShareAnalytics)),
       );
     } finally {
       if (mounted) {
@@ -860,19 +872,21 @@ class _WatchAnalyticsShareBottomSheetState
     if (insights == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Watch insights are not ready yet.')),
+        SnackBar(content: Text(context.l10n.watchInsightsNotReady)),
       );
       return;
     }
     if (_isSharing) return;
     setState(() => _isSharing = true);
+    final l10n = context.l10n;
     try {
-      final Uint8List imageBytes = await _screenshotController.captureFromWidget(
-        _WatchInsightsShareableCard(insights: insights),
-        context: context,
-        delay: const Duration(milliseconds: 350),
-        targetSize: const Size(1080, 1350),
-      );
+      final Uint8List imageBytes = await _screenshotController
+          .captureFromWidget(
+            _WatchInsightsShareableCard(insights: insights),
+            context: context,
+            delay: const Duration(milliseconds: 350),
+            targetSize: const Size(1080, 1350),
+          );
 
       final Directory tempDir = await getTemporaryDirectory();
       final File file = await File(
@@ -880,14 +894,13 @@ class _WatchAnalyticsShareBottomSheetState
       ).create();
       await file.writeAsBytes(imageBytes);
 
-      await Share.shareXFiles(
-        <XFile>[XFile(file.path)],
-        text: 'My watch insights on Lumi',
-      );
+      await Share.shareXFiles(<XFile>[
+        XFile(file.path),
+      ], text: l10n.myWatchInsights);
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not share watch insights.')),
+        SnackBar(content: Text(l10n.errorCouldNotShareInsights)),
       );
     } finally {
       if (mounted) {
@@ -919,7 +932,7 @@ class _WatchAnalyticsShareBottomSheetState
           ),
           const SizedBox(height: 24),
           Text(
-            'Share Analytics',
+            context.l10n.shareAnalytics,
             style: theme.textTheme.titleLarge?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -928,8 +941,8 @@ class _WatchAnalyticsShareBottomSheetState
           const SizedBox(height: 24),
           _AnalyticsShareOptionItem(
             icon: Icons.auto_awesome_rounded,
-            title: 'Infographics Card',
-            subtitle: 'Styled card with your watch stats',
+            title: context.l10n.infographicsCard,
+            subtitle: context.l10n.styledCardWithWatchStats,
             color: AppColors.cinemaAccent,
             onTap: _isSharing
                 ? null
@@ -940,10 +953,10 @@ class _WatchAnalyticsShareBottomSheetState
           ),
           _AnalyticsShareOptionItem(
             icon: Icons.auto_graph_rounded,
-            title: 'Watch Insights Snapshot',
+            title: context.l10n.watchInsightsSnapshot,
             subtitle: widget.insights == null
-                ? 'Available once insights are ready'
-                : 'Share your watch insights card',
+                ? context.l10n.availableOnceInsightsReady
+                : context.l10n.shareYourWatchInsights,
             color: Colors.blueAccent,
             onTap: widget.insights == null
                 ? null
@@ -1049,130 +1062,135 @@ class _AnalyticsShareableCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-            Row(
-              children: <Widget>[
-                Flexible(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(999),
-                      color: AppColors.cinemaAccent.withValues(alpha: 0.14),
-                      border: Border.all(
-                        color: AppColors.cinemaAccent.withValues(alpha: 0.5),
+              Row(
+                children: <Widget>[
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(999),
+                        color: AppColors.cinemaAccent.withValues(alpha: 0.14),
+                        border: Border.all(
+                          color: AppColors.cinemaAccent.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: Text(
+                        context.l10n.lumiWatchAnalytics,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColors.cinemaAccent,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.8,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
                     child: Text(
-                      'LUMI WATCH ANALYTICS',
+                      _formatTimestamp(analytics.generatedAt),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: AppColors.cinemaAccent,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.8,
+                      textAlign: TextAlign.end,
+                      style: const TextStyle(
+                        color: Colors.white70,
                         fontSize: 18,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ),
+                ],
+              ),
+              const SizedBox(height: 26),
+              Text(
+                context.l10n.yourScreenStory,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 52,
+                  fontWeight: FontWeight.w800,
+                  height: 1.02,
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    _formatTimestamp(analytics.generatedAt),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.end,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                context.l10n.snapshotOfHowAndWhatYouWatch,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.7),
+                  fontSize: 24,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 14),
+              _ShareSectionCard(
+                title: context.l10n.recentlyWatchedVibe,
+                child: _PosterCollage(posterPaths: posterPaths),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: <Widget>[
+                  _ShareStatCard(
+                    label: context.l10n.titlesAnalyzed,
+                    value: '${analytics.analyzedTitlesCount}',
+                  ),
+                  const SizedBox(width: 18),
+                  _ShareStatCard(
+                    label: context.l10n.preferredRuntime,
+                    value: insights?.preferredRuntimeLabel ??
+                        context.l10n.balanced,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              _ShareSectionCard(
+                title: context.l10n.yourFavoriteGenres,
+                child: Text(
+                  favGenres.isEmpty
+                      ? context.l10n.mixedAcrossGenres
+                      : favGenres,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 26),
-            Text(
-              'Your Screen Story',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 52,
-                fontWeight: FontWeight.w800,
-                height: 1.02,
               ),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'A snapshot of how and what you watch',
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.7),
-                fontSize: 24,
-                fontWeight: FontWeight.w500,
+              const SizedBox(height: 12),
+              _ShareSectionCard(
+                title: context.l10n.genreDistribution,
+                child: _ShareGenreDistributionPieChart(data: topGenres),
               ),
-            ),
-            const SizedBox(height: 14),
-            _ShareSectionCard(
-              title: 'Recently Watched Vibe',
-              child: _PosterCollage(posterPaths: posterPaths),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: <Widget>[
-                _ShareStatCard(
-                  label: 'Titles Analyzed',
-                  value: '${analytics.analyzedTitlesCount}',
-                ),
-                const SizedBox(width: 18),
-                _ShareStatCard(
-                  label: 'Preferred Runtime',
-                  value: insights?.preferredRuntimeLabel ?? 'Balanced',
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
-            _ShareSectionCard(
-              title: 'Favorite Genres',
-              child: Text(
-                favGenres.isEmpty ? 'Mixed across genres' : favGenres,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w700,
+              const SizedBox(height: 12),
+              _ShareSectionCard(
+                title: context.l10n.moviesPerMonthShort,
+                child: SizedBox(
+                  height: 250,
+                  child: _ShareMoviesPerMonthChart(
+                    data: analytics.moviesPerMonth,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 12),
-            _ShareSectionCard(
-              title: 'Genre Distribution',
-              child: _ShareGenreDistributionPieChart(data: topGenres),
-            ),
-            const SizedBox(height: 12),
-            _ShareSectionCard(
-              title: 'Movies / Month',
-              child: SizedBox(
-                height: 250,
-                child: _ShareMoviesPerMonthChart(data: analytics.moviesPerMonth),
+              const SizedBox(height: 12),
+              _ShareSectionCard(
+                title: context.l10n.ratingTrend,
+                child: SizedBox(
+                  height: 250,
+                  child: _ShareRatingTrendChart(data: analytics.ratingTrends),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            _ShareSectionCard(
-              title: 'Rating Trend',
-              child: SizedBox(
-                height: 250,
-                child: _ShareRatingTrendChart(data: analytics.ratingTrends),
+              const SizedBox(height: 14),
+              Text(
+                context.l10n.builtWithLumi,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.72),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-            const SizedBox(height: 14),
-            Text(
-              'Built with Lumi',
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.72),
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
             ],
           ),
         ),
@@ -1190,7 +1208,7 @@ class _ShareGenreDistributionPieChart extends StatelessWidget {
   Widget build(BuildContext context) {
     if (data.isEmpty) {
       return Text(
-        'No genre distribution available yet.',
+        context.l10n.noGenreDistributionYet,
         style: TextStyle(
           color: Colors.white.withValues(alpha: 0.72),
           fontSize: 16,
@@ -1279,7 +1297,7 @@ class _ShareMoviesPerMonthChart extends StatelessWidget {
     if (data.isEmpty) {
       return Center(
         child: Text(
-          'No movie watch history for recent months.',
+          context.l10n.noMovieWatchHistoryRecentMonths,
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.72),
             fontSize: 15,
@@ -1379,7 +1397,7 @@ class _ShareRatingTrendChart extends StatelessWidget {
     if (data.isEmpty) {
       return Center(
         child: Text(
-          'No rating trend data available yet.',
+          context.l10n.noRatingTrendDataYet,
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.72),
             fontSize: 15,
@@ -1401,7 +1419,9 @@ class _ShareRatingTrendChart extends StatelessWidget {
         ),
         borderData: FlBorderData(show: false),
         titlesData: FlTitlesData(
-          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
           rightTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
@@ -1489,7 +1509,7 @@ class _PosterCollage extends StatelessWidget {
         height: 120,
         alignment: Alignment.centerLeft,
         child: Text(
-          'Keep watching to build your visual profile.',
+          context.l10n.keepWatchingToBuildProfile,
           style: TextStyle(
             color: Colors.white.withValues(alpha: 0.72),
             fontSize: 20,
@@ -1654,7 +1674,7 @@ class _WatchInsightsShareableCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              'WATCH INSIGHTS',
+              context.l10n.watchInsights,
               style: TextStyle(
                 color: AppColors.cinemaAccent,
                 fontSize: 38,
@@ -1664,7 +1684,7 @@ class _WatchInsightsShareableCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Shared with Lumi',
+              context.l10n.sharedWithLumi,
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.78),
                 fontSize: 24,
@@ -1720,9 +1740,7 @@ class _WatchHistoryInsightsSection extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(shareStyle ? 20 : 16),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: AppColors.cinemaPanelGradient,
-        ),
+        gradient: LinearGradient(colors: AppColors.cinemaPanelGradient),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: AppColors.cinemaBorder.withValues(alpha: 0.25),
@@ -1762,7 +1780,7 @@ class _WatchHistoryInsightsSection extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Watch Insights',
+                      context.l10n.watchInsights,
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
@@ -1771,7 +1789,7 @@ class _WatchHistoryInsightsSection extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Personalized viewing patterns',
+                      context.l10n.personalizedViewingPatterns,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.white.withValues(alpha: 0.5),
                         fontSize: shareStyle ? 15 : null,
@@ -1794,7 +1812,7 @@ class _WatchHistoryInsightsSection extends StatelessWidget {
           if (insights.favoriteGenres.isNotEmpty) ...[
             SizedBox(height: shareStyle ? 18 : 16),
             Text(
-              'Your Favorite Genres',
+              context.l10n.yourFavoriteGenres,
               style: theme.textTheme.titleSmall?.copyWith(
                 color: Colors.white.withValues(alpha: 0.9),
                 fontWeight: FontWeight.bold,
@@ -1835,7 +1853,7 @@ class _WatchHistoryInsightsSection extends StatelessWidget {
           if (insights.averageRatingPerGenre.isNotEmpty) ...[
             SizedBox(height: shareStyle ? 20 : 18),
             Text(
-              'Genre Performance (Highest Rated)',
+              context.l10n.genrePerformanceHighestRated,
               style: theme.textTheme.titleSmall?.copyWith(
                 color: Colors.white.withValues(alpha: 0.9),
                 fontWeight: FontWeight.bold,
@@ -1897,9 +1915,7 @@ class _WatchHistoryInsightsSection extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white.withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.05),
-                ),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
               ),
               child: Row(
                 children: [
@@ -1911,7 +1927,10 @@ class _WatchHistoryInsightsSection extends StatelessWidget {
                   SizedBox(width: shareStyle ? 12 : 10),
                   Expanded(
                     child: Text(
-                      'Preferred runtime is ~${insights.averageRuntimeMinutes} mins (${insights.preferredRuntimeLabel})',
+                      context.l10n.preferredRuntimeLabel(
+                        insights.averageRuntimeMinutes.toString(),
+                        insights.preferredRuntimeLabel,
+                      ),
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: shareStyle ? 15 : 12,

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/domain/repositories/quotes_repository.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
@@ -94,7 +95,7 @@ class _QuoteShareEditorScreenState
       }
     } catch (e) {
       if (mounted) {
-        ToastUtils.showToast(context, 'Failed to share image');
+        ToastUtils.showToast(context, context.l10n.errorGeneric(''));
       }
     } finally {
       if (mounted) {
@@ -124,12 +125,12 @@ class _QuoteShareEditorScreenState
         await Gal.putImage(file.path);
 
         if (mounted) {
-          ToastUtils.showToast(context, 'Image saved to gallery');
+          ToastUtils.showToast(context, context.l10n.tooltipSaveToGallery);
         }
       }
     } catch (e) {
       if (mounted) {
-        ToastUtils.showToast(context, 'Failed to save image');
+        ToastUtils.showToast(context, context.l10n.errorGeneric(''));
       }
     } finally {
       if (mounted) {
@@ -199,7 +200,7 @@ class _QuoteShareEditorScreenState
         backgroundColor: AppColors.cinemaBackground,
         appBar: AppBar(
           backgroundColor: AppColors.cinemaBackground,
-          title: const Text('Select a Quote'),
+          title: Text(context.l10n.selectAQuote),
           actions: [
             TextButton(
               onPressed: () {
@@ -213,7 +214,7 @@ class _QuoteShareEditorScreenState
                 );
               },
               child: Text(
-                'View All',
+                context.l10n.share,
                 style: TextStyle(color: AppColors.cinemaAccent),
               ),
             ),
@@ -224,7 +225,7 @@ class _QuoteShareEditorScreenState
             child: CircularProgressIndicator(color: AppColors.cinemaAccent),
           ),
           error: (error, _) =>
-              Center(child: Text('Failed to load quotes: $error')),
+              Center(child: Text(context.l10n.errorLoadingQuotes(error.toString()))),
           data: (quotes) {
             // Filter out extremely long quotes (e.g. limit to ~300 chars for a good visual)
             final validQuotes = quotes
@@ -237,7 +238,7 @@ class _QuoteShareEditorScreenState
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'No suitable quotes found for sharing.',
+                      context.l10n.noItemsFound,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: Colors.white70,
                       ),
@@ -255,7 +256,7 @@ class _QuoteShareEditorScreenState
                         );
                       },
                       icon: const Icon(Icons.search_rounded),
-                      label: const Text('Search Wikiquotes'),
+                      label: Text(context.l10n.searchWikiquotes),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.cinemaAccent,
                         foregroundColor: Colors.black,
@@ -306,7 +307,7 @@ class _QuoteShareEditorScreenState
                         if (quote.character != null) ...[
                           const SizedBox(height: 12),
                           Text(
-                            '— ${quote.character}',
+                            context.l10n.quoteCharacter(quote.character!),
                             style: theme.textTheme.labelLarge?.copyWith(
                               color: AppColors.cinemaAccent,
                               fontWeight: FontWeight.bold,
@@ -343,12 +344,12 @@ class _QuoteShareEditorScreenState
             IconButton(
               onPressed: _saveImage,
               icon: const Icon(Icons.download_rounded, color: Colors.white),
-              tooltip: 'Save to Gallery',
+              tooltip: context.l10n.tooltipSaveToGallery,
             ),
             IconButton(
               onPressed: _shareImage,
               icon: const Icon(Icons.share_rounded, color: Colors.white),
-              tooltip: 'Share',
+              tooltip: context.l10n.tooltipShare,
             ),
           ],
         ],
@@ -532,7 +533,7 @@ class _QuoteShareEditorScreenState
                                                   if (_selectedQuote!.character != null) ...[
                                                     const SizedBox(height: 24),
                                                     Text(
-                                                      '— ${_selectedQuote!.character}',
+                                                      context.l10n.quoteCharacter(_selectedQuote!.character!),
                                                       textAlign: _textAlign,
                                                       style: TextStyle(
                                                         color: AppColors.cinemaAccent,
@@ -668,7 +669,9 @@ class _QuoteShareEditorScreenState
                                           ? 1.5
                                           : 2,
                                     ),
-                                    child: const Text('DISCOVER ON LUMI'),
+                                  child: Text(
+                                    context.l10n.discoverOnLumi,
+                                  ),
                                   ),
                                 ],
                               ),
@@ -728,11 +731,11 @@ class _QuoteShareEditorScreenState
                       ),
                       const SizedBox(height: 16),
                     ],
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: Text(
-                        'Select Backdrop',
-                        style: TextStyle(
+                        context.l10n.selectAQuote,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),
@@ -751,10 +754,10 @@ class _QuoteShareEditorScreenState
                         data: (images) {
                           final backdrops = images.backdrops;
                           if (backdrops.isEmpty) {
-                            return const Center(
+                            return Center(
                               child: Text(
-                                'No backdrops available',
-                                style: TextStyle(color: Colors.white54),
+                                context.l10n.noItemsFound,
+                                style: const TextStyle(color: Colors.white54),
                               ),
                             );
                           }
@@ -827,7 +830,7 @@ class _QuoteShareEditorScreenState
                       children: [
                         _buildToggleButton(
                           icon: Icons.crop_portrait_rounded,
-                          label: '9:16',
+                          label: context.l10n.aspect9x16,
                           isSelected: _aspectRatio == ShareAspectRatio.portrait,
                           onTap: () => setState(() {
                             _aspectRatio = ShareAspectRatio.portrait;
@@ -836,7 +839,7 @@ class _QuoteShareEditorScreenState
                         ),
                         _buildToggleButton(
                           icon: Icons.crop_landscape_rounded,
-                          label: '16:9',
+                          label: context.l10n.aspect16x9,
                           isSelected:
                               _aspectRatio == ShareAspectRatio.landscape,
                           onTap: () => setState(() {
@@ -869,14 +872,14 @@ class _QuoteShareEditorScreenState
                           children: [
                             _buildToggleButton(
                               icon: Icons.text_fields_rounded,
-                              label: 'Text',
+                              label: context.l10n.overview,
                               isSelected: _editMode == EditMode.text,
                               onTap: () =>
                                   setState(() => _editMode = EditMode.text),
                             ),
                             _buildToggleButton(
                               icon: Icons.wallpaper_rounded,
-                              label: 'Bg',
+                              label: context.l10n.background,
                               isSelected: _editMode == EditMode.background,
                               onTap: () => setState(
                                 () => _editMode = EditMode.background,
@@ -899,13 +902,13 @@ class _QuoteShareEditorScreenState
               top: MediaQuery.of(context).size.height * 0.2,
               left: 0,
               right: 0,
-              child: const IgnorePointer(
+              child: IgnorePointer(
                 child: Column(
                   children: [
                     Icon(Icons.pinch_rounded, color: Colors.white54, size: 48),
                     SizedBox(height: 8),
                     Text(
-                      'Pinch and drag to position text',
+                      context.l10n.tryAgain,
                       style: TextStyle(
                         color: Colors.white54,
                         fontWeight: FontWeight.bold,

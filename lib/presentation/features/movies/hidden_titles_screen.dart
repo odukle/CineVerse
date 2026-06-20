@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/presentation/features/movies/providers/hidden_titles_provider.dart';
 
 class HiddenTitlesScreen extends ConsumerWidget {
@@ -30,9 +31,9 @@ class HiddenTitlesScreen extends ConsumerWidget {
               context.pop();
             },
           ),
-          title: const Text(
-            'Hidden Titles',
-            style: TextStyle(
+          title: Text(
+            context.l10n.hiddenTitles,
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
             ),
@@ -44,7 +45,7 @@ class HiddenTitlesScreen extends ConsumerWidget {
           ),
           error: (error, stack) => Center(
             child: Text(
-              'Error loading hidden titles: $error',
+              context.l10n.errorGeneric(error.toString()),
               style: const TextStyle(color: Colors.white70),
             ),
           ),
@@ -82,17 +83,17 @@ class HiddenTitlesScreen extends ConsumerWidget {
                         ),
                         const SizedBox(height: 18),
                         Text(
-                          'No Hidden Titles',
+                          context.l10n.noHiddenTitles,
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
-                          'Titles you hide from the Spotlight section will appear here, and you will be able to restore them at any time.',
+                        Text(
+                          context.l10n.hiddenTitlesDescription,
                           textAlign: TextAlign.center,
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: Colors.white70,
                             fontSize: 13,
                             height: 1.4,
@@ -207,7 +208,7 @@ class HiddenTitlesScreen extends ConsumerWidget {
                                         borderRadius: BorderRadius.circular(4),
                                       ),
                                       child: Text(
-                                        item.isTv ? 'TV SHOW' : 'MOVIE',
+                                        item.isTv ? context.l10n.tvShow : context.l10n.movie,
                                         style: TextStyle(
                                           color: item.isTv
                                               ? Colors.purpleAccent
@@ -219,7 +220,7 @@ class HiddenTitlesScreen extends ConsumerWidget {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      'Hidden: $formattedDate',
+                                      context.l10n.hiddenDate(formattedDate),
                                       style: const TextStyle(
                                         color: Colors.white54,
                                         fontSize: 11,
@@ -237,14 +238,14 @@ class HiddenTitlesScreen extends ConsumerWidget {
                               Icons.visibility_rounded,
                               color: Colors.white60,
                             ),
-                            tooltip: 'Unhide',
+                            tooltip: context.l10n.tooltipUnhide,
                             onPressed: () async {
                               HapticFeedback.mediumImpact();
                               await ref.read(hiddenTitlesProvider.notifier).unhideTitle(item.id, item.isTv);
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('"${item.title}" restored to Spotlight'),
+                                    content: Text(context.l10n.titleRestoredToSpotlight(item.title)),
                                     backgroundColor: AppColors.detailsCard,
                                     duration: const Duration(seconds: 2),
                                     behavior: SnackBarBehavior.floating,

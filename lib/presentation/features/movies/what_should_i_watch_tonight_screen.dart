@@ -9,6 +9,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/entities/watched_item.dart';
@@ -145,7 +146,7 @@ class _WhatShouldIWatchTonightScreenState
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'What should I watch tonight?',
+                        context.l10n.whatShouldIWatchTonight,
                         style: theme.textTheme.headlineSmall?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w800,
@@ -300,7 +301,7 @@ class _WhatShouldIWatchTonightScreenState
               foregroundColor: Colors.white,
               elevation: 10,
               icon: const Icon(Icons.auto_awesome_rounded),
-              label: const Text('Refresh picks'),
+              label: Text(context.l10n.refreshPicks),
             ),
     );
   }
@@ -408,7 +409,7 @@ class _WhatShouldIWatchTonightScreenState
     if (!available) {
       setState(() {
         _speechAvailable = false;
-        _speechError = 'Speech recognition is not available on this device.';
+        _speechError = context.l10n.speechRecognitionNotAvailable;
       });
       return;
     }
@@ -484,23 +485,27 @@ class _WhatShouldIWatchTonightScreenState
           ),
         ),
         title: Text(
-          'Allow AI data sharing?',
+          context.l10n.allowAiDataSharingTitle,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: const Text(
-          'Recommend Tonight sends the text you type for a movie recommendation request and temporary query-refinement context to Google Gemini and OpenRouter. Your full library and your sign-in credentials are not sent to those AI providers. Allow this data sharing for AI recommendations?',
-          style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.5),
+        content: Text(
+          context.l10n.allowAiDataSharingDescription,
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 14,
+            height: 1.5,
+          ),
         ),
         actions: <Widget>[
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             style: TextButton.styleFrom(foregroundColor: Colors.white60),
-            child: const Text(
-              'Not now',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            child: Text(
+              context.l10n.notNow,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           TextButton(
@@ -508,9 +513,9 @@ class _WhatShouldIWatchTonightScreenState
             style: TextButton.styleFrom(
               foregroundColor: AppColors.cinemaSelected,
             ),
-            child: const Text(
-              'Allow',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            child: Text(
+              context.l10n.allow,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -581,8 +586,8 @@ class _PromptPanel extends StatelessWidget {
         children: <Widget>[
           Text(
             isTv
-                ? 'Describe your ideal show night'
-                : 'Describe your ideal movie night',
+                ? context.l10n.describeIdealShowNight
+                : context.l10n.describeIdealMovieNight,
             style: theme.textTheme.titleLarge?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w800,
@@ -590,7 +595,7 @@ class _PromptPanel extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Use natural language. Mention what you want, what to avoid, and optional language/runtime hints.',
+            context.l10n.useNaturalLanguage,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: Colors.white.withValues(alpha: 0.74),
               height: 1.45,
@@ -612,8 +617,7 @@ class _PromptPanel extends StatelessWidget {
                     color: Colors.white,
                   ),
                   decoration: InputDecoration(
-                    hintText:
-                        'Example: Something like Interstellar, but not sci-fi.',
+                    hintText: context.l10n.examplePrompt,
                     hintStyle: theme.textTheme.bodyMedium?.copyWith(
                       color: Colors.white.withValues(alpha: 0.42),
                     ),
@@ -649,12 +653,12 @@ class _PromptPanel extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             isListening
-                ? 'Listening... tap mic again to stop.'
+                ? context.l10n.listeningTapMicToStop
                 : speechError != null
-                ? 'Voice input error: $speechError'
+                ? context.l10n.voiceInputError(speechError!)
                 : speechAvailable
-                ? 'Tap mic to dictate your request.'
-                : 'Tap mic to enable voice input.',
+                ? context.l10n.tapMicToDictate
+                : context.l10n.tapMicToEnableVoice,
             style: theme.textTheme.bodySmall?.copyWith(
               color: speechError != null
                   ? const Color(0xFFFF8A80)
@@ -717,7 +721,7 @@ class _PromptPanel extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                   child: Text(
-                    'Recent queries',
+                    context.l10n.recentQueries,
                     style: theme.textTheme.labelLarge?.copyWith(
                       color: Colors.white.withValues(alpha: 0.86),
                       fontWeight: FontWeight.w800,
@@ -735,7 +739,7 @@ class _PromptPanel extends StatelessWidget {
                     ),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
-                  child: const Text('Clear'),
+                  child: Text(context.l10n.clear),
                 ),
               ],
             ),
@@ -797,7 +801,7 @@ class _PromptPanel extends StatelessWidget {
               child: OutlinedButton.icon(
                 onPressed: onClearPreferences,
                 icon: const Icon(Icons.restart_alt_rounded, size: 18),
-                label: const Text('Clear preferences'),
+                label: Text(context.l10n.clearPreferences),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Colors.white.withValues(alpha: 0.9),
                   side: BorderSide(color: Colors.white.withValues(alpha: 0.16)),
@@ -821,8 +825,12 @@ class _PromptPanel extends StatelessWidget {
                   icon: const Icon(Icons.auto_awesome_rounded),
                   label: Text(
                     isFetching
-                        ? (isTv ? 'Finding Shows...' : 'Finding Movies...')
-                        : (isTv ? 'Find Shows' : 'Find Movies'),
+                        ? (isTv
+                              ? context.l10n.findingShows
+                              : context.l10n.findingMovies)
+                        : (isTv
+                              ? context.l10n.findShows
+                              : context.l10n.findMovies),
                     style: const TextStyle(fontWeight: FontWeight.w800),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -877,7 +885,7 @@ class _PromptPanel extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(top: 8),
               child: Text(
-                'Shuffling ideas...',
+                context.l10n.shufflingIdeas,
                 style: theme.textTheme.labelMedium?.copyWith(
                   color: const Color(0xFF9FE7FF),
                   fontWeight: FontWeight.w700,
@@ -999,6 +1007,7 @@ class _ResultListState extends ConsumerState<_ResultList> {
   }
 
   Future<void> _shareBoard() async {
+    final String shareText = context.l10n.tonightsLumiPicksFor(widget.prompt);
     try {
       final RenderObject? renderObject = _shareBoardKey.currentContext
           ?.findRenderObject();
@@ -1017,15 +1026,13 @@ class _ResultListState extends ConsumerState<_ResultList> {
         '${tempDir.path}/lumi_tonight_board_${DateTime.now().microsecondsSinceEpoch}.png',
       );
       await file.writeAsBytes(bytes.buffer.asUint8List());
-      await Share.shareXFiles(<XFile>[
-        XFile(file.path),
-      ], text: 'Tonight\'s Lumi picks for: ${widget.prompt}');
+      await Share.shareXFiles(<XFile>[XFile(file.path)], text: shareText);
     } catch (_) {
       if (!mounted) {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Could not share recommendation board.')),
+        SnackBar(content: Text(context.l10n.errorCouldNotShareRecommendations)),
       );
     }
   }
@@ -1070,7 +1077,7 @@ class _ResultListState extends ConsumerState<_ResultList> {
           child: TextButton.icon(
             onPressed: visibleRecommendations.isEmpty ? null : _shareBoard,
             icon: const Icon(Icons.ios_share_rounded, size: 18),
-            label: const Text('Share board'),
+            label: Text(context.l10n.shareBoard),
             style: TextButton.styleFrom(
               foregroundColor: const Color(0xFF9FE7FF),
               padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
@@ -1091,7 +1098,7 @@ class _ResultListState extends ConsumerState<_ResultList> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Text(
-                  'AI query plan',
+                  context.l10n.aiQueryPlan,
                   style: theme.textTheme.labelLarge?.copyWith(
                     color: Colors.white.withValues(alpha: 0.9),
                     fontWeight: FontWeight.w800,
@@ -1160,7 +1167,7 @@ class _RecommendationBoardCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
-            'Tonight\'s Picks',
+            context.l10n.tonightsPicks,
             style: theme.textTheme.titleLarge?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w900,
@@ -1229,7 +1236,7 @@ class _RecommendationBoardCard extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           Text(
-            'Shared from Lumi',
+            context.l10n.sharedFromLumi,
             style: theme.textTheme.labelSmall?.copyWith(
               color: Colors.white.withValues(alpha: 0.6),
               letterSpacing: 0.3,
@@ -1377,7 +1384,7 @@ class _RecommendationCard extends ConsumerWidget {
                           ],
                         ),
                         child: Text(
-                          '$matchPct% Match',
+                          context.l10n.matchPercent(matchPct.toString()),
                           textAlign: TextAlign.center,
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: Colors.white,
@@ -1427,7 +1434,9 @@ class _RecommendationCard extends ConsumerWidget {
                             _IconMetadataBadge(
                               icon: Icons.schedule_rounded,
                               iconColor: const Color(0xFF78DDFF),
-                              label: '${item.details.runtimeMinutes} min',
+                              label: context.l10n.runtimeMinutes(
+                                item.details.runtimeMinutes.toString(),
+                              ),
                             ),
                           if (item.details.originalLanguage != null)
                             _IconMetadataBadge(
@@ -1455,7 +1464,7 @@ class _RecommendationCard extends ConsumerWidget {
                         runSpacing: 8,
                         children: <Widget>[
                           _FeedbackChip(
-                            label: 'Watched',
+                            label: context.l10n.watched,
                             icon: Icons.visibility_rounded,
                             selected: isWatched,
                             onTap: () async {
@@ -1506,7 +1515,7 @@ class _RecommendationCard extends ConsumerWidget {
                             },
                           ),
                           _FeedbackChip(
-                            label: 'Not for me',
+                            label: context.l10n.notForMe,
                             icon: Icons.block_rounded,
                             selected: activeSignals.contains(
                               TonightFeedbackSignal.notInterested,
@@ -1565,7 +1574,7 @@ class _RecommendationCard extends ConsumerWidget {
                             },
                           ),
                           _FeedbackChip(
-                            label: 'More like this',
+                            label: context.l10n.moreLikeThis,
                             icon: Icons.auto_awesome_rounded,
                             selected: activeSignals.contains(
                               TonightFeedbackSignal.moreLikeThis,
@@ -1597,7 +1606,7 @@ class _RecommendationCard extends ConsumerWidget {
                                 ),
                           ),
                           _FeedbackChip(
-                            label: 'Too mainstream',
+                            label: context.l10n.tooMainstream,
                             icon: Icons.trending_up_rounded,
                             selected: activeSignals.contains(
                               TonightFeedbackSignal.tooMainstream,
@@ -1666,7 +1675,7 @@ class _RecommendationCard extends ConsumerWidget {
                               ),
                               const SizedBox(width: 6),
                               Text(
-                                'Explore details',
+                                context.l10n.exploreDetails,
                                 style: theme.textTheme.labelMedium?.copyWith(
                                   color: const Color(0xFF78DDFF),
                                   fontWeight: FontWeight.w700,
@@ -1904,8 +1913,8 @@ class _EmptyState extends StatelessWidget {
       ),
       child: Text(
         isTv
-            ? 'Describe what show you are in the mood for, and we will return a ranked list.'
-            : 'Describe what movie you are in the mood for, and we will return a ranked list.',
+            ? context.l10n.describeShowMood
+            : context.l10n.describeMovieMood,
         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
           color: Colors.white.withValues(alpha: 0.78),
           height: 1.45,
@@ -1981,6 +1990,7 @@ class _LoadingState extends ConsumerWidget {
                             Expanded(
                               child: Text(
                                 _friendlyProgressMessage(
+                                  context,
                                   liveState.currentMessage,
                                 ),
                                 style: theme.textTheme.bodyMedium?.copyWith(
@@ -1996,7 +2006,9 @@ class _LoadingState extends ConsumerWidget {
                         _AnimatedStageBar(progress: progress),
                         const SizedBox(height: 6),
                         Text(
-                          '${(progress * 100).round()}% complete',
+                          context.l10n.percentComplete(
+                            '${(progress * 100).round()}',
+                          ),
                           style: theme.textTheme.labelSmall?.copyWith(
                             color: Colors.white.withValues(alpha: 0.68),
                           ),
@@ -2007,7 +2019,7 @@ class _LoadingState extends ConsumerWidget {
                   if (liveState.events.isNotEmpty) ...<Widget>[
                     const SizedBox(height: 12),
                     Text(
-                      'Live progress',
+                      context.l10n.liveProgress,
                       style: theme.textTheme.labelLarge?.copyWith(
                         color: Colors.white.withValues(alpha: 0.92),
                         fontWeight: FontWeight.w800,
@@ -2042,7 +2054,10 @@ class _LoadingState extends ConsumerWidget {
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
-                                '[$hh:$mm:$ss] ${_friendlyProgressMessage(event.message)}',
+                                context.l10n.debugLogEntry(
+                                  '$hh:$mm:$ss',
+                                  _friendlyProgressMessage(context, event.message),
+                                ),
                                 style: theme.textTheme.bodySmall?.copyWith(
                                   color: event.isRetry
                                       ? const Color(0xFFFFD58A)
@@ -2073,7 +2088,7 @@ class _LoadingState extends ConsumerWidget {
                 children: <Widget>[
                   const SizedBox(height: 14),
                   Text(
-                    'AI query plan',
+                    context.l10n.searchPlanReady,
                     style: theme.textTheme.labelLarge?.copyWith(
                       color: Colors.white.withValues(alpha: 0.92),
                       fontWeight: FontWeight.w800,
@@ -2093,11 +2108,11 @@ class _LoadingState extends ConsumerWidget {
           ),
           if (_buildPromptCriteriaPreview(
                 request,
-              ).toDisplayChips().isNotEmpty &&
+              ).toDisplayChips(context).isNotEmpty &&
               todayRecommendationPlanNotifier.value.isEmpty) ...<Widget>[
             const SizedBox(height: 14),
             Text(
-              'Parsing your request',
+              context.l10n.searchPlanReady,
               style: theme.textTheme.labelLarge?.copyWith(
                 color: Colors.white.withValues(alpha: 0.92),
                 fontWeight: FontWeight.w800,
@@ -2108,7 +2123,7 @@ class _LoadingState extends ConsumerWidget {
               spacing: 8,
               runSpacing: 8,
               children: _buildPromptCriteriaPreview(request)
-                  .toDisplayChips()
+                  .toDisplayChips(context)
                   .map((String chip) => _MiniBadge(label: chip))
                   .toList(growable: false),
             ),
@@ -2119,46 +2134,49 @@ class _LoadingState extends ConsumerWidget {
   }
 }
 
-String _friendlyProgressMessage(String message) {
+String _friendlyProgressMessage(BuildContext context, String message) {
   final String lower = message.toLowerCase();
   if (lower.contains('setting up your request')) {
-    return 'Warming up your movie search';
+    return context.l10n.warmingUpMovieSearch;
   }
   if (lower.contains('connecting to the recommendation engine')) {
-    return 'Connecting to the recommendation engine';
+    return context.l10n.connectingToRecommendationEngine;
   }
   if (lower.contains('understanding your taste')) {
-    return 'Understanding what you are in the mood for';
+    return context.l10n.understandingYourTaste;
   }
   if (lower.contains('building your personalized search')) {
-    return 'Building a custom search from your request';
+    return context.l10n.buildingCustomSearch;
   }
   if (lower.contains('network hiccup')) {
-    return 'Tiny network hiccup, trying again';
+    return context.l10n.tinyNetworkHiccup;
   }
   if (lower.contains('search plan is ready') ||
       lower.contains('built your search plan')) {
-    return 'Plan locked: genre, style, language, and runtime';
+    return context.l10n.planLocked;
   }
   if (lower.contains('scanning tmdb')) {
-    return 'Scanning TMDB for strong matches';
+    return context.l10n.scanningTmdb;
   }
   if (lower.contains('collecting details')) {
-    return 'Collecting posters, ratings, and runtime for top picks';
+    return context.l10n.collectingDetails;
   }
   if (lower.contains('verifying pick')) {
     final RegExp matchExpr = RegExp(r'(\d+)\s*/\s*(\d+)');
     final Match? match = matchExpr.firstMatch(lower);
     if (match != null) {
-      return 'Shortlisting picks (${match.group(1)}/${match.group(2)})';
+      return context.l10n.shortlistingPicksCount(
+        match.group(1)!,
+        match.group(2)!,
+      );
     }
-    return 'Shortlisting the best picks';
+    return context.l10n.shortlistingBestPicks;
   }
   if (lower.contains('finalizing')) {
-    return 'Final polish on your recommendations';
+    return context.l10n.finalPolish;
   }
   if (lower.contains('retry')) {
-    return 'Retrying after a temporary issue';
+    return context.l10n.retryingAfterIssue;
   }
   return message;
 }
@@ -2292,7 +2310,7 @@ class _GeneratingQueryHeaderState extends State<_GeneratingQueryHeader> {
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Finding your perfect watch$dots',
+              context.l10n.findingYourPerfectWatch(dots),
               style: theme.textTheme.titleSmall?.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
@@ -2330,30 +2348,40 @@ class _PromptCriteriaPreview {
   final List<String> keywords;
   final List<String> similarTo;
 
-  List<String> toDisplayChips() {
+  List<String> toDisplayChips(BuildContext context) {
     final List<String> chips = <String>[];
-    chips.addAll(intentPhrases.take(2).map((String p) => 'Intent: $p'));
-    chips.addAll(includeGenres.take(3).map((String g) => 'Genre: $g'));
-    chips.addAll(excludeGenres.take(2).map((String g) => 'Avoid: $g'));
+    chips.addAll(
+      intentPhrases.take(2).map((String p) => '${context.l10n.intent} $p'),
+    );
+    chips.addAll(
+      includeGenres.take(3).map((String g) => '${context.l10n.genreLabel} $g'),
+    );
+    chips.addAll(
+      excludeGenres.take(2).map((String g) => '${context.l10n.avoid} $g'),
+    );
     if (language != null) {
-      chips.add('Language: $language');
+      chips.add('${context.l10n.languageLabel} $language');
     }
     if (maxRuntimeMinutes != null) {
-      chips.add('Runtime <= $maxRuntimeMinutes min');
+      chips.add(context.l10n.runtimeAtMost(maxRuntimeMinutes.toString()));
     } else if (minRuntimeMinutes != null) {
-      chips.add('Runtime >= $minRuntimeMinutes min');
+      chips.add(context.l10n.runtimeAtLeast(minRuntimeMinutes.toString()));
     }
     if (yearFrom != null || yearTo != null) {
       if (yearFrom != null && yearTo != null) {
-        chips.add('Year: $yearFrom-$yearTo');
+        chips.add('${context.l10n.yearLabel} $yearFrom-$yearTo');
       } else if (yearFrom != null) {
-        chips.add('After $yearFrom');
+        chips.add(context.l10n.yearAfter(yearFrom.toString()));
       } else {
-        chips.add('Before $yearTo');
+        chips.add(context.l10n.yearBefore(yearTo.toString()));
       }
     }
-    chips.addAll(similarTo.take(2).map((String s) => 'Like: $s'));
-    chips.addAll(keywords.take(2).map((String k) => 'Signal: $k'));
+    chips.addAll(
+      similarTo.take(2).map((String s) => '${context.l10n.like} $s'),
+    );
+    chips.addAll(
+      keywords.take(2).map((String k) => '${context.l10n.signal} $k'),
+    );
     return chips;
   }
 }
@@ -2635,7 +2663,7 @@ class _ErrorState extends StatelessWidget {
           TextButton.icon(
             onPressed: onRetry,
             icon: const Icon(Icons.refresh_rounded),
-            label: const Text('Try again'),
+            label: Text(context.l10n.tryAgain),
             style: TextButton.styleFrom(
               foregroundColor: Colors.white,
               backgroundColor: Colors.white.withValues(alpha: 0.08),

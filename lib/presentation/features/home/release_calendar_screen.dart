@@ -1,5 +1,6 @@
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/presentation/features/home/providers/library_retention_provider.dart';
 import 'package:cineverse/presentation/features/home/providers/reminders_provider.dart';
 import 'package:cineverse/presentation/widgets/app_back_button.dart';
@@ -17,7 +18,7 @@ class ReleaseCalendarScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final ThemeData theme = Theme.of(context);
     final AsyncValue<LibraryRetentionBundle> bundleAsync = ref.watch(
-      libraryRetentionBundleProvider,
+      libraryRetentionBundleProvider(context),
     );
 
     return BackgroundGradient(
@@ -26,9 +27,12 @@ class ReleaseCalendarScreen extends ConsumerWidget {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           leading: const AppBackButton(),
-          title: const Text(
-            'Release Calendar',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800),
+          title: Text(
+            context.l10n.releaseCalendar,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ),
         body: bundleAsync.when(
@@ -37,7 +41,7 @@ class ReleaseCalendarScreen extends ConsumerWidget {
             child: Padding(
               padding: const EdgeInsets.all(24),
               child: Text(
-                'Could not load release tracking.\n$error',
+                context.l10n.errorGeneric(error.toString()),
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: Colors.white70,
@@ -52,15 +56,14 @@ class ReleaseCalendarScreen extends ConsumerWidget {
                 _SummaryStrip(health: bundle.health),
                 const SizedBox(height: 18),
                 _SectionHeader(
-                  title: 'Watch next from your library',
-                  subtitle: 'Fast picks based on what you already saved.',
+                  title: context.l10n.watchlist,
+                  subtitle: context.l10n.fastPicksDescription,
                 ),
                 const SizedBox(height: 12),
                 if (bundle.health.watchNextSuggestions.isEmpty)
-                  const _EmptyPanel(
-                    title: 'No watch-next suggestions yet',
-                    subtitle:
-                        'Add more movies or shows to your watchlist, favourites, or lists.',
+                  _EmptyPanel(
+                    title: context.l10n.noWatchNextSuggestionsYet,
+                    subtitle: context.l10n.addMoreTrackedContent,
                   )
                 else
                   ...bundle.health.watchNextSuggestions.map(
@@ -71,16 +74,14 @@ class ReleaseCalendarScreen extends ConsumerWidget {
                   ),
                 const SizedBox(height: 8),
                 _SectionHeader(
-                  title: 'Upcoming from your library',
-                  subtitle:
-                      'Movie releases and next TV episodes with one-tap reminders.',
+                  title: context.l10n.upcomingFromLibrary,
+                  subtitle: context.l10n.releaseCalendarDescription,
                 ),
                 const SizedBox(height: 12),
                 if (bundle.upcomingEntries.isEmpty)
-                  const _EmptyPanel(
-                    title: 'Nothing upcoming right now',
-                    subtitle:
-                        'When tracked movies get release dates or shows have new episodes scheduled, they will appear here.',
+                  _EmptyPanel(
+                    title: context.l10n.noUpcomingReleases,
+                    subtitle: context.l10n.upcomingEmptyDescription,
                   )
                 else
                   ...bundle.upcomingEntries.map(
@@ -109,7 +110,7 @@ class _SummaryStrip extends StatelessWidget {
       children: <Widget>[
         Expanded(
           child: _StatCard(
-            label: 'Upcoming',
+            label: context.l10n.upcoming,
             value: '${health.upcomingCount}',
             icon: Icons.event_available_rounded,
           ),
@@ -117,7 +118,7 @@ class _SummaryStrip extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: _StatCard(
-            label: 'Stale watchlist',
+            label: context.l10n.staleWatchlist,
             value: '${health.staleWatchlistCount}',
             icon: Icons.timelapse_rounded,
           ),
@@ -125,7 +126,7 @@ class _SummaryStrip extends StatelessWidget {
         const SizedBox(width: 10),
         Expanded(
           child: _StatCard(
-            label: 'Tracked',
+            label: context.l10n.tracked,
             value: '${health.trackedTitlesCount}',
             icon: Icons.layers_outlined,
           ),
@@ -309,10 +310,14 @@ class _WatchNextCard extends StatelessWidget {
                     spacing: 8,
                     runSpacing: 8,
                     children: <Widget>[
-                      _TinyBadge(label: item.isTv ? 'TV' : 'Movie'),
+                      _TinyBadge(
+                        label: item.isTv ? context.l10n.tv : context.l10n.movie,
+                      ),
                       if (item.voteAverage != null)
                         _TinyBadge(
-                          label: '${item.voteAverage!.toStringAsFixed(1)} ★',
+                          label: context.l10n.voteAverageStars(
+                            item.voteAverage!.toStringAsFixed(1),
+                          ),
                         ),
                     ],
                   ),
@@ -392,8 +397,8 @@ class _ReleaseCalendarCard extends ConsumerWidget {
                       _TinyBadge(
                         label:
                             item.kind == ReleaseCalendarEntryKind.movieRelease
-                            ? 'Movie release'
-                            : 'Next episode',
+                            ? context.l10n.movieRelease
+                            : context.l10n.nextEpisode,
                       ),
                       ...item.sourceLabels.map(
                         (String source) => _TinyBadge(label: source),
@@ -430,7 +435,9 @@ class _ReleaseCalendarCard extends ConsumerWidget {
             ),
             const SizedBox(width: 10),
             Tooltip(
-              message: hasActiveReminder ? 'Remove reminder' : 'Remind me',
+              message: hasActiveReminder
+                  ? context.l10n.removeReminder
+                  : context.l10n.remindMe,
               child: AnimatedIconAction(
                 onTap: () async {
                   if (hasActiveReminder) {
@@ -474,8 +481,11 @@ class _ReleaseCalendarCard extends ConsumerWidget {
                       title: item.title,
                       message:
                           item.kind == ReleaseCalendarEntryKind.movieRelease
-                          ? '${item.title} releases today.'
-                          : '${item.title} ${item.subtitle.toLowerCase()} airs soon.',
+                          ? context.l10n.titleReleasesToday(item.title)
+                          : context.l10n.titleAirsSoon(
+                            item.title,
+                            item.subtitle.toLowerCase(),
+                          ),
                       notifyAt: notifyAt.isAfter(DateTime.now())
                           ? notifyAt
                           : DateTime.now().add(const Duration(minutes: 1)),
@@ -498,10 +508,10 @@ class _ReleaseCalendarCard extends ConsumerWidget {
                     SnackBar(
                       content: Text(
                         hasActiveReminder
-                            ? 'Reminder removed for ${item.title}.'
+                            ? context.l10n.reminderRemoved
                             : item.kind == ReleaseCalendarEntryKind.movieRelease
-                            ? 'Release reminder set for ${item.title}.'
-                            : 'Episode reminder set for ${item.title}.',
+                            ? context.l10n.releaseReminderSet(item.title)
+                            : context.l10n.episodeReminderSet(item.title),
                       ),
                     ),
                   );

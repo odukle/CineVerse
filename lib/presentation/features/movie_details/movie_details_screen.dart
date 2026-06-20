@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/services.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/config/app_config.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:dio/dio.dart';
 import 'package:cineverse/core/constants/app_constants.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
@@ -137,13 +138,13 @@ class MovieDetailsScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      'Unable to load movie details',
+                      context.l10n.unableToLoadMovieDetails,
                       style: theme.textTheme.headlineSmall,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      '$error',
+                      context.l10n.errorGeneric(error.toString()),
                       textAlign: TextAlign.center,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: theme.colorScheme.onSurface.withValues(
@@ -166,7 +167,7 @@ class MovieDetailsScreen extends ConsumerWidget {
                           vertical: 12,
                         ),
                       ),
-                      child: const Text('Retry'),
+                      child: Text(context.l10n.retry),
                     ),
                   ],
                 ),
@@ -602,7 +603,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          'User Score',
+                          context.l10n.userScore,
                           textAlign: TextAlign.center,
                           style: theme.textTheme.titleSmall?.copyWith(
                             color: Colors.white,
@@ -611,7 +612,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                         ),
                         if (widget.details.voteCount != null)
                           Text(
-                            '${_formatNumber(widget.details.voteCount!)} votes',
+                            '${_formatNumber(widget.details.voteCount!)} ${context.l10n.voteCount}',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: Colors.white.withValues(alpha: 0.6),
                             ),
@@ -638,7 +639,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                         size: 24,
                       ),
                       label: Text(
-                        'Play Trailer',
+                        context.l10n.playTrailer,
                         style: theme.textTheme.titleSmall?.copyWith(
                           color: widget.details.trailerYouTubeKey == null
                               ? Colors.white.withValues(alpha: 0.4)
@@ -738,7 +739,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                     children: [
                       Expanded(
                         child: Text(
-                          'Overview',
+                          context.l10n.overview,
                           style: theme.textTheme.titleLarge?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
@@ -760,7 +761,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                             );
                           },
                           icon: const Icon(Icons.menu_book_rounded, size: 16),
-                          label: const Text('Full plot'),
+                          label: Text(context.l10n.fullPlot),
                           style: TextButton.styleFrom(
                             foregroundColor: AppColors.cinemaAccent,
                             padding: const EdgeInsets.symmetric(
@@ -776,7 +777,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                   ),
                   if ((widget.details.imdbId ?? '').trim().isNotEmpty)
                     Text(
-                      'Open complete plot and extra metadata from OMDb.',
+                      context.l10n.openCompletePlot,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.white54,
                       ),
@@ -784,7 +785,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                   const SizedBox(height: 10),
                   Text(
                     widget.details.overview ??
-                        'Overview unavailable for this title.',
+                        context.l10n.overviewUnavailable,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: Colors.white.withValues(alpha: 0.9),
                       height: 1.45,
@@ -923,7 +924,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
                       child: Text(
-                        'Featured Crew',
+                        context.l10n.crew,
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
@@ -949,7 +950,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                               releaseDate: credit.role,
                               mediaType: GlobalMediaType.person,
                             ),
-                            sectionTitle: 'Crew',
+                            sectionTitle: context.l10n.crew,
                             width: 80, // Smaller than 108
                           );
                         },
@@ -985,7 +986,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Top Billed Cast',
+                            context.l10n.cast,
                             style: theme.textTheme.titleLarge?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
@@ -1018,7 +1019,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                               releaseDate: credit.characterName ?? credit.role,
                               mediaType: GlobalMediaType.person,
                             ),
-                            sectionTitle: 'Cast',
+                            sectionTitle: context.l10n.cast,
                             width: 108,
                           );
                         },
@@ -1087,22 +1088,22 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (widget.details.status != null)
-                    _InfoRow(label: 'Status', value: widget.details.status!),
+                    _InfoRow(label: context.l10n.status, value: widget.details.status!),
                   if (widget.details.originalLanguage != null)
                     _InfoRow(
-                      label: 'Original Language',
+                      label: context.l10n.originalLanguage,
                       value: _formatLanguage(widget.details.originalLanguage!),
                     ),
                   if (widget.details.budget != null &&
                       widget.details.budget! > 0)
                     _InfoRow(
-                      label: 'Budget',
+                      label: context.l10n.budget,
                       value: _formatCurrency(widget.details.budget!),
                     ),
                   if (widget.details.revenue != null &&
                       widget.details.revenue! > 0)
                     _InfoRow(
-                      label: 'Revenue',
+                      label: context.l10n.revenue,
                       value: _formatCurrency(widget.details.revenue!),
                     ),
                 ],
@@ -1153,7 +1154,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
             runtimeMinutes: details.runtimeMinutes,
             voteAverage: details.catalogScore,
             voteCount: details.voteCount,
-            categoryLabel: widget.isTv ? 'TV Series' : 'Movie',
+            categoryLabel: widget.isTv ? context.l10n.tvShow : context.l10n.movie,
             sourceMediaId: details.id,
             isTv: widget.isTv,
             recommendations: details.recommendations,
@@ -1350,19 +1351,19 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
   }
 
   String _formatLanguage(String code) {
-    const Map<String, String> languages = {
-      'en': 'English',
-      'es': 'Spanish',
-      'fr': 'French',
-      'de': 'German',
-      'it': 'Italian',
-      'ja': 'Japanese',
-      'ko': 'Korean',
-      'zh': 'Chinese',
-      'hi': 'Hindi',
-      'pt': 'Portuguese',
-      'ru': 'Russian',
-      'ar': 'Arabic',
+    final Map<String, String> languages = {
+      'en': context.l10n.english,
+      'es': context.l10n.spanish,
+      'fr': context.l10n.french,
+      'de': context.l10n.german,
+      'it': context.l10n.italian,
+      'ja': context.l10n.japanese,
+      'ko': context.l10n.korean,
+      'zh': context.l10n.chinese,
+      'hi': context.l10n.hindi,
+      'pt': context.l10n.portuguese,
+      'ru': context.l10n.russian,
+      'ar': context.l10n.arabic,
     };
     return languages[code] ?? code.toUpperCase();
   }
@@ -1397,7 +1398,7 @@ class _ImagesCarousel extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 24, 16, 14),
               child: Text(
-                'Images',
+                context.l10n.images,
                 style: theme.textTheme.titleLarge?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
@@ -1488,7 +1489,7 @@ class _ExternalRatingsRow extends StatelessWidget {
             color: AppColors.cinemaAccent,
             size: 18,
           ),
-          label: 'YOURS',
+          label: context.l10n.yours,
         ),
       );
     }
@@ -1544,27 +1545,27 @@ class _SocialLinksRow extends StatelessWidget {
     final List<_SocialLinkItem> links =
         <_SocialLinkItem>[
               _SocialLinkItem(
-                label: 'Instagram',
+                label: context.l10n.instagram,
                 icon: const FaIcon(FontAwesomeIcons.instagram),
                 url: _socialProfileUrl('instagram', details.instagramId),
               ),
               _SocialLinkItem(
-                label: 'X',
+                label: context.l10n.twitterX,
                 icon: const FaIcon(FontAwesomeIcons.xTwitter),
                 url: _socialProfileUrl('x', details.twitterId),
               ),
               _SocialLinkItem(
-                label: 'Facebook',
+                label: context.l10n.facebook,
                 icon: const FaIcon(FontAwesomeIcons.facebook),
                 url: _socialProfileUrl('facebook', details.facebookId),
               ),
               _SocialLinkItem(
-                label: 'TikTok',
+                label: context.l10n.tikTok,
                 icon: const FaIcon(FontAwesomeIcons.tiktok),
                 url: _socialProfileUrl('tiktok', details.tiktokId),
               ),
               _SocialLinkItem(
-                label: 'YouTube',
+                label: context.l10n.youtube,
                 icon: const FaIcon(FontAwesomeIcons.youtube),
                 url: _socialProfileUrl('youtube', details.youtubeId),
               ),
@@ -1866,7 +1867,7 @@ class _WatchAvailabilitySection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Where to Watch',
+          context.l10n.whereToWatch,
           style: theme.textTheme.titleLarge?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.w700,
@@ -1875,7 +1876,7 @@ class _WatchAvailabilitySection extends StatelessWidget {
         const SizedBox(height: 14),
         if (availability.streaming.isNotEmpty)
           _WatchProviderRow(
-            label: 'Stream',
+            label: context.l10n.stream,
             providers: availability.streaming,
             launchLink: launchLink,
             resolverSourceLink: resolverSourceLink,
@@ -1883,7 +1884,7 @@ class _WatchAvailabilitySection extends StatelessWidget {
           ),
         if (availability.free.isNotEmpty)
           _WatchProviderRow(
-            label: 'Free',
+            label: context.l10n.free,
             providers: availability.free,
             launchLink: launchLink,
             resolverSourceLink: resolverSourceLink,
@@ -1891,7 +1892,7 @@ class _WatchAvailabilitySection extends StatelessWidget {
           ),
         if (availability.rent.isNotEmpty)
           _WatchProviderRow(
-            label: 'Rent',
+            label: context.l10n.rent,
             providers: availability.rent,
             launchLink: launchLink,
             resolverSourceLink: resolverSourceLink,
@@ -1899,7 +1900,7 @@ class _WatchAvailabilitySection extends StatelessWidget {
           ),
         if (availability.buy.isNotEmpty)
           _WatchProviderRow(
-            label: 'Buy',
+            label: context.l10n.buy,
             providers: availability.buy,
             launchLink: launchLink,
             resolverSourceLink: resolverSourceLink,
@@ -1907,7 +1908,7 @@ class _WatchAvailabilitySection extends StatelessWidget {
           ),
         const SizedBox(height: 8),
         Text(
-          'Availability data by JustWatch.',
+          context.l10n.availabilityDataByJustWatch,
           style: theme.textTheme.bodySmall?.copyWith(
             color: Colors.white.withValues(alpha: 0.55),
           ),
@@ -2227,7 +2228,7 @@ class _WatchProviderLinkLoadingDialogState
                   ),
                   const SizedBox(width: 10),
                   Text(
-                    'Fetching watch link',
+                    context.l10n.fetchingWatchLink,
                     style: theme.textTheme.titleSmall?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
@@ -2237,7 +2238,7 @@ class _WatchProviderLinkLoadingDialogState
               ),
               const SizedBox(height: 10),
               Text(
-                'Finding the best provider page for this title.',
+                context.l10n.findingBestProviderPage,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: Colors.white.withValues(alpha: 0.78),
                   height: 1.35,
@@ -2513,7 +2514,7 @@ class _RecommendationsCarouselState
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
-              'Recommendations',
+              context.l10n.recommendations,
               style: theme.textTheme.titleLarge?.copyWith(
                 color: Colors.white,
                 fontWeight: FontWeight.w700,
@@ -2543,7 +2544,7 @@ class _RecommendationsCarouselState
                 }
                 return MediaPosterGridCard(
                   movie: _items[index].toMediaTitle(),
-                  sectionTitle: 'Recommendations',
+                  sectionTitle: context.l10n.recommendations,
                   width: 108,
                   isTvTitle: widget.isTv,
                 );
@@ -2699,7 +2700,7 @@ class _GeneralReminderButton extends ConsumerWidget {
           .read(remindersProvider.notifier)
           .dismissRemindersForMedia(mediaId: details.id, isTv: isTv);
       if (context.mounted) {
-        ToastUtils.showToast(context, 'Reminder removed');
+        ToastUtils.showToast(context, context.l10n.reminderRemoved);
       }
       return;
     }
@@ -2723,7 +2724,7 @@ class _GeneralReminderButton extends ConsumerWidget {
             type: ReminderType.general,
             title: details.title,
             message: result.reminderText.trim().isEmpty
-                ? 'Reminder for ${details.title}'
+                ? context.l10n.reminderForTitle(details.title)
                 : result.reminderText,
             notifyAt: result.notifyAt,
             createdAt: DateTime.now(),
@@ -2734,7 +2735,7 @@ class _GeneralReminderButton extends ConsumerWidget {
         );
 
     if (context.mounted) {
-      ToastUtils.showToast(context, 'Reminder saved');
+      ToastUtils.showToast(context, context.l10n.reminderSaved);
     }
   }
 }
@@ -2809,7 +2810,7 @@ class GeneralReminderDialogState extends State<GeneralReminderDialog> {
   void _save() {
     final String reminderText = _textController.text.trim();
     if (!_selectedDateTime.isAfter(DateTime.now())) {
-      ToastUtils.showToast(context, 'Please select a future time');
+      ToastUtils.showToast(context, context.l10n.pleaseSelectFutureTime);
       return;
     }
 
@@ -2831,7 +2832,7 @@ class GeneralReminderDialogState extends State<GeneralReminderDialog> {
         side: BorderSide(color: Colors.white.withValues(alpha: 0.08), width: 1),
       ),
       title: Text(
-        'Set Reminder',
+        context.l10n.setReminder,
         style: theme.textTheme.titleMedium?.copyWith(
           color: Colors.white,
           fontWeight: FontWeight.bold,
@@ -2846,7 +2847,7 @@ class GeneralReminderDialogState extends State<GeneralReminderDialog> {
             style: const TextStyle(color: Colors.white, fontSize: 14),
             maxLines: 2,
             decoration: InputDecoration(
-              hintText: 'Add a brief note (optional)...',
+              hintText: context.l10n.addBriefNoteHint,
               hintStyle: const TextStyle(color: Colors.white38),
               filled: true,
               fillColor: Colors.white.withValues(alpha: 0.03),
@@ -2869,7 +2870,7 @@ class GeneralReminderDialogState extends State<GeneralReminderDialog> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Notify at',
+            context.l10n.notifyAt,
             style: theme.textTheme.labelMedium?.copyWith(
               color: Colors.white70,
               fontWeight: FontWeight.bold,
@@ -2912,8 +2913,8 @@ class GeneralReminderDialogState extends State<GeneralReminderDialog> {
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           style: TextButton.styleFrom(foregroundColor: Colors.white60),
-          child: const Text(
-            'Cancel',
+          child: Text(
+            context.l10n.cancel,
             style: TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
@@ -2928,8 +2929,8 @@ class GeneralReminderDialogState extends State<GeneralReminderDialog> {
             ),
             elevation: 0,
           ),
-          child: const Text(
-            'Save',
+          child: Text(
+            context.l10n.save,
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -2957,7 +2958,7 @@ class _NotesSection extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Notes',
+            context.l10n.notes,
             style: theme.textTheme.titleLarge?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.w700,
@@ -2970,12 +2971,12 @@ class _NotesSection extends ConsumerWidget {
             skipLoadingOnReload: !notesAsync.hasError,
             data: (notes) {
               if (notes.isEmpty) {
-                return const Center(
+                return Center(
                   child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
+                    padding: const EdgeInsets.symmetric(vertical: 20),
                     child: Text(
-                      'No notes yet. Add your thoughts!',
-                      style: TextStyle(color: Colors.white54),
+                      context.l10n.noNotesYet,
+                      style: const TextStyle(color: Colors.white54),
                     ),
                   ),
                 );
@@ -3016,7 +3017,7 @@ class _NotesSection extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Error: $err',
+                    context.l10n.errorGeneric(err.toString()),
                     style: const TextStyle(color: Colors.redAccent),
                   ),
                   const SizedBox(height: 16),
@@ -3028,7 +3029,7 @@ class _NotesSection extends ConsumerWidget {
                       backgroundColor: AppColors.cinemaAccent,
                       foregroundColor: Colors.black,
                     ),
-                    child: const Text('Retry'),
+                    child: Text(context.l10n.retry),
                   ),
                 ],
               ),
@@ -3126,22 +3127,22 @@ class _NoteItem extends ConsumerWidget {
           ),
         ),
         title: Text(
-          'Delete Note?',
+          context.l10n.deleteNoteConfirmationTitle,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: const Text(
-          'Are you sure you want to delete this note?',
-          style: TextStyle(color: Colors.white70, fontSize: 14),
+        content: Text(
+          context.l10n.areYouSureDeleteNote,
+          style: const TextStyle(color: Colors.white70, fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(foregroundColor: Colors.white60),
-            child: const Text(
-              'Cancel',
+            child: Text(
+              context.l10n.cancel,
               style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
@@ -3153,8 +3154,8 @@ class _NoteItem extends ConsumerWidget {
               Navigator.pop(context);
             },
             style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-            child: const Text(
-              'Delete',
+            child: Text(
+              context.l10n.deleteNote,
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
@@ -3195,7 +3196,7 @@ class _NoteInputState extends ConsumerState<_NoteInput> {
           .addNote(widget.mediaId, widget.mediaType, text);
       _controller.clear();
       if (mounted) {
-        ToastUtils.showToast(context, 'Note added');
+        ToastUtils.showToast(context, context.l10n.noteAdded);
         FocusScope.of(context).unfocus();
       }
     } finally {
@@ -3211,7 +3212,7 @@ class _NoteInputState extends ConsumerState<_NoteInput> {
       maxLines: null,
       style: const TextStyle(color: Colors.white, fontSize: 14),
       decoration: InputDecoration(
-        hintText: 'Add a note...',
+        hintText: context.l10n.addNoteHint,
         hintStyle: const TextStyle(color: Colors.white38),
         filled: true,
         fillColor: AppColors.detailsCard.withValues(alpha: 0.5),
@@ -3299,7 +3300,8 @@ class _CurrentSeasonSection extends StatelessWidget {
     final dateStr = currentSeason.airDate?.substring(0, 4);
 
     final isEnded = details.status == 'Ended' || details.status == 'Canceled';
-    final sectionLabel = isEnded ? 'Last Season' : 'Current Season';
+    final sectionLabel =
+        isEnded ? context.l10n.lastSeason : context.l10n.currentSeason;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
@@ -3380,7 +3382,9 @@ class _CurrentSeasonSection extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
-                                  '★ ${(currentSeason.voteAverage! * 10).toInt()}%',
+                                  context.l10n.seasonRating(
+                                    '${(currentSeason.voteAverage! * 10).toInt()}',
+                                  ),
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 10,
@@ -3391,7 +3395,7 @@ class _CurrentSeasonSection extends StatelessWidget {
                               const SizedBox(width: 8),
                             ],
                             Text(
-                              '${dateStr ?? ''} • ${currentSeason.episodeCount} Episodes',
+                              '${dateStr ?? ''} • ${currentSeason.episodeCount} ${context.l10n.episodes}',
                               style: const TextStyle(
                                 color: Colors.white54,
                                 fontSize: 12,
@@ -3412,9 +3416,9 @@ class _CurrentSeasonSection extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                           )
                         else
-                          const Text(
-                            'No overview available for this season.',
-                            style: TextStyle(
+                          Text(
+                            context.l10n.noOverviewForSeason,
+                            style: const TextStyle(
                               color: Colors.white38,
                               fontSize: 13,
                               fontStyle: FontStyle.italic,
@@ -3441,9 +3445,9 @@ class _CurrentSeasonSection extends StatelessWidget {
                 },
               );
             },
-            child: const Text(
-              'View All Seasons',
-              style: TextStyle(
+            child: Text(
+              context.l10n.viewAllSeasons,
+              style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
                 decoration: TextDecoration.underline,
@@ -3509,7 +3513,9 @@ class _LibraryFavouriteButton extends ConsumerWidget {
         if (context.mounted) {
           ToastUtils.showToast(
             context,
-            isFav ? 'Removed from Favourites' : 'Added to Favourites',
+            isFav
+                ? context.l10n.removedFromFavourites
+                : context.l10n.addedToFavourites,
           );
         }
       },
@@ -3546,7 +3552,7 @@ class _LibraryWatchlistButton extends ConsumerWidget {
           if (context.mounted) {
             ToastUtils.showToast(
               context,
-              isAdded ? 'Removed from Watchlist' : 'Added to Watchlist',
+              isAdded ? context.l10n.removedFromWatchlist : context.l10n.addedToWatchlist,
             );
           }
         },
@@ -3646,7 +3652,7 @@ class _ReviewsSnippet extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'User Reviews',
+                    context.l10n.userReviews,
                     style: theme.textTheme.titleLarge?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
@@ -3664,7 +3670,7 @@ class _ReviewsSnippet extends ConsumerWidget {
                       );
                     },
                     child: Text(
-                      'See All (${reviews.length})',
+                      context.l10n.seeAllReviews(reviews.length),
                       style: TextStyle(color: AppColors.cinemaAccent),
                     ),
                   ),
@@ -3841,7 +3847,7 @@ class _AwardsSection extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Awards & Nominations',
+                    context.l10n.awardsAndNominations,
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: Colors.white60,
                       fontWeight: FontWeight.bold,
@@ -3883,7 +3889,7 @@ class _AwardsSection extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'View All',
+                    context.l10n.viewAll,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: AppColors.cinemaAccent,
                       fontWeight: FontWeight.w600,
@@ -3954,23 +3960,23 @@ class _BoxOfficeSuccessCard extends StatelessWidget {
     double progressValue; // 0.0 to 1.0
 
     if (roi >= 150) {
-      statusText = 'BLOCKBUSTER';
+      statusText = context.l10n.blockbuster;
       statusColor = const Color(0xFF00E5FF); // Cyan
       progressValue = 1.0;
     } else if (roi >= 100) {
-      statusText = 'HIT';
+      statusText = context.l10n.hit;
       statusColor = const Color(0xFF00E676); // Neon Green
       progressValue = 0.8;
     } else if (roi >= 0) {
-      statusText = 'BREAK-EVEN';
+      statusText = context.l10n.breakEven;
       statusColor = const Color(0xFFFFD740); // Amber
       progressValue = 0.5;
     } else if (roi >= -50) {
-      statusText = 'UNDERPERFORMER';
+      statusText = context.l10n.underperformer;
       statusColor = const Color(0xFFFF9100); // Orange
       progressValue = 0.3;
     } else {
-      statusText = 'BOX OFFICE BOMB';
+      statusText = context.l10n.boxOfficeBomb;
       statusColor = const Color(0xFFFF1744); // Red
       progressValue = 0.1;
     }
@@ -4005,7 +4011,7 @@ class _BoxOfficeSuccessCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Box Office Financials',
+                  context.l10n.boxOfficeFinancials,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
@@ -4040,13 +4046,13 @@ class _BoxOfficeSuccessCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _FinancialItem(
-                    label: 'Budget',
+                    label: context.l10n.budget,
                     value: formatCurrency(budget),
                   ),
                 ),
                 Expanded(
                   child: _FinancialItem(
-                    label: 'Revenue',
+                    label: context.l10n.revenue,
                     value: formatCurrency(revenue),
                   ),
                 ),
@@ -4057,7 +4063,7 @@ class _BoxOfficeSuccessCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: _FinancialItem(
-                    label: 'Net Profit',
+                    label: context.l10n.netProfit,
                     value: formatCurrency(netProfit),
                     valueColor: netProfit >= 0
                         ? const Color(0xFF00E676)
@@ -4066,7 +4072,7 @@ class _BoxOfficeSuccessCard extends StatelessWidget {
                 ),
                 Expanded(
                   child: _FinancialItem(
-                    label: 'ROI',
+                    label: context.l10n.roi,
                     value: '${roi.toStringAsFixed(1)}%',
                     valueColor: roi >= 0
                         ? const Color(0xFF00E676)
@@ -4083,7 +4089,7 @@ class _BoxOfficeSuccessCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Success Meter',
+                      context.l10n.successMeter,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.white60,
                         fontWeight: FontWeight.w600,
@@ -4284,7 +4290,7 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
                   ),
                 ),
                 title: Text(
-                  'Episode Reminder',
+                  context.l10n.episodeReminder,
                   style: Theme.of(dialogContext).textTheme.titleMedium
                       ?.copyWith(
                         color: Colors.white,
@@ -4296,7 +4302,7 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Notify how many hours before airing?',
+                      context.l10n.notifyHoursBeforeAiring,
                       style: Theme.of(dialogContext).textTheme.bodyMedium
                           ?.copyWith(color: Colors.white70, fontSize: 14),
                     ),
@@ -4311,9 +4317,9 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
                         });
                       },
                       decoration: InputDecoration(
-                        hintText: 'Hours before air time',
+                        hintText: context.l10n.hoursBeforeAirTime,
                         hintStyle: const TextStyle(color: Colors.white38),
-                        helperText: 'Choose between 1 and $maxHours',
+                        helperText: context.l10n.chooseBetweenHours(maxHours),
                         helperStyle: const TextStyle(color: Colors.white54),
                         filled: true,
                         fillColor: Colors.white.withValues(alpha: 0.03),
@@ -4342,8 +4348,8 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
                     style: TextButton.styleFrom(
                       foregroundColor: Colors.white60,
                     ),
-                    child: const Text(
-                      'Cancel',
+                    child: Text(
+                      context.l10n.cancel,
                       style: TextStyle(fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -4353,7 +4359,7 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
                       if (parsed == null || parsed < 1 || parsed > maxHours) {
                         ToastUtils.showToast(
                           dialogContext,
-                          'Enter a number between 1 and $maxHours',
+                          context.l10n.enterNumberBetween(maxHours.toString()),
                         );
                         return;
                       }
@@ -4371,9 +4377,9 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
                       ),
                       elevation: 0,
                     ),
-                    child: const Text(
-                      'Set',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                    child: Text(
+                      context.l10n.set,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -4394,7 +4400,7 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
         if (mounted) {
           ToastUtils.showToast(
             context,
-            'Selected reminder time has already passed',
+            context.l10n.selectedReminderTimePassed,
           );
         }
         return;
@@ -4414,7 +4420,7 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
               type: ReminderType.episodeAiring,
               title: widget.showTitle,
               message:
-                  'S${episode.seasonNumber}E${episode.episodeNumber} "${episode.name}" airs in $hoursBefore hour${hoursBefore == 1 ? '' : 's'}.',
+                  '${context.l10n.episodeCode(episode.seasonNumber.toString(), episode.episodeNumber.toString())}"${episode.name}" airs in $hoursBefore hour${hoursBefore == 1 ? '' : 's'}.',
               notifyAt: notifyAt,
               createdAt: DateTime.now(),
               mediaId: widget.showId,
@@ -4430,7 +4436,10 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
         final String when = DateFormat(
           'EEE, d MMM • hh:mm a',
         ).format(notifyAt.toLocal());
-        ToastUtils.showToast(context, 'Episode reminder saved for $when');
+        ToastUtils.showToast(
+          context,
+          context.l10n.episodeReminderSaved(when),
+        );
       }
     } finally {
       _isSettingEpisodeReminder = false;
@@ -4448,7 +4457,7 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
     final Color statusColor = isActive
         ? const Color(0xFF00E676)
         : Colors.white38;
-    final String statusLabel = widget.status ?? 'Unknown';
+    final String statusLabel = widget.status ?? context.l10n.unknown;
     final bool canSetEpisodeReminder =
         widget.nextEpisode != null &&
         _timeRemaining != null &&
@@ -4470,7 +4479,7 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Episode Tracker',
+                  context.l10n.episodeTracker,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
@@ -4480,7 +4489,7 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
                   children: [
                     if (canSetEpisodeReminder)
                       IconButton(
-                        tooltip: 'Set airing reminder',
+                        tooltip: context.l10n.tooltipSetAiringReminder,
                         onPressed: _setEpisodeAiringReminder,
                         icon: const Icon(
                           Icons.notifications_active_outlined,
@@ -4540,7 +4549,7 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      'Next Episode Countdown',
+                      context.l10n.nextEpisodeCountdown,
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.white70,
                         fontWeight: FontWeight.w500,
@@ -4552,19 +4561,19 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
                       children: [
                         _CountdownUnit(
                           value: _timeRemaining!.inDays,
-                          label: 'd',
+                          label: context.l10n.durationDays,
                         ),
                         _CountdownUnit(
                           value: _timeRemaining!.inHours % 24,
-                          label: 'h',
+                          label: context.l10n.durationHours,
                         ),
                         _CountdownUnit(
                           value: _timeRemaining!.inMinutes % 60,
-                          label: 'm',
+                          label: context.l10n.durationMinutes,
                         ),
                         _CountdownUnit(
                           value: _timeRemaining!.inSeconds % 60,
-                          label: 's',
+                          label: context.l10n.durationSeconds,
                         ),
                       ],
                     ),
@@ -4575,7 +4584,7 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
             if (widget.nextEpisode != null) ...[
               const SizedBox(height: 16),
               _EpisodeSubCard(
-                title: 'Next Episode',
+                title: context.l10n.nextEpisode,
                 episode: widget.nextEpisode!,
                 accentColor: AppColors.cinemaAccent,
               ),
@@ -4583,7 +4592,7 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
             if (widget.lastEpisode != null) ...[
               const SizedBox(height: 16),
               _EpisodeSubCard(
-                title: 'Last Episode To Air',
+                title: context.l10n.lastEpisodeToAir,
                 episode: widget.lastEpisode!,
                 accentColor: Colors.white54,
               ),
@@ -4646,8 +4655,10 @@ class _EpisodeSubCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final String epCode =
-        'S${episode.seasonNumber.toString().padLeft(2, '0')}E${episode.episodeNumber.toString().padLeft(2, '0')}';
+    final String epCode = context.l10n.episodeCode(
+      episode.seasonNumber.toString().padLeft(2, '0'),
+      episode.episodeNumber.toString().padLeft(2, '0'),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -4724,7 +4735,7 @@ class _EpisodeSubCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '$epCode • ${episode.name}',
+                      '$epCode• ${episode.name}',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -4817,7 +4828,7 @@ class _ContentAdvisoryCard extends StatelessWidget {
         searchTarget.contains('combat') ||
         searchTarget.contains('assassin') ||
         searchTarget.contains('death')) {
-      tags.add('Violence');
+      tags.add(context.l10n.violence);
     }
 
     if (searchTarget.contains('sex') ||
@@ -4826,7 +4837,7 @@ class _ContentAdvisoryCard extends StatelessWidget {
         searchTarget.contains('erotic') ||
         searchTarget.contains('sensual') ||
         searchTarget.contains('sexual')) {
-      tags.add('Sex & Nudity');
+      tags.add(context.l10n.sexAndNudity);
     }
 
     if (searchTarget.contains('language') ||
@@ -4834,7 +4845,7 @@ class _ContentAdvisoryCard extends StatelessWidget {
         searchTarget.contains('swear') ||
         searchTarget.contains('vulgar') ||
         searchTarget.contains('crude')) {
-      tags.add('Language');
+      tags.add(context.l10n.foulLanguage);
     }
 
     if (searchTarget.contains('drugs') ||
@@ -4844,7 +4855,7 @@ class _ContentAdvisoryCard extends StatelessWidget {
         searchTarget.contains('cocaine') ||
         searchTarget.contains('substance') ||
         searchTarget.contains('heroin')) {
-      tags.add('Substances');
+      tags.add(context.l10n.substances);
     }
 
     if (searchTarget.contains('horror') ||
@@ -4855,28 +4866,28 @@ class _ContentAdvisoryCard extends StatelessWidget {
         searchTarget.contains('fear') ||
         searchTarget.contains('creepy') ||
         searchTarget.contains('frightening')) {
-      tags.add('Fear & Horror');
+      tags.add(context.l10n.fearAndHorror);
     }
 
     if (tags.isEmpty) {
       if (rating == 'G' || rating == 'TV-G') {
-        tags.add('Family Friendly');
+        tags.add(context.l10n.familyFriendly);
       } else {
-        tags.add('General Audience');
+        tags.add(context.l10n.generalAudience);
       }
     }
 
     Color getTagColor(String tag) {
       switch (tag) {
-        case 'Violence':
+        case final tag when tag == context.l10n.violence:
           return const Color(0xFFFF5252);
-        case 'Sex & Nudity':
+        case final tag when tag == context.l10n.sexAndNudity:
           return const Color(0xFFFF4081);
-        case 'Language':
+        case final tag when tag == context.l10n.foulLanguage:
           return const Color(0xFFFFAB40);
-        case 'Substances':
+        case final tag when tag == context.l10n.substances:
           return const Color(0xFF64FFDA);
-        case 'Fear & Horror':
+        case final tag when tag == context.l10n.fearAndHorror:
           return const Color(0xFF7C4DFF);
         default:
           return Colors.white70;
@@ -4919,7 +4930,7 @@ class _ContentAdvisoryCard extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Content Advisory',
+                    context.l10n.contentAdvisory,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -5002,6 +5013,7 @@ class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
   Future<void> _toggleSubscription(bool value) async {
     try {
       final key = _releaseReminderId;
+      final l10n = context.l10n;
 
       if (value) {
         final DateTime notifyAt = _resolveReleaseNotifyAt();
@@ -5013,10 +5025,9 @@ class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
               AppReminder(
                 id: key,
                 type: ReminderType.general,
-                title: '${widget.title} release alert',
+                title: l10n.releaseAlertTitle(widget.title),
                 message:
-                    'Release watch alert set for ${formatter.format(notifyAt)}. '
-                    'We will notify you when it is out.',
+                    l10n.releaseAlertFullMessage(formatter.format(notifyAt)),
                 notifyAt: notifyAt,
                 createdAt: DateTime.now(),
                 mediaId: widget.movieId,
@@ -5087,7 +5098,7 @@ class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Alert Set!',
+                  context.l10n.alertSet,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -5109,9 +5120,9 @@ class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
               style: TextButton.styleFrom(
                 foregroundColor: AppColors.cinemaAccent,
               ),
-              child: const Text(
-                'Awesome',
-                style: TextStyle(fontWeight: FontWeight.bold),
+              child: Text(
+                context.l10n.awesome,
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -5171,7 +5182,7 @@ class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Release Timeline',
+                  context.l10n.releaseTimeline,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
@@ -5181,7 +5192,7 @@ class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
                   Row(
                     children: [
                       Text(
-                        'Notify Me',
+                        context.l10n.notifyMe,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: Colors.white70,
                           fontWeight: FontWeight.w600,
@@ -5211,21 +5222,21 @@ class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
             const SizedBox(height: 20),
             _TimelineItem(
               icon: Icons.movie_creation_outlined,
-              title: 'Theatrical Release',
+              title: context.l10n.theatricalRelease,
               date: formatDate(widget.theatricalDate),
               isCompleted: isPast(tDate),
               isLast: false,
             ),
             _TimelineItem(
               icon: Icons.play_circle_outline_rounded,
-              title: 'Digital / Streaming',
+              title: context.l10n.digitalStreaming,
               date: formatDate(widget.digitalDate),
               isCompleted: isPast(dDate),
               isLast: false,
             ),
             _TimelineItem(
               icon: Icons.album_outlined,
-              title: 'Physical (Blu-ray / DVD)',
+              title: context.l10n.physicalRelease,
               date: formatDate(widget.physicalDate),
               isCompleted: isPast(pDate),
               isLast: true,
@@ -5372,7 +5383,7 @@ class _MovieCollectionSection extends ConsumerWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        'Part of the ${belongsToCollection.name}',
+                        context.l10n.partOfCollection(belongsToCollection.name),
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -5380,7 +5391,7 @@ class _MovieCollectionSection extends ConsumerWidget {
                       ),
                     ),
                     Text(
-                      '$watchedCount / ${parts.length} Watched',
+                      '$watchedCount / ${parts.length} ${context.l10n.watched}',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: AppColors.cinemaAccent,
                         fontWeight: FontWeight.w600,
@@ -5527,7 +5538,7 @@ class _KeywordsThemesSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Keywords & Themes',
+            context.l10n.keywordsAndThemes,
             style: theme.textTheme.titleMedium?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -5617,7 +5628,7 @@ class _TrailersClipsSectionState extends State<_TrailersClipsSection> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Videos & Behind-the-Scenes',
+            context.l10n.videosAndBehindTheScenes,
             style: theme.textTheme.titleMedium?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -5659,7 +5670,7 @@ class _TrailersClipsSectionState extends State<_TrailersClipsSection> {
                       ),
                       child: Center(
                         child: Text(
-                          type,
+                          type == 'All' ? context.l10n.all : type,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: isSelected ? Colors.white : Colors.white70,
                             fontWeight: FontWeight.w600,
@@ -5698,7 +5709,7 @@ class _TrailersClipsSectionState extends State<_TrailersClipsSection> {
                             runtimeMinutes: widget.details.runtimeMinutes,
                             voteAverage: widget.details.catalogScore,
                             voteCount: widget.details.voteCount,
-                            categoryLabel: widget.isTv ? 'TV Series' : 'Movie',
+                            categoryLabel: widget.isTv ? context.l10n.tvShow : context.l10n.movie,
                             sourceMediaId: widget.details.id,
                             isTv: widget.isTv,
                             recommendations: widget.details.recommendations,
@@ -5805,7 +5816,7 @@ class _ProductionCompaniesSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Production Studios',
+            context.l10n.productionStudios,
             style: theme.textTheme.titleMedium?.copyWith(
               color: Colors.white,
               fontWeight: FontWeight.bold,

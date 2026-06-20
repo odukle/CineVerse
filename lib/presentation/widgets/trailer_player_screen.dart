@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/constants/app_constants.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/data/providers/data_providers.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:flutter/material.dart';
@@ -170,6 +171,8 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
     }
 
     final bool initialLoad = _feedItems.isEmpty;
+    final String recommendedSeriesLabel = context.l10n.recommendedSeries;
+    final String recommendedMovieLabel = context.l10n.recommendedMovie;
     setState(() {
       if (initialLoad) {
         _isLoadingFeed = true;
@@ -237,8 +240,8 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
                     voteAverage: details.catalogScore ?? rec.voteAverage,
                     voteCount: details.voteCount,
                     categoryLabel: widget.data.isTv
-                        ? 'Recommended Series'
-                        : 'Recommended Movie',
+                        ? recommendedSeriesLabel
+                        : recommendedMovieLabel,
                     sourceMediaId: rec.id,
                     isTv: widget.data.isTv,
                   ),
@@ -346,7 +349,7 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
                   child: Row(
                     children: <Widget>[
                       IconButton(
-                        tooltip: 'Close trailer',
+                        tooltip: context.l10n.closeTrailer,
                         icon: const Icon(
                           Icons.arrow_back_rounded,
                           color: Colors.white,
@@ -391,7 +394,7 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
                         ),
                         onPressed: () => unawaited(_openCurrentOnYouTube()),
                         icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                        label: const Text('Open in YouTube'),
+                        label: Text(context.l10n.openInYouTube),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -413,7 +416,7 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
                         ),
                         onPressed: () => unawaited(_shareCurrentTrailer()),
                         icon: const Icon(Icons.share_rounded, size: 18),
-                        label: const Text('Share'),
+                        label: Text(context.l10n.share),
                       ),
                     ),
                   ],
@@ -517,7 +520,7 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
                                   )
                                 else
                                   Text(
-                                    'No description available for this trailer.',
+                                    context.l10n.noDescriptionForTrailer,
                                     style: theme.textTheme.bodyMedium?.copyWith(
                                       color: Colors.white.withValues(
                                         alpha: 0.7,
@@ -535,7 +538,7 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
                       child: Row(
                         children: <Widget>[
                           Text(
-                            'More Trailers Like This',
+                            context.l10n.moreTrailersLikeThis,
                             style: theme.textTheme.titleMedium?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
@@ -560,7 +563,7 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
                       Padding(
                         padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
                         child: Text(
-                          'No additional recommendation trailers were found.',
+                          context.l10n.noAdditionalRecommendationTrailers,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: Colors.white.withValues(alpha: 0.7),
                           ),

@@ -2,9 +2,10 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:cineverse/app/router/app_router.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 
 class LumiSplashScreen extends StatefulWidget {
   const LumiSplashScreen({super.key});
@@ -121,7 +122,7 @@ class _LumiSplashScreenState extends State<LumiSplashScreen>
                         ),
                         const SizedBox(height: 14),
                         Text(
-                          'Movie discovery, made personal',
+                          context.l10n.movieDiscoveryMadePersonal,
                           style: textTheme.bodyMedium?.copyWith(
                             color: Colors.white.withValues(alpha: 0.72),
                             letterSpacing: 0.2,

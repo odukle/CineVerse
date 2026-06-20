@@ -1,6 +1,7 @@
-import 'package:cineverse/app/theme/app_colors.dart';
-import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/app/router/app_router.dart';
+import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
+import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -28,7 +29,7 @@ class FullCastCrewChip extends StatelessWidget {
       backgroundColor: AppColors.cinemaAccent.withValues(alpha: 0.1),
       side: BorderSide(color: AppColors.cinemaAccent, width: 1),
       label: Text(
-        'Full Cast & Crew',
+        context.l10n.fullCastAndCrew,
         style: TextStyle(
           color: AppColors.cinemaAccent,
           fontSize: 12,

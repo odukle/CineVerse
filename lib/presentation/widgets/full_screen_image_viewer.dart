@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -56,7 +57,10 @@ class _FullScreenImageViewerState extends State<FullScreenImageViewer> {
             padding: const EdgeInsets.only(right: 16),
             child: Center(
               child: Text(
-                '${_currentIndex + 1} / ${widget.images.length}',
+                context.l10n.imageCounter(
+                  '${_currentIndex + 1}',
+                  '${widget.images.length}',
+                ),
                 style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 14,

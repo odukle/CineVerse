@@ -1,4 +1,6 @@
 import 'package:cineverse/app/router/app_router.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
+import 'package:cineverse/l10n/app_localizations.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/data/services/sync_service.dart';
 import 'package:cineverse/presentation/widgets/animated_dialog.dart';
@@ -16,6 +18,7 @@ import 'package:cineverse/presentation/features/watchlist/providers/watched_prov
 import 'package:cineverse/presentation/features/watchlist/providers/watchlist_provider.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/library_provider.dart';
 import 'package:cineverse/presentation/providers/auth_provider.dart';
+import 'package:cineverse/presentation/providers/locale_provider.dart';
 import 'package:cineverse/presentation/providers/sync_provider.dart';
 import 'package:cineverse/presentation/widgets/tab_content_reveal.dart';
 import 'package:cineverse/domain/entities/user_entity.dart';
@@ -78,7 +81,7 @@ class AccountScreen extends ConsumerWidget {
           ),
         ),
         title: Text(
-          'AI recommendations data sharing',
+          context.l10n.aiRecommendationsPrivacy,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -86,8 +89,8 @@ class AccountScreen extends ConsumerWidget {
         ),
         content: Text(
           enabled
-              ? 'Recommend Tonight is allowed to send your typed movie recommendation request and temporary query-refinement context to Google Gemini and OpenRouter. Your full library and sign-in credentials are not sent to those AI providers.'
-              : 'To use Recommend Tonight, Lumi needs permission to send your typed movie recommendation request and temporary query-refinement context to Google Gemini and OpenRouter. Your full library and sign-in credentials are not sent to those AI providers.',
+              ? context.l10n.aiConsentGranted
+              : context.l10n.aiConsentNotGranted,
           style: const TextStyle(
             color: Colors.white70,
             fontSize: 14,
@@ -98,9 +101,9 @@ class AccountScreen extends ConsumerWidget {
           TextButton(
             onPressed: () => Navigator.pop(context, null),
             style: TextButton.styleFrom(foregroundColor: Colors.white60),
-            child: const Text(
-              'Close',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            child: Text(
+              context.l10n.close,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           TextButton(
@@ -111,7 +114,7 @@ class AccountScreen extends ConsumerWidget {
                   : AppColors.cinemaSelected,
             ),
             child: Text(
-              enabled ? 'Disable' : 'Allow',
+              enabled ? context.l10n.disable : context.l10n.allow,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
@@ -128,7 +131,7 @@ class AccountScreen extends ConsumerWidget {
       }
       await _showInfoSnackBar(
         context,
-        'AI recommendations data sharing enabled.',
+        context.l10n.aiRecommendationsEnabled,
       );
       return;
     }
@@ -138,7 +141,7 @@ class AccountScreen extends ConsumerWidget {
     }
     await _showInfoSnackBar(
       context,
-      'AI recommendations data sharing disabled.',
+      context.l10n.aiRecommendationsDisabled,
     );
   }
 
@@ -158,31 +161,31 @@ class AccountScreen extends ConsumerWidget {
           ),
         ),
         title: Text(
-          'Delete Account',
+          context.l10n.deleteAccount,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: const Text(
-          'This permanently deletes your Lumi account and synced cloud data. Local data on this device will remain unless you remove the app data separately.',
-          style: TextStyle(color: Colors.white70, fontSize: 14),
+        content: Text(
+          context.l10n.deleteAccountConfirmation,
+          style: const TextStyle(color: Colors.white70, fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             style: TextButton.styleFrom(foregroundColor: Colors.white60),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            child: Text(
+              context.l10n.cancel,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-            child: const Text(
-              'Delete',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            child: Text(
+              context.l10n.delete,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -199,7 +202,7 @@ class AccountScreen extends ConsumerWidget {
         return;
       }
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Account deleted successfully.')),
+        SnackBar(content: Text(context.l10n.accountDeletedSuccessfully)),
       );
     } catch (error) {
       if (!context.mounted) {
@@ -223,23 +226,23 @@ class AccountScreen extends ConsumerWidget {
           ),
         ),
         title: Text(
-          'Use local library for sync?',
+          context.l10n.useLocalLibraryForSync,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: const Text(
-          'This device already has local library titles. Include them in your signed-in library, or replace local library data with your cloud library.',
-          style: TextStyle(color: Colors.white70, fontSize: 14),
+        content: Text(
+          context.l10n.localLibrarySyncDescription,
+          style: const TextStyle(color: Colors.white70, fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
             style: TextButton.styleFrom(foregroundColor: Colors.white60),
-            child: const Text(
-              'Use Cloud Only',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            child: Text(
+              context.l10n.useCloudOnly,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           TextButton(
@@ -247,9 +250,9 @@ class AccountScreen extends ConsumerWidget {
             style: TextButton.styleFrom(
               foregroundColor: AppColors.cinemaSelected,
             ),
-            child: const Text(
-              'Include Local Library',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            child: Text(
+              context.l10n.includeLocalLibrary,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -270,40 +273,40 @@ class AccountScreen extends ConsumerWidget {
           ),
         ),
         title: Text(
-          'Sign Out',
+          context.l10n.signOut,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: const Text(
-          'Choose whether to keep the local library on this device after signing out.',
-          style: TextStyle(color: Colors.white70, fontSize: 14),
+        content: Text(
+          context.l10n.signOutChoiceDescription,
+          style: const TextStyle(color: Colors.white70, fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, null),
             style: TextButton.styleFrom(foregroundColor: Colors.white60),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            child: Text(
+              context.l10n.cancel,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, _SignOutChoice.signOutOnly),
             style: TextButton.styleFrom(foregroundColor: Colors.white70),
-            child: const Text(
-              'Keep Local Library',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            child: Text(
+              context.l10n.keepLocalLibrary,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           TextButton(
             onPressed: () =>
                 Navigator.pop(context, _SignOutChoice.signOutAndClearLocal),
             style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-            child: const Text(
-              'Clear Local Library',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            child: Text(
+              context.l10n.clearLocalLibrary,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -339,7 +342,7 @@ class AccountScreen extends ConsumerWidget {
       }
       await _showInfoSnackBar(
         context,
-        'Merged local titles into your signed-in library.',
+        context.l10n.mergedLocalTitles,
       );
       return;
     }
@@ -352,12 +355,13 @@ class AccountScreen extends ConsumerWidget {
     }
     await _showInfoSnackBar(
       context,
-      'Replaced local library data with your cloud library.',
+      context.l10n.replacedLocalLibrary,
     );
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     final ThemeData theme = Theme.of(context);
     final userAsync = ref.watch(authStateProvider);
     final UserEntity? user = userAsync.value;
@@ -366,7 +370,7 @@ class AccountScreen extends ConsumerWidget {
         TonightAiConsentStatus.unknown;
     final int remindersCount = ref.watch(remindersCountProvider);
     final AsyncValue<LibraryRetentionBundle> retentionAsync = ref.watch(
-      libraryRetentionBundleProvider,
+      libraryRetentionBundleProvider(context),
     );
     final int upcomingCount = retentionAsync.maybeWhen(
       data: (LibraryRetentionBundle value) => value.health.upcomingCount,
@@ -398,7 +402,7 @@ class AccountScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Account',
+                  l10n.navAccount,
                   style: theme.textTheme.headlineMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w800,
@@ -407,7 +411,7 @@ class AccountScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Your profile, sync state, region, and visual preferences all live here.',
+                  context.l10n.yourProfileSyncStateRegionPreferences,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: Colors.white.withValues(alpha: 0.76),
                   ),
@@ -417,7 +421,7 @@ class AccountScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 18),
           Text(
-            'Profile',
+            context.l10n.profile,
             style: theme.textTheme.titleLarge?.copyWith(color: Colors.white),
           ),
           const SizedBox(height: 12),
@@ -464,7 +468,7 @@ class AccountScreen extends ConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        user?.displayName ?? user?.email ?? 'Guest Viewer',
+                        user?.displayName ?? user?.email ?? context.l10n.guestViewer,
                         style: theme.textTheme.titleLarge?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w500,
@@ -474,8 +478,8 @@ class AccountScreen extends ConsumerWidget {
                       const SizedBox(height: 4),
                       Text(
                         user == null
-                            ? 'Sign in to sync your watchlist, ratings, and preferences.'
-                            : 'Signed in and syncing to the cloud.',
+                            ? context.l10n.signInToSync
+                            : context.l10n.signedInAndSyncing,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: Colors.white.withValues(alpha: 0.72),
                           height: 1.4,
@@ -518,7 +522,7 @@ class AccountScreen extends ConsumerWidget {
                                   size: 16,
                                   color: Colors.white,
                                 ),
-                                label: const Text('Sign in with Google'),
+                                label: Text(l10n.signInWithGoogle),
                                 style: OutlinedButton.styleFrom(
                                   backgroundColor: const Color(0xFFDB4437),
                                   foregroundColor: Colors.white,
@@ -566,7 +570,7 @@ class AccountScreen extends ConsumerWidget {
                                     Icons.apple_rounded,
                                     size: 18,
                                   ),
-                                  label: const Text('Sign in with Apple'),
+                                  label: Text(l10n.signInWithApple),
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.black,
                                     foregroundColor: Colors.white,
@@ -609,12 +613,12 @@ class AccountScreen extends ConsumerWidget {
                                   }
                                   await _showInfoSnackBar(
                                     context,
-                                    'Signed out and cleared the local library on this device.',
+                                    context.l10n.signedOutAndCleared,
                                   );
                                 }
                               },
                               icon: const Icon(Icons.logout_rounded, size: 18),
-                              label: const Text('Sign Out'),
+                              label: Text(context.l10n.signOut),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white24,
                                 foregroundColor: Colors.white,
@@ -632,7 +636,7 @@ class AccountScreen extends ConsumerWidget {
                                 Icons.delete_outline_rounded,
                                 size: 18,
                               ),
-                              label: const Text('Delete Account'),
+                              label: Text(context.l10n.deleteAccount),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.redAccent.withValues(
                                   alpha: 0.16,
@@ -655,52 +659,53 @@ class AccountScreen extends ConsumerWidget {
           const SizedBox(height: 18),
           const _RegionPreferenceCard(),
           const SizedBox(height: 14),
+          const _AppLanguagePreferenceCard(),
+          const SizedBox(height: 14),
           const _ContentLanguagePreferenceCard(),
           const SizedBox(height: 14),
           const _WatchHistoryInsightsCard(),
           const SizedBox(height: 14),
           _AccountActionCard(
             icon: Icons.event_note_rounded,
-            title: 'Release Calendar',
+            title: l10n.releaseCalendar,
             subtitle: upcomingCount == 0
-                ? 'Track upcoming releases and get quick reminder shortcuts.'
-                : '$upcomingCount upcoming release${upcomingCount == 1 ? '' : 's'} across your library.',
+                ? l10n.releaseCalendarDescription
+                : context.l10n.upcomingReleasesCount('$upcomingCount'),
             onTap: () => context.pushNamed(AppRoute.releaseCalendar.name),
           ),
           const SizedBox(height: 14),
           _AccountActionCard(
             icon: Icons.notifications_none_rounded,
-            title: 'Notifications',
+            title: l10n.notifications,
             subtitle: remindersCount == 0
-                ? 'Control premiere alerts and release reminders.'
+                ? context.l10n.controlPremiereAlerts
                 : '$remindersCount reminder${remindersCount == 1 ? '' : 's'} scheduled.',
             onTap: () => context.pushNamed(AppRoute.notifications.name),
           ),
           const SizedBox(height: 14),
           _AccountActionCard(
             icon: Icons.palette_outlined,
-            title: 'Appearance',
-            subtitle: 'Choose your theme and customize the app look.',
+            title: l10n.appearance,
+            subtitle: l10n.appearanceSubtitle,
             onTap: () => context.pushNamed('appearance'),
           ),
           const SizedBox(height: 14),
           _AccountActionCard(
             icon: Icons.visibility_off_outlined,
-            title: 'Hidden Titles',
-            subtitle:
-                'Manage the titles you have hidden from the Spotlight section.',
+            title: l10n.hiddenTitles,
+            subtitle: l10n.manageHiddenTitlesDescription,
             onTap: () => context.pushNamed(AppRoute.hiddenTitles.name),
           ),
           const SizedBox(height: 14),
           _AccountActionCard(
             icon: Icons.privacy_tip_outlined,
-            title: 'AI Recommendations Privacy',
+            title: context.l10n.aiRecommendationsPrivacy,
             subtitle: aiConsentStatus == TonightAiConsentStatus.granted
-                ? 'Enabled. Recommend Tonight may send your typed query text and temporary query context to Google Gemini and OpenRouter.'
-                : 'Review and manage consent for sending Recommend Tonight query data to Google Gemini and OpenRouter.',
+                ? context.l10n.aiRecommendationsEnabledSubtitle
+                : context.l10n.reviewAndManageConsent,
             onTap: () => _showAiConsentChoice(context, ref, aiConsentStatus),
             trailing: IconButton(
-              tooltip: 'Open privacy policy',
+              tooltip: l10n.tooltipOpenPrivacyPolicy,
               onPressed: () => launchUrl(
                 _aiPrivacyUri,
                 mode: LaunchMode.externalApplication,
@@ -741,7 +746,7 @@ class _DeveloperFooter extends StatelessWidget {
             spacing: 8,
             children: <Widget>[
               Text(
-                'Developed by',
+                context.l10n.developedBy,
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: Colors.white.withValues(alpha: 0.62),
                 ),
@@ -797,7 +802,7 @@ class _DeveloperFooter extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Text(
-            'This product uses the TMDB API but is not endorsed or certified by TMDB.',
+            context.l10n.tmdbDisclaimer,
             textAlign: TextAlign.center,
             style: theme.textTheme.bodySmall?.copyWith(
               color: Colors.white.withValues(alpha: 0.38),
@@ -823,16 +828,28 @@ class _RegionPreferenceCard extends ConsumerWidget {
     final String? detectedRegionCode = ref.watch(detectedRegionCodeProvider);
     final String effectiveRegionCode = ref.watch(preferredRegionCodeProvider);
     final String? selectedRegionCode = selectedRegionAsync.asData?.value;
-    final String regionLabel = regionLabelForCode(effectiveRegionCode);
+    final String regionLabel = localizedRegionLabel(
+      context.l10n,
+      effectiveRegionCode,
+    );
     final String autoRegionCode = detectedRegionCode ?? effectiveRegionCode;
-    final String autoRegionLabel = regionLabelForCode(autoRegionCode);
+    final String autoRegionLabel = localizedRegionLabel(
+      context.l10n,
+      autoRegionCode,
+    );
 
     return _AccountActionCard(
       icon: Icons.public_rounded,
-      title: 'Content Region',
+      title: context.l10n.contentRegion,
       subtitle: selectedRegionCode == null
-          ? 'Auto-detected region: $regionLabel ($effectiveRegionCode). Select a region to override for localized movie queries and watch-provider lookups.'
-          : 'Selected region: $regionLabel ($effectiveRegionCode). Supported movie queries and watch-provider lookups will reuse this automatically next time.',
+          ? context.l10n.regionAutoDetectedSubtitle(
+              regionLabel,
+              effectiveRegionCode,
+            )
+          : context.l10n.regionSelectedSubtitle(
+              regionLabel,
+              effectiveRegionCode,
+            ),
       trailing: selectedRegionAsync.isLoading
           ? const SizedBox(
               width: 20,
@@ -869,7 +886,7 @@ class _RegionPreferenceCard extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
             children: [
               Text(
-                'Select Region',
+                context.l10n.selectRegion,
                 style: theme.textTheme.titleLarge?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w600,
@@ -878,7 +895,7 @@ class _RegionPreferenceCard extends ConsumerWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Only TMDb endpoints that support region-aware queries will use this selection.',
+                context.l10n.selectRegionDescription,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: Colors.white.withValues(alpha: 0.72),
                 ),
@@ -892,9 +909,9 @@ class _RegionPreferenceCard extends ConsumerWidget {
                       : BorderSide.none,
                 ),
                 tileColor: theme.cardTheme.color,
-                title: const Text(
-                  'Use Auto-Detected Region',
-                  style: TextStyle(color: Colors.white),
+                title: Text(
+                  context.l10n.useAutoDetectedRegion,
+                  style: const TextStyle(color: Colors.white),
                 ),
                 subtitle: Text(
                   '$autoRegionLabel ($autoRegionCode)',
@@ -927,7 +944,7 @@ class _RegionPreferenceCard extends ConsumerWidget {
                     ),
                     tileColor: theme.cardTheme.color,
                     title: Text(
-                      option.label,
+                      localizedRegionLabel(context.l10n, option.code),
                       style: const TextStyle(color: Colors.white),
                     ),
                     subtitle: Text(
@@ -956,21 +973,197 @@ class _RegionPreferenceCard extends ConsumerWidget {
   }
 }
 
+class _AppLanguageOption {
+  const _AppLanguageOption({
+    required this.code,
+    required this.label,
+    this.nativeLabel,
+  });
+
+  final String? code;
+  final String label;
+  final String? nativeLabel;
+
+  String get displayLabel =>
+      nativeLabel == null ? label : '$label · $nativeLabel';
+}
+
+class _AppLanguagePreferenceCard extends ConsumerWidget {
+  const _AppLanguagePreferenceCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final String? selectedCode = ref.watch(appLanguageProvider);
+    final AppLocalizations l10n = context.l10n;
+    final List<_AppLanguageOption> options = _appLanguageOptions(l10n);
+    final _AppLanguageOption selected = options.firstWhere(
+      (option) => option.code == selectedCode,
+      orElse: () => options.first,
+    );
+
+    return _AccountActionCard(
+      icon: Icons.language_rounded,
+      title: l10n.appLanguage,
+      subtitle: selected.code == null
+          ? l10n.appLanguageSystemSubtitle
+          : l10n.appLanguageSelectedSubtitle(selected.displayLabel),
+      onTap: () => _showAppLanguagePicker(context, ref, selected.code),
+    );
+  }
+
+  List<_AppLanguageOption> _appLanguageOptions(AppLocalizations l10n) {
+    const String systemDefaultEnglish = 'System default';
+    final String systemDefaultTranslated = l10n.appLanguageSystemDefault;
+    final String? systemDefaultNative =
+        systemDefaultTranslated == systemDefaultEnglish
+            ? null
+            : systemDefaultTranslated;
+
+    return <_AppLanguageOption>[
+      _AppLanguageOption(
+        code: null,
+        label: systemDefaultEnglish,
+        nativeLabel: systemDefaultNative,
+      ),
+      _AppLanguageOption(code: 'ar', label: 'Arabic', nativeLabel: 'العربية'),
+      _AppLanguageOption(code: 'bn', label: 'Bengali', nativeLabel: 'বাংলা'),
+      _AppLanguageOption(code: 'de', label: 'German', nativeLabel: 'Deutsch'),
+      _AppLanguageOption(code: 'es', label: 'Spanish', nativeLabel: 'Español'),
+      _AppLanguageOption(code: 'fr', label: 'French', nativeLabel: 'Français'),
+      _AppLanguageOption(code: 'gu', label: 'Gujarati', nativeLabel: 'ગુજરાતી'),
+      _AppLanguageOption(code: 'hi', label: 'Hindi', nativeLabel: 'हिन्दी'),
+      _AppLanguageOption(code: 'it', label: 'Italian', nativeLabel: 'Italiano'),
+      _AppLanguageOption(code: 'ja', label: 'Japanese', nativeLabel: '日本語'),
+      _AppLanguageOption(code: 'kn', label: 'Kannada', nativeLabel: 'ಕನ್ನಡ'),
+      _AppLanguageOption(code: 'ko', label: 'Korean', nativeLabel: '한국어'),
+      _AppLanguageOption(code: 'ml', label: 'Malayalam', nativeLabel: 'മലയാളം'),
+      _AppLanguageOption(code: 'mr', label: 'Marathi', nativeLabel: 'मराठी'),
+      _AppLanguageOption(code: 'pa', label: 'Punjabi', nativeLabel: 'ਪੰਜਾਬੀ'),
+      _AppLanguageOption(code: 'pt', label: 'Portuguese', nativeLabel: 'Português'),
+      _AppLanguageOption(code: 'ru', label: 'Russian', nativeLabel: 'Русский'),
+      _AppLanguageOption(code: 'ta', label: 'Tamil', nativeLabel: 'தமிழ்'),
+      _AppLanguageOption(code: 'te', label: 'Telugu', nativeLabel: 'తెలుగు'),
+      _AppLanguageOption(code: 'zh', label: 'Chinese', nativeLabel: '中文'),
+    ];
+  }
+
+  Future<void> _showAppLanguagePicker(
+    BuildContext context,
+    WidgetRef ref,
+    String? selectedCode,
+  ) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        String? pendingCode = selectedCode;
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final AppLocalizations l10n = context.l10n;
+            final List<_AppLanguageOption> options = _appLanguageOptions(l10n);
+            return SafeArea(
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardTheme.color,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(24),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.appLanguage,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height * 0.55,
+                      ),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: options.length,
+                        itemBuilder: (context, index) {
+                          final option = options[index];
+                          final bool isSelected = option.code == pendingCode;
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            child: ListTile(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: Theme.of(context).cardTheme.shape
+                                        is RoundedRectangleBorder
+                                    ? (Theme.of(context).cardTheme.shape
+                                            as RoundedRectangleBorder)
+                                        .side
+                                    : BorderSide.none,
+                              ),
+                              tileColor: Theme.of(context).cardTheme.color,
+                              title: Text(
+                                option.displayLabel,
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                              trailing: isSelected
+                                  ? const Icon(Icons.check_rounded,
+                                      color: Colors.white)
+                                  : null,
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                setModalState(() => pendingCode = option.code);
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          ref
+                              .read(appLanguageProvider.notifier)
+                              .setLanguage(pendingCode);
+                          Navigator.pop(context);
+                        },
+                        child: Text(l10n.save),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}
+
 class _ContentLanguagePreferenceCard extends ConsumerWidget {
   const _ContentLanguagePreferenceCard();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final ContentLanguageOption selected = ref.watch(
-      selectedContentLanguageOptionProvider,
+    final ContentLanguageOption selected = selectedContentLanguageOption(
+      context.l10n,
+      ref.watch(contentLanguageProvider),
     );
 
     return _AccountActionCard(
       icon: Icons.translate_rounded,
-      title: 'Content Language',
+      title: context.l10n.contentLanguage,
       subtitle: selected.code == null
-          ? 'All languages. Movies and TV tabs stay broad, while Explore can still prefer stronger local fits when available.'
-          : 'Currently set to ${selected.displayLabel}. Movies and TV tabs will stay strict, while Explore will prefer this language first.',
+          ? context.l10n.contentLanguageAllSubtitle
+          : context.l10n.contentLanguageSelectedSubtitle(selected.displayLabel),
       onTap: () => _showContentLanguagePicker(context, ref, selected.code),
     );
   }
@@ -990,7 +1183,7 @@ class _ContentLanguagePreferenceCard extends ConsumerWidget {
         return StatefulBuilder(
           builder: (context, setModalState) {
             final List<ContentLanguageOption> visibleOptions =
-                contentLanguageOptions
+                contentLanguageOptions(context.l10n)
                     .where((option) {
                       if (query.trim().isEmpty) {
                         return true;
@@ -1038,9 +1231,9 @@ class _ContentLanguagePreferenceCard extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'Content Language',
-                      style: TextStyle(
+                    Text(
+                      context.l10n.contentLanguage,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
                         fontWeight: FontWeight.w800,
@@ -1048,7 +1241,7 @@ class _ContentLanguagePreferenceCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Movies and TV tabs use this strictly. Explore prefers it first and falls back when a rail gets sparse.',
+                      context.l10n.languageSettingExplanation,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.72),
@@ -1065,7 +1258,7 @@ class _ContentLanguagePreferenceCard extends ConsumerWidget {
                       },
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
-                        hintText: 'Search languages',
+                        hintText: context.l10n.searchHint,
                         hintStyle: TextStyle(
                           color: Colors.white.withValues(alpha: 0.45),
                         ),
@@ -1177,7 +1370,7 @@ class _ContentLanguagePreferenceCard extends ConsumerWidget {
                             const SizedBox(width: 10),
                             Expanded(
                               child: Text(
-                                'Some rails may look sparse in this mode because TMDB language metadata is incomplete for parts of the catalog, not necessarily because those titles do not exist.',
+                                context.l10n.tmdbLanguageMetadataNote,
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.76),
                                   fontSize: 12.5,
@@ -1209,9 +1402,9 @@ class _ContentLanguagePreferenceCard extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(18),
                           ),
                         ),
-                        child: const Text(
-                          'Apply',
-                          style: TextStyle(fontWeight: FontWeight.w800),
+                        child: Text(
+                          context.l10n.apply,
+                          style: const TextStyle(fontWeight: FontWeight.w800),
                         ),
                       ),
                     ),
@@ -1277,7 +1470,7 @@ class _WatchHistoryInsightsCard extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Analyzing your watch history...',
+                    context.l10n.analyzingWatchHistory,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: Colors.white.withValues(alpha: 0.78),
                     ),
@@ -1292,7 +1485,7 @@ class _WatchHistoryInsightsCard extends ConsumerWidget {
                   children: <Widget>[
                     Expanded(
                       child: Text(
-                        'Watch Insights',
+                        context.l10n.watchInsights,
                         style: theme.textTheme.titleMedium?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.w700,
@@ -1308,13 +1501,13 @@ class _WatchHistoryInsightsCard extends ConsumerWidget {
                         Icons.refresh_rounded,
                         color: Colors.white70,
                       ),
-                      tooltip: 'Refresh insights',
+                      tooltip: context.l10n.tooltipRefreshInsights,
                     ),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  'Could not analyze watch history right now.',
+                  context.l10n.couldNotAnalyzeWatchHistory,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: Colors.white.withValues(alpha: 0.74),
                   ),
@@ -1330,7 +1523,7 @@ class _WatchHistoryInsightsCard extends ConsumerWidget {
                       children: <Widget>[
                         Expanded(
                           child: Text(
-                            'Watch Insights',
+                            context.l10n.watchInsights,
                             style: theme.textTheme.titleMedium?.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,
@@ -1346,16 +1539,21 @@ class _WatchHistoryInsightsCard extends ConsumerWidget {
                             Icons.refresh_rounded,
                             color: Colors.white70,
                           ),
-                          tooltip: 'Refresh insights',
+                          tooltip: context.l10n.tooltipRefreshInsights,
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Text(
                       analyzedCount == 0
-                          ? 'Add and rate at least $kMinimumWatchedItemsForInsights watched titles to unlock personalized insights.'
-                          : 'You have $analyzedCount/$kMinimumWatchedItemsForInsights watched titles analyzed. '
-                                'Add ${kMinimumWatchedItemsForInsights - analyzedCount} more to generate insights.',
+                          ? context.l10n.addAndRateMoreTitles(
+                              '$kMinimumWatchedItemsForInsights',
+                            )
+                          : context.l10n.addMoreTitlesToUnlock(
+                              '$analyzedCount',
+                              '$kMinimumWatchedItemsForInsights',
+                              '${kMinimumWatchedItemsForInsights - analyzedCount}',
+                            ),
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.white.withValues(alpha: 0.74),
                         height: 1.4,
@@ -1372,7 +1570,7 @@ class _WatchHistoryInsightsCard extends ConsumerWidget {
                     children: <Widget>[
                       Expanded(
                         child: Text(
-                          'Watch Insights',
+                          context.l10n.watchInsights,
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
@@ -1388,20 +1586,24 @@ class _WatchHistoryInsightsCard extends ConsumerWidget {
                           Icons.refresh_rounded,
                           color: Colors.white70,
                         ),
-                        tooltip: 'Refresh insights',
+                        tooltip: context.l10n.tooltipRefreshInsights,
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Based on ${insights.analyzedTitlesCount} watched titles',
+                    context.l10n.basedOnWatchedTitles(
+                      '${insights.analyzedTitlesCount}',
+                    ),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: Colors.white.withValues(alpha: 0.64),
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Last updated: ${_formatInsightsTime(insights.generatedAt)}',
+                    context.l10n.lastUpdated(
+                      _formatInsightsTime(insights.generatedAt),
+                    ),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: Colors.white.withValues(alpha: 0.58),
                     ),
@@ -1459,7 +1661,10 @@ class _WatchHistoryInsightsCard extends ConsumerWidget {
                   if (insights.averageRuntimeMinutes > 0) ...<Widget>[
                     const SizedBox(height: 6),
                     Text(
-                      'Preferred runtime: ~${insights.averageRuntimeMinutes} min (${insights.preferredRuntimeLabel})',
+                      context.l10n.preferredRuntimeLabel(
+                        insights.averageRuntimeMinutes.toString(),
+                        insights.preferredRuntimeLabel,
+                      ),
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.white.withValues(alpha: 0.74),
                       ),
@@ -1475,7 +1680,7 @@ class _WatchHistoryInsightsCard extends ConsumerWidget {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'Open full analytics',
+                        context.l10n.watchAnalytics,
                         style: theme.textTheme.labelMedium?.copyWith(
                           color: Colors.white.withValues(alpha: 0.8),
                           fontWeight: FontWeight.w700,

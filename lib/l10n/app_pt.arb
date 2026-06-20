@@ -1,0 +1,3454 @@
+{
+  "@@locale": "pt",
+  "appName": "Lumi",
+  "@appName": {
+    "description": "The name of the application"
+  },
+  "navExplore": "Explorar",
+  "@navExplore": {
+    "description": "Bottom navigation label for Explore tab"
+  },
+  "navMovies": "Filmes",
+  "@navMovies": {
+    "description": "Bottom navigation label for Movies tab"
+  },
+  "navTvShows": "Programas de TV",
+  "@navTvShows": {
+    "description": "Bottom navigation label for TV Shows tab"
+  },
+  "navLibrary": "Biblioteca",
+  "@navLibrary": {
+    "description": "Bottom navigation label for Library/Watchlist tab"
+  },
+  "navAccount": "Conta",
+  "@navAccount": {
+    "description": "Bottom navigation label for Account tab"
+  },
+  "searchHint": "Pesquisar filmes, programas de TV, empresas...",
+  "@searchHint": {
+    "description": "Search bar hint text"
+  },
+  "searchForPerson": "Pesquisar uma pessoa...",
+  "@searchForPerson": {
+    "description": "Search person placeholder"
+  },
+  "searchLanguages": "Pesquisar idiomas",
+  "@searchLanguages": {
+    "description": "Hint for language search input"
+  },
+  "searchNameOrRole": "Pesquisar nome ou função...",
+  "@searchNameOrRole": {
+    "description": "Search cast crew placeholder"
+  },
+  "retry": "Repetir",
+  "@retry": {
+    "description": "Button label to retry a failed action"
+  },
+  "tryAgain": "Tentar novamente",
+  "@tryAgain": {
+    "description": "Alternative retry button label"
+  },
+  "clear": "Limpar",
+  "@clear": {
+    "description": "Button label to clear content"
+  },
+  "cancel": "Cancelar",
+  "@cancel": {
+    "description": "Button label to cancel an action"
+  },
+  "ok": "OK",
+  "@ok": {
+    "description": "Button label to confirm/acknowledge"
+  },
+  "save": "Salvar",
+  "@save": {
+    "description": "Button label to save content"
+  },
+  "delete": "Excluir",
+  "@delete": {
+    "description": "Button label to delete content"
+  },
+  "share": "Compartilhar",
+  "@share": {
+    "description": "Button label to share content"
+  },
+  "undo": "Desfazer",
+  "@undo": {
+    "description": "Undo button"
+  },
+  "close": "Fechar",
+  "@close": {
+    "description": "Button label to close a dialog/sheet"
+  },
+  "apply": "Aplicar",
+  "@apply": {
+    "description": "Button label to apply filters"
+  },
+  "reset": "Redefinir",
+  "@reset": {
+    "description": "Button label to reset a state"
+  },
+  "done": "Concluído",
+  "@done": {
+    "description": "Button label for completion"
+  },
+  "signInWithGoogle": "Faça login com Google",
+  "@signInWithGoogle": {
+    "description": "Google sign-in button label"
+  },
+  "signInWithApple": "Faça login com Apple",
+  "@signInWithApple": {
+    "description": "Apple sign-in button label"
+  },
+  "signOut": "Sair",
+  "@signOut": {
+    "description": "Sign out button label"
+  },
+  "deleteAccount": "Excluir conta",
+  "@deleteAccount": {
+    "description": "Delete account button label"
+  },
+  "accountDeletedSuccessfully": "Conta excluída com sucesso.",
+  "@accountDeletedSuccessfully": {
+    "description": "Snackbar message after account deletion"
+  },
+  "appearance": "Aparência",
+  "@appearance": {
+    "description": "Appearance settings title"
+  },
+  "appearanceSubtitle": "Escolha seu tema e personalize a aparência do aplicativo.",
+  "@appearanceSubtitle": {
+    "description": "Appearance settings subtitle"
+  },
+  "notifications": "Notificações",
+  "@notifications": {
+    "description": "Notifications settings title"
+  },
+  "releaseCalendar": "Calendário de lançamento",
+  "@releaseCalendar": {
+    "description": "Release calendar title"
+  },
+  "hiddenTitles": "Títulos ocultos",
+  "@hiddenTitles": {
+    "description": "Hidden titles screen title"
+  },
+  "aiRecommendationsPrivacy": "Recomendações de IA Privacidade",
+  "@aiRecommendationsPrivacy": {
+    "description": "AI consent settings title"
+  },
+  "contentRegion": "Região de conteúdo",
+  "@contentRegion": {
+    "description": "Content region settings title"
+  },
+  "contentLanguage": "Idioma do conteúdo",
+  "@contentLanguage": {
+    "description": "Content language settings title"
+  },
+  "watchlist": "Lista de observação",
+  "@watchlist": {
+    "description": "Watchlist section title"
+  },
+  "notes": "Notas",
+  "@notes": {
+    "description": "Notes section title"
+  },
+  "deleteNote": "Excluir nota",
+  "@deleteNote": {
+    "description": "Tooltip for delete note action"
+  },
+  "addNoteHint": "Adicionar uma nota...",
+  "@addNoteHint": {
+    "description": "Hint for note input field"
+  },
+  "addBriefNoteHint": "Adicione uma breve nota (opcional)...",
+  "@addBriefNoteHint": {
+    "description": "Hint for brief note input"
+  },
+  "enterNewName": "Digite o novo nome...",
+  "@enterNewName": {
+    "description": "Hint for rename input"
+  },
+  "importSharedList": "Importar lista compartilhada",
+  "@importSharedList": {
+    "description": "Import shared list screen title"
+  },
+  "discoverOnLumi": "DESCUBRA NO LUMI",
+  "@discoverOnLumi": {
+    "description": "Branding text on recommendation cards"
+  },
+  "filtered": "Filtrado",
+  "@filtered": {
+    "description": "Label for filtered genre chip"
+  },
+  "fullPlot": "Gráfico completo",
+  "@fullPlot": {
+    "description": "Full plot dialog/button label"
+  },
+  "userReviews": "Avaliações de usuários",
+  "@userReviews": {
+    "description": "User reviews section title"
+  },
+  "noReviewsYet": "Ainda não há comentários.",
+  "@noReviewsYet": {
+    "description": "Empty state message for reviews"
+  },
+  "openInYouTube": "Abrir no YouTube",
+  "@openInYouTube": {
+    "description": "Button to open video in YouTube"
+  },
+  "hiddenGems": "Tesouros Escondidos",
+  "@hiddenGems": {
+    "description": "Explore section title for hidden gems"
+  },
+  "resetSpotlight": "Redefinir Spotlight",
+  "@resetSpotlight": {
+    "description": "Button to reset spotlight selections"
+  },
+  "clearPreferences": "Limpar preferências",
+  "@clearPreferences": {
+    "description": "Button to clear user preferences"
+  },
+  "refreshPicks": "Atualizar escolhas",
+  "@refreshPicks": {
+    "description": "Button to refresh recommendations"
+  },
+  "shareBoard": "Compartilhar quadro",
+  "@shareBoard": {
+    "description": "Button to share recommendation board"
+  },
+  "exploreDetails": "Explorar detalhes",
+  "@exploreDetails": {
+    "description": "Button to explore item details"
+  },
+  "searchWikiquotes": "Pesquisar Wikiquotes",
+  "@searchWikiquotes": {
+    "description": "Wikiquotes search button"
+  },
+  "selectAQuote": "Selecionar uma citação",
+  "@selectAQuote": {
+    "description": "Quote selection dialog title"
+  },
+  "tooltipShareQuote": "Compartilhar citação",
+  "@tooltipShareQuote": {
+    "description": "Tooltip for share quote button"
+  },
+  "tooltipCopyQuote": "Copiar citação",
+  "@tooltipCopyQuote": {
+    "description": "Tooltip for copy quote button"
+  },
+  "tooltipShareDialogue": "Compartilhar diálogo",
+  "@tooltipShareDialogue": {
+    "description": "Tooltip for share dialogue button"
+  },
+  "tooltipCopyDialogue": "Copiar diálogo",
+  "@tooltipCopyDialogue": {
+    "description": "Tooltip for copy dialogue button"
+  },
+  "tooltipUnhide": "Mostrar",
+  "@tooltipUnhide": {
+    "description": "Tooltip for unhide title button"
+  },
+  "tooltipOpenPrivacyPolicy": "Abrir política de privacidade",
+  "@tooltipOpenPrivacyPolicy": {
+    "description": "Tooltip for privacy policy link"
+  },
+  "tooltipRefreshInsights": "Atualizar insights",
+  "@tooltipRefreshInsights": {
+    "description": "Tooltip for refresh insights button"
+  },
+  "tooltipSortTitles": "Classificar títulos",
+  "@tooltipSortTitles": {
+    "description": "Tooltip for sort button"
+  },
+  "tooltipSearch": "Pesquisar",
+  "@tooltipSearch": {
+    "description": "Tooltip for search button"
+  },
+  "tooltipFilters": "Filtros",
+  "@tooltipFilters": {
+    "description": "Tooltip for filters button"
+  },
+  "tooltipSaveToGallery": "Salvar na Galeria",
+  "@tooltipSaveToGallery": {
+    "description": "Tooltip for save to gallery button"
+  },
+  "tooltipShare": "Compartilhar",
+  "@tooltipShare": {
+    "description": "Tooltip for share button"
+  },
+  "tooltipShareAnalytics": "Compartilhar análises",
+  "@tooltipShareAnalytics": {
+    "description": "Tooltip for share analytics button"
+  },
+  "tooltipSetAiringReminder": "Definir lembrete de exibição",
+  "@tooltipSetAiringReminder": {
+    "description": "Tooltip for airing reminder"
+  },
+  "tooltipLibrarySynced": "Biblioteca sincronizada com nuvem",
+  "@tooltipLibrarySynced": {
+    "description": "Tooltip when library sync is complete"
+  },
+  "noMoreEntries": "Não há mais inscrições.",
+  "@noMoreEntries": {
+    "description": "Message shown when there are no more items to load"
+  },
+  "noItemsFound": "Nenhum item encontrado",
+  "@noItemsFound": {
+    "description": "Message shown when no items are found"
+  },
+  "errorLoadingGenres": "Erro ao carregar gêneros: {error}",
+  "@errorLoadingGenres": {
+    "description": "Error message when genres fail to load",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorGeneric": "Erro: {error}",
+  "@errorGeneric": {
+    "description": "Generic error message",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingLists": "Erro ao carregar listas",
+  "@errorLoadingLists": {
+    "description": "Error when lists fail to load"
+  },
+  "errorLoadingQuotes": "Falha ao carregar aspas: {error}",
+  "@errorLoadingQuotes": {
+    "description": "Error loading quotes"
+  },
+  "errorCouldNotShareAnalytics": "Não foi possível compartilhar o cartão de análise.",
+  "@errorCouldNotShareAnalytics": {
+    "description": "Snackbar error for analytics sharing failure"
+  },
+  "errorCouldNotShareRecommendations": "Não foi possível compartilhar o quadro de recomendações.",
+  "@errorCouldNotShareRecommendations": {
+    "description": "Snackbar error for recommendation sharing failure"
+  },
+  "errorCouldNotShareInsights": "Não foi possível compartilhar insights do relógio.",
+  "@errorCouldNotShareInsights": {
+    "description": "Snackbar error for insights sharing failure"
+  },
+  "watchInsightsNotReady": "Os insights do Watch ainda não estão prontos.",
+  "@watchInsightsNotReady": {
+    "description": "Snackbar message when insights are still loading"
+  },
+  "titleRestoredToSpotlight": "\"{title}\" restaurado para o Spotlight",
+  "@titleRestoredToSpotlight": {
+    "description": "Snackbar when a title is restored to spotlight",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "titleHasBeenHidden": "\"{title}\" foi oculto",
+  "@titleHasBeenHidden": {
+    "description": "Snackbar when a title is hidden",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "hiddenDate": "Oculto: {date}",
+  "@hiddenDate": {
+    "description": "Label showing when a title was hidden",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "moviesInThisCollection": "Os filmes nesta coleção",
+  "@moviesInThisCollection": {
+    "description": "Collection details section header"
+  },
+  "searchPlanReady": "O plano de pesquisa está pronto",
+  "@searchPlanReady": {
+    "description": "Tonight watch progress message"
+  },
+  "hoursBeforeAirTime": "Horas antes da transmissão",
+  "@hoursBeforeAirTime": {
+    "description": "Hint for reminder time input"
+  },
+  "noUpcomingReleases": "Nenhum lançamento futuro",
+  "@noUpcomingReleases": {
+    "description": "Empty state for release calendar"
+  },
+  "noRemindersSet": "Nenhum lembrete definido",
+  "@noRemindersSet": {
+    "description": "Empty state for notifications"
+  },
+  "noHiddenTitles": "Nenhum título oculto",
+  "@noHiddenTitles": {
+    "description": "Empty state for hidden titles"
+  },
+  "hiddenTitlesDescription": "Os títulos que você ocultar da seção Destaques aparecerão aqui e você poderá restaurá-los a qualquer momento.",
+  "@hiddenTitlesDescription": {
+    "description": "Description for hidden titles screen"
+  },
+  "tvShow": "PROGRAMA DE TV",
+  "@tvShow": {
+    "description": "Label for TV show type"
+  },
+  "movie": "FILME",
+  "@movie": {
+    "description": "Label for movie type"
+  },
+  "aiConsentGranted": "Você ativou. Os dados da sua biblioteca são usados ​​para personalizar recomendações.",
+  "@aiConsentGranted": {
+    "description": "Subtitle when AI consent is granted"
+  },
+  "aiConsentNotGranted": "Os dados da sua biblioteca nunca são compartilhados, a menos que você aceite.",
+  "@aiConsentNotGranted": {
+    "description": "Subtitle when AI consent is not granted"
+  },
+  "languageSettingExplanation": "As guias Filmes e TV usam isso estritamente. Explore prefere primeiro e recua quando um trilho fica escasso.",
+  "@languageSettingExplanation": {
+    "description": "Explanation for content language setting"
+  },
+  "filterScreenTitle": "Filtros",
+  "@filterScreenTitle": {
+    "description": "Filter screen AppBar title"
+  },
+  "sortBy": "Classificar por",
+  "@sortBy": {
+    "description": "Sort by label in filters"
+  },
+  "genres": "Gêneros",
+  "@genres": {
+    "description": "Genres label in filters"
+  },
+  "year": "Ano",
+  "@year": {
+    "description": "Year filter label"
+  },
+  "rating": "Classificação",
+  "@rating": {
+    "description": "Rating filter label"
+  },
+  "runtime": "Tempo de execução",
+  "@runtime": {
+    "description": "Runtime filter label"
+  },
+  "withPeople": "Com pessoas",
+  "@withPeople": {
+    "description": "People filter label"
+  },
+  "voteCount": "Contagem de votos",
+  "@voteCount": {
+    "description": "Vote count filter label"
+  },
+  "today": "Hoje",
+  "@today": {
+    "description": "Localized string for today"
+  },
+  "tomorrow": "Amanhã",
+  "@tomorrow": {
+    "description": "Label for tomorrow's date"
+  },
+  "yesterday": "Ontem",
+  "@yesterday": {
+    "description": "Label for yesterday's date"
+  },
+  "minutes": "Traduza este rótulo do aplicativo para pt: min",
+  "@minutes": {
+    "description": "Abbreviation for minutes"
+  },
+  "hours": "Traduza este rótulo do aplicativo para pt: h",
+  "@hours": {
+    "description": "Abbreviation for hours"
+  },
+  "cast": "Elenco",
+  "@cast": {
+    "description": "Cast section title"
+  },
+  "crew": "Equipe",
+  "@crew": {
+    "description": "Crew section title"
+  },
+  "director": "F@ Elenco @G@ Equipe @H@ Diretor",
+  "@director": {
+    "description": "Director label"
+  },
+  "seasons": "Temporadas",
+  "@seasons": {
+    "description": "Seasons label for TV shows"
+  },
+  "episodes": "Episódios",
+  "@episodes": {
+    "description": "Episodes label for TV shows"
+  },
+  "overview": "Visão geral",
+  "@overview": {
+    "description": "Overview section title"
+  },
+  "similar": "Semelhante",
+  "@similar": {
+    "description": "Similar titles section"
+  },
+  "recommendations": "Recomendações",
+  "@recommendations": {
+    "description": "Recommendations section"
+  },
+  "addedToWatchlist": "Adicionado à lista de observação",
+  "@addedToWatchlist": {
+    "description": "Snackbar after adding to watchlist"
+  },
+  "removedFromWatchlist": "Removido da lista de observação",
+  "@removedFromWatchlist": {
+    "description": "Snackbar after removing from watchlist"
+  },
+  "popularity": "Popularidade",
+  "@popularity": {
+    "description": "Sort option: popularity"
+  },
+  "releaseDate": "Data de lançamento",
+  "@releaseDate": {
+    "description": "Sort option: release date"
+  },
+  "revenueLabel": "Receita",
+  "@revenueLabel": {
+    "description": "Sort option: revenue"
+  },
+  "originalTitle": "Título original",
+  "@originalTitle": {
+    "description": "Sort option: original title"
+  },
+  "voteAverage": "Média de votos",
+  "@voteAverage": {
+    "description": "Sort option: vote average"
+  },
+  "favourites": "Favoritos",
+  "@favourites": {
+    "description": "Favourites section label"
+  },
+  "lists": "listas",
+  "@lists": {
+    "description": "Localized string for lists"
+  },
+  "watched": "Assistido",
+  "@watched": {
+    "description": "Localized string for watched"
+  },
+  "all": "Todos",
+  "@all": {
+    "description": "All filter option"
+  },
+  "tv": "TV",
+  "@tv": {
+    "description": "TV filter option"
+  },
+  "librarySubtitle": "Mantenha tudo organizado por coleção, favoritos, anotações e histórico de visualização.",
+  "@librarySubtitle": {
+    "description": "Watchlist screen subtitle"
+  },
+  "selectRegion": "Selecione a região",
+  "@selectRegion": {
+    "description": "Region selection dialog title"
+  },
+  "selectRegionDescription": "Somente os endpoints do TMDb que suportam consultas com reconhecimento de região usarão essa seleção.",
+  "@selectRegionDescription": {
+    "description": "Region selection dialog description"
+  },
+  "useAutoDetectedRegion": "Usar região detectada automaticamente",
+  "@useAutoDetectedRegion": {
+    "description": "Button to use auto-detected region"
+  },
+  "reminderRemoved": "Lembrete removido",
+  "@reminderRemoved": {
+    "description": "Localized string for reminderRemoved"
+  },
+  "releaseReminderSet": "Lembrete de lançamento definido para {title}.",
+  "@releaseReminderSet": {
+    "description": "Snackbar when a release reminder is set",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "episodeReminderSet": "Lembrete de episódio definido para {title}.",
+  "@episodeReminderSet": {
+    "description": "Snackbar when an episode reminder is set",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "filteredResults": "Resultados filtrados",
+  "@filteredResults": {
+    "description": "Filtered results label"
+  },
+  "genreResults": "Resultados por gênero",
+  "@genreResults": {
+    "description": "Genre results label"
+  },
+  "couldNotLoadContent": "Não foi possível carregar o conteúdo. {error}",
+  "@couldNotLoadContent": {
+    "description": "Error when content fails to load",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noContentAvailableForThisSelection": "Não há conteúdo disponível para esta seleção.",
+  "@noContentAvailableForThisSelection": {
+    "description": "Empty state when no content is available"
+  },
+  "writer": "Escritor",
+  "@writer": {
+    "description": "Writer label"
+  },
+  "actors": "Atores",
+  "@actors": {
+    "description": "Actors label"
+  },
+  "noteNotFound": "Nota não encontrada.",
+  "@noteNotFound": {
+    "description": "Error when note is not found"
+  },
+  "yourNotesCount": "Suas anotações ({count})",
+  "@yourNotesCount": {
+    "description": "Localized string for yourNotesCount",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noteDeleted": "Nota excluída",
+  "@noteDeleted": {
+    "description": "Localized string for noteDeleted"
+  },
+  "noteDeletedWithCount": "Nota excluída ({count} s)",
+  "@noteDeletedWithCount": {
+    "description": "Localized string for noteDeletedWithCount",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loadMore": "Carregar mais",
+  "@loadMore": {
+    "description": "Load more button"
+  },
+  "noMoreProductionsFound": "Nenhuma outra produção encontrada.",
+  "@noMoreProductionsFound": {
+    "description": "No more productions in company details"
+  },
+  "noProductionsFound": "Nenhuma produção encontrada.",
+  "@noProductionsFound": {
+    "description": "No productions in company details"
+  },
+  "watchInsights": "Análises de vídeo",
+  "@watchInsights": {
+    "description": "Watch insights section title"
+  },
+  "analyzingWatchHistory": "Analisando seu histórico de visualização...",
+  "@analyzingWatchHistory": {
+    "description": "Analyzing watch history loading text"
+  },
+  "manageHiddenTitlesDescription": "Gerencie os títulos que você ocultou da seção Destaques.",
+  "@manageHiddenTitlesDescription": {
+    "description": "Description for hidden titles management"
+  },
+  "tmdbLanguageMetadataNote": "Algumas seções podem parecer vazias neste modo porque os metadados de idioma do TMDB estão incompletos para partes do catálogo, e não necessariamente porque esses títulos não existem.",
+  "@tmdbLanguageMetadataNote": {
+    "description": "Note about TMDB language metadata sparseness"
+  },
+  "tmdbDisclaimer": "Este produto utiliza a API do TMDB, mas não é endossado nem certificado pelo TMDB.",
+  "@tmdbDisclaimer": {
+    "description": "TMDB API disclaimer"
+  },
+  "useLocalLibraryForSync": "Usar biblioteca local para sincronização?",
+  "@useLocalLibraryForSync": {
+    "description": "Ask user to use local library for sync"
+  },
+  "themePresets": "Predefinições de tema",
+  "@themePresets": {
+    "description": "Theme presets label"
+  },
+  "exitApp": "Sair do aplicativo",
+  "@exitApp": {
+    "description": "Exit app dialog title"
+  },
+  "popular": "Traduza este rótulo de aplicativo para pt: Popular",
+  "@popular": {
+    "description": "Popular section label"
+  },
+  "couldNotLoadReminders": "Não foi possível carregar os lembretes.\n{error}",
+  "@couldNotLoadReminders": {
+    "description": "Error loading reminders",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noRemindersSetYet": "Nenhum lembrete foi definido ainda.\nCrie um a partir do Rastreador de Episódios ou dos Detalhes do Filme.",
+  "@noRemindersSetYet": {
+    "description": "No reminders set yet"
+  },
+  "episodeSeasonEpisode": "Episódio S{seasonNumber} • E{episodeNumber}",
+  "@episodeSeasonEpisode": {
+    "description": "Episode season and episode label",
+    "placeholders": {
+      "seasonNumber": {
+        "type": "int"
+      },
+      "episodeNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "movieRelease": "Lançamento do filme",
+  "@movieRelease": {
+    "description": "Movie release reminder label"
+  },
+  "voteAverageStars": "Traduza este rótulo do aplicativo para pt: {voteAverage} ★",
+  "@voteAverageStars": {
+    "description": "Vote average with stars",
+    "placeholders": {
+      "voteAverage": {
+        "type": "String"
+      }
+    }
+  },
+  "addMoreTrackedContent": "Adicione mais filmes ou séries à sua lista de favoritos, listas de reprodução ou listas em geral.",
+  "@addMoreTrackedContent": {
+    "description": "Add more tracked content"
+  },
+  "fastPicksDescription": "Seleções rápidas com base no que você já economizou.",
+  "@fastPicksDescription": {
+    "description": "Fast picks based on saved content"
+  },
+  "releaseCalendarDescription": "Lançamentos de filmes e próximos episódios de séries com lembretes de um toque.",
+  "@releaseCalendarDescription": {
+    "description": "Release calendar feature description"
+  },
+  "staleWatchlist": "Lista de observação desatualizada",
+  "@staleWatchlist": {
+    "description": "Stale watchlist label"
+  },
+  "tracked": "Rastreado",
+  "@tracked": {
+    "description": "Tracked tab label"
+  },
+  "upcoming": "Por vir",
+  "@upcoming": {
+    "description": "Upcoming tab label"
+  },
+  "upcomingEmptyDescription": "Quando filmes que estão sendo monitorados tiverem datas de lançamento ou séries com novos episódios programados, eles aparecerão aqui.",
+  "@upcomingEmptyDescription": {
+    "description": "Empty state for upcoming releases"
+  },
+  "howManyMoviesWatchedEachMonth": "Quantos filmes você assistiu por mês?",
+  "@howManyMoviesWatchedEachMonth": {
+    "description": "Chart description"
+  },
+  "howPersonalRatingsShifting": "Como suas avaliações pessoais estão mudando ao longo do tempo",
+  "@howPersonalRatingsShifting": {
+    "description": "Chart description"
+  },
+  "keepWatchingToBuildProfile": "Continue assistindo para construir seu perfil visual.",
+  "@keepWatchingToBuildProfile": {
+    "description": "Empty state for watch history"
+  },
+  "lumiWatchAnalytics": "ANÁLISE DE RELÓGIOS LUMI",
+  "@lumiWatchAnalytics": {
+    "description": "Watch analytics branding"
+  },
+  "noGenreDistributionYet": "Ainda não há distribuição por gênero disponível.",
+  "@noGenreDistributionYet": {
+    "description": "Empty state for genre distribution"
+  },
+  "noMovieWatchHistoryRecentMonths": "Não há histórico de visualização de filmes nos últimos meses.",
+  "@noMovieWatchHistoryRecentMonths": {
+    "description": "Empty state for monthly watch history"
+  },
+  "noRatingTrendDataYet": "Ainda não há dados disponíveis sobre a tendência de avaliações.",
+  "@noRatingTrendDataYet": {
+    "description": "Empty state for rating trend"
+  },
+  "preferredRuntime": "Tempo de execução preferencial",
+  "@preferredRuntime": {
+    "description": "Preferred runtime label"
+  },
+  "preferredRuntimeLabel": "O tempo de execução preferencial é de aproximadamente {minutes} minutos ({label})",
+  "@preferredRuntimeLabel": {
+    "description": "Preferred runtime text",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "styledCardWithWatchStats": "Cartão estilizado com as estatísticas do seu relógio",
+  "@styledCardWithWatchStats": {
+    "description": "Share option description"
+  },
+  "titlesAnalyzed": "Títulos analisados",
+  "@titlesAnalyzed": {
+    "description": "Titles analyzed label"
+  },
+  "tryAgainAfterMoment": "Tente novamente daqui a pouco.",
+  "@tryAgainAfterMoment": {
+    "description": "Retry suggestion"
+  },
+  "watchAnalytics": "Análises do Watch",
+  "@watchAnalytics": {
+    "description": "Watch analytics title"
+  },
+  "whatGenresDominateHistory": "Quais gêneros predominam no seu histórico de visualizações?",
+  "@whatGenresDominateHistory": {
+    "description": "Genre distribution description"
+  },
+  "toggleMovies": "Filmes",
+  "@toggleMovies": {
+    "description": "Movies toggle label"
+  },
+  "toggleTv": "TV",
+  "@toggleTv": {
+    "description": "TV toggle label"
+  },
+  "noMoreTitlesFound": "Nenhum outro título encontrado.",
+  "@noMoreTitlesFound": {
+    "description": "No more titles in keyword screen"
+  },
+  "noTitlesFoundForKeyword": "Nenhum título encontrado para esta palavra-chave.",
+  "@noTitlesFoundForKeyword": {
+    "description": "No titles for keyword"
+  },
+  "viewFull": "Ver tudo",
+  "@viewFull": {
+    "description": "View full episode"
+  },
+  "accoladeDetails": "Detalhes da premiação",
+  "@accoladeDetails": {
+    "description": "Accolade details dialog title"
+  },
+  "noDetailedAwardsInfo": "Não há informações detalhadas disponíveis sobre os prêmios.",
+  "@noDetailedAwardsInfo": {
+    "description": "No awards details"
+  },
+  "alertSet": "Alerta ativado!",
+  "@alertSet": {
+    "description": "Alert set confirmation"
+  },
+  "budget": "Orçamento",
+  "@budget": {
+    "description": "Budget label"
+  },
+  "buy": "Comprar",
+  "@buy": {
+    "description": "Buy provider label"
+  },
+  "chooseBetweenHours": "Escolha entre 1 e {maxHours}",
+  "@chooseBetweenHours": {
+    "description": "Hours input validation",
+    "placeholders": {
+      "maxHours": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteNoteConfirmationTitle": "Apagar nota?",
+  "@deleteNoteConfirmationTitle": {
+    "description": "Delete note dialog title"
+  },
+  "episodeReminder": "Lembrete do episódio",
+  "@episodeReminder": {
+    "description": "Episode reminder dialog title"
+  },
+  "facebook": "Facebook",
+  "@facebook": {
+    "description": "Facebook social link"
+  },
+  "free": "Livre",
+  "@free": {
+    "description": "Free provider label"
+  },
+  "images": "Imagens",
+  "@images": {
+    "description": "Images section title"
+  },
+  "instagram": "Instagram",
+  "@instagram": {
+    "description": "Instagram social link"
+  },
+  "netProfit": "Lucro líquido",
+  "@netProfit": {
+    "description": "Net profit label"
+  },
+  "noNotesYet": "Ainda não há comentários. Adicione suas ideias!",
+  "@noNotesYet": {
+    "description": "No notes yet message"
+  },
+  "originalLanguage": "Língua original",
+  "@originalLanguage": {
+    "description": "Original language label"
+  },
+  "partOfCollection": "Parte do {collectionName}",
+  "@partOfCollection": {
+    "description": "Part of collection label",
+    "placeholders": {
+      "collectionName": {
+        "type": "String"
+      }
+    }
+  },
+  "roi": "ROI",
+  "@roi": {
+    "description": "ROI label"
+  },
+  "releaseAlertSet": "Alerta de liberação do relógio configurado para {date}.",
+  "@releaseAlertSet": {
+    "description": "Release alert set message",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rent": "Aluguel",
+  "@rent": {
+    "description": "Rent provider label"
+  },
+  "revenue": "Receita",
+  "@revenue": {
+    "description": "Revenue label"
+  },
+  "seeAllReviews": "Ver tudo ({count})",
+  "@seeAllReviews": {
+    "description": "See all reviews button",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "setReminder": "Definir lembrete",
+  "@setReminder": {
+    "description": "Set reminder button"
+  },
+  "status": "Status",
+  "@status": {
+    "description": "Status label"
+  },
+  "stream": "Fluxo",
+  "@stream": {
+    "description": "Stream provider label"
+  },
+  "tikTok": "TikTok",
+  "@tikTok": {
+    "description": "TikTok social link"
+  },
+  "twitterX": "X",
+  "@twitterX": {
+    "description": "X social link"
+  },
+  "yours": "SEU",
+  "@yours": {
+    "description": "Yours label"
+  },
+  "youtube": "YouTube",
+  "@youtube": {
+    "description": "YouTube social link"
+  },
+  "durationDays": "Traduza este rótulo do aplicativo para pt: d",
+  "@durationDays": {
+    "description": "Days abbreviation"
+  },
+  "durationHours": "Traduza este rótulo do aplicativo para pt: h",
+  "@durationHours": {
+    "description": "Hours abbreviation"
+  },
+  "durationMinutes": "Traduza este rótulo do aplicativo para pt: m",
+  "@durationMinutes": {
+    "description": "Minutes abbreviation"
+  },
+  "durationSeconds": "Traduza este rótulo do aplicativo para pt: s",
+  "@durationSeconds": {
+    "description": "Seconds abbreviation"
+  },
+  "seasonRating": "Traduza este rótulo do aplicativo para pt: ★ {score}%",
+  "@seasonRating": {
+    "description": "Season rating percentage",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "we": "Nós",
+  "@we": {
+    "description": "Localized string for we"
+  },
+  "aspect16x9": "Traduza este rótulo do aplicativo para pt: 16:9",
+  "@aspect16x9": {
+    "description": "16:9 aspect ratio"
+  },
+  "aspect9x16": "Traduza este rótulo do aplicativo para pt: 9:16",
+  "@aspect9x16": {
+    "description": "9:16 aspect ratio"
+  },
+  "background": "Traduza este rótulo do aplicativo para pt: Bg",
+  "@background": {
+    "description": "Background label"
+  },
+  "episodeCount": "Traduza este rótulo do aplicativo para pt: {count} Eps",
+  "@episodeCount": {
+    "description": "Episode count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noEpisodesForSeason": "Nenhum episódio encontrado para esta temporada.",
+  "@noEpisodesForSeason": {
+    "description": "No episodes for season"
+  },
+  "beautifulStyledCardForStories": "Cartão com design elegante para stories nas redes sociais",
+  "@beautifulStyledCardForStories": {
+    "description": "Share option description"
+  },
+  "clickableShareLink": "Link clicável para compartilhar no WhatsApp e em outros aplicativos.",
+  "@clickableShareLink": {
+    "description": "Share option description"
+  },
+  "placeQuoteOnBackdrop": "Coloque sua citação favorita em um cenário de filme.",
+  "@placeQuoteOnBackdrop": {
+    "description": "Share option description"
+  },
+  "standardLinkToMovieDatabase": "Link padrão para o banco de dados de filmes",
+  "@standardLinkToMovieDatabase": {
+    "description": "Share option description"
+  },
+  "exploreLabel": "Explorar",
+  "@exploreLabel": {
+    "description": "Explore label"
+  },
+  "quoteCharacter": "Traduza este rótulo do aplicativo para pt: — {character}",
+  "@quoteCharacter": {
+    "description": "Quote character attribution",
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "aiTonightWatch": "Assista ao AI Tonight",
+  "@aiTonightWatch": {
+    "description": "AI tonight watch feature"
+  },
+  "aiQueryPlan": "plano de consulta de IA",
+  "@aiQueryPlan": {
+    "description": "AI query plan label"
+  },
+  "airingToday": "Exibido hoje",
+  "@airingToday": {
+    "description": "Airing today section"
+  },
+  "bigCrowdPleasers": "Grandes sucessos de público com forte impulso.",
+  "@bigCrowdPleasers": {
+    "description": "Explore section subtitle"
+  },
+  "cinematic": "Cinematográfico",
+  "@cinematic": {
+    "description": "Mood label"
+  },
+  "comingSoon": "Em breve",
+  "@comingSoon": {
+    "description": "Coming soon section"
+  },
+  "currentTheatricalSlate": "Programação atual de filmes em cartaz e lançamentos futuros próximos.",
+  "@currentTheatricalSlate": {
+    "description": "Explore section subtitle"
+  },
+  "dark": "Escuro",
+  "@dark": {
+    "description": "Mood label"
+  },
+  "discoverSpotlight": "Descubra o Spotlight",
+  "@discoverSpotlight": {
+    "description": "Discover spotlight title"
+  },
+  "edgeOfYourSeat": "De tirar o fôlego",
+  "@edgeOfYourSeat": {
+    "description": "Mood label"
+  },
+  "fastPaced": "ritmo acelerado",
+  "@fastPaced": {
+    "description": "Mood label"
+  },
+  "feelGood": "Sensação de bem-estar",
+  "@feelGood": {
+    "description": "Mood label"
+  },
+  "freshPicksContinuous": "Novidades atualizadas continuamente",
+  "@freshPicksContinuous": {
+    "description": "Explore section subtitle"
+  },
+  "hideTitle": "Ocultar título",
+  "@hideTitle": {
+    "description": "Hide title dialog title"
+  },
+  "highRatedSkipped": "Títulos bem avaliados que a maioria dos espectadores pula",
+  "@highRatedSkipped": {
+    "description": "Explore section subtitle"
+  },
+  "hotNowAudience": "Agora em alta em todo o feed do público",
+  "@hotNowAudience": {
+    "description": "Explore section subtitle"
+  },
+  "inTheaters": "Nos cinemas",
+  "@inTheaters": {
+    "description": "In theaters section"
+  },
+  "indie": "Traduza este rótulo de aplicativo para pt: Indie",
+  "@indie": {
+    "description": "Mood label"
+  },
+  "mindBending": "Alucinante",
+  "@mindBending": {
+    "description": "Mood label"
+  },
+  "mostDiscussedShowsThisWeek": "Programas mais comentados desta semana",
+  "@mostDiscussedShowsThisWeek": {
+    "description": "Explore section subtitle"
+  },
+  "multiplePicks": "Múltiplas escolhas",
+  "@multiplePicks": {
+    "description": "Multiple picks feature chip"
+  },
+  "onTheAir": "No ar",
+  "@onTheAir": {
+    "description": "On the air section"
+  },
+  "personalizedFromWatchBehavior": "Personalizado com base no seu comportamento de uso do relógio",
+  "@personalizedFromWatchBehavior": {
+    "description": "Explore section subtitle"
+  },
+  "pickAVibe": "Escolha um estilo e obtenha títulos correspondentes instantaneamente.",
+  "@pickAVibe": {
+    "description": "Explore section subtitle"
+  },
+  "seeAll": "Ver tudo",
+  "@seeAll": {
+    "description": "See all button"
+  },
+  "seriesCurrentlyAiring": "Séries atualmente em exibição com episódios ativos",
+  "@seriesCurrentlyAiring": {
+    "description": "Explore section subtitle"
+  },
+  "thisWeek": "Essa semana",
+  "@thisWeek": {
+    "description": "This week filter"
+  },
+  "topRated": "Mais bem avaliado",
+  "@topRated": {
+    "description": "Top rated section"
+  },
+  "voiceInput": "Entrada de voz",
+  "@voiceInput": {
+    "description": "Voice input feature chip"
+  },
+  "matchPercent": "{matchPct}% de correspondência",
+  "@matchPercent": {
+    "description": "Match percentage",
+    "placeholders": {
+      "matchPct": {
+        "type": "String"
+      }
+    }
+  },
+  "runtimeMinutes": "Traduza este rótulo do aplicativo para pt: {minutes} min",
+  "@runtimeMinutes": {
+    "description": "Runtime in minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "examplePrompt": "Exemplo: Algo como Interestelar, mas não ficção científica.",
+  "@examplePrompt": {
+    "description": "Example prompt hint"
+  },
+  "findingYourPerfectWatch": "Encontrando o relógio perfeito{dots}",
+  "@findingYourPerfectWatch": {
+    "description": "Finding recommendations loading",
+    "placeholders": {
+      "dots": {
+        "type": "String"
+      }
+    }
+  },
+  "moreLikeThis": "Mais como isto",
+  "@moreLikeThis": {
+    "description": "More like this button"
+  },
+  "notForMe": "Não é para mim.",
+  "@notForMe": {
+    "description": "Not for me button"
+  },
+  "recentQueries": "Consultas recentes",
+  "@recentQueries": {
+    "description": "Recent queries section"
+  },
+  "shufflingIdeas": "Embaralhando ideias...",
+  "@shufflingIdeas": {
+    "description": "Shuffling ideas loading"
+  },
+  "tooMainstream": "Muito convencional",
+  "@tooMainstream": {
+    "description": "Too mainstream button"
+  },
+  "whatShouldIWatchTonight": "O que devo assistir hoje à noite?",
+  "@whatShouldIWatchTonight": {
+    "description": "Tonight feature title"
+  },
+  "debugLogEntry": "Traduza este rótulo do aplicativo para pt: [{time}] {message}",
+  "@debugLogEntry": {
+    "description": "Debug log entry",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "from": "De",
+  "@from": {
+    "description": "From filter label"
+  },
+  "to": "Para",
+  "@to": {
+    "description": "To filter label"
+  },
+  "removedFromWatchlistCountdown": "Removido da lista de observação ({seconds} s)",
+  "@removedFromWatchlistCountdown": {
+    "description": "Removed from watchlist with countdown",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "creditsCount": "Créditos {count}",
+  "@creditsCount": {
+    "description": "Person credits count",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "acrossFilmography": "Ao longo da filmografia",
+  "@acrossFilmography": {
+    "description": "Across filmography label"
+  },
+  "birthplace": "Local de nascimento",
+  "@birthplace": {
+    "description": "Birthplace label"
+  },
+  "born": "Nascer",
+  "@born": {
+    "description": "Born label"
+  },
+  "credits": "Créditos",
+  "@credits": {
+    "description": "Credits label"
+  },
+  "died": "Morreu",
+  "@died": {
+    "description": "Died label"
+  },
+  "knownFor": "Conhecido por",
+  "@knownFor": {
+    "description": "Known for label"
+  },
+  "noSharedTitlesAvailable": "Não há títulos compartilhados disponíveis.",
+  "@noSharedTitlesAvailable": {
+    "description": "No shared titles available"
+  },
+  "photos": "Fotos",
+  "@photos": {
+    "description": "Photos section"
+  },
+  "personRating": "Avaliação",
+  "@personRating": {
+    "description": "Rating column header"
+  },
+  "taggedImages": "Imagens marcadas",
+  "@taggedImages": {
+    "description": "Tagged images section"
+  },
+  "website": "Site",
+  "@website": {
+    "description": "Website link"
+  },
+  "noQuotesFound": "Nenhuma citação encontrada.",
+  "@noQuotesFound": {
+    "description": "No quotes found"
+  },
+  "noSectionsFound": "Nenhuma seção encontrada.",
+  "@noSectionsFound": {
+    "description": "No sections found"
+  },
+  "clearAll": "Limpar tudo",
+  "@clearAll": {
+    "description": "Clear all button"
+  },
+  "noCollectionsFound": "Nenhuma coleção encontrada",
+  "@noCollectionsFound": {
+    "description": "No collections found"
+  },
+  "noCompaniesFound": "Nenhuma empresa encontrada",
+  "@noCompaniesFound": {
+    "description": "No companies found"
+  },
+  "noKeywordsFound": "Nenhuma palavra-chave encontrada",
+  "@noKeywordsFound": {
+    "description": "No keywords found"
+  },
+  "noMoreResultsFound": "Nenhum outro resultado encontrado.",
+  "@noMoreResultsFound": {
+    "description": "No more search results"
+  },
+  "noResultsFound": "Nenhum resultado encontrado",
+  "@noResultsFound": {
+    "description": "No search results"
+  },
+  "deleteListConfirmation": "Tem certeza de que deseja excluir {listName}?",
+  "@deleteListConfirmation": {
+    "description": "Delete list confirmation",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteListTitle": "Excluir lista?",
+  "@deleteListTitle": {
+    "description": "Delete list dialog title"
+  },
+  "everythingYouPlanToWatch": "Tudo o que você planeja assistir em seguida.",
+  "@everythingYouPlanToWatch": {
+    "description": "Watchlist section description"
+  },
+  "finishedTitlesAndHistory": "Títulos concluídos, além do seu histórico e estatísticas.",
+  "@finishedTitlesAndHistory": {
+    "description": "Watched section description"
+  },
+  "noListsCreatedYet": "Nenhuma lista foi criada ainda.",
+  "@noListsCreatedYet": {
+    "description": "No lists created"
+  },
+  "noNotesFound": "Nenhuma nota encontrada",
+  "@noNotesFound": {
+    "description": "Localized string for noNotesFound"
+  },
+  "renameList": "Lista de renomeação",
+  "@renameList": {
+    "description": "Rename list dialog title"
+  },
+  "titlesYouNeverWantToLose": "Os títulos que você nunca quer perder.",
+  "@titlesYouNeverWantToLose": {
+    "description": "Favourites section description"
+  },
+  "yourThoughtsReactions": "Seus pensamentos, reações e lembretes.",
+  "@yourThoughtsReactions": {
+    "description": "Notes section description"
+  },
+  "imageCounter": "Traduza este rótulo do aplicativo para pt: {current} / {total}",
+  "@imageCounter": {
+    "description": "Image counter",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "removeFromWatchedConfirmation": "Tem certeza de que deseja remover isso da sua lista de observados?",
+  "@removeFromWatchedConfirmation": {
+    "description": "Remove from watched confirmation"
+  },
+  "savedAsWatchedWithoutRating": "Este vídeo será salvo como assistido, sem uma avaliação pessoal.",
+  "@savedAsWatchedWithoutRating": {
+    "description": "Saved as watched without rating"
+  },
+  "noAdditionalRecommendationTrailers": "Não foram encontrados trailers de recomendação adicionais.",
+  "@noAdditionalRecommendationTrailers": {
+    "description": "No recommendation trailers"
+  },
+  "sharedListItemsCount": "Traduza este rótulo do aplicativo para pt: {count} {itemLabel}",
+  "@sharedListItemsCount": {
+    "description": "Shared list items count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "itemLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidSharedListLink": "O link pode ser inválido, expirado ou não estar mais acessível.",
+  "@invalidSharedListLink": {
+    "description": "Invalid shared list link"
+  },
+  "noTitlesAvailableToImport": "Não há títulos disponíveis para importação.",
+  "@noTitlesAvailableToImport": {
+    "description": "No titles to import"
+  },
+  "allLanguages": "Todos os idiomas",
+  "@allLanguages": {
+    "description": "Language name: All Languages"
+  },
+  "arabic": "árabe",
+  "@arabic": {
+    "description": "Language name: Arabic"
+  },
+  "bengali": "bengali",
+  "@bengali": {
+    "description": "Language name: Bengali"
+  },
+  "chinese": "chinês",
+  "@chinese": {
+    "description": "Language name: Chinese"
+  },
+  "english": "Inglês",
+  "@english": {
+    "description": "Language name: English"
+  },
+  "french": "Francês",
+  "@french": {
+    "description": "Language name: French"
+  },
+  "german": "Alemão",
+  "@german": {
+    "description": "Language name: German"
+  },
+  "gujarati": "Traduza este rótulo do aplicativo para pt: Gujarati",
+  "@gujarati": {
+    "description": "Language name: Gujarati"
+  },
+  "hindi": "hindi",
+  "@hindi": {
+    "description": "Language name: Hindi"
+  },
+  "indonesian": "indonésio",
+  "@indonesian": {
+    "description": "Language name: Indonesian"
+  },
+  "italian": "italiano",
+  "@italian": {
+    "description": "Language name: Italian"
+  },
+  "japanese": "japonês",
+  "@japanese": {
+    "description": "Language name: Japanese"
+  },
+  "kannada": "Traduza este rótulo do aplicativo para pt: Kannada",
+  "@kannada": {
+    "description": "Language name: Kannada"
+  },
+  "korean": "coreano",
+  "@korean": {
+    "description": "Language name: Korean"
+  },
+  "malayalam": "Traduza este rótulo do aplicativo para pt: Malayalam",
+  "@malayalam": {
+    "description": "Language name: Malayalam"
+  },
+  "marathi": "Traduza este rótulo do aplicativo para pt: Marathi",
+  "@marathi": {
+    "description": "Language name: Marathi"
+  },
+  "persian": "persa",
+  "@persian": {
+    "description": "Language name: Persian"
+  },
+  "polish": "polonês",
+  "@polish": {
+    "description": "Language name: Polish"
+  },
+  "portuguese": "Português",
+  "@portuguese": {
+    "description": "Language name: Portuguese"
+  },
+  "punjabi": "Traduza este rótulo do aplicativo para pt: Punjabi",
+  "@punjabi": {
+    "description": "Language name: Punjabi"
+  },
+  "russian": "russo",
+  "@russian": {
+    "description": "Language name: Russian"
+  },
+  "spanish": "Espanhol",
+  "@spanish": {
+    "description": "Language name: Spanish"
+  },
+  "swedish": "sueco",
+  "@swedish": {
+    "description": "Language name: Swedish"
+  },
+  "tamil": "tâmil",
+  "@tamil": {
+    "description": "Language name: Tamil"
+  },
+  "telugu": "Traduza este rótulo do aplicativo para pt: Telugu",
+  "@telugu": {
+    "description": "Language name: Telugu"
+  },
+  "thai": "Tailandês",
+  "@thai": {
+    "description": "Language name: Thai"
+  },
+  "turkish": "turco",
+  "@turkish": {
+    "description": "Language name: Turkish"
+  },
+  "urdu": "urdu",
+  "@urdu": {
+    "description": "Language name: Urdu"
+  },
+  "vietnamese": "vietnamita",
+  "@vietnamese": {
+    "description": "Language name: Vietnamese"
+  },
+  "failedToLoadCollectionDetails": "Falha ao carregar os detalhes da coleção",
+  "@failedToLoadCollectionDetails": {
+    "description": "Localized string for failedToLoadCollectionDetails"
+  },
+  "franchiseProgress": "Progresso da Franquia",
+  "@franchiseProgress": {
+    "description": "Localized string for franchiseProgress"
+  },
+  "officialSite": "Site oficial",
+  "@officialSite": {
+    "description": "Localized string for officialSite"
+  },
+  "productions": "Produções",
+  "@productions": {
+    "description": "Localized string for productions"
+  },
+  "productionCompany": "Empresa de Produção",
+  "@productionCompany": {
+    "description": "Localized string for productionCompany"
+  },
+  "failedToLoadCompanyInfo": "Não foi possível carregar as informações da empresa.",
+  "@failedToLoadCompanyInfo": {
+    "description": "Localized string for failedToLoadCompanyInfo"
+  },
+  "profile": "Perfil",
+  "@profile": {
+    "description": "Localized string for profile"
+  },
+  "guestViewer": "Espectador convidado",
+  "@guestViewer": {
+    "description": "Localized string for guestViewer"
+  },
+  "yourProfileSyncStateRegionPreferences": "Seu perfil, estado de sincronização, região e preferências visuais estão todos aqui.",
+  "@yourProfileSyncStateRegionPreferences": {
+    "description": "Localized string for yourProfileSyncStateRegionPreferences"
+  },
+  "signInToSync": "Inicie sessão para sincronizar sua lista de favoritos, avaliações e preferências.",
+  "@signInToSync": {
+    "description": "Localized string for signInToSync"
+  },
+  "signedInAndSyncing": "Login efetuado e sincronizando com a nuvem.",
+  "@signedInAndSyncing": {
+    "description": "Localized string for signedInAndSyncing"
+  },
+  "developedBy": "Desenvolvido por",
+  "@developedBy": {
+    "description": "Localized string for developedBy"
+  },
+  "couldNotAnalyzeWatchHistory": "Não foi possível analisar o histórico de visualizações neste momento.",
+  "@couldNotAnalyzeWatchHistory": {
+    "description": "Localized string for couldNotAnalyzeWatchHistory"
+  },
+  "includeLocalLibrary": "Incluir a biblioteca local",
+  "@includeLocalLibrary": {
+    "description": "Localized string for includeLocalLibrary"
+  },
+  "useCloudOnly": "Usar somente na nuvem",
+  "@useCloudOnly": {
+    "description": "Localized string for useCloudOnly"
+  },
+  "localLibrarySyncDescription": "Este dispositivo já possui títulos da biblioteca local. Inclua-os na sua biblioteca em que iniciou sessão ou substitua os dados da biblioteca local pela sua biblioteca na nuvem.",
+  "@localLibrarySyncDescription": {
+    "description": "Localized string for localLibrarySyncDescription"
+  },
+  "mergedLocalTitles": "Títulos locais mesclados à sua biblioteca após o login.",
+  "@mergedLocalTitles": {
+    "description": "Localized string for mergedLocalTitles"
+  },
+  "replacedLocalLibrary": "Substituí os dados da biblioteca local pela sua biblioteca na nuvem.",
+  "@replacedLocalLibrary": {
+    "description": "Localized string for replacedLocalLibrary"
+  },
+  "deleteAccountConfirmation": "Isso exclui permanentemente sua conta Lumi e os dados sincronizados na nuvem. Os dados locais neste dispositivo permanecerão, a menos que você remova os dados do aplicativo separadamente.",
+  "@deleteAccountConfirmation": {
+    "description": "Localized string for deleteAccountConfirmation"
+  },
+  "signedOutAndCleared": "Saí da minha conta e limpei a biblioteca local neste dispositivo.",
+  "@signedOutAndCleared": {
+    "description": "Localized string for signedOutAndCleared"
+  },
+  "keepLocalLibrary": "Mantenha a biblioteca local",
+  "@keepLocalLibrary": {
+    "description": "Localized string for keepLocalLibrary"
+  },
+  "clearLocalLibrary": "Biblioteca Local Limpa",
+  "@clearLocalLibrary": {
+    "description": "Localized string for clearLocalLibrary"
+  },
+  "signOutChoiceDescription": "Escolha se deseja manter a biblioteca local neste dispositivo após sair da sessão.",
+  "@signOutChoiceDescription": {
+    "description": "Localized string for signOutChoiceDescription"
+  },
+  "disable": "Desativar",
+  "@disable": {
+    "description": "Localized string for disable"
+  },
+  "aiRecommendationsEnabled": "Compartilhamento de dados de recomendações de IA ativado.",
+  "@aiRecommendationsEnabled": {
+    "description": "Localized string for aiRecommendationsEnabled"
+  },
+  "aiRecommendationsDisabled": "Compartilhamento de dados de recomendações de IA desativado.",
+  "@aiRecommendationsDisabled": {
+    "description": "Localized string for aiRecommendationsDisabled"
+  },
+  "reviewAndManageConsent": "Analisar e gerir o consentimento para o envio de dados da biblioteca a fornecedores de IA.",
+  "@reviewAndManageConsent": {
+    "description": "Localized string for reviewAndManageConsent"
+  },
+  "aiRecommendationsEnabledSubtitle": "Ativado. O recurso Recomendar Hoje à Noite pode enviar o resumo da sua biblioteca e as suas consultas recentes para fornecedores de IA.",
+  "@aiRecommendationsEnabledSubtitle": {
+    "description": "Localized string for aiRecommendationsEnabledSubtitle"
+  },
+  "basedOnWatchedTitles": "Com base em {count} títulos assistidos",
+  "@basedOnWatchedTitles": {
+    "description": "Localized string for basedOnWatchedTitles",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lastUpdated": "Última atualização: {date}",
+  "@lastUpdated": {
+    "description": "Localized string for lastUpdated",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseYourVibe": "Escolha a sua vibe",
+  "@chooseYourVibe": {
+    "description": "Localized string for chooseYourVibe"
+  },
+  "appearanceDescription": "Alterne entre personalidades cinematográficas no aplicativo sem alterar nenhum comportamento.",
+  "@appearanceDescription": {
+    "description": "Localized string for appearanceDescription"
+  },
+  "exitAppConfirmation": "Tem certeza de que deseja sair do Lumi?",
+  "@exitAppConfirmation": {
+    "description": "Localized string for exitAppConfirmation"
+  },
+  "dismiss": "Liberar",
+  "@dismiss": {
+    "description": "Localized string for dismiss"
+  },
+  "generatingWatchAnalytics": "Geração de análises de relógios",
+  "@generatingWatchAnalytics": {
+    "description": "Localized string for generatingWatchAnalytics"
+  },
+  "thisUsuallyTakesAFewSeconds": "Isso geralmente leva alguns segundos.",
+  "@thisUsuallyTakesAFewSeconds": {
+    "description": "Localized string for thisUsuallyTakesAFewSeconds"
+  },
+  "yourScreenStory": "Sua história na tela",
+  "@yourScreenStory": {
+    "description": "Localized string for yourScreenStory"
+  },
+  "snapshotOfHowAndWhatYouWatch": "Um resumo de como e o que você assiste",
+  "@snapshotOfHowAndWhatYouWatch": {
+    "description": "Localized string for snapshotOfHowAndWhatYouWatch"
+  },
+  "yourFavoriteGenres": "Seus gêneros favoritos",
+  "@yourFavoriteGenres": {
+    "description": "Localized string for yourFavoriteGenres"
+  },
+  "genrePerformanceHighestRated": "Desempenho no gênero (Melhor avaliado)",
+  "@genrePerformanceHighestRated": {
+    "description": "Localized string for genrePerformanceHighestRated"
+  },
+  "personalizedViewingPatterns": "padrões de visualização personalizados",
+  "@personalizedViewingPatterns": {
+    "description": "Localized string for personalizedViewingPatterns"
+  },
+  "builtWithLumi": "Construído com Lumi",
+  "@builtWithLumi": {
+    "description": "Localized string for builtWithLumi"
+  },
+  "sharedWithLumi": "Compartilhado com Lumi",
+  "@sharedWithLumi": {
+    "description": "Localized string for sharedWithLumi"
+  },
+  "shareAnalytics": "Compartilhar análises",
+  "@shareAnalytics": {
+    "description": "Localized string for shareAnalytics"
+  },
+  "analyzedTitlesUpdated": "Títulos analisados: {count} • {date} atualizado",
+  "@analyzedTitlesUpdated": {
+    "description": "Localized string for analyzedTitlesUpdated",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "allSeasons": "Todas as estações",
+  "@allSeasons": {
+    "description": "Localized string for allSeasons"
+  },
+  "castAndCrew": "Elenco e equipe",
+  "@castAndCrew": {
+    "description": "Localized string for castAndCrew"
+  },
+  "featuredCrew": "Equipe em destaque",
+  "@featuredCrew": {
+    "description": "Localized string for featuredCrew"
+  },
+  "stills": "Fotos",
+  "@stills": {
+    "description": "Localized string for stills"
+  },
+  "accoladeSummary": "Resumo dos Prêmios",
+  "@accoladeSummary": {
+    "description": "Localized string for accoladeSummary"
+  },
+  "awardsAndAccolades": "Prêmios e Reconhecimentos",
+  "@awardsAndAccolades": {
+    "description": "Localized string for awardsAndAccolades"
+  },
+  "unableToLoadMovieDetails": "Não foi possível carregar os detalhes do filme.",
+  "@unableToLoadMovieDetails": {
+    "description": "Localized string for unableToLoadMovieDetails"
+  },
+  "overviewUnavailable": "Visão geral não disponível para este título.",
+  "@overviewUnavailable": {
+    "description": "Localized string for overviewUnavailable"
+  },
+  "openCompletePlot": "Abra o gráfico completo e os metadados adicionais do OMDb.",
+  "@openCompletePlot": {
+    "description": "Localized string for openCompletePlot"
+  },
+  "noOverviewForSeason": "Não há resumo disponível para esta temporada.",
+  "@noOverviewForSeason": {
+    "description": "Localized string for noOverviewForSeason"
+  },
+  "userScore": "Pontuação do usuário",
+  "@userScore": {
+    "description": "Localized string for userScore"
+  },
+  "playTrailer": "Reproduzir trailer",
+  "@playTrailer": {
+    "description": "Localized string for playTrailer"
+  },
+  "whereToWatch": "Onde assistir",
+  "@whereToWatch": {
+    "description": "Localized string for whereToWatch"
+  },
+  "availabilityDataByJustWatch": "Dados de disponibilidade fornecidos pela JustWatch.",
+  "@availabilityDataByJustWatch": {
+    "description": "Localized string for availabilityDataByJustWatch"
+  },
+  "reminderSaved": "Lembrete salvo",
+  "@reminderSaved": {
+    "description": "Localized string for reminderSaved"
+  },
+  "reminderForTitle": "Lembrete para {title}",
+  "@reminderForTitle": {
+    "description": "Localized string for reminderForTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "pleaseSelectFutureTime": "Por favor, selecione um horário futuro.",
+  "@pleaseSelectFutureTime": {
+    "description": "Localized string for pleaseSelectFutureTime"
+  },
+  "notifyAt": "Notifique em",
+  "@notifyAt": {
+    "description": "Localized string for notifyAt"
+  },
+  "notifyHoursBeforeAiring": "Com quantas horas de antecedência devo avisar antes da transmissão?",
+  "@notifyHoursBeforeAiring": {
+    "description": "Localized string for notifyHoursBeforeAiring"
+  },
+  "enterNumberBetween": "Digite um número entre 1 e {maxHours}",
+  "@enterNumberBetween": {
+    "description": "Localized string for enterNumberBetween",
+    "placeholders": {
+      "maxHours": {
+        "type": "String"
+      }
+    }
+  },
+  "set": "Definir",
+  "@set": {
+    "description": "Localized string for set"
+  },
+  "selectedReminderTimePassed": "O tempo de lembrete selecionado já passou.",
+  "@selectedReminderTimePassed": {
+    "description": "Localized string for selectedReminderTimePassed"
+  },
+  "episodeReminderSaved": "Lembrete de episódio salvo para {date}",
+  "@episodeReminderSaved": {
+    "description": "Localized string for episodeReminderSaved",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "areYouSureDeleteNote": "Tem certeza de que deseja excluir esta nota?",
+  "@areYouSureDeleteNote": {
+    "description": "Localized string for areYouSureDeleteNote"
+  },
+  "noteAdded": "Nota adicionada",
+  "@noteAdded": {
+    "description": "Localized string for noteAdded"
+  },
+  "lastSeason": "Última temporada",
+  "@lastSeason": {
+    "description": "Localized string for lastSeason"
+  },
+  "currentSeason": "Temporada atual",
+  "@currentSeason": {
+    "description": "Localized string for currentSeason"
+  },
+  "viewAllSeasons": "Ver todas as temporadas",
+  "@viewAllSeasons": {
+    "description": "Localized string for viewAllSeasons"
+  },
+  "removedFromFavourites": "Removido dos favoritos",
+  "@removedFromFavourites": {
+    "description": "Localized string for removedFromFavourites"
+  },
+  "addedToFavourites": "Adicionado aos favoritos",
+  "@addedToFavourites": {
+    "description": "Localized string for addedToFavourites"
+  },
+  "awardsAndNominations": "Prêmios e Indicações",
+  "@awardsAndNominations": {
+    "description": "Localized string for awardsAndNominations"
+  },
+  "viewAll": "Ver tudo",
+  "@viewAll": {
+    "description": "Localized string for viewAll"
+  },
+  "boxOfficeFinancials": "Dados financeiros da bilheteria",
+  "@boxOfficeFinancials": {
+    "description": "Localized string for boxOfficeFinancials"
+  },
+  "successMeter": "Medidor de sucesso",
+  "@successMeter": {
+    "description": "Localized string for successMeter"
+  },
+  "blockbuster": "SUCESSO DE BILHETERIA",
+  "@blockbuster": {
+    "description": "Localized string for blockbuster"
+  },
+  "hit": "BATER",
+  "@hit": {
+    "description": "Localized string for hit"
+  },
+  "breakEven": "EMPATAR",
+  "@breakEven": {
+    "description": "Localized string for breakEven"
+  },
+  "underperformer": "DESEMPENHO INFERIOR",
+  "@underperformer": {
+    "description": "Localized string for underperformer"
+  },
+  "boxOfficeBomb": "FRACASSO DE BILHETERIA",
+  "@boxOfficeBomb": {
+    "description": "Localized string for boxOfficeBomb"
+  },
+  "episodeTracker": "Rastreador de Episódios",
+  "@episodeTracker": {
+    "description": "Localized string for episodeTracker"
+  },
+  "setAiringReminder": "Defina o lembrete de exibição",
+  "@setAiringReminder": {
+    "description": "Localized string for setAiringReminder"
+  },
+  "nextEpisodeCountdown": "Contagem regressiva para o próximo episódio",
+  "@nextEpisodeCountdown": {
+    "description": "Localized string for nextEpisodeCountdown"
+  },
+  "nextEpisode": "Próximo episódio",
+  "@nextEpisode": {
+    "description": "Localized string for nextEpisode"
+  },
+  "lastEpisodeToAir": "Último episódio a ser exibido",
+  "@lastEpisodeToAir": {
+    "description": "Localized string for lastEpisodeToAir"
+  },
+  "unknown": "Desconhecido",
+  "@unknown": {
+    "description": "Localized string for unknown"
+  },
+  "contentAdvisory": "Aviso de conteúdo",
+  "@contentAdvisory": {
+    "description": "Localized string for contentAdvisory"
+  },
+  "violence": "Violência",
+  "@violence": {
+    "description": "Localized string for violence"
+  },
+  "sexAndNudity": "Sexo e nudez",
+  "@sexAndNudity": {
+    "description": "Localized string for sexAndNudity"
+  },
+  "foulLanguage": "Linguagem",
+  "@foulLanguage": {
+    "description": "Localized string for foulLanguage"
+  },
+  "substances": "Substâncias",
+  "@substances": {
+    "description": "Localized string for substances"
+  },
+  "fearAndHorror": "Medo e Horror",
+  "@fearAndHorror": {
+    "description": "Localized string for fearAndHorror"
+  },
+  "familyFriendly": "Ideal para famílias",
+  "@familyFriendly": {
+    "description": "Localized string for familyFriendly"
+  },
+  "generalAudience": "Público em geral",
+  "@generalAudience": {
+    "description": "Localized string for generalAudience"
+  },
+  "releaseTimeline": "Cronograma de lançamento",
+  "@releaseTimeline": {
+    "description": "Localized string for releaseTimeline"
+  },
+  "notifyMe": "Avise-me",
+  "@notifyMe": {
+    "description": "Localized string for notifyMe"
+  },
+  "theatricalRelease": "Lançamento nos cinemas",
+  "@theatricalRelease": {
+    "description": "Localized string for theatricalRelease"
+  },
+  "digitalStreaming": "Traduza este rótulo do aplicativo para pt: Digital / Streaming",
+  "@digitalStreaming": {
+    "description": "Localized string for digitalStreaming"
+  },
+  "physicalRelease": "Formato físico (Blu-ray / DVD)",
+  "@physicalRelease": {
+    "description": "Localized string for physicalRelease"
+  },
+  "awesome": "Incrível",
+  "@awesome": {
+    "description": "Localized string for awesome"
+  },
+  "keywordsAndThemes": "Palavras-chave e temas",
+  "@keywordsAndThemes": {
+    "description": "Localized string for keywordsAndThemes"
+  },
+  "videosAndBehindTheScenes": "Vídeos e bastidores",
+  "@videosAndBehindTheScenes": {
+    "description": "Localized string for videosAndBehindTheScenes"
+  },
+  "productionStudios": "Estúdios de Produção",
+  "@productionStudios": {
+    "description": "Localized string for productionStudios"
+  },
+  "fetchingWatchLink": "Buscando link do relógio",
+  "@fetchingWatchLink": {
+    "description": "Localized string for fetchingWatchLink"
+  },
+  "findingBestProviderPage": "Encontrando a melhor página de fornecedores para este título.",
+  "@findingBestProviderPage": {
+    "description": "Localized string for findingBestProviderPage"
+  },
+  "episodeCode": "S{season}E{episode}",
+  "@episodeCode": {
+    "description": "Localized string for episodeCode",
+    "placeholders": {
+      "season": {
+        "type": "String"
+      },
+      "episode": {
+        "type": "String"
+      }
+    }
+  },
+  "error": "Erro",
+  "@error": {
+    "description": "Localized string for error"
+  },
+  "failedToLoadSeasonDetails": "Não foi possível carregar os detalhes da temporada.",
+  "@failedToLoadSeasonDetails": {
+    "description": "Localized string for failedToLoadSeasonDetails"
+  },
+  "loading": "Carregando...",
+  "@loading": {
+    "description": "Localized string for loading"
+  },
+  "runtimeSeparator": "Traduza este rótulo do aplicativo para pt: • {runtime}",
+  "@runtimeSeparator": {
+    "description": "Localized string for runtimeSeparator",
+    "placeholders": {
+      "runtime": {
+        "type": "String"
+      }
+    }
+  },
+  "fullCastAndCrew": "Elenco e equipe completos",
+  "@fullCastAndCrew": {
+    "description": "Localized string for fullCastAndCrew"
+  },
+  "shareMovie": "Compartilhar Filme",
+  "@shareMovie": {
+    "description": "Localized string for shareMovie"
+  },
+  "quotes": "Citações",
+  "@quotes": {
+    "description": "Localized string for quotes"
+  },
+  "mayIncludeMismatches": "Pode incluir eventuais incompatibilidades devido à pesquisa por citação lexical.",
+  "@mayIncludeMismatches": {
+    "description": "Localized string for mayIncludeMismatches"
+  },
+  "movieApiConfigurationRequired": "Configuração da API de filmes necessária",
+  "@movieApiConfigurationRequired": {
+    "description": "Localized string for movieApiConfigurationRequired"
+  },
+  "addMovieProxyBaseUrl": "Adicione MOVIE_PROXY_BASE_URL para conectar o aplicativo ao proxy do TMDB.",
+  "@addMovieProxyBaseUrl": {
+    "description": "Localized string for addMovieProxyBaseUrl"
+  },
+  "cinematicPicksContext": "Escolhas cinematográficas com contexto de atmosfera instantâneo. Role os dados para ver outra carta surpresa.",
+  "@cinematicPicksContext": {
+    "description": "Localized string for cinematicPicksContext"
+  },
+  "curatedTonight": "Selecionado para hoje à noite",
+  "@curatedTonight": {
+    "description": "Localized string for curatedTonight"
+  },
+  "curatedTonightTitle": "Selecionado para hoje: {title}",
+  "@curatedTonightTitle": {
+    "description": "Localized string for curatedTonightTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "describeItYourWay": "Descreva do seu jeito.\nNós encontramos as melhores opções.",
+  "@describeItYourWay": {
+    "description": "Localized string for describeItYourWay"
+  },
+  "hide": "Esconder",
+  "@hide": {
+    "description": "Localized string for hide"
+  },
+  "hideTitleDescription": "Ocultar este título impedirá que ele apareça na seção Destaques no futuro.",
+  "@hideTitleDescription": {
+    "description": "Localized string for hideTitleDescription"
+  },
+  "dontAskAgain": "Não pergunte novamente.",
+  "@dontAskAgain": {
+    "description": "Localized string for dontAskAgain"
+  },
+  "imdbNa": "Traduzir este rótulo do aplicativo para pt: IMDb NA",
+  "@imdbNa": {
+    "description": "Localized string for imdbNa"
+  },
+  "noDiscoverPicks": "Nenhuma sugestão de descoberta disponível no momento.",
+  "@noDiscoverPicks": {
+    "description": "Localized string for noDiscoverPicks"
+  },
+  "playPreview": "Reproduzir pré-visualização",
+  "@playPreview": {
+    "description": "Localized string for playPreview"
+  },
+  "recommendedForYou": "Recomendado para você",
+  "@recommendedForYou": {
+    "description": "Localized string for recommendedForYou"
+  },
+  "spotlightCompleted": "Destaque Concluído",
+  "@spotlightCompleted": {
+    "description": "Localized string for spotlightCompleted"
+  },
+  "startAddingTitlesForRecommendations": "Comece a adicionar títulos para recomendações.",
+  "@startAddingTitlesForRecommendations": {
+    "description": "Localized string for startAddingTitlesForRecommendations"
+  },
+  "clearedAllChoices": "Você deslizou e limpou todas as opções no seu feed Descobrir.",
+  "@clearedAllChoices": {
+    "description": "Localized string for clearedAllChoices"
+  },
+  "whatsPopular": "O que é popular",
+  "@whatsPopular": {
+    "description": "Localized string for whatsPopular"
+  },
+  "trending": "Tendências",
+  "@trending": {
+    "description": "Localized string for trending"
+  },
+  "nowPlaying": "Tocando agora",
+  "@nowPlaying": {
+    "description": "Localized string for nowPlaying"
+  },
+  "tvTrending": "Tendências da TV",
+  "@tvTrending": {
+    "description": "Localized string for tvTrending"
+  },
+  "discoverByMood": "Descubra pelo seu humor",
+  "@discoverByMood": {
+    "description": "Localized string for discoverByMood"
+  },
+  "needSomethingToWatchTonight": "Procurando algo para assistir hoje à noite?",
+  "@needSomethingToWatchTonight": {
+    "description": "Localized string for needSomethingToWatchTonight"
+  },
+  "needAMovieForTonight": "Procurando um filme para hoje à noite?",
+  "@needAMovieForTonight": {
+    "description": "Localized string for needAMovieForTonight"
+  },
+  "tryAiShows": "Experimente programas de IA",
+  "@tryAiShows": {
+    "description": "Localized string for tryAiShows"
+  },
+  "tryAiMovies": "Experimente o AI Movies",
+  "@tryAiMovies": {
+    "description": "Localized string for tryAiMovies"
+  },
+  "findShows": "Encontre programas",
+  "@findShows": {
+    "description": "Localized string for findShows"
+  },
+  "findMovies": "Encontre filmes",
+  "@findMovies": {
+    "description": "Localized string for findMovies"
+  },
+  "couldNotLoadThisRail": "Não foi possível carregar este trilho.",
+  "@couldNotLoadThisRail": {
+    "description": "Localized string for couldNotLoadThisRail"
+  },
+  "temporaryIssueLoadingRail": "Houve um problema temporário no carregamento deste trilho.",
+  "@temporaryIssueLoadingRail": {
+    "description": "Localized string for temporaryIssueLoadingRail"
+  },
+  "noTitlesHereYet": "Ainda não há títulos aqui.",
+  "@noTitlesHereYet": {
+    "description": "Localized string for noTitlesHereYet"
+  },
+  "noHiddenGemsForGenre": "Ainda não encontramos nenhuma joia escondida neste gênero. Tente outro gênero.",
+  "@noHiddenGemsForGenre": {
+    "description": "Localized string for noHiddenGemsForGenre"
+  },
+  "tryAnotherFilter": "Experimente outro filtro ou abra esta seção para uma descoberta mais ampla.",
+  "@tryAnotherFilter": {
+    "description": "Localized string for tryAnotherFilter"
+  },
+  "seeAllFilters": "Ver todos os filtros",
+  "@seeAllFilters": {
+    "description": "Localized string for seeAllFilters"
+  },
+  "couldNotLoadCuratedPicks": "Não foi possível carregar as seleções escolhidas.",
+  "@couldNotLoadCuratedPicks": {
+    "description": "Localized string for couldNotLoadCuratedPicks"
+  },
+  "temporaryIssueLoadingCurated": "Houve um problema temporário ao carregar a lista selecionada de hoje à noite.",
+  "@temporaryIssueLoadingCurated": {
+    "description": "Localized string for temporaryIssueLoadingCurated"
+  },
+  "noCuratedPicksAvailable": "Nenhuma seleção disponível",
+  "@noCuratedPicksAvailable": {
+    "description": "Localized string for noCuratedPicksAvailable"
+  },
+  "tryAgainWhileRefresh": "Tente novamente em instantes enquanto atualizamos a lista do TMDB de hoje.",
+  "@tryAgainWhileRefresh": {
+    "description": "Localized string for tryAgainWhileRefresh"
+  },
+  "fromSpotlight": "Em destaque",
+  "@fromSpotlight": {
+    "description": "Localized string for fromSpotlight"
+  },
+  "addShowsMoviesForRecommendations": "Adicione séries/filmes à sua lista de favoritos, à sua lista de favoritos ou à sua lista de assistidos para ver títulos que você pode gostar.",
+  "@addShowsMoviesForRecommendations": {
+    "description": "Localized string for addShowsMoviesForRecommendations"
+  },
+  "allow": "Permitir",
+  "@allow": {
+    "description": "Localized string for allow"
+  },
+  "notNow": "Agora não",
+  "@notNow": {
+    "description": "Localized string for notNow"
+  },
+  "allowAiDataSharingTitle": "Permitir o compartilhamento de dados de IA?",
+  "@allowAiDataSharingTitle": {
+    "description": "Localized string for allowAiDataSharingTitle"
+  },
+  "allowAiDataSharingDescription": "O Recommend Tonight envia o texto que você digita para solicitar uma recomendação de filme e um contexto temporário de refinamento da consulta para o Google Gemini e o OpenRouter. Sua biblioteca completa e suas credenciais de login não são enviadas para esses provedores de IA. Você permite esse compartilhamento de dados para recomendações de IA?",
+  "@allowAiDataSharingDescription": {
+    "description": "Localized string for allowAiDataSharingDescription"
+  },
+  "liveProgress": "Progresso ao vivo",
+  "@liveProgress": {
+    "description": "Localized string for liveProgress"
+  },
+  "percentComplete": "{percent}% concluído",
+  "@percentComplete": {
+    "description": "Localized string for percentComplete",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "describeIdealShowNight": "Descreva a sua noite de espetáculo ideal.",
+  "@describeIdealShowNight": {
+    "description": "Localized string for describeIdealShowNight"
+  },
+  "describeIdealMovieNight": "Descreva a sua noite de cinema ideal.",
+  "@describeIdealMovieNight": {
+    "description": "Localized string for describeIdealMovieNight"
+  },
+  "useNaturalLanguage": "Use linguagem natural. Mencione o que deseja, o que deve evitar e dicas opcionais de idioma/tempo de execução.",
+  "@useNaturalLanguage": {
+    "description": "Localized string for useNaturalLanguage"
+  },
+  "listeningTapMicToStop": "Ouvindo... toque no microfone novamente para parar.",
+  "@listeningTapMicToStop": {
+    "description": "Localized string for listeningTapMicToStop"
+  },
+  "voiceInputError": "Erro de entrada de voz: {error}",
+  "@voiceInputError": {
+    "description": "Localized string for voiceInputError",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "tapMicToDictate": "Toque no microfone para ditar sua solicitação.",
+  "@tapMicToDictate": {
+    "description": "Localized string for tapMicToDictate"
+  },
+  "tapMicToEnableVoice": "Toque no microfone para ativar a entrada de voz.",
+  "@tapMicToEnableVoice": {
+    "description": "Localized string for tapMicToEnableVoice"
+  },
+  "findingShows": "Encontrando programas...",
+  "@findingShows": {
+    "description": "Localized string for findingShows"
+  },
+  "findingMovies": "Encontrando filmes...",
+  "@findingMovies": {
+    "description": "Localized string for findingMovies"
+  },
+  "tonightsLumiPicksFor": "As escolhas da Lumi para hoje à noite são: {prompt}",
+  "@tonightsLumiPicksFor": {
+    "description": "Localized string for tonightsLumiPicksFor",
+    "placeholders": {
+      "prompt": {
+        "type": "String"
+      }
+    }
+  },
+  "tonightsPicks": "Palpites de hoje à noite",
+  "@tonightsPicks": {
+    "description": "Localized string for tonightsPicks"
+  },
+  "sharedFromLumi": "Compartilhado de Lumi",
+  "@sharedFromLumi": {
+    "description": "Localized string for sharedFromLumi"
+  },
+  "intent": "Intenção:",
+  "@intent": {
+    "description": "Localized string for intent"
+  },
+  "genreLabel": "Gênero:",
+  "@genreLabel": {
+    "description": "Localized string for genreLabel"
+  },
+  "avoid": "Evitar:",
+  "@avoid": {
+    "description": "Localized string for avoid"
+  },
+  "languageLabel": "Linguagem:",
+  "@languageLabel": {
+    "description": "Localized string for languageLabel"
+  },
+  "runtimeAtMost": "Tempo de execução <= {minutes} min",
+  "@runtimeAtMost": {
+    "description": "Localized string for runtimeAtMost",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "runtimeAtLeast": "Tempo de execução >= {minutes} min",
+  "@runtimeAtLeast": {
+    "description": "Localized string for runtimeAtLeast",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "yearLabel": "Ano:",
+  "@yearLabel": {
+    "description": "Localized string for yearLabel"
+  },
+  "yearAfter": "Após {year}",
+  "@yearAfter": {
+    "description": "Localized string for yearAfter",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "yearBefore": "Antes de {year}",
+  "@yearBefore": {
+    "description": "Localized string for yearBefore",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "like": "Como:",
+  "@like": {
+    "description": "Localized string for like"
+  },
+  "signal": "Sinal:",
+  "@signal": {
+    "description": "Localized string for signal"
+  },
+  "readingWatchedHistory": "Lendo seu histórico de visualizações...",
+  "@readingWatchedHistory": {
+    "description": "Localized string for readingWatchedHistory"
+  },
+  "findingTopGenres": "Descubra seus gêneros e padrões favoritos...",
+  "@findingTopGenres": {
+    "description": "Localized string for findingTopGenres"
+  },
+  "buildingTrends": "Construindo tendências mensais e de classificação...",
+  "@buildingTrends": {
+    "description": "Localized string for buildingTrends"
+  },
+  "writingInsights": "Escreva suas ideias personalizadas...",
+  "@writingInsights": {
+    "description": "Localized string for writingInsights"
+  },
+  "applyFilters": "Aplicar filtros",
+  "@applyFilters": {
+    "description": "Localized string for applyFilters"
+  },
+  "includeNotRated": "Incluir Não Avaliado",
+  "@includeNotRated": {
+    "description": "Localized string for includeNotRated"
+  },
+  "errorLoadingTvGenres": "Erro ao carregar gêneros de TV",
+  "@errorLoadingTvGenres": {
+    "description": "Localized string for errorLoadingTvGenres"
+  },
+  "alsoKnownAs": "Também conhecido como",
+  "@alsoKnownAs": {
+    "description": "Localized string for alsoKnownAs"
+  },
+  "biography": "Biografia",
+  "@biography": {
+    "description": "Localized string for biography"
+  },
+  "careerStatistics": "Estatísticas de carreira",
+  "@careerStatistics": {
+    "description": "Localized string for careerStatistics"
+  },
+  "frequentlyCollaboratesWith": "Colabora frequentemente com",
+  "@frequentlyCollaboratesWith": {
+    "description": "Localized string for frequentlyCollaboratesWith"
+  },
+  "notableQuotes": "Citações Notáveis",
+  "@notableQuotes": {
+    "description": "Localized string for notableQuotes"
+  },
+  "primaryRole": "Função principal",
+  "@primaryRole": {
+    "description": "Localized string for primaryRole"
+  },
+  "averageRating": "Classificação média",
+  "@averageRating": {
+    "description": "Localized string for averageRating"
+  },
+  "topGenre": "Gênero principal",
+  "@topGenre": {
+    "description": "Localized string for topGenre"
+  },
+  "peakBoxOffice": "Bilheteria de pico",
+  "@peakBoxOffice": {
+    "description": "Localized string for peakBoxOffice"
+  },
+  "percentOfTitles": "{percent}% dos títulos",
+  "@percentOfTitles": {
+    "description": "Localized string for percentOfTitles",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedTitleCount": "{count} título(s) compartilhado(s)",
+  "@sharedTitleCount": {
+    "description": "Localized string for sharedTitleCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "billingOrder": "Faturado nº {order}",
+  "@billingOrder": {
+    "description": "Localized string for billingOrder",
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "startTypingToSearch": "Comece a digitar para pesquisar",
+  "@startTypingToSearch": {
+    "description": "Localized string for startTypingToSearch"
+  },
+  "movieDiscoveryMadePersonal": "Descoberta de filmes, tornada pessoal",
+  "@movieDiscoveryMadePersonal": {
+    "description": "Localized string for movieDiscoveryMadePersonal"
+  },
+  "allNotes": "Todas as notas",
+  "@allNotes": {
+    "description": "Localized string for allNotes"
+  },
+  "viewPersonalizedInsights": "Veja informações, gráficos e tendências personalizados.",
+  "@viewPersonalizedInsights": {
+    "description": "Localized string for viewPersonalizedInsights"
+  },
+  "curatedCollections": "Coleções selecionadas",
+  "@curatedCollections": {
+    "description": "Localized string for curatedCollections"
+  },
+  "list": "lista",
+  "@list": {
+    "description": "Localized string for list"
+  },
+  "openList": "Lista aberta",
+  "@openList": {
+    "description": "Localized string for openList"
+  },
+  "thisListNoLongerExists": "Esta lista já não existe.",
+  "@thisListNoLongerExists": {
+    "description": "Localized string for thisListNoLongerExists"
+  },
+  "listRenamed": "Lista renomeada para {name}",
+  "@listRenamed": {
+    "description": "Localized string for listRenamed",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "listDeleted": "Lista {name} excluída",
+  "@listDeleted": {
+    "description": "Localized string for listDeleted",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInWatchlist": "Não há nenhum {filter} na sua lista de observação.",
+  "@noFilterInWatchlist": {
+    "description": "Localized string for noFilterInWatchlist",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInFavourites": "Não há {filter} nos seus favoritos",
+  "@noFilterInFavourites": {
+    "description": "Localized string for noFilterInFavourites",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInWatched": "Nenhum {filter} foi assistido",
+  "@noFilterInWatched": {
+    "description": "Localized string for noFilterInWatched",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInThisList": "Não há nenhum {filter} nesta lista",
+  "@noFilterInThisList": {
+    "description": "Localized string for noFilterInThisList",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noListsWithFilter": "Nenhuma lista com {filter}",
+  "@noListsWithFilter": {
+    "description": "Localized string for noListsWithFilter",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "importedInto": "Importado para \"{name}\"",
+  "@importedInto": {
+    "description": "Localized string for importedInto",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotImportList": "Não foi possível importar a lista.",
+  "@couldNotImportList": {
+    "description": "Localized string for couldNotImportList"
+  },
+  "importing": "Importando...",
+  "@importing": {
+    "description": "Localized string for importing"
+  },
+  "couldNotLoadSharedList": "Não foi possível carregar esta lista compartilhada.",
+  "@couldNotLoadSharedList": {
+    "description": "Localized string for couldNotLoadSharedList"
+  },
+  "editWatchedInfo": "Editar Informações assistidas",
+  "@editWatchedInfo": {
+    "description": "Localized string for editWatchedInfo"
+  },
+  "watchDate": "Data de visualização",
+  "@watchDate": {
+    "description": "Localized string for watchDate"
+  },
+  "rewatchCount": "Contagem de reprises",
+  "@rewatchCount": {
+    "description": "Localized string for rewatchCount"
+  },
+  "watchedInfoUpdated": "Informações assistidas atualizadas",
+  "@watchedInfoUpdated": {
+    "description": "Localized string for watchedInfoUpdated"
+  },
+  "removedFromList": "Removido de {listName}",
+  "@removedFromList": {
+    "description": "Localized string for removedFromList",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "addedToList": "Adicionado a {listName}",
+  "@addedToList": {
+    "description": "Localized string for addedToList",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "addedToListAndWatchlist": "Adicionado a {listName} e à Lista de Observação",
+  "@addedToListAndWatchlist": {
+    "description": "Localized string for addedToListAndWatchlist",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTrailersLikeThis": "Mais trailers como este",
+  "@moreTrailersLikeThis": {
+    "description": "Localized string for moreTrailersLikeThis"
+  },
+  "noDescriptionForTrailer": "Não há descrição disponível para este trailer.",
+  "@noDescriptionForTrailer": {
+    "description": "Localized string for noDescriptionForTrailer"
+  },
+  "closeTrailer": "Fechar trailer",
+  "@closeTrailer": {
+    "description": "Localized string for closeTrailer"
+  },
+  "recommendedSeries": "Séries recomendadas",
+  "@recommendedSeries": {
+    "description": "Localized string for recommendedSeries"
+  },
+  "recommendedMovie": "Filme recomendado",
+  "@recommendedMovie": {
+    "description": "Localized string for recommendedMovie"
+  },
+  "notEnoughDataYet": "Ainda não há dados suficientes.",
+  "@notEnoughDataYet": {
+    "description": "Localized string for notEnoughDataYet"
+  },
+  "addAndRateMoreTitles": "Adicione e avalie pelo menos {count} títulos para desbloquear as análises.",
+  "@addAndRateMoreTitles": {
+    "description": "Localized string for addAndRateMoreTitles",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "addMoreTitlesToUnlock": "Você assistiu a {watchedCount}/{requiredCount} títulos. Adicione mais {remaining} para desbloquear as análises.",
+  "@addMoreTitlesToUnlock": {
+    "description": "Localized string for addMoreTitlesToUnlock",
+    "placeholders": {
+      "watchedCount": {
+        "type": "String"
+      },
+      "requiredCount": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "moviesPerMonth": "Filmes por mês",
+  "@moviesPerMonth": {
+    "description": "Localized string for moviesPerMonth"
+  },
+  "genreDistribution": "Distribuição por gênero",
+  "@genreDistribution": {
+    "description": "Localized string for genreDistribution"
+  },
+  "ratingTrends": "Tendências de classificação",
+  "@ratingTrends": {
+    "description": "Localized string for ratingTrends"
+  },
+  "noData": "Sem dados",
+  "@noData": {
+    "description": "Localized string for noData"
+  },
+  "myLatestWatchAnalytics": "Minha análise mais recente do relógio Lumi",
+  "@myLatestWatchAnalytics": {
+    "description": "Localized string for myLatestWatchAnalytics"
+  },
+  "myWatchInsights": "Minhas impressões sobre o Lumi",
+  "@myWatchInsights": {
+    "description": "Localized string for myWatchInsights"
+  },
+  "infographicsCard": "Cartão de infográfico",
+  "@infographicsCard": {
+    "description": "Localized string for infographicsCard"
+  },
+  "watchInsightsSnapshot": "Resumo de informações do Watch Insights",
+  "@watchInsightsSnapshot": {
+    "description": "Localized string for watchInsightsSnapshot"
+  },
+  "availableOnceInsightsReady": "Disponível assim que as informações estiverem prontas.",
+  "@availableOnceInsightsReady": {
+    "description": "Localized string for availableOnceInsightsReady"
+  },
+  "shareYourWatchInsights": "Compartilhe suas impressões sobre relógios (cartão)",
+  "@shareYourWatchInsights": {
+    "description": "Localized string for shareYourWatchInsights"
+  },
+  "recentlyWatchedVibe": "Vibe assistido recentemente",
+  "@recentlyWatchedVibe": {
+    "description": "Localized string for recentlyWatchedVibe"
+  },
+  "mixedAcrossGenres": "Mistura de gêneros",
+  "@mixedAcrossGenres": {
+    "description": "Localized string for mixedAcrossGenres"
+  },
+  "moviesPerMonthShort": "Filmes por mês",
+  "@moviesPerMonthShort": {
+    "description": "Localized string for moviesPerMonthShort"
+  },
+  "ratingTrend": "Tendência de classificação",
+  "@ratingTrend": {
+    "description": "Localized string for ratingTrend"
+  },
+  "balanced": "Equilibrado",
+  "@balanced": {
+    "description": "Localized string for balanced"
+  },
+  "noWatchNextSuggestionsYet": "Ainda não há sugestões para assistir a seguir.",
+  "@noWatchNextSuggestionsYet": {
+    "description": "Localized string for noWatchNextSuggestionsYet"
+  },
+  "upcomingFromLibrary": "Em breve, da sua biblioteca",
+  "@upcomingFromLibrary": {
+    "description": "Localized string for upcomingFromLibrary"
+  },
+  "removeReminder": "Remover lembrete",
+  "@removeReminder": {
+    "description": "Localized string for removeReminder"
+  },
+  "remindMe": "Lembre-me",
+  "@remindMe": {
+    "description": "Localized string for remindMe"
+  },
+  "titleReleasesToday": "{title} será lançado hoje.",
+  "@titleReleasesToday": {
+    "description": "Localized string for titleReleasesToday",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "titleAirsSoon": "{title} {subtitle} vai ao ar em breve.",
+  "@titleAirsSoon": {
+    "description": "Localized string for titleAirsSoon",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "subtitle": {
+        "type": "String"
+      }
+    }
+  },
+  "controlPremiereAlerts": "Controle alertas de estreia e lembretes de lançamento.",
+  "@controlPremiereAlerts": {
+    "description": "Localized string for controlPremiereAlerts"
+  },
+  "upcomingReleasesCount": "{count} próximos lançamentos em sua biblioteca.",
+  "@upcomingReleasesCount": {
+    "description": "Localized string for upcomingReleasesCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "sittingInWatchlist": "Na sua lista de observação há {days} dias",
+  "@sittingInWatchlist": {
+    "description": "Localized string for sittingInWatchlist",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "alreadyOnWatchlist": "Já está na sua lista de observação",
+  "@alreadyOnWatchlist": {
+    "description": "Localized string for alreadyOnWatchlist"
+  },
+  "favouritedButNotWatched": "Você adicionou este post aos seus favoritos, mas ainda não o marcou como assistido.",
+  "@favouritedButNotWatched": {
+    "description": "Localized string for favouritedButNotWatched"
+  },
+  "savedInListReady": "Salvo em uma de suas listas e pronto para assistir.",
+  "@savedInListReady": {
+    "description": "Localized string for savedInListReady"
+  },
+  "matchesTitlesYouTrack": "Títulos de partidas que você já acompanha",
+  "@matchesTitlesYouTrack": {
+    "description": "Localized string for matchesTitlesYouTrack"
+  },
+  "noOfficialSite": "Não há site oficial.",
+  "@noOfficialSite": {
+    "description": "Localized string for noOfficialSite"
+  },
+  "episodeAiring": "Exibição do episódio",
+  "@episodeAiring": {
+    "description": "Localized string for episodeAiring"
+  },
+  "general": "Em geral",
+  "@general": {
+    "description": "Localized string for general"
+  },
+  "scheduledFor": "Programado para {date}",
+  "@scheduledFor": {
+    "description": "Localized string for scheduledFor",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "wasScheduledFor": "Estava agendado para {date}",
+  "@wasScheduledFor": {
+    "description": "Localized string for wasScheduledFor",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noOverviewAvailable": "Nenhuma visão geral disponível.",
+  "@noOverviewAvailable": {
+    "description": "Localized string for noOverviewAvailable"
+  },
+  "searchHistoryCleared": "Histórico de pesquisa apagado",
+  "@searchHistoryCleared": {
+    "description": "Localized string for searchHistoryCleared"
+  },
+  "visualMovieCard": "Cartão de filme visual",
+  "@visualMovieCard": {
+    "description": "Localized string for visualMovieCard"
+  },
+  "smartLumiLink": "Traduza este rótulo do aplicativo para pt: Smart Lumi Link",
+  "@smartLumiLink": {
+    "description": "Localized string for smartLumiLink"
+  },
+  "directTmdbLink": "Link direto para o TMDB",
+  "@directTmdbLink": {
+    "description": "Localized string for directTmdbLink"
+  },
+  "recommendedOnLumi": "Recomendado no Lumi: {title}",
+  "@recommendedOnLumi": {
+    "description": "Localized string for recommendedOnLumi",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "checkOutOnLumi": "Confira o {title} no Lumi!\n\n{link}\n\nObtenha o Lumi: {appLink}",
+  "@checkOutOnLumi": {
+    "description": "Localized string for checkOutOnLumi",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      },
+      "appLink": {
+        "type": "String"
+      }
+    }
+  },
+  "checkOutOnTmdb": "Confira {title} no TMDB: {link}",
+  "@checkOutOnTmdb": {
+    "description": "Localized string for checkOutOnTmdb",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseAlertTitle": "Alerta de lançamento {title}",
+  "@releaseAlertTitle": {
+    "description": "Localized string for releaseAlertTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseAlertFullMessage": "Alerta de lançamento configurado para {date}. Notificaremos você quando estiver disponível.",
+  "@releaseAlertFullMessage": {
+    "description": "Localized string for releaseAlertFullMessage",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseSuccessDialogContent": "Avisaremos você assim que \"{title}\" for lançado digitalmente ou em Blu-ray/DVD!",
+  "@releaseSuccessDialogContent": {
+    "description": "Localized string for releaseSuccessDialogContent",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "episodeAlreadyDueToAir": "Este episódio já está programado para ir ao ar.",
+  "@episodeAlreadyDueToAir": {
+    "description": "Localized string for episodeAlreadyDueToAir"
+  },
+  "reminderSetSuccessfully": "Lembrete configurado com sucesso",
+  "@reminderSetSuccessfully": {
+    "description": "Localized string for reminderSetSuccessfully"
+  },
+  "speechRecognitionNotAvailable": "O reconhecimento de voz não está disponível neste dispositivo.",
+  "@speechRecognitionNotAvailable": {
+    "description": "Localized string for speechRecognitionNotAvailable"
+  },
+  "describeShowMood": "Descreva qual série você está com vontade de assistir e nós retornaremos uma lista com as séries em ordem de preferência.",
+  "@describeShowMood": {
+    "description": "Localized string for describeShowMood"
+  },
+  "describeMovieMood": "Descreva o filme que você está com vontade de assistir e nós retornaremos uma lista com as opções em ordem de preferência.",
+  "@describeMovieMood": {
+    "description": "Localized string for describeMovieMood"
+  },
+  "aiLauncherDescription": "Digite ou fale um pedido em linguagem natural. O Lumi cria um plano de IA, executa uma busca vetorial e retorna várias opções de séries/filmes.",
+  "@aiLauncherDescription": {
+    "description": "Localized string for aiLauncherDescription"
+  },
+  "yearRange": "Traduza este rótulo do aplicativo para pt: {from}-{to}",
+  "@yearRange": {
+    "description": "Localized string for yearRange",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "remindersCountScheduled": "{count} lembrete(s) agendado(s).",
+  "@remindersCountScheduled": {
+    "description": "Localized string for remindersCountScheduled",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "regionAutoDetected": "Detecção automática: {region}",
+  "@regionAutoDetected": {
+    "description": "Localized string for regionAutoDetected",
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "regionSelected": "Selecionado: {region}",
+  "@regionSelected": {
+    "description": "Localized string for regionSelected",
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "allLanguagesSubtitle": "Todos os idiomas",
+  "@allLanguagesSubtitle": {
+    "description": "Localized string for allLanguagesSubtitle"
+  },
+  "currentlySetToLanguage": "Atualmente configurado para {language}",
+  "@currentlySetToLanguage": {
+    "description": "Localized string for currentlySetToLanguage",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "availabilities": "Disponibilidade",
+  "@availabilities": {
+    "description": "Localized string for availabilities"
+  },
+  "mood": "Humor",
+  "@mood": {
+    "description": "Localized string for mood"
+  },
+  "people": "Pessoas",
+  "@people": {
+    "description": "Localized string for people"
+  },
+  "ads": "Anúncios",
+  "@ads": {
+    "description": "Localized string for ads"
+  },
+  "theatricalLimited": "Edição Limitada para Cinemas",
+  "@theatricalLimited": {
+    "description": "Localized string for theatricalLimited"
+  },
+  "premier": "Primeiro",
+  "@premier": {
+    "description": "Localized string for premier"
+  },
+  "mediaType": "Tipo de mídia",
+  "@mediaType": {
+    "description": "Localized string for mediaType"
+  },
+  "couldNotLoadAnalytics": "Não foi possível carregar as análises.",
+  "@couldNotLoadAnalytics": {
+    "description": "Localized string for couldNotLoadAnalytics"
+  },
+  "viewAllAwards": "Ver tudo",
+  "@viewAllAwards": {
+    "description": "Localized string for viewAllAwards"
+  },
+  "win": "Ganhar",
+  "@win": {
+    "description": "Localized string for win"
+  },
+  "wins": "Vitórias",
+  "@wins": {
+    "description": "Localized string for wins"
+  },
+  "nomination": "Nomeação",
+  "@nomination": {
+    "description": "Localized string for nomination"
+  },
+  "nominations": "Indicações",
+  "@nominations": {
+    "description": "Localized string for nominations"
+  },
+  "sharedBy": "Compartilhado por {name}",
+  "@sharedBy": {
+    "description": "Localized string for sharedBy",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "titleCount": "{count} título(s)",
+  "@titleCount": {
+    "description": "Localized string for titleCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "savedTitlesAcrossLists": "{count} títulos salvos em suas listas",
+  "@savedTitlesAcrossLists": {
+    "description": "Localized string for savedTitlesAcrossLists",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "curatedCollectionsSubtitle": "Coleções selecionadas que você pode organizar e compartilhar.",
+  "@curatedCollectionsSubtitle": {
+    "description": "Localized string for curatedCollectionsSubtitle"
+  },
+  "shareListMessage": "Importe \"{name}\" para o Lumi ({count} {itemLabel}): {link}",
+  "@shareListMessage": {
+    "description": "Localized string for shareListMessage",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      },
+      "itemLabel": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "notEnoughData": "Dados insuficientes",
+  "@notEnoughData": {
+    "description": "Localized string for notEnoughData"
+  },
+  "shareQuote": "Confira esta citação de \"{title}\" no Lumi!",
+  "@shareQuote": {
+    "description": "Localized string for shareQuote",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "shareMovieMessage": "Recomendado no Lumi: {title}\n\n{link}",
+  "@shareMovieMessage": {
+    "description": "Localized string for shareMovieMessage",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "aiLauncherDescriptionShow": "Digite ou fale um pedido em linguagem natural. O Lumi cria um plano de IA, executa uma busca vetorial e retorna várias opções de programas.",
+  "@aiLauncherDescriptionShow": {
+    "description": "Localized string for aiLauncherDescriptionShow"
+  },
+  "aiLauncherDescriptionMovie": "Digite ou fale um pedido em linguagem natural. O Lumi cria um plano de IA, executa uma busca vetorial e retorna várias opções de filmes.",
+  "@aiLauncherDescriptionMovie": {
+    "description": "Localized string for aiLauncherDescriptionMovie"
+  },
+  "warmingUpMovieSearch": "Aquecendo sua busca por filmes",
+  "@warmingUpMovieSearch": {
+    "description": "Localized string for warmingUpMovieSearch"
+  },
+  "connectingToRecommendationEngine": "Conectando-se ao mecanismo de recomendação",
+  "@connectingToRecommendationEngine": {
+    "description": "Localized string for connectingToRecommendationEngine"
+  },
+  "understandingYourTaste": "Entender o que você está com vontade de fazer",
+  "@understandingYourTaste": {
+    "description": "Localized string for understandingYourTaste"
+  },
+  "buildingCustomSearch": "Criando uma pesquisa personalizada a partir da sua solicitação.",
+  "@buildingCustomSearch": {
+    "description": "Localized string for buildingCustomSearch"
+  },
+  "tinyNetworkHiccup": "Pequena falha na rede, tentando novamente",
+  "@tinyNetworkHiccup": {
+    "description": "Localized string for tinyNetworkHiccup"
+  },
+  "planLocked": "Plano definido: gênero, estilo, idioma e duração.",
+  "@planLocked": {
+    "description": "Localized string for planLocked"
+  },
+  "scanningTmdb": "Analisando o TMDB em busca de correspondências relevantes.",
+  "@scanningTmdb": {
+    "description": "Localized string for scanningTmdb"
+  },
+  "collectingDetails": "Coletando pôsteres, avaliações e duração dos melhores jogos.",
+  "@collectingDetails": {
+    "description": "Localized string for collectingDetails"
+  },
+  "shortlistingPicksCount": "Selecionando os finalistas ({current}/{total})",
+  "@shortlistingPicksCount": {
+    "description": "Localized string for shortlistingPicksCount",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "shortlistingBestPicks": "Selecionando as melhores opções",
+  "@shortlistingBestPicks": {
+    "description": "Localized string for shortlistingBestPicks"
+  },
+  "finalPolish": "Últimos retoques nas suas recomendações.",
+  "@finalPolish": {
+    "description": "Localized string for finalPolish"
+  },
+  "retryingAfterIssue": "Tentando novamente após um problema temporário",
+  "@retryingAfterIssue": {
+    "description": "Localized string for retryingAfterIssue"
+  },
+  "regionUnitedStates": "Estados Unidos",
+  "@regionUnitedStates": {
+    "description": "Region label for United States"
+  },
+  "regionIndia": "Índia",
+  "@regionIndia": {
+    "description": "Region label for India"
+  },
+  "regionUnitedKingdom": "Reino Unido",
+  "@regionUnitedKingdom": {
+    "description": "Region label for United Kingdom"
+  },
+  "regionCanada": "Canadá",
+  "@regionCanada": {
+    "description": "Region label for Canada"
+  },
+  "regionAustralia": "Austrália",
+  "@regionAustralia": {
+    "description": "Region label for Australia"
+  },
+  "regionNewZealand": "Nova Zelândia",
+  "@regionNewZealand": {
+    "description": "Region label for New Zealand"
+  },
+  "regionGermany": "Alemanha",
+  "@regionGermany": {
+    "description": "Region label for Germany"
+  },
+  "regionFrance": "França",
+  "@regionFrance": {
+    "description": "Region label for France"
+  },
+  "regionSpain": "Espanha",
+  "@regionSpain": {
+    "description": "Region label for Spain"
+  },
+  "regionItaly": "Itália",
+  "@regionItaly": {
+    "description": "Region label for Italy"
+  },
+  "regionJapan": "Japão",
+  "@regionJapan": {
+    "description": "Region label for Japan"
+  },
+  "regionSouthKorea": "Coréia do Sul",
+  "@regionSouthKorea": {
+    "description": "Region label for South Korea"
+  },
+  "regionBrazil": "Brasil",
+  "@regionBrazil": {
+    "description": "Region label for Brazil"
+  },
+  "regionMexico": "México",
+  "@regionMexico": {
+    "description": "Region label for Mexico"
+  },
+  "regionSingapore": "Cingapura",
+  "@regionSingapore": {
+    "description": "Region label for Singapore"
+  },
+  "regionPhilippines": "Filipinas",
+  "@regionPhilippines": {
+    "description": "Region label for Philippines"
+  },
+  "regionIndonesia": "Indonésia",
+  "@regionIndonesia": {
+    "description": "Region label for Indonesia"
+  },
+  "regionUnitedArabEmirates": "Emirados Árabes Unidos",
+  "@regionUnitedArabEmirates": {
+    "description": "Region label for United Arab Emirates"
+  },
+  "regionSaudiArabia": "Arábia Saudita",
+  "@regionSaudiArabia": {
+    "description": "Region label for Saudi Arabia"
+  },
+  "regionTurkey": "Peru",
+  "@regionTurkey": {
+    "description": "Region label for Turkey"
+  },
+  "regionAutoDetectedSubtitle": "Região detectada automaticamente: {regionLabel} ({regionCode}). Selecione uma região para substituir nas consultas de filmes localizados e nas pesquisas de provedores de exibição.",
+  "@regionAutoDetectedSubtitle": {
+    "description": "Subtitle when region is auto-detected",
+    "placeholders": {
+      "regionLabel": {
+        "type": "String"
+      },
+      "regionCode": {
+        "type": "String"
+      }
+    }
+  },
+  "regionSelectedSubtitle": "Região selecionada: {regionLabel} ({regionCode}). As consultas de filmes e as pesquisas de provedores de exibição compatíveis reutilizarão isso automaticamente na próxima vez.",
+  "@regionSelectedSubtitle": {
+    "description": "Subtitle when region is manually selected",
+    "placeholders": {
+      "regionLabel": {
+        "type": "String"
+      },
+      "regionCode": {
+        "type": "String"
+      }
+    }
+  },
+  "syncSignInTooltip": "Inicie sessão para sincronizar com a nuvem.",
+  "@syncSignInTooltip": {
+    "description": "Tooltip prompting sign in to sync library"
+  },
+  "syncFailedTooltip": "A sincronização falhou. Toque para tentar novamente.",
+  "@syncFailedTooltip": {
+    "description": "Tooltip shown when library sync failed"
+  },
+  "syncedTooltip": "Biblioteca sincronizada com a nuvem",
+  "@syncedTooltip": {
+    "description": "Tooltip shown when library is synced"
+  },
+  "shareQuoteTooltip": "Compartilhar citação",
+  "@shareQuoteTooltip": {
+    "description": "Tooltip to share a quote"
+  },
+  "copyQuoteTooltip": "Copiar citação",
+  "@copyQuoteTooltip": {
+    "description": "Tooltip to copy a quote"
+  },
+  "quoteCopiedToast": "Citação copiada para a área de transferência",
+  "@quoteCopiedToast": {
+    "description": "Toast message after copying a quote"
+  },
+  "shareDialogueTooltip": "Compartilhar diálogo",
+  "@shareDialogueTooltip": {
+    "description": "Tooltip to share a dialogue"
+  },
+  "copyDialogueTooltip": "Copiar diálogo",
+  "@copyDialogueTooltip": {
+    "description": "Tooltip to copy a dialogue"
+  },
+  "dialogueCopiedToast": "Diálogo copiado para a área de transferência",
+  "@dialogueCopiedToast": {
+    "description": "Toast message after copying a dialogue"
+  },
+  "tvAirsInOneHourTitle": "{title} vai ao ar em 1 hora",
+  "@tvAirsInOneHourTitle": {
+    "description": "Notification title for a TV episode airing in one hour",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "tvAirsInOneHourBody": "{episodeLabel} \"{episodeName}\" vai ao ar em {localAirTime}.",
+  "@tvAirsInOneHourBody": {
+    "description": "Notification body for a TV episode airing in one hour",
+    "placeholders": {
+      "episodeLabel": {
+        "type": "String"
+      },
+      "episodeName": {
+        "type": "String"
+      },
+      "localAirTime": {
+        "type": "String"
+      }
+    }
+  },
+  "movieReleasesTodayTitle": "{title} será lançado hoje",
+  "@movieReleasesTodayTitle": {
+    "description": "Notification title for a movie releasing today",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "movieReleasesTodayBody": "Um filme em sua biblioteca será lançado em {localDate}.",
+  "@movieReleasesTodayBody": {
+    "description": "Notification body for a movie releasing today",
+    "placeholders": {
+      "localDate": {
+        "type": "String"
+      }
+    }
+  },
+  "curatedNeoNoirNights": "Noites Neo-noir",
+  "@curatedNeoNoirNights": {
+    "description": "Curated collection title"
+  },
+  "curatedPulsePoundingRush": "Uma sensação de palpitação intensa",
+  "@curatedPulsePoundingRush": {
+    "description": "Curated collection title"
+  },
+  "curatedFeelGoodEscape": "Uma Escapada para se Sentir Bem",
+  "@curatedFeelGoodEscape": {
+    "description": "Curated collection title"
+  },
+  "curatedMindBenders": "Manipuladores da Mente",
+  "@curatedMindBenders": {
+    "description": "Curated collection title"
+  },
+  "curatedEpicWorlds": "Mundos Épicos",
+  "@curatedEpicWorlds": {
+    "description": "Curated collection title"
+  },
+  "curatedHumanStories": "Histórias Humanas",
+  "@curatedHumanStories": {
+    "description": "Curated collection title"
+  },
+  "curatedDarkDetectiveFiles": "Arquivos do Detetive Sombrio",
+  "@curatedDarkDetectiveFiles": {
+    "description": "Curated collection title"
+  },
+  "curatedNeoNoirNightsDescription": "Tensão sob chuva torrencial, protagonistas moralmente ambíguos e histórias urbanas com atmosfera envolvente.",
+  "@curatedNeoNoirNightsDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedPulsePoundingRushDescription": "Perseguições de alto risco, perigo crescente e ritmo frenético, sem tempo para respirar.",
+  "@curatedPulsePoundingRushDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedFeelGoodEscapeDescription": "Histórias comoventes, tramas inspiradoras e sugestões reconfortantes para uma noite relaxante.",
+  "@curatedFeelGoodEscapeDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedMindBendersDescription": "Conceitos que distorcem a realidade, tramas cheias de reviravoltas e narrativas com grandes ideias.",
+  "@curatedMindBendersDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedEpicWorldsDescription": "Aventuras em um universo vasto, apostas míticas e escala cinematográfica.",
+  "@curatedEpicWorldsDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedHumanStoriesDescription": "Dramas focados nos personagens, com forte apelo emocional e atuações memoráveis.",
+  "@curatedHumanStoriesDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedDarkDetectiveFilesDescription": "Pistas frias, suspeitos complexos e investigações de ritmo lento.",
+  "@curatedDarkDetectiveFilesDescription": {
+    "description": "Curated collection description"
+  },
+  "appLanguage": "Idioma do aplicativo",
+  "@appLanguage": {
+    "description": "App language setting title"
+  },
+  "appLanguageSystemDefault": "Padrão do sistema",
+  "@appLanguageSystemDefault": {
+    "description": "Label for using the system language"
+  },
+  "appLanguageSelectedSubtitle": "O idioma do aplicativo foi definido como {language}. Isso altera apenas a interface do aplicativo, não o idioma dos filmes e programas.",
+  "@appLanguageSelectedSubtitle": {
+    "description": "Subtitle when an app language is selected",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "appLanguageSystemSubtitle": "O idioma do aplicativo segue as configurações do seu dispositivo. Altere-o para manter a interface em um idioma diferente.",
+  "@appLanguageSystemSubtitle": {
+    "description": "Subtitle when app language follows system"
+  },
+  "contentLanguageAllSubtitle": "Todos os idiomas. As abas Filmes e TV permanecem amplas, enquanto a aba Explorar ainda pode priorizar resultados locais mais relevantes, quando disponíveis.",
+  "@contentLanguageAllSubtitle": {
+    "description": "Subtitle when content language is set to all languages"
+  },
+  "contentLanguageSelectedSubtitle": "Atualmente configurado para {language}. As abas Filmes e TV permanecerão restritas, enquanto a aba Explorar dará preferência a este idioma.",
+  "@contentLanguageSelectedSubtitle": {
+    "description": "Subtitle when a specific content language is selected",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  }
+}

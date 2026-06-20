@@ -1,4 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:flutter/material.dart';
 
 enum HomeTab { explore, movies, tvShows, watchlist, account }
@@ -31,21 +32,6 @@ extension _HomeTabRoute on HomeTab {
         return Icons.bookmark_rounded;
       case HomeTab.account:
         return Icons.person_rounded;
-    }
-  }
-
-  String get label {
-    switch (this) {
-      case HomeTab.explore:
-        return 'Explore';
-      case HomeTab.movies:
-        return 'Movies';
-      case HomeTab.tvShows:
-        return 'TV Shows';
-      case HomeTab.watchlist:
-        return 'Library';
-      case HomeTab.account:
-        return 'Account';
     }
   }
 }
@@ -123,6 +109,26 @@ class _BottomNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final String localizedLabel;
+    switch (tab) {
+      case HomeTab.explore:
+        localizedLabel = l10n.navExplore;
+        break;
+      case HomeTab.movies:
+        localizedLabel = l10n.navMovies;
+        break;
+      case HomeTab.tvShows:
+        localizedLabel = l10n.navTvShows;
+        break;
+      case HomeTab.watchlist:
+        localizedLabel = l10n.navLibrary;
+        break;
+      case HomeTab.account:
+        localizedLabel = l10n.navAccount;
+        break;
+    }
+
     return Expanded(
       child: InkWell(
         onTap: selected
@@ -215,7 +221,7 @@ class _BottomNavItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    tab.label,
+                    localizedLabel,
                     style: TextStyle(
                       fontSize: 9,
                       fontWeight: t > 0.5 ? FontWeight.w800 : FontWeight.w500,

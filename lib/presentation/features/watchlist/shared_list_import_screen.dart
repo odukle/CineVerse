@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/shared_named_list.dart';
@@ -31,23 +32,22 @@ class _SharedListImportScreenState
     final sharedListAsync = ref.watch(sharedNamedListProvider(widget.shareId));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Import Shared List')),
+      appBar: AppBar(title: Text(context.l10n.importSharedList)),
       body: sharedListAsync.when(
         data: (sharedList) {
           if (sharedList == null) {
             return _InfoState(
               icon: Icons.link_off_rounded,
-              title: 'This shared list is unavailable',
-              subtitle:
-                  'The link may be invalid, expired, or no longer accessible.',
+              title: context.l10n.noSharedTitlesAvailable,
+              subtitle: context.l10n.invalidSharedListLink,
             );
           }
 
           if (sharedList.items.isEmpty) {
             return _InfoState(
               icon: Icons.playlist_remove_rounded,
-              title: 'This shared list is empty',
-              subtitle: 'There are no titles available to import.',
+              title: context.l10n.noSharedTitlesAvailable,
+              subtitle: context.l10n.noTitlesAvailableToImport,
             );
           }
 
@@ -89,7 +89,9 @@ class _SharedListImportScreenState
                         )
                       : const Icon(Icons.download_rounded),
                   label: Text(
-                    _isImporting ? 'Importing...' : 'Import to My Library',
+                    _isImporting
+                        ? context.l10n.importing
+                        : context.l10n.importSharedList,
                   ),
                 ),
               ),
@@ -99,8 +101,8 @@ class _SharedListImportScreenState
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (error, _) => _InfoState(
           icon: Icons.error_outline_rounded,
-          title: 'Could not load this shared list',
-          subtitle: '$error',
+          title: context.l10n.couldNotLoadSharedList,
+          subtitle: context.l10n.couldNotLoadContent('$error'),
         ),
       ),
     );
@@ -115,7 +117,7 @@ class _SharedListImportScreenState
       if (!mounted) {
         return;
       }
-      ToastUtils.showToast(context, 'Imported into "$importedName"');
+      ToastUtils.showToast(context, context.l10n.importedInto(importedName));
       context.goNamed(
         AppRoute.watchlist.name,
         queryParameters: {'openSection': LibrarySection.lists.slug},
@@ -124,7 +126,7 @@ class _SharedListImportScreenState
       if (!mounted) {
         return;
       }
-      ToastUtils.showToast(context, 'Could not import list');
+      ToastUtils.showToast(context, context.l10n.couldNotImportList);
     } finally {
       if (mounted) {
         setState(() => _isImporting = false);
@@ -244,16 +246,18 @@ class _SharedListItemTile extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          _subtitle,
+          _subtitle(context),
           style: const TextStyle(color: Colors.white60),
         ),
       ),
     );
   }
 
-  String get _subtitle {
+  String _subtitle(BuildContext context) {
     final parts = <String>[
-      item.mediaType == GlobalMediaType.tv ? 'TV Show' : 'Movie',
+      item.mediaType == GlobalMediaType.tv
+          ? context.l10n.tvShow
+          : context.l10n.movie,
       if ((item.releaseDate ?? '').isNotEmpty) item.releaseDate!,
       if (item.voteAverage != null && item.voteAverage! > 0)
         item.voteAverage!.toStringAsFixed(1),

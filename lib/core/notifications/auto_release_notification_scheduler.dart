@@ -3,6 +3,7 @@ import 'package:cineverse/data/datasources/local/app_database.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/movie_details.dart';
 import 'package:cineverse/domain/repositories/media_repository.dart';
+import 'package:cineverse/l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
 
@@ -23,6 +24,10 @@ class AutoReleaseNotificationScheduler {
   final AppDatabase _database;
   final MediaRepository _mediaRepository;
   final LocalNotificationService _notificationService;
+
+  AppLocalizations get _l10n {
+    return lookupAppLocalizations(PlatformDispatcher.instance.locale);
+  }
 
   bool _isSyncing = false;
 
@@ -132,8 +137,12 @@ class AutoReleaseNotificationScheduler {
       return (
         notificationKey:
             'auto-tv-${details.id}-${episode.id}-${airDate.millisecondsSinceEpoch}',
-        title: '${details.title} airs in 1 hour',
-        body: '$episodeLabel "${episode.name}" airs at $localAirTime.',
+        title: _l10n.tvAirsInOneHourTitle(details.title),
+        body: _l10n.tvAirsInOneHourBody(
+          episodeLabel,
+          episode.name,
+          localAirTime,
+        ),
         scheduledAt: scheduledAt,
         mediaId: details.id,
         isTv: true,
@@ -207,8 +216,8 @@ class AutoReleaseNotificationScheduler {
       return (
         notificationKey:
             'auto-movie-${movie.id}-${day.year.toString().padLeft(4, '0')}${day.month.toString().padLeft(2, '0')}${day.day.toString().padLeft(2, '0')}',
-        title: '$title releases today',
-        body: 'A movie in your library is releasing on $localDate.',
+        title: _l10n.movieReleasesTodayTitle(title),
+        body: _l10n.movieReleasesTodayBody(localDate),
         scheduledAt: scheduledAt,
         mediaId: movie.id,
         isTv: false,

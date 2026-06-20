@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/data/providers/data_providers.dart';
 import 'package:cineverse/domain/entities/company_details.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
@@ -24,7 +25,7 @@ class CompanyDetailsState {
     this.hasMore = true,
     this.selectedType = KeywordMediaType.all,
     this.selectedSort = SortField.popularity,
-    this.companyError,
+    this.hasCompanyError = false,
     this.productionsError,
   });
 
@@ -37,7 +38,7 @@ class CompanyDetailsState {
   final bool hasMore;
   final KeywordMediaType selectedType;
   final SortField selectedSort;
-  final String? companyError;
+  final bool hasCompanyError;
   final String? productionsError;
 
   CompanyDetailsState copyWith({
@@ -50,7 +51,7 @@ class CompanyDetailsState {
     bool? hasMore,
     KeywordMediaType? selectedType,
     SortField? selectedSort,
-    String? companyError,
+    bool? hasCompanyError,
     String? productionsError,
   }) {
     return CompanyDetailsState(
@@ -63,7 +64,7 @@ class CompanyDetailsState {
       hasMore: hasMore ?? this.hasMore,
       selectedType: selectedType ?? this.selectedType,
       selectedSort: selectedSort ?? this.selectedSort,
-      companyError: companyError,
+      hasCompanyError: hasCompanyError ?? this.hasCompanyError,
       productionsError: productionsError,
     );
   }
@@ -83,7 +84,7 @@ class CompanyDetailsNotifier extends Notifier<CompanyDetailsState> {
   }
 
   Future<void> fetchCompanyInfo() async {
-    state = state.copyWith(isCompanyLoading: true, companyError: null);
+    state = state.copyWith(isCompanyLoading: true, hasCompanyError: false);
     try {
       final repo = ref.read(mediaRepositoryProvider);
       final details = await repo.fetchCompanyDetails(companyId);
@@ -91,7 +92,7 @@ class CompanyDetailsNotifier extends Notifier<CompanyDetailsState> {
     } catch (e) {
       state = state.copyWith(
         isCompanyLoading: false,
-        companyError: 'Failed to load company info',
+        hasCompanyError: true,
       );
     }
   }
@@ -266,7 +267,7 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
       backgroundColor: AppColors.cinemaBackground,
       appBar: AppBar(
         title: Text(
-          state.company?.name ?? 'Production Company',
+          state.company?.name ?? context.l10n.productionCompany,
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -292,8 +293,8 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
             ? Center(
                 child: CircularProgressIndicator(color: AppColors.cinemaAccent),
               )
-            : state.companyError != null
-            ? _buildErrorScreen(state.companyError!, isCompany: true)
+            : state.hasCompanyError
+            ? _buildErrorScreen(context.l10n.failedToLoadCompanyInfo, isCompany: true)
             : CustomScrollView(
                 controller: _scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -438,7 +439,7 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'Official Site',
+                            context.l10n.officialSite,
                             style: TextStyle(
                               color: AppColors.cinemaAccent,
                               fontSize: 12,
@@ -485,9 +486,9 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Productions',
-              style: TextStyle(
+            Text(
+              context.l10n.productions,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
@@ -557,7 +558,7 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
               return Padding(
                 padding: const EdgeInsets.only(right: 8),
                 child: ChoiceChip(
-                  label: Text(type.label),
+                  label: Text(type.label(context)),
                   selected: isSelected,
                   onSelected: (selected) {
                     if (selected) {
@@ -620,7 +621,7 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
         hasScrollBody: false,
         child: Center(
           child: Text(
-            'No productions found.',
+            context.l10n.noProductionsFound,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.6),
               fontSize: 15,
@@ -685,7 +686,7 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
                           .loadMoreProductions();
                     },
                     child: Text(
-                      'Load More',
+                      context.l10n.loadMore,
                       style: TextStyle(color: AppColors.cinemaAccent),
                     ),
                   ),
@@ -698,7 +699,7 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
                   child: Text(
-                    'No more productions found.',
+                    context.l10n.noMoreProductionsFound,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.4),
                       fontSize: 14,
@@ -757,7 +758,7 @@ class _CompanyDetailsScreenState extends ConsumerState<CompanyDetailsScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.cinemaAccent,
               ),
-              child: const Text('Retry', style: TextStyle(color: Colors.black)),
+              child: Text(context.l10n.retry, style: TextStyle(color: Colors.black)),
             ),
           ],
         ),

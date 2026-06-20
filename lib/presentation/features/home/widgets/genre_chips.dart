@@ -1,4 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/presentation/features/movies/providers/filter_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:flutter/material.dart';
@@ -25,7 +26,7 @@ class GenreChips extends ConsumerWidget {
         child: Align(
           alignment: Alignment.centerLeft,
           child: InputChip(
-            label: const Text('Filtered'),
+            label: Text(context.l10n.filtered),
             onDeleted: () {
               if (isTv) {
                 ref.read(tvFilterProvider.notifier).reset();

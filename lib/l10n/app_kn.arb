@@ -1,0 +1,3454 @@
+{
+  "@@locale": "kn",
+  "appName": "ಲುಮಿ",
+  "@appName": {
+    "description": "The name of the application"
+  },
+  "navExplore": "ಅನ್ವೇಷಿಸಿ",
+  "@navExplore": {
+    "description": "Bottom navigation label for Explore tab"
+  },
+  "navMovies": "ಚಲನಚಿತ್ರಗಳು",
+  "@navMovies": {
+    "description": "Bottom navigation label for Movies tab"
+  },
+  "navTvShows": "ಟಿವಿ ಶೋಗಳು",
+  "@navTvShows": {
+    "description": "Bottom navigation label for TV Shows tab"
+  },
+  "navLibrary": "ಗ್ರಂಥಾಲಯ",
+  "@navLibrary": {
+    "description": "Bottom navigation label for Library/Watchlist tab"
+  },
+  "navAccount": "ಖಾತೆ",
+  "@navAccount": {
+    "description": "Bottom navigation label for Account tab"
+  },
+  "searchHint": "ಚಲನಚಿತ್ರಗಳು, ಟಿವಿ ಕಾರ್ಯಕ್ರಮಗಳು, ಕಂಪನಿಗಳನ್ನು ಹುಡುಕಿ...",
+  "@searchHint": {
+    "description": "Search bar hint text"
+  },
+  "searchForPerson": "ವ್ಯಕ್ತಿಯನ್ನು ಹುಡುಕಿ...",
+  "@searchForPerson": {
+    "description": "Search person placeholder"
+  },
+  "searchLanguages": "ಭಾಷೆಗಳನ್ನು ಹುಡುಕಿ",
+  "@searchLanguages": {
+    "description": "Hint for language search input"
+  },
+  "searchNameOrRole": "ಹೆಸರು ಅಥವಾ ಪಾತ್ರವನ್ನು ಹುಡುಕಿ...",
+  "@searchNameOrRole": {
+    "description": "Search cast crew placeholder"
+  },
+  "retry": "ಮರುಪ್ರಯತ್ನಿಸಿ",
+  "@retry": {
+    "description": "Button label to retry a failed action"
+  },
+  "tryAgain": "ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ",
+  "@tryAgain": {
+    "description": "Alternative retry button label"
+  },
+  "clear": "ತೆರವುಗೊಳಿಸಿ",
+  "@clear": {
+    "description": "Button label to clear content"
+  },
+  "cancel": "ರದ್ದುಮಾಡು",
+  "@cancel": {
+    "description": "Button label to cancel an action"
+  },
+  "ok": "ಸರಿ",
+  "@ok": {
+    "description": "Button label to confirm/acknowledge"
+  },
+  "save": "ಉಳಿಸಿ",
+  "@save": {
+    "description": "Button label to save content"
+  },
+  "delete": "ಅಳಿಸಿ",
+  "@delete": {
+    "description": "Button label to delete content"
+  },
+  "share": "ಹಂಚಿಕೊಳ್ಳಿ",
+  "@share": {
+    "description": "Button label to share content"
+  },
+  "undo": "ರದ್ದುಮಾಡು",
+  "@undo": {
+    "description": "Undo button"
+  },
+  "close": "ಮುಚ್ಚಿ",
+  "@close": {
+    "description": "Button label to close a dialog/sheet"
+  },
+  "apply": "ಅನ್ವಯಿಸಿ",
+  "@apply": {
+    "description": "Button label to apply filters"
+  },
+  "reset": "ಮರುಹೊಂದಿಸಿ",
+  "@reset": {
+    "description": "Button label to reset a state"
+  },
+  "done": "ಮುಗಿದಿದೆ",
+  "@done": {
+    "description": "Button label for completion"
+  },
+  "signInWithGoogle": "Google ನೊಂದಿಗೆ ಸೈನ್ ಇನ್ ಮಾಡಿ",
+  "@signInWithGoogle": {
+    "description": "Google sign-in button label"
+  },
+  "signInWithApple": "Apple ನೊಂದಿಗೆ ಸೈನ್ ಇನ್ ಮಾಡಿ",
+  "@signInWithApple": {
+    "description": "Apple sign-in button label"
+  },
+  "signOut": "ಸೈನ್ ಔಟ್",
+  "@signOut": {
+    "description": "Sign out button label"
+  },
+  "deleteAccount": "ಖಾತೆಯನ್ನು ಅಳಿಸಿ",
+  "@deleteAccount": {
+    "description": "Delete account button label"
+  },
+  "accountDeletedSuccessfully": "ಖಾತೆಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಅಳಿಸಲಾಗಿದೆ.",
+  "@accountDeletedSuccessfully": {
+    "description": "Snackbar message after account deletion"
+  },
+  "appearance": "ಗೋಚರತೆ",
+  "@appearance": {
+    "description": "Appearance settings title"
+  },
+  "appearanceSubtitle": "ನಿಮ್ಮ ಥೀಮ್ ಆಯ್ಕೆಮಾಡಿ ಮತ್ತು ಅಪ್ಲಿಕೇಶನ್ ನೋಟವನ್ನು ಕಸ್ಟಮೈಸ್ ಮಾಡಿ.",
+  "@appearanceSubtitle": {
+    "description": "Appearance settings subtitle"
+  },
+  "notifications": "ಅಧಿಸೂಚನೆಗಳು",
+  "@notifications": {
+    "description": "Notifications settings title"
+  },
+  "releaseCalendar": "ಬಿಡುಗಡೆ ಕ್ಯಾಲೆಂಡರ್",
+  "@releaseCalendar": {
+    "description": "Release calendar title"
+  },
+  "hiddenTitles": "ಮರೆಮಾಡಿದ ಶೀರ್ಷಿಕೆಗಳು",
+  "@hiddenTitles": {
+    "description": "Hidden titles screen title"
+  },
+  "aiRecommendationsPrivacy": "AI ಶಿಫಾರಸುಗಳು ಗೌಪ್ಯತೆ",
+  "@aiRecommendationsPrivacy": {
+    "description": "AI consent settings title"
+  },
+  "contentRegion": "ವಿಷಯ ಪ್ರದೇಶ",
+  "@contentRegion": {
+    "description": "Content region settings title"
+  },
+  "contentLanguage": "ವಿಷಯ ಭಾಷೆ",
+  "@contentLanguage": {
+    "description": "Content language settings title"
+  },
+  "watchlist": "ವೀಕ್ಷಣಾಪಟ್ಟಿ",
+  "@watchlist": {
+    "description": "Watchlist section title"
+  },
+  "notes": "ಟಿಪ್ಪಣಿಗಳು",
+  "@notes": {
+    "description": "Notes section title"
+  },
+  "deleteNote": "ಟಿಪ್ಪಣಿ ಅಳಿಸಿ",
+  "@deleteNote": {
+    "description": "Tooltip for delete note action"
+  },
+  "addNoteHint": "ಟಿಪ್ಪಣಿ ಸೇರಿಸಿ...",
+  "@addNoteHint": {
+    "description": "Hint for note input field"
+  },
+  "addBriefNoteHint": "ಸಂಕ್ಷಿಪ್ತ ಟಿಪ್ಪಣಿ ಸೇರಿಸಿ (ಐಚ್ಛಿಕ)...",
+  "@addBriefNoteHint": {
+    "description": "Hint for brief note input"
+  },
+  "enterNewName": "ಹೊಸ ಹೆಸರನ್ನು ನಮೂದಿಸಿ...",
+  "@enterNewName": {
+    "description": "Hint for rename input"
+  },
+  "importSharedList": "ಆಮದು ಹಂಚಿದ ಪಟ್ಟಿಯನ್ನು",
+  "@importSharedList": {
+    "description": "Import shared list screen title"
+  },
+  "discoverOnLumi": "LUMI ನಲ್ಲಿ ಅನ್ವೇಷಿಸಿ",
+  "@discoverOnLumi": {
+    "description": "Branding text on recommendation cards"
+  },
+  "filtered": "ಫಿಲ್ಟರ್ ಮಾಡಲಾಗಿದೆ",
+  "@filtered": {
+    "description": "Label for filtered genre chip"
+  },
+  "fullPlot": "ಪೂರ್ಣ ಪ್ಲಾಟ್",
+  "@fullPlot": {
+    "description": "Full plot dialog/button label"
+  },
+  "userReviews": "ಬಳಕೆದಾರ ವಿಮರ್ಶೆಗಳು",
+  "@userReviews": {
+    "description": "User reviews section title"
+  },
+  "noReviewsYet": "ಇನ್ನೂ ಯಾವುದೇ ವಿಮರ್ಶೆಗಳಿಲ್ಲ.",
+  "@noReviewsYet": {
+    "description": "Empty state message for reviews"
+  },
+  "openInYouTube": "YouTube ನಲ್ಲಿ ತೆರೆಯಿರಿ",
+  "@openInYouTube": {
+    "description": "Button to open video in YouTube"
+  },
+  "hiddenGems": "ಹಿಡನ್ ಜೆಮ್ಸ್",
+  "@hiddenGems": {
+    "description": "Explore section title for hidden gems"
+  },
+  "resetSpotlight": "ಸ್ಪಾಟ್‌ಲೈಟ್ ಅನ್ನು ಮರುಹೊಂದಿಸಿ",
+  "@resetSpotlight": {
+    "description": "Button to reset spotlight selections"
+  },
+  "clearPreferences": "ಆದ್ಯತೆಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ",
+  "@clearPreferences": {
+    "description": "Button to clear user preferences"
+  },
+  "refreshPicks": "ರಿಫ್ರೆಶ್ ಪಿಕ್ಸ್",
+  "@refreshPicks": {
+    "description": "Button to refresh recommendations"
+  },
+  "shareBoard": "ಹಂಚಿಕೆ ಬೋರ್ಡ್",
+  "@shareBoard": {
+    "description": "Button to share recommendation board"
+  },
+  "exploreDetails": "ವಿವರಗಳನ್ನು ಅನ್ವೇಷಿಸಿ",
+  "@exploreDetails": {
+    "description": "Button to explore item details"
+  },
+  "searchWikiquotes": "ವಿಕಿಕೋಟ್‌ಗಳನ್ನು ಹುಡುಕಿ",
+  "@searchWikiquotes": {
+    "description": "Wikiquotes search button"
+  },
+  "selectAQuote": "ಉದ್ಧರಣವನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+  "@selectAQuote": {
+    "description": "Quote selection dialog title"
+  },
+  "tooltipShareQuote": "ಹಂಚಿಕೆ ಉಲ್ಲೇಖ",
+  "@tooltipShareQuote": {
+    "description": "Tooltip for share quote button"
+  },
+  "tooltipCopyQuote": "ಉಲ್ಲೇಖವನ್ನು ನಕಲಿಸಿ",
+  "@tooltipCopyQuote": {
+    "description": "Tooltip for copy quote button"
+  },
+  "tooltipShareDialogue": "ಸಂವಾದವನ್ನು ಹಂಚಿಕೊಳ್ಳಿ",
+  "@tooltipShareDialogue": {
+    "description": "Tooltip for share dialogue button"
+  },
+  "tooltipCopyDialogue": "ಸಂಭಾಷಣೆಯನ್ನು ನಕಲಿಸಿ",
+  "@tooltipCopyDialogue": {
+    "description": "Tooltip for copy dialogue button"
+  },
+  "tooltipUnhide": "ಮರೆಮಾಡು",
+  "@tooltipUnhide": {
+    "description": "Tooltip for unhide title button"
+  },
+  "tooltipOpenPrivacyPolicy": "ಗೌಪ್ಯತಾ ನೀತಿಯನ್ನು ತೆರೆಯಿರಿ",
+  "@tooltipOpenPrivacyPolicy": {
+    "description": "Tooltip for privacy policy link"
+  },
+  "tooltipRefreshInsights": "ಒಳನೋಟಗಳನ್ನು ರಿಫ್ರೆಶ್ ಮಾಡಿ",
+  "@tooltipRefreshInsights": {
+    "description": "Tooltip for refresh insights button"
+  },
+  "tooltipSortTitles": "ಶೀರ್ಷಿಕೆಗಳನ್ನು ವಿಂಗಡಿಸಿ",
+  "@tooltipSortTitles": {
+    "description": "Tooltip for sort button"
+  },
+  "tooltipSearch": "ಹುಡುಕು",
+  "@tooltipSearch": {
+    "description": "Tooltip for search button"
+  },
+  "tooltipFilters": "ಶೋಧಕಗಳು",
+  "@tooltipFilters": {
+    "description": "Tooltip for filters button"
+  },
+  "tooltipSaveToGallery": "ಗ್ಯಾಲರಿಗೆ ಉಳಿಸಿ",
+  "@tooltipSaveToGallery": {
+    "description": "Tooltip for save to gallery button"
+  },
+  "tooltipShare": "ಹಂಚಿಕೊಳ್ಳಿ",
+  "@tooltipShare": {
+    "description": "Tooltip for share button"
+  },
+  "tooltipShareAnalytics": "ವಿಶ್ಲೇಷಣೆಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಿ",
+  "@tooltipShareAnalytics": {
+    "description": "Tooltip for share analytics button"
+  },
+  "tooltipSetAiringReminder": "ಪ್ರಸಾರ ಜ್ಞಾಪನೆಯನ್ನು ಹೊಂದಿಸಿ",
+  "@tooltipSetAiringReminder": {
+    "description": "Tooltip for airing reminder"
+  },
+  "tooltipLibrarySynced": "ಲೈಬ್ರರಿಯನ್ನು ಕ್ಲೌಡ್‌ನೊಂದಿಗೆ ಸಿಂಕ್ ಮಾಡಲಾಗಿದೆ",
+  "@tooltipLibrarySynced": {
+    "description": "Tooltip when library sync is complete"
+  },
+  "noMoreEntries": "ಇನ್ನು ಯಾವುದೇ ನಮೂದುಗಳಿಲ್ಲ",
+  "@noMoreEntries": {
+    "description": "Message shown when there are no more items to load"
+  },
+  "noItemsFound": "ಯಾವುದೇ ವಸ್ತುಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noItemsFound": {
+    "description": "Message shown when no items are found"
+  },
+  "errorLoadingGenres": "ಪ್ರಕಾರಗಳನ್ನು ಲೋಡ್ ಮಾಡುವಲ್ಲಿ ದೋಷ: {error}",
+  "@errorLoadingGenres": {
+    "description": "Error message when genres fail to load",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorGeneric": "ದೋಷ: {error}",
+  "@errorGeneric": {
+    "description": "Generic error message",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "errorLoadingLists": "ಪಟ್ಟಿಗಳನ್ನು ಲೋಡ್ ಮಾಡುವಲ್ಲಿ ದೋಷ",
+  "@errorLoadingLists": {
+    "description": "Error when lists fail to load"
+  },
+  "errorLoadingQuotes": "ಉಲ್ಲೇಖಗಳನ್ನು ಲೋಡ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ: {error}",
+  "@errorLoadingQuotes": {
+    "description": "Error loading quotes"
+  },
+  "errorCouldNotShareAnalytics": "ಅನಾಲಿಟಿಕ್ಸ್ ಕಾರ್ಡ್ ಹಂಚಿಕೊಳ್ಳಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+  "@errorCouldNotShareAnalytics": {
+    "description": "Snackbar error for analytics sharing failure"
+  },
+  "errorCouldNotShareRecommendations": "ಶಿಫಾರಸು ಮಂಡಳಿಯನ್ನು ಹಂಚಿಕೊಳ್ಳಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+  "@errorCouldNotShareRecommendations": {
+    "description": "Snackbar error for recommendation sharing failure"
+  },
+  "errorCouldNotShareInsights": "ವಾಚ್ ಒಳನೋಟಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+  "@errorCouldNotShareInsights": {
+    "description": "Snackbar error for insights sharing failure"
+  },
+  "watchInsightsNotReady": "ವೀಕ್ಷಣೆ ಒಳನೋಟಗಳು ಇನ್ನೂ ಸಿದ್ಧವಾಗಿಲ್ಲ.",
+  "@watchInsightsNotReady": {
+    "description": "Snackbar message when insights are still loading"
+  },
+  "titleRestoredToSpotlight": "\"{title}\" ಅನ್ನು ಸ್ಪಾಟ್‌ಲೈಟ್‌ಗೆ ಮರುಸ್ಥಾಪಿಸಲಾಗಿದೆ",
+  "@titleRestoredToSpotlight": {
+    "description": "Snackbar when a title is restored to spotlight",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "titleHasBeenHidden": "\"{title}\" ಅನ್ನು ಮರೆಮಾಡಲಾಗಿದೆ",
+  "@titleHasBeenHidden": {
+    "description": "Snackbar when a title is hidden",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "hiddenDate": "ಮರೆಮಾಡಲಾಗಿದೆ: {date}",
+  "@hiddenDate": {
+    "description": "Label showing when a title was hidden",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "moviesInThisCollection": "ಈ ಸಂಗ್ರಹಣೆಯಲ್ಲಿ ಚಲನಚಿತ್ರಗಳು",
+  "@moviesInThisCollection": {
+    "description": "Collection details section header"
+  },
+  "searchPlanReady": "ಹುಡುಕಾಟ ಯೋಜನೆ ಸಿದ್ಧವಾಗಿದೆ",
+  "@searchPlanReady": {
+    "description": "Tonight watch progress message"
+  },
+  "hoursBeforeAirTime": "ಗಂಟೆಗಳ ಪ್ರಸಾರ ಸಮಯಕ್ಕೆ ಮುಂಚಿತವಾಗಿ",
+  "@hoursBeforeAirTime": {
+    "description": "Hint for reminder time input"
+  },
+  "noUpcomingReleases": "ಯಾವುದೇ ಮುಂಬರುವ ಬಿಡುಗಡೆಗಳಿಲ್ಲ",
+  "@noUpcomingReleases": {
+    "description": "Empty state for release calendar"
+  },
+  "noRemindersSet": "ಯಾವುದೇ ಜ್ಞಾಪನೆಗಳನ್ನು ಹೊಂದಿಸಿಲ್ಲ",
+  "@noRemindersSet": {
+    "description": "Empty state for notifications"
+  },
+  "noHiddenTitles": "ಯಾವುದೇ ಗುಪ್ತ ಶೀರ್ಷಿಕೆಗಳನ್ನು ಬಳಸಲಾಗುವುದಿಲ್ಲ",
+  "@noHiddenTitles": {
+    "description": "Empty state for hidden titles"
+  },
+  "hiddenTitlesDescription": "ಸ್ಪಾಟ್‌ಲೈಟ್ ವಿಭಾಗದಿಂದ ನೀವು ಮರೆಮಾಡಿದ ಶೀರ್ಷಿಕೆಗಳು ಇಲ್ಲಿ ಗೋಚರಿಸುತ್ತವೆ ಮತ್ತು ನೀವು ಅವುಗಳನ್ನು ಯಾವುದೇ ಸಮಯದಲ್ಲಿ ಮರುಸ್ಥಾಪಿಸಲು ಸಾಧ್ಯವಾಗುತ್ತದೆ.",
+  "@hiddenTitlesDescription": {
+    "description": "Description for hidden titles screen"
+  },
+  "tvShow": "ಟಿವಿ ಶೋ",
+  "@tvShow": {
+    "description": "Label for TV show type"
+  },
+  "movie": "ಚಲನಚಿತ್ರ",
+  "@movie": {
+    "description": "Label for movie type"
+  },
+  "aiConsentGranted": "ನೀವು ವೈಯಕ್ತಿಕ ಡೇಟಾವನ್ನು ಆಯ್ಕೆಮಾಡಲು ಲಿಬ್ರಾವನ್ನು ಶಿಫಾರಸು ಮಾಡಿದ್ದೀರಿ.",
+  "@aiConsentGranted": {
+    "description": "Subtitle when AI consent is granted"
+  },
+  "aiConsentNotGranted": "ನೀವು ಆಯ್ಕೆ ಮಾಡದ ಹೊರತು ನಿಮ್ಮ ಲೈಬ್ರರಿ ಡೇಟಾವನ್ನು ಎಂದಿಗೂ ಹಂಚಿಕೊಳ್ಳಲಾಗುವುದಿಲ್ಲ.",
+  "@aiConsentNotGranted": {
+    "description": "Subtitle when AI consent is not granted"
+  },
+  "languageSettingExplanation": "ಚಲನಚಿತ್ರಗಳು ಮತ್ತು ಟಿವಿ ಟ್ಯಾಬ್‌ಗಳು ಇದನ್ನು ಕಟ್ಟುನಿಟ್ಟಾಗಿ ಬಳಸುತ್ತವೆ. ಎಕ್ಸ್‌ಪ್ಲೋರ್ ಅದನ್ನು ಮೊದಲು ಆದ್ಯತೆ ನೀಡುತ್ತದೆ ಮತ್ತು ರೈಲು ವಿರಳವಾದಾಗ ಹಿಂತಿರುಗುತ್ತದೆ.",
+  "@languageSettingExplanation": {
+    "description": "Explanation for content language setting"
+  },
+  "filterScreenTitle": "ಫಿಲ್ಟರ್‌ಗಳು",
+  "@filterScreenTitle": {
+    "description": "Filter screen AppBar title"
+  },
+  "sortBy": "ವರ್ಗೀಕರಿಸಿ",
+  "@sortBy": {
+    "description": "Sort by label in filters"
+  },
+  "genres": "ಪ್ರಕಾರಗಳ ಪ್ರಕಾರ",
+  "@genres": {
+    "description": "Genres label in filters"
+  },
+  "year": "ವರ್ಷ",
+  "@year": {
+    "description": "Year filter label"
+  },
+  "rating": "ರೇಟಿಂಗ್",
+  "@rating": {
+    "description": "Rating filter label"
+  },
+  "runtime": "ರನ್ಟೈಮ್",
+  "@runtime": {
+    "description": "Runtime filter label"
+  },
+  "withPeople": "ಜನರೊಂದಿಗೆ",
+  "@withPeople": {
+    "description": "People filter label"
+  },
+  "voteCount": "ಮತ ಎಣಿಕೆ",
+  "@voteCount": {
+    "description": "Vote count filter label"
+  },
+  "today": "ಇಂದು",
+  "@today": {
+    "description": "Localized string for today"
+  },
+  "tomorrow": "ನಾಳೆ",
+  "@tomorrow": {
+    "description": "Label for tomorrow's date"
+  },
+  "yesterday": "ನಿನ್ನೆ",
+  "@yesterday": {
+    "description": "Label for yesterday's date"
+  },
+  "minutes": "ನಿಮಿಷ",
+  "@minutes": {
+    "description": "Abbreviation for minutes"
+  },
+  "hours": "ಗಂ",
+  "@hours": {
+    "description": "Abbreviation for hours"
+  },
+  "cast": "ಎರಕಹೊಯ್ದ",
+  "@cast": {
+    "description": "Cast section title"
+  },
+  "crew": "ಸಿಬ್ಬಂದಿ",
+  "@crew": {
+    "description": "Crew section title"
+  },
+  "director": "ನಿರ್ದೇಶಕ",
+  "@director": {
+    "description": "Director label"
+  },
+  "seasons": "ಋತುಗಳು",
+  "@seasons": {
+    "description": "Seasons label for TV shows"
+  },
+  "episodes": "ಸಂಚಿಕೆಗಳು",
+  "@episodes": {
+    "description": "Episodes label for TV shows"
+  },
+  "overview": "ಅವಲೋಕನ",
+  "@overview": {
+    "description": "Overview section title"
+  },
+  "similar": "ಇದೇ",
+  "@similar": {
+    "description": "Similar titles section"
+  },
+  "recommendations": "ಶಿಫಾರಸುಗಳು",
+  "@recommendations": {
+    "description": "Recommendations section"
+  },
+  "addedToWatchlist": "ವೀಕ್ಷಣೆ ಪಟ್ಟಿಗೆ ಸೇರಿಸಲಾಗಿದೆ",
+  "@addedToWatchlist": {
+    "description": "Snackbar after adding to watchlist"
+  },
+  "removedFromWatchlist": "ವೀಕ್ಷಣೆ ಪಟ್ಟಿಯಿಂದ ತೆಗೆದುಹಾಕಲಾಗಿದೆ",
+  "@removedFromWatchlist": {
+    "description": "Snackbar after removing from watchlist"
+  },
+  "popularity": "ಜನಪ್ರಿಯತೆ",
+  "@popularity": {
+    "description": "Sort option: popularity"
+  },
+  "releaseDate": "ಬಿಡುಗಡೆ ದಿನಾಂಕ",
+  "@releaseDate": {
+    "description": "Sort option: release date"
+  },
+  "revenueLabel": "ಆದಾಯ",
+  "@revenueLabel": {
+    "description": "Sort option: revenue"
+  },
+  "originalTitle": "ಮೂಲ ಶೀರ್ಷಿಕೆ",
+  "@originalTitle": {
+    "description": "Sort option: original title"
+  },
+  "voteAverage": "ಮತ ಸರಾಸರಿ",
+  "@voteAverage": {
+    "description": "Sort option: vote average"
+  },
+  "favourites": "ಮೆಚ್ಚಿನವುಗಳು",
+  "@favourites": {
+    "description": "Favourites section label"
+  },
+  "lists": "ಪಟ್ಟಿಗಳು",
+  "@lists": {
+    "description": "Localized string for lists"
+  },
+  "watched": "ವೀಕ್ಷಿಸಲಾಗಿದೆ",
+  "@watched": {
+    "description": "Localized string for watched"
+  },
+  "all": "ಎಲ್ಲವೂ",
+  "@all": {
+    "description": "All filter option"
+  },
+  "tv": "ಟಿವಿ",
+  "@tv": {
+    "description": "TV filter option"
+  },
+  "librarySubtitle": "ಸಂಗ್ರಹಣೆ, ಮೆಚ್ಚಿನವುಗಳು, ಟಿಪ್ಪಣಿಗಳು ಮತ್ತು ವೀಕ್ಷಣೆ ಇತಿಹಾಸದ ಮೂಲಕ ಎಲ್ಲವನ್ನೂ ವ್ಯವಸ್ಥಿತಗೊಳಿಸಿ.",
+  "@librarySubtitle": {
+    "description": "Watchlist screen subtitle"
+  },
+  "selectRegion": "ಪ್ರದೇಶವನ್ನು ಆಯ್ಕೆಮಾಡಿ",
+  "@selectRegion": {
+    "description": "Region selection dialog title"
+  },
+  "selectRegionDescription": "ಪ್ರದೇಶ-ಅರಿವಿನ ಪ್ರಶ್ನೆಗಳನ್ನು ಬೆಂಬಲಿಸುವ TMDb ಎಂಡ್‌ಪಾಯಿಂಟ್‌ಗಳು ಮಾತ್ರ ಈ ಆಯ್ಕೆಯನ್ನು ಬಳಸುತ್ತವೆ.",
+  "@selectRegionDescription": {
+    "description": "Region selection dialog description"
+  },
+  "useAutoDetectedRegion": "ಸ್ವಯಂ-ಪತ್ತೆಹಚ್ಚಲಾದ ಪ್ರದೇಶವನ್ನು ಬಳಸಿ",
+  "@useAutoDetectedRegion": {
+    "description": "Button to use auto-detected region"
+  },
+  "reminderRemoved": "ಜ್ಞಾಪನೆಯನ್ನು ತೆಗೆದುಹಾಕಲಾಗಿದೆ",
+  "@reminderRemoved": {
+    "description": "Localized string for reminderRemoved"
+  },
+  "releaseReminderSet": "{title} ಗಾಗಿ ಬಿಡುಗಡೆ ಜ್ಞಾಪನೆಯನ್ನು ಹೊಂದಿಸಲಾಗಿದೆ.",
+  "@releaseReminderSet": {
+    "description": "Snackbar when a release reminder is set",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "episodeReminderSet": "{title} ಗೆ ಸಂಚಿಕೆಯ ಜ್ಞಾಪನೆಯನ್ನು ಹೊಂದಿಸಲಾಗಿದೆ.",
+  "@episodeReminderSet": {
+    "description": "Snackbar when an episode reminder is set",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "filteredResults": "ಫಿಲ್ಟರ್ ಮಾಡಿದ ಫಲಿತಾಂಶಗಳು",
+  "@filteredResults": {
+    "description": "Filtered results label"
+  },
+  "genreResults": "ಪ್ರಕಾರದ ಫಲಿತಾಂಶಗಳು",
+  "@genreResults": {
+    "description": "Genre results label"
+  },
+  "couldNotLoadContent": "ವಿಷಯವನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. {error}",
+  "@couldNotLoadContent": {
+    "description": "Error when content fails to load",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noContentAvailableForThisSelection": "ಈ ಆಯ್ಕೆಗೆ ಯಾವುದೇ ವಿಷಯ ಲಭ್ಯವಿಲ್ಲ.",
+  "@noContentAvailableForThisSelection": {
+    "description": "Empty state when no content is available"
+  },
+  "writer": "ಬರಹಗಾರ",
+  "@writer": {
+    "description": "Writer label"
+  },
+  "actors": "ನಟರು",
+  "@actors": {
+    "description": "Actors label"
+  },
+  "noteNotFound": "ಟಿಪ್ಪಣಿ ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noteNotFound": {
+    "description": "Error when note is not found"
+  },
+  "yourNotesCount": "ನಿಮ್ಮ ಟಿಪ್ಪಣಿಗಳು ({count})",
+  "@yourNotesCount": {
+    "description": "Localized string for yourNotesCount",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noteDeleted": "ಟಿಪ್ಪಣಿ ಅಳಿಸಲಾಗಿದೆ",
+  "@noteDeleted": {
+    "description": "Localized string for noteDeleted"
+  },
+  "noteDeletedWithCount": "ಟಿಪ್ಪಣಿ ಅಳಿಸಲಾಗಿದೆ ({count} ಸೆ)",
+  "@noteDeletedWithCount": {
+    "description": "Localized string for noteDeletedWithCount",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "loadMore": "ಇನ್ನಷ್ಟು ಲೋಡ್ ಮಾಡಿ",
+  "@loadMore": {
+    "description": "Load more button"
+  },
+  "noMoreProductionsFound": "ಯಾವುದೇ ಹೆಚ್ಚಿನ ನಿರ್ಮಾಣಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noMoreProductionsFound": {
+    "description": "No more productions in company details"
+  },
+  "noProductionsFound": "ಯಾವುದೇ ನಿರ್ಮಾಣಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noProductionsFound": {
+    "description": "No productions in company details"
+  },
+  "watchInsights": "ವೀಕ್ಷಣೆ ಒಳನೋಟಗಳು",
+  "@watchInsights": {
+    "description": "Watch insights section title"
+  },
+  "analyzingWatchHistory": "ನಿಮ್ಮ ವೀಕ್ಷಣೆ ಇತಿಹಾಸವನ್ನು ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ...",
+  "@analyzingWatchHistory": {
+    "description": "Analyzing watch history loading text"
+  },
+  "manageHiddenTitlesDescription": "ಸ್ಪಾಟ್‌ಲೈಟ್ ವಿಭಾಗದಿಂದ ನೀವು ಮರೆಮಾಡಿರುವ ಶೀರ್ಷಿಕೆಗಳನ್ನು ನಿರ್ವಹಿಸಿ.",
+  "@manageHiddenTitlesDescription": {
+    "description": "Description for hidden titles management"
+  },
+  "tmdbLanguageMetadataNote": "ಕ್ಯಾಟಲಾಗ್‌ನ ಕೆಲವು ಭಾಗಗಳಿಗೆ TMDB ಭಾಷಾ ಮೆಟಾಡೇಟಾ ಅಪೂರ್ಣವಾಗಿರುವುದರಿಂದ ಈ ಮೋಡ್‌ನಲ್ಲಿ ಕೆಲವು ಹಳಿಗಳು ವಿರಳವಾಗಿ ಕಾಣಿಸಬಹುದು, ಆ ಶೀರ್ಷಿಕೆಗಳು ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲದ ಕಾರಣವಲ್ಲ.",
+  "@tmdbLanguageMetadataNote": {
+    "description": "Note about TMDB language metadata sparseness"
+  },
+  "tmdbDisclaimer": "ಈ ಉತ್ಪನ್ನವು TMDB API ಅನ್ನು ಬಳಸುತ್ತದೆ ಆದರೆ TMDB ನಿಂದ ಅನುಮೋದಿಸಲ್ಪಟ್ಟಿಲ್ಲ ಅಥವಾ ಪ್ರಮಾಣೀಕರಿಸಲ್ಪಟ್ಟಿಲ್ಲ.",
+  "@tmdbDisclaimer": {
+    "description": "TMDB API disclaimer"
+  },
+  "useLocalLibraryForSync": "ಸಿಂಕ್ ಮಾಡಲು ಸ್ಥಳೀಯ ಲೈಬ್ರರಿಯನ್ನು ಬಳಸುವುದೇ?",
+  "@useLocalLibraryForSync": {
+    "description": "Ask user to use local library for sync"
+  },
+  "themePresets": "ಥೀಮ್ ಪೂರ್ವನಿಗದಿಗಳು",
+  "@themePresets": {
+    "description": "Theme presets label"
+  },
+  "exitApp": "ಅಪ್ಲಿಕೇಶನ್‌ನಿಂದ ನಿರ್ಗಮಿಸಿ",
+  "@exitApp": {
+    "description": "Exit app dialog title"
+  },
+  "popular": "ಜನಪ್ರಿಯ",
+  "@popular": {
+    "description": "Popular section label"
+  },
+  "couldNotLoadReminders": "ಜ್ಞಾಪನೆಗಳನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.\n{error}",
+  "@couldNotLoadReminders": {
+    "description": "Error loading reminders",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noRemindersSetYet": "ಇನ್ನೂ ಯಾವುದೇ ಜ್ಞಾಪನೆಗಳನ್ನು ಹೊಂದಿಸಿಲ್ಲ.\nಸಂಚಿಕೆ ಟ್ರ್ಯಾಕರ್ ಅಥವಾ ಚಲನಚಿತ್ರ ವಿವರಗಳಿಂದ ಒಂದನ್ನು ರಚಿಸಿ.",
+  "@noRemindersSetYet": {
+    "description": "No reminders set yet"
+  },
+  "episodeSeasonEpisode": "ಸಂಚಿಕೆ S{seasonNumber} • E{episodeNumber}",
+  "@episodeSeasonEpisode": {
+    "description": "Episode season and episode label",
+    "placeholders": {
+      "seasonNumber": {
+        "type": "int"
+      },
+      "episodeNumber": {
+        "type": "int"
+      }
+    }
+  },
+  "movieRelease": "ಚಲನಚಿತ್ರ ಬಿಡುಗಡೆ",
+  "@movieRelease": {
+    "description": "Movie release reminder label"
+  },
+  "voteAverageStars": "ಈ ಅಪ್ಲಿಕೇಶನ್ ಲೇಬಲ್ ಅನ್ನು kn: {voteAverage} ★ ಗೆ ಅನುವಾದಿಸಿ",
+  "@voteAverageStars": {
+    "description": "Vote average with stars",
+    "placeholders": {
+      "voteAverage": {
+        "type": "String"
+      }
+    }
+  },
+  "addMoreTrackedContent": "ನಿಮ್ಮ ವೀಕ್ಷಣಾ ಪಟ್ಟಿ, ಮೆಚ್ಚಿನವುಗಳು ಅಥವಾ ಪಟ್ಟಿಗಳಿಗೆ ಹೆಚ್ಚಿನ ಚಲನಚಿತ್ರಗಳು ಅಥವಾ ಪ್ರದರ್ಶನಗಳನ್ನು ಸೇರಿಸಿ.",
+  "@addMoreTrackedContent": {
+    "description": "Add more tracked content"
+  },
+  "fastPicksDescription": "ನೀವು ಈಗಾಗಲೇ ಉಳಿಸಿದ್ದನ್ನು ಆಧರಿಸಿ ತ್ವರಿತ ಆಯ್ಕೆಗಳು.",
+  "@fastPicksDescription": {
+    "description": "Fast picks based on saved content"
+  },
+  "releaseCalendarDescription": "ಒಂದು-ಟ್ಯಾಪ್ ಜ್ಞಾಪನೆಗಳೊಂದಿಗೆ ಚಲನಚಿತ್ರ ಬಿಡುಗಡೆಗಳು ಮತ್ತು ಮುಂದಿನ ಟಿವಿ ಕಂತುಗಳು.",
+  "@releaseCalendarDescription": {
+    "description": "Release calendar feature description"
+  },
+  "staleWatchlist": "ಹಳೆಯ ವೀಕ್ಷಣಾ ಪಟ್ಟಿ",
+  "@staleWatchlist": {
+    "description": "Stale watchlist label"
+  },
+  "tracked": "ಟ್ರ್ಯಾಕ್ ಮಾಡಲಾಗಿದೆ",
+  "@tracked": {
+    "description": "Tracked tab label"
+  },
+  "upcoming": "ಮುಂಬರುವ",
+  "@upcoming": {
+    "description": "Upcoming tab label"
+  },
+  "upcomingEmptyDescription": "ಟ್ರ್ಯಾಕ್ ಮಾಡಲಾದ ಚಲನಚಿತ್ರಗಳು ಬಿಡುಗಡೆ ದಿನಾಂಕಗಳನ್ನು ಪಡೆದಾಗ ಅಥವಾ ಕಾರ್ಯಕ್ರಮಗಳಿಗೆ ಹೊಸ ಸಂಚಿಕೆಗಳನ್ನು ನಿಗದಿಪಡಿಸಿದಾಗ, ಅವು ಇಲ್ಲಿ ಕಾಣಿಸಿಕೊಳ್ಳುತ್ತವೆ.",
+  "@upcomingEmptyDescription": {
+    "description": "Empty state for upcoming releases"
+  },
+  "howManyMoviesWatchedEachMonth": "ನೀವು ಪ್ರತಿ ತಿಂಗಳು ಎಷ್ಟು ಸಿನಿಮಾಗಳನ್ನು ನೋಡಿದ್ದೀರಿ?",
+  "@howManyMoviesWatchedEachMonth": {
+    "description": "Chart description"
+  },
+  "howPersonalRatingsShifting": "ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ರೇಟಿಂಗ್‌ಗಳು ಕಾಲಾನಂತರದಲ್ಲಿ ಹೇಗೆ ಬದಲಾಗುತ್ತಿವೆ",
+  "@howPersonalRatingsShifting": {
+    "description": "Chart description"
+  },
+  "keepWatchingToBuildProfile": "ನಿಮ್ಮ ದೃಶ್ಯ ಪ್ರೊಫೈಲ್ ಅನ್ನು ನಿರ್ಮಿಸಲು ವೀಕ್ಷಿಸುತ್ತಿರಿ.",
+  "@keepWatchingToBuildProfile": {
+    "description": "Empty state for watch history"
+  },
+  "lumiWatchAnalytics": "ಲುಮಿ ವಾಚ್ ಅನಾಲಿಟಿಕ್ಸ್",
+  "@lumiWatchAnalytics": {
+    "description": "Watch analytics branding"
+  },
+  "noGenreDistributionYet": "ಇನ್ನೂ ಯಾವುದೇ ಪ್ರಕಾರದ ವಿತರಣೆ ಲಭ್ಯವಿಲ್ಲ.",
+  "@noGenreDistributionYet": {
+    "description": "Empty state for genre distribution"
+  },
+  "noMovieWatchHistoryRecentMonths": "ಇತ್ತೀಚಿನ ತಿಂಗಳುಗಳಲ್ಲಿ ಯಾವುದೇ ಚಲನಚಿತ್ರ ವೀಕ್ಷಣೆ ಇತಿಹಾಸವಿಲ್ಲ.",
+  "@noMovieWatchHistoryRecentMonths": {
+    "description": "Empty state for monthly watch history"
+  },
+  "noRatingTrendDataYet": "ಇನ್ನೂ ಯಾವುದೇ ರೇಟಿಂಗ್ ಟ್ರೆಂಡ್ ಡೇಟಾ ಲಭ್ಯವಿಲ್ಲ.",
+  "@noRatingTrendDataYet": {
+    "description": "Empty state for rating trend"
+  },
+  "preferredRuntime": "ಆದ್ಯತೆಯ ರನ್‌ಟೈಮ್",
+  "@preferredRuntime": {
+    "description": "Preferred runtime label"
+  },
+  "preferredRuntimeLabel": "ಆದ್ಯತೆಯ ರನ್‌ಟೈಮ್ ~{minutes} ನಿಮಿಷಗಳು ({label})",
+  "@preferredRuntimeLabel": {
+    "description": "Preferred runtime text",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "styledCardWithWatchStats": "ನಿಮ್ಮ ಗಡಿಯಾರದ ಅಂಕಿಅಂಶಗಳೊಂದಿಗೆ ಶೈಲಿಯ ಕಾರ್ಡ್",
+  "@styledCardWithWatchStats": {
+    "description": "Share option description"
+  },
+  "titlesAnalyzed": "ವಿಶ್ಲೇಷಿಸಲಾದ ಶೀರ್ಷಿಕೆಗಳು",
+  "@titlesAnalyzed": {
+    "description": "Titles analyzed label"
+  },
+  "tryAgainAfterMoment": "ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+  "@tryAgainAfterMoment": {
+    "description": "Retry suggestion"
+  },
+  "watchAnalytics": "ವಾಚ್ ಅನಾಲಿಟಿಕ್ಸ್",
+  "@watchAnalytics": {
+    "description": "Watch analytics title"
+  },
+  "whatGenresDominateHistory": "ನಿಮ್ಮ ವೀಕ್ಷಣಾ ಇತಿಹಾಸದಲ್ಲಿ ಯಾವ ಪ್ರಕಾರಗಳು ಪ್ರಾಬಲ್ಯ ಹೊಂದಿವೆ?",
+  "@whatGenresDominateHistory": {
+    "description": "Genre distribution description"
+  },
+  "toggleMovies": "ಚಲನಚಿತ್ರಗಳು",
+  "@toggleMovies": {
+    "description": "Movies toggle label"
+  },
+  "toggleTv": "ಟಿವಿ",
+  "@toggleTv": {
+    "description": "TV toggle label"
+  },
+  "noMoreTitlesFound": "ಯಾವುದೇ ಶೀರ್ಷಿಕೆಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noMoreTitlesFound": {
+    "description": "No more titles in keyword screen"
+  },
+  "noTitlesFoundForKeyword": "ಈ ಕೀವರ್ಡ್‌ಗೆ ಯಾವುದೇ ಶೀರ್ಷಿಕೆಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noTitlesFoundForKeyword": {
+    "description": "No titles for keyword"
+  },
+  "viewFull": "ಪೂರ್ಣವಾಗಿ ವೀಕ್ಷಿಸಿ",
+  "@viewFull": {
+    "description": "View full episode"
+  },
+  "accoladeDetails": "ಪ್ರಶಸ್ತಿ ವಿವರಗಳು",
+  "@accoladeDetails": {
+    "description": "Accolade details dialog title"
+  },
+  "noDetailedAwardsInfo": "ಪ್ರಶಸ್ತಿಗಳ ಕುರಿತು ವಿವರವಾದ ಮಾಹಿತಿ ಲಭ್ಯವಿಲ್ಲ.",
+  "@noDetailedAwardsInfo": {
+    "description": "No awards details"
+  },
+  "alertSet": "ಎಚ್ಚರಿಕೆ ಸೆಟ್!",
+  "@alertSet": {
+    "description": "Alert set confirmation"
+  },
+  "budget": "ಬಜೆಟ್",
+  "@budget": {
+    "description": "Budget label"
+  },
+  "buy": "ಖರೀದಿಸಿ",
+  "@buy": {
+    "description": "Buy provider label"
+  },
+  "chooseBetweenHours": "1 ಮತ್ತು {maxHours} ನಡುವೆ ಆಯ್ಕೆಮಾಡಿ",
+  "@chooseBetweenHours": {
+    "description": "Hours input validation",
+    "placeholders": {
+      "maxHours": {
+        "type": "int"
+      }
+    }
+  },
+  "deleteNoteConfirmationTitle": "ಟಿಪ್ಪಣಿ ಅಳಿಸುವುದೇ?",
+  "@deleteNoteConfirmationTitle": {
+    "description": "Delete note dialog title"
+  },
+  "episodeReminder": "ಸಂಚಿಕೆಯ ಜ್ಞಾಪನೆ",
+  "@episodeReminder": {
+    "description": "Episode reminder dialog title"
+  },
+  "facebook": "ಫೇಸ್‌ಬುಕ್",
+  "@facebook": {
+    "description": "Facebook social link"
+  },
+  "free": "ಉಚಿತ",
+  "@free": {
+    "description": "Free provider label"
+  },
+  "images": "ಚಿತ್ರಗಳು",
+  "@images": {
+    "description": "Images section title"
+  },
+  "instagram": "Instagram is ರಚಿಸಿದವರು Instagram,.",
+  "@instagram": {
+    "description": "Instagram social link"
+  },
+  "netProfit": "ನಿವ್ವಳ ಲಾಭ",
+  "@netProfit": {
+    "description": "Net profit label"
+  },
+  "noNotesYet": "ಇನ್ನೂ ಯಾವುದೇ ಟಿಪ್ಪಣಿಗಳಿಲ್ಲ. ನಿಮ್ಮ ಆಲೋಚನೆಗಳನ್ನು ಸೇರಿಸಿ!",
+  "@noNotesYet": {
+    "description": "No notes yet message"
+  },
+  "originalLanguage": "ಮೂಲ ಭಾಷೆ",
+  "@originalLanguage": {
+    "description": "Original language label"
+  },
+  "partOfCollection": "{collectionName} ನ ಭಾಗ",
+  "@partOfCollection": {
+    "description": "Part of collection label",
+    "placeholders": {
+      "collectionName": {
+        "type": "String"
+      }
+    }
+  },
+  "roi": "ROI",
+  "@roi": {
+    "description": "ROI label"
+  },
+  "releaseAlertSet": "{date} ಗಾಗಿ ಬಿಡುಗಡೆ ಗಡಿಯಾರ ಎಚ್ಚರಿಕೆಯನ್ನು ಹೊಂದಿಸಲಾಗಿದೆ.",
+  "@releaseAlertSet": {
+    "description": "Release alert set message",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "rent": "ಬಾಡಿಗೆ",
+  "@rent": {
+    "description": "Rent provider label"
+  },
+  "revenue": "ಆದಾಯ",
+  "@revenue": {
+    "description": "Revenue label"
+  },
+  "seeAllReviews": "ಎಲ್ಲವನ್ನೂ ನೋಡಿ ({count})",
+  "@seeAllReviews": {
+    "description": "See all reviews button",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "setReminder": "ಜ್ಞಾಪನೆಯನ್ನು ಹೊಂದಿಸಿ",
+  "@setReminder": {
+    "description": "Set reminder button"
+  },
+  "status": "ಸ್ಥಿತಿ",
+  "@status": {
+    "description": "Status label"
+  },
+  "stream": "ಸ್ಟ್ರೀಮ್",
+  "@stream": {
+    "description": "Stream provider label"
+  },
+  "tikTok": "ಟಿಕ್‌ಟಾಕ್",
+  "@tikTok": {
+    "description": "TikTok social link"
+  },
+  "twitterX": "ಸ",
+  "@twitterX": {
+    "description": "X social link"
+  },
+  "yours": "ನಿಮ್ಮದು",
+  "@yours": {
+    "description": "Yours label"
+  },
+  "youtube": "YouTube ನಲ್ಲಿ",
+  "@youtube": {
+    "description": "YouTube social link"
+  },
+  "durationDays": "ಡಿ",
+  "@durationDays": {
+    "description": "Days abbreviation"
+  },
+  "durationHours": "ಗಂ",
+  "@durationHours": {
+    "description": "Hours abbreviation"
+  },
+  "durationMinutes": "ಮೀ",
+  "@durationMinutes": {
+    "description": "Minutes abbreviation"
+  },
+  "durationSeconds": "ರು",
+  "@durationSeconds": {
+    "description": "Seconds abbreviation"
+  },
+  "seasonRating": "ಈ ಅಪ್ಲಿಕೇಶನ್ ಲೇಬಲ್ ಅನ್ನು kn: ★ {score}% ಗೆ ಅನುವಾದಿಸಿ",
+  "@seasonRating": {
+    "description": "Season rating percentage",
+    "placeholders": {
+      "score": {
+        "type": "String"
+      }
+    }
+  },
+  "we": "ನಾವು",
+  "@we": {
+    "description": "Localized string for we"
+  },
+  "aspect16x9": "ಈ ಅಪ್ಲಿಕೇಶನ್ ಲೇಬಲ್ ಅನ್ನು kn: 16:9 ಗೆ ಅನುವಾದಿಸಿ",
+  "@aspect16x9": {
+    "description": "16:9 aspect ratio"
+  },
+  "aspect9x16": "ಈ ಅಪ್ಲಿಕೇಶನ್ ಲೇಬಲ್ ಅನ್ನು kn: 9:16 ಗೆ ಅನುವಾದಿಸಿ",
+  "@aspect9x16": {
+    "description": "9:16 aspect ratio"
+  },
+  "background": "ಬಿಜಿ",
+  "@background": {
+    "description": "Background label"
+  },
+  "episodeCount": "{count} ಎಪ್ಸಿಸ್",
+  "@episodeCount": {
+    "description": "Episode count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "noEpisodesForSeason": "ಈ ಸೀಸನ್‌ಗೆ ಯಾವುದೇ ಕಂತುಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noEpisodesForSeason": {
+    "description": "No episodes for season"
+  },
+  "beautifulStyledCardForStories": "ಸಾಮಾಜಿಕ ಕಥೆಗಳಿಗಾಗಿ ಸುಂದರವಾದ ಶೈಲಿಯ ಕಾರ್ಡ್‌ಗಳು",
+  "@beautifulStyledCardForStories": {
+    "description": "Share option description"
+  },
+  "clickableShareLink": "WhatsApp ಮತ್ತು ಇತರ ಅಪ್ಲಿಕೇಶನ್‌ಗಳಿಗಾಗಿ ಕ್ಲಿಕ್ ಮಾಡಬಹುದಾದ ಹಂಚಿಕೆ ಲಿಂಕ್",
+  "@clickableShareLink": {
+    "description": "Share option description"
+  },
+  "placeQuoteOnBackdrop": "ನಿಮ್ಮ ನೆಚ್ಚಿನ ಉಲ್ಲೇಖವನ್ನು ಚಲನಚಿತ್ರದ ಹಿನ್ನೆಲೆಯಲ್ಲಿ ಇರಿಸಿ.",
+  "@placeQuoteOnBackdrop": {
+    "description": "Share option description"
+  },
+  "standardLinkToMovieDatabase": "ಚಲನಚಿತ್ರ ಡೇಟಾಬೇಸ್‌ಗೆ ಪ್ರಮಾಣಿತ ಲಿಂಕ್",
+  "@standardLinkToMovieDatabase": {
+    "description": "Share option description"
+  },
+  "exploreLabel": "ಅನ್ವೇಷಿಸಿ",
+  "@exploreLabel": {
+    "description": "Explore label"
+  },
+  "quoteCharacter": "ಈ ಅಪ್ಲಿಕೇಶನ್ ಲೇಬಲ್ ಅನ್ನು kn: — {character} ಗೆ ಅನುವಾದಿಸಿ",
+  "@quoteCharacter": {
+    "description": "Quote character attribution",
+    "placeholders": {
+      "character": {
+        "type": "String"
+      }
+    }
+  },
+  "aiTonightWatch": "AI ಟುನೈಟ್ ವಾಚ್",
+  "@aiTonightWatch": {
+    "description": "AI tonight watch feature"
+  },
+  "aiQueryPlan": "AI ಪ್ರಶ್ನೆ ಯೋಜನೆ",
+  "@aiQueryPlan": {
+    "description": "AI query plan label"
+  },
+  "airingToday": "ಇಂದು ಪ್ರಸಾರವಾಗುತ್ತಿರುವ",
+  "@airingToday": {
+    "description": "Airing today section"
+  },
+  "bigCrowdPleasers": "ಬಲವಾದ ಆವೇಗದೊಂದಿಗೆ ಜನಸಂದಣಿಯನ್ನು ಮೆಚ್ಚಿಸುವ ದೊಡ್ಡ ಹಾಡುಗಳು",
+  "@bigCrowdPleasers": {
+    "description": "Explore section subtitle"
+  },
+  "cinematic": "ಸಿನಿಮೀಯ",
+  "@cinematic": {
+    "description": "Mood label"
+  },
+  "comingSoon": "ಶೀಘ್ರದಲ್ಲೇ ಬರಲಿದೆ",
+  "@comingSoon": {
+    "description": "Coming soon section"
+  },
+  "currentTheatricalSlate": "ಪ್ರಸ್ತುತ ನಾಟಕೀಯ ಬಿಡುಗಡೆಗಳು ಮತ್ತು ಹತ್ತಿರದ ಭವಿಷ್ಯದ ಬಿಡುಗಡೆಗಳು",
+  "@currentTheatricalSlate": {
+    "description": "Explore section subtitle"
+  },
+  "dark": "ಕತ್ತಲೆ",
+  "@dark": {
+    "description": "Mood label"
+  },
+  "discoverSpotlight": "ಸ್ಪಾಟ್‌ಲೈಟ್ ಅನ್ವೇಷಿಸಿ",
+  "@discoverSpotlight": {
+    "description": "Discover spotlight title"
+  },
+  "edgeOfYourSeat": "ನಿಮ್ಮ ಆಸನದ ತುದಿಯಲ್ಲಿ",
+  "@edgeOfYourSeat": {
+    "description": "Mood label"
+  },
+  "fastPaced": "ವೇಗದ ಗತಿಯ",
+  "@fastPaced": {
+    "description": "Mood label"
+  },
+  "feelGood": "ಒಳ್ಳೆಯ ಅನುಭವ ನೀಡುವ",
+  "@feelGood": {
+    "description": "Mood label"
+  },
+  "freshPicksContinuous": "ಹೊಸ ಆಯ್ಕೆಗಳನ್ನು ನಿರಂತರವಾಗಿ ನವೀಕರಿಸಲಾಗುತ್ತದೆ",
+  "@freshPicksContinuous": {
+    "description": "Explore section subtitle"
+  },
+  "hideTitle": "ಶೀರ್ಷಿಕೆಯನ್ನು ಮರೆಮಾಡಿ",
+  "@hideTitle": {
+    "description": "Hide title dialog title"
+  },
+  "highRatedSkipped": "ಹೆಚ್ಚಿನ ವೀಕ್ಷಕರು ಬಿಟ್ಟುಬಿಡುವ ಹೆಚ್ಚು ರೇಟಿಂಗ್ ಹೊಂದಿರುವ ಶೀರ್ಷಿಕೆಗಳು",
+  "@highRatedSkipped": {
+    "description": "Explore section subtitle"
+  },
+  "hotNowAudience": "ಪ್ರೇಕ್ಷಕರ ಫೀಡ್‌ನಾದ್ಯಂತ ಈಗ ಬಿಸಿಯಾಗಿದೆ",
+  "@hotNowAudience": {
+    "description": "Explore section subtitle"
+  },
+  "inTheaters": "ಚಿತ್ರಮಂದಿರಗಳಲ್ಲಿ",
+  "@inTheaters": {
+    "description": "In theaters section"
+  },
+  "indie": "ಇಂಡೀ",
+  "@indie": {
+    "description": "Mood label"
+  },
+  "mindBending": "ಮನಸ್ಸನ್ನು ಬೆರಗುಗೊಳಿಸುವ",
+  "@mindBending": {
+    "description": "Mood label"
+  },
+  "mostDiscussedShowsThisWeek": "ಈ ವಾರ ಹೆಚ್ಚು ಚರ್ಚಿಸಲ್ಪಟ್ಟ ಕಾರ್ಯಕ್ರಮಗಳು",
+  "@mostDiscussedShowsThisWeek": {
+    "description": "Explore section subtitle"
+  },
+  "multiplePicks": "ಬಹು ಆಯ್ಕೆಗಳು",
+  "@multiplePicks": {
+    "description": "Multiple picks feature chip"
+  },
+  "onTheAir": "ಪ್ರಸಾರದಲ್ಲಿ",
+  "@onTheAir": {
+    "description": "On the air section"
+  },
+  "personalizedFromWatchBehavior": "ನಿಮ್ಮ ಗಡಿಯಾರದ ನಡವಳಿಕೆಯಿಂದ ವೈಯಕ್ತೀಕರಿಸಲಾಗಿದೆ",
+  "@personalizedFromWatchBehavior": {
+    "description": "Explore section subtitle"
+  },
+  "pickAVibe": "ವೈಬ್ ಅನ್ನು ಆರಿಸಿ ಮತ್ತು ತಕ್ಷಣ ಹೊಂದಾಣಿಕೆಯ ಶೀರ್ಷಿಕೆಗಳನ್ನು ಪಡೆಯಿರಿ",
+  "@pickAVibe": {
+    "description": "Explore section subtitle"
+  },
+  "seeAll": "ಎಲ್ಲವನ್ನೂ ನೋಡಿ",
+  "@seeAll": {
+    "description": "See all button"
+  },
+  "seriesCurrentlyAiring": "ಸಕ್ರಿಯ ಕಂತುಗಳೊಂದಿಗೆ ಪ್ರಸ್ತುತ ಪ್ರಸಾರವಾಗುತ್ತಿರುವ ಸರಣಿ",
+  "@seriesCurrentlyAiring": {
+    "description": "Explore section subtitle"
+  },
+  "thisWeek": "ಈ ವಾರ",
+  "@thisWeek": {
+    "description": "This week filter"
+  },
+  "topRated": "ಅತ್ಯುತ್ತಮ ರೇಟಿಂಗ್",
+  "@topRated": {
+    "description": "Top rated section"
+  },
+  "voiceInput": "ಧ್ವನಿ ಇನ್ಪುಟ್",
+  "@voiceInput": {
+    "description": "Voice input feature chip"
+  },
+  "matchPercent": "{matchPct}% ಹೊಂದಾಣಿಕೆ",
+  "@matchPercent": {
+    "description": "Match percentage",
+    "placeholders": {
+      "matchPct": {
+        "type": "String"
+      }
+    }
+  },
+  "runtimeMinutes": "{minutes} ನಿಮಿಷ",
+  "@runtimeMinutes": {
+    "description": "Runtime in minutes",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "examplePrompt": "ಉದಾಹರಣೆ: ಇಂಟರ್‌ಸ್ಟೆಲ್ಲಾರ್‌ನಂತಿದೆ, ಆದರೆ ವೈಜ್ಞಾನಿಕ ಕಾದಂಬರಿಯಲ್ಲ.",
+  "@examplePrompt": {
+    "description": "Example prompt hint"
+  },
+  "findingYourPerfectWatch": "ನಿಮ್ಮ ಪರಿಪೂರ್ಣ ಗಡಿಯಾರವನ್ನು ಹುಡುಕುತ್ತಿದ್ದೇನೆ{dots}",
+  "@findingYourPerfectWatch": {
+    "description": "Finding recommendations loading",
+    "placeholders": {
+      "dots": {
+        "type": "String"
+      }
+    }
+  },
+  "moreLikeThis": "ಈ ರೀತಿಯ ಇನ್ನಷ್ಟು",
+  "@moreLikeThis": {
+    "description": "More like this button"
+  },
+  "notForMe": "ನನಗಲ್ಲ",
+  "@notForMe": {
+    "description": "Not for me button"
+  },
+  "recentQueries": "ಇತ್ತೀಚಿನ ಪ್ರಶ್ನೆಗಳು",
+  "@recentQueries": {
+    "description": "Recent queries section"
+  },
+  "shufflingIdeas": "ಗೊಂದಲಮಯ ವಿಚಾರಗಳು...",
+  "@shufflingIdeas": {
+    "description": "Shuffling ideas loading"
+  },
+  "tooMainstream": "ತುಂಬಾ ಮುಖ್ಯವಾಹಿನಿಯಾಗಿದೆ",
+  "@tooMainstream": {
+    "description": "Too mainstream button"
+  },
+  "whatShouldIWatchTonight": "ಇಂದು ರಾತ್ರಿ ನಾನು ಏನು ನೋಡಬೇಕು?",
+  "@whatShouldIWatchTonight": {
+    "description": "Tonight feature title"
+  },
+  "debugLogEntry": "ಈ ಅಪ್ಲಿಕೇಶನ್ ಲೇಬಲ್ ಅನ್ನು kn ಗೆ ಅನುವಾದಿಸಿ: [{time}] {message}",
+  "@debugLogEntry": {
+    "description": "Debug log entry",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "message": {
+        "type": "String"
+      }
+    }
+  },
+  "from": "ಇಂದ",
+  "@from": {
+    "description": "From filter label"
+  },
+  "to": "ಗೆ",
+  "@to": {
+    "description": "To filter label"
+  },
+  "removedFromWatchlistCountdown": "ವೀಕ್ಷಣೆ ಪಟ್ಟಿಯಿಂದ ತೆಗೆದುಹಾಕಲಾಗಿದೆ ({seconds} ಸೆ)",
+  "@removedFromWatchlistCountdown": {
+    "description": "Removed from watchlist with countdown",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "creditsCount": "{count} ಕ್ರೆಡಿಟ್‌ಗಳು",
+  "@creditsCount": {
+    "description": "Person credits count",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "acrossFilmography": "ಚಲನಚಿತ್ರಗಳ ಪಟ್ಟಿಯಾದ್ಯಂತ",
+  "@acrossFilmography": {
+    "description": "Across filmography label"
+  },
+  "birthplace": "ಜನ್ಮಸ್ಥಳ",
+  "@birthplace": {
+    "description": "Birthplace label"
+  },
+  "born": "ಹುಟ್ಟು",
+  "@born": {
+    "description": "Born label"
+  },
+  "credits": "ಕ್ರೆಡಿಟ್‌ಗಳು",
+  "@credits": {
+    "description": "Credits label"
+  },
+  "died": "ನಿಧನರಾದರು",
+  "@died": {
+    "description": "Died label"
+  },
+  "knownFor": "ಹೆಸರುವಾಸಿಯಾಗಿದೆ",
+  "@knownFor": {
+    "description": "Known for label"
+  },
+  "noSharedTitlesAvailable": "ಯಾವುದೇ ಹಂಚಿಕೆಯ ಶೀರ್ಷಿಕೆಗಳು ಲಭ್ಯವಿಲ್ಲ.",
+  "@noSharedTitlesAvailable": {
+    "description": "No shared titles available"
+  },
+  "photos": "ಫೋಟೋಗಳು",
+  "@photos": {
+    "description": "Photos section"
+  },
+  "personRating": "ರೇಟಿಂಗ್",
+  "@personRating": {
+    "description": "Rating column header"
+  },
+  "taggedImages": "ಟ್ಯಾಗ್ ಮಾಡಲಾದ ಚಿತ್ರಗಳು",
+  "@taggedImages": {
+    "description": "Tagged images section"
+  },
+  "website": "ವೆಬ್‌ಸೈಟ್",
+  "@website": {
+    "description": "Website link"
+  },
+  "noQuotesFound": "ಯಾವುದೇ ಉಲ್ಲೇಖಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noQuotesFound": {
+    "description": "No quotes found"
+  },
+  "noSectionsFound": "ಯಾವುದೇ ವಿಭಾಗಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noSectionsFound": {
+    "description": "No sections found"
+  },
+  "clearAll": "ಎಲ್ಲವನ್ನೂ ತೆರವುಗೊಳಿಸಿ",
+  "@clearAll": {
+    "description": "Clear all button"
+  },
+  "noCollectionsFound": "ಯಾವುದೇ ಸಂಗ್ರಹಣೆಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noCollectionsFound": {
+    "description": "No collections found"
+  },
+  "noCompaniesFound": "ಯಾವುದೇ ಕಂಪನಿಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noCompaniesFound": {
+    "description": "No companies found"
+  },
+  "noKeywordsFound": "ಯಾವುದೇ ಕೀವರ್ಡ್‌ಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noKeywordsFound": {
+    "description": "No keywords found"
+  },
+  "noMoreResultsFound": "ಹೆಚ್ಚಿನ ಫಲಿತಾಂಶಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noMoreResultsFound": {
+    "description": "No more search results"
+  },
+  "noResultsFound": "ಯಾವುದೇ ಫಲಿತಾಂಶಗಳು ಕಂಡುಬಂದಿಲ್ಲ",
+  "@noResultsFound": {
+    "description": "No search results"
+  },
+  "deleteListConfirmation": "ನೀವು {listName} ಅನ್ನು ಅಳಿಸಲು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?",
+  "@deleteListConfirmation": {
+    "description": "Delete list confirmation",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteListTitle": "ಪಟ್ಟಿಯನ್ನು ಅಳಿಸುವುದೇ?",
+  "@deleteListTitle": {
+    "description": "Delete list dialog title"
+  },
+  "everythingYouPlanToWatch": "ನೀವು ಮುಂದೆ ವೀಕ್ಷಿಸಲು ಯೋಜಿಸಿರುವ ಎಲ್ಲವೂ.",
+  "@everythingYouPlanToWatch": {
+    "description": "Watchlist section description"
+  },
+  "finishedTitlesAndHistory": "ಮುಗಿದ ಶೀರ್ಷಿಕೆಗಳು ಜೊತೆಗೆ ನಿಮ್ಮ ಇತಿಹಾಸ ಮತ್ತು ಅಂಕಿಅಂಶಗಳು.",
+  "@finishedTitlesAndHistory": {
+    "description": "Watched section description"
+  },
+  "noListsCreatedYet": "ಇನ್ನೂ ಯಾವುದೇ ಪಟ್ಟಿಗಳನ್ನು ರಚಿಸಲಾಗಿಲ್ಲ.",
+  "@noListsCreatedYet": {
+    "description": "No lists created"
+  },
+  "noNotesFound": "ಯಾವುದೇ ಟಿಪ್ಪಣಿಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noNotesFound": {
+    "description": "Localized string for noNotesFound"
+  },
+  "renameList": "ಪಟ್ಟಿಯನ್ನು ಮರುಹೆಸರಿಸಿ",
+  "@renameList": {
+    "description": "Rename list dialog title"
+  },
+  "titlesYouNeverWantToLose": "ನೀವು ಎಂದಿಗೂ ಕಳೆದುಕೊಳ್ಳಲು ಬಯಸದ ಶೀರ್ಷಿಕೆಗಳು.",
+  "@titlesYouNeverWantToLose": {
+    "description": "Favourites section description"
+  },
+  "yourThoughtsReactions": "ನಿಮ್ಮ ಆಲೋಚನೆಗಳು, ಪ್ರತಿಕ್ರಿಯೆಗಳು ಮತ್ತು ಜ್ಞಾಪನೆಗಳು.",
+  "@yourThoughtsReactions": {
+    "description": "Notes section description"
+  },
+  "imageCounter": "ಈ ಅಪ್ಲಿಕೇಶನ್ ಲೇಬಲ್ ಅನ್ನು kn ಗೆ ಅನುವಾದಿಸಿ: {current} / {total}",
+  "@imageCounter": {
+    "description": "Image counter",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "removeFromWatchedConfirmation": "ನೀವು ವೀಕ್ಷಿಸಿದ ಪಟ್ಟಿಯಿಂದ ಇದನ್ನು ತೆಗೆದುಹಾಕಲು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?",
+  "@removeFromWatchedConfirmation": {
+    "description": "Remove from watched confirmation"
+  },
+  "savedAsWatchedWithoutRating": "ಇದನ್ನು ವೈಯಕ್ತಿಕ ರೇಟಿಂಗ್ ಇಲ್ಲದೆ ವೀಕ್ಷಿಸಿದಂತೆ ಉಳಿಸಲಾಗುತ್ತದೆ.",
+  "@savedAsWatchedWithoutRating": {
+    "description": "Saved as watched without rating"
+  },
+  "noAdditionalRecommendationTrailers": "ಯಾವುದೇ ಹೆಚ್ಚುವರಿ ಶಿಫಾರಸು ಟ್ರೇಲರ್‌ಗಳು ಕಂಡುಬಂದಿಲ್ಲ.",
+  "@noAdditionalRecommendationTrailers": {
+    "description": "No recommendation trailers"
+  },
+  "sharedListItemsCount": "ಈ ಅಪ್ಲಿಕೇಶನ್ ಲೇಬಲ್ ಅನ್ನು kn ಗೆ ಅನುವಾದಿಸಿ: {count} {itemLabel}",
+  "@sharedListItemsCount": {
+    "description": "Shared list items count",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "itemLabel": {
+        "type": "String"
+      }
+    }
+  },
+  "invalidSharedListLink": "ಲಿಂಕ್ ಅಮಾನ್ಯವಾಗಿರಬಹುದು, ಅವಧಿ ಮುಗಿದಿರಬಹುದು ಅಥವಾ ಇನ್ನು ಮುಂದೆ ಪ್ರವೇಶಿಸಲಾಗದಿರಬಹುದು.",
+  "@invalidSharedListLink": {
+    "description": "Invalid shared list link"
+  },
+  "noTitlesAvailableToImport": "ಆಮದು ಮಾಡಿಕೊಳ್ಳಲು ಯಾವುದೇ ಶೀರ್ಷಿಕೆಗಳು ಲಭ್ಯವಿಲ್ಲ.",
+  "@noTitlesAvailableToImport": {
+    "description": "No titles to import"
+  },
+  "allLanguages": "ಎಲ್ಲಾ ಭಾಷೆಗಳು",
+  "@allLanguages": {
+    "description": "Language name: All Languages"
+  },
+  "arabic": "ಅರೇಬಿಕ್",
+  "@arabic": {
+    "description": "Language name: Arabic"
+  },
+  "bengali": "ಬಂಗಾಳಿ",
+  "@bengali": {
+    "description": "Language name: Bengali"
+  },
+  "chinese": "ಚೈನೀಸ್",
+  "@chinese": {
+    "description": "Language name: Chinese"
+  },
+  "english": "ಇಂಗ್ಲೀಷ್",
+  "@english": {
+    "description": "Language name: English"
+  },
+  "french": "ಫ್ರೆಂಚ್",
+  "@french": {
+    "description": "Language name: French"
+  },
+  "german": "ಜರ್ಮನ್",
+  "@german": {
+    "description": "Language name: German"
+  },
+  "gujarati": "ಗುಜರಾತಿ",
+  "@gujarati": {
+    "description": "Language name: Gujarati"
+  },
+  "hindi": "ಹಿಂದಿ",
+  "@hindi": {
+    "description": "Language name: Hindi"
+  },
+  "indonesian": "ಇಂಡೋನೇಷಿಯನ್",
+  "@indonesian": {
+    "description": "Language name: Indonesian"
+  },
+  "italian": "ಇಟಾಲಿಯನ್",
+  "@italian": {
+    "description": "Language name: Italian"
+  },
+  "japanese": "ಜಪಾನೀಸ್",
+  "@japanese": {
+    "description": "Language name: Japanese"
+  },
+  "kannada": "ಕನ್ನಡ",
+  "@kannada": {
+    "description": "Language name: Kannada"
+  },
+  "korean": "ಕೊರಿಯನ್",
+  "@korean": {
+    "description": "Language name: Korean"
+  },
+  "malayalam": "ಮಲಯಾಳಂ",
+  "@malayalam": {
+    "description": "Language name: Malayalam"
+  },
+  "marathi": "ಮರಾಠಿ",
+  "@marathi": {
+    "description": "Language name: Marathi"
+  },
+  "persian": "ಪರ್ಷಿಯನ್",
+  "@persian": {
+    "description": "Language name: Persian"
+  },
+  "polish": "ಪೋಲಿಷ್",
+  "@polish": {
+    "description": "Language name: Polish"
+  },
+  "portuguese": "ಪೋರ್ಚುಗೀಸ್",
+  "@portuguese": {
+    "description": "Language name: Portuguese"
+  },
+  "punjabi": "ಪಂಜಾಬಿ",
+  "@punjabi": {
+    "description": "Language name: Punjabi"
+  },
+  "russian": "ರಷ್ಯನ್",
+  "@russian": {
+    "description": "Language name: Russian"
+  },
+  "spanish": "ಸ್ಪ್ಯಾನಿಷ್",
+  "@spanish": {
+    "description": "Language name: Spanish"
+  },
+  "swedish": "ಸ್ವೀಡಿಷ್",
+  "@swedish": {
+    "description": "Language name: Swedish"
+  },
+  "tamil": "ತಮಿಳು",
+  "@tamil": {
+    "description": "Language name: Tamil"
+  },
+  "telugu": "ತೆಲುಗು",
+  "@telugu": {
+    "description": "Language name: Telugu"
+  },
+  "thai": "ಥಾಯ್",
+  "@thai": {
+    "description": "Language name: Thai"
+  },
+  "turkish": "ಟರ್ಕಿಶ್",
+  "@turkish": {
+    "description": "Language name: Turkish"
+  },
+  "urdu": "ಉರ್ದು",
+  "@urdu": {
+    "description": "Language name: Urdu"
+  },
+  "vietnamese": "ವಿಯೆಟ್ನಾಮೀಸ್",
+  "@vietnamese": {
+    "description": "Language name: Vietnamese"
+  },
+  "failedToLoadCollectionDetails": "ಸಂಗ್ರಹ ವಿವರಗಳನ್ನು ಲೋಡ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ.",
+  "@failedToLoadCollectionDetails": {
+    "description": "Localized string for failedToLoadCollectionDetails"
+  },
+  "franchiseProgress": "ಫ್ರ್ಯಾಂಚೈಸ್ ಪ್ರಗತಿ",
+  "@franchiseProgress": {
+    "description": "Localized string for franchiseProgress"
+  },
+  "officialSite": "ಅಧಿಕೃತ ಜಾಲತಾಣ",
+  "@officialSite": {
+    "description": "Localized string for officialSite"
+  },
+  "productions": "ನಿರ್ಮಾಣಗಳು",
+  "@productions": {
+    "description": "Localized string for productions"
+  },
+  "productionCompany": "ನಿರ್ಮಾಣ ಕಂಪನಿ",
+  "@productionCompany": {
+    "description": "Localized string for productionCompany"
+  },
+  "failedToLoadCompanyInfo": "ಕಂಪನಿ ಮಾಹಿತಿಯನ್ನು ಲೋಡ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ.",
+  "@failedToLoadCompanyInfo": {
+    "description": "Localized string for failedToLoadCompanyInfo"
+  },
+  "profile": "ಪ್ರೊಫೈಲ್",
+  "@profile": {
+    "description": "Localized string for profile"
+  },
+  "guestViewer": "ಅತಿಥಿ ವೀಕ್ಷಕರು",
+  "@guestViewer": {
+    "description": "Localized string for guestViewer"
+  },
+  "yourProfileSyncStateRegionPreferences": "ನಿಮ್ಮ ಪ್ರೊಫೈಲ್, ಸಿಂಕ್ ಸ್ಥಿತಿ, ಪ್ರದೇಶ ಮತ್ತು ದೃಶ್ಯ ಆದ್ಯತೆಗಳು ಇಲ್ಲಿ ಲೈವ್ ಆಗಿವೆ.",
+  "@yourProfileSyncStateRegionPreferences": {
+    "description": "Localized string for yourProfileSyncStateRegionPreferences"
+  },
+  "signInToSync": "ನಿಮ್ಮ ವೀಕ್ಷಣಾ ಪಟ್ಟಿ, ರೇಟಿಂಗ್‌ಗಳು ಮತ್ತು ಆದ್ಯತೆಗಳನ್ನು ಸಿಂಕ್ ಮಾಡಲು ಸೈನ್ ಇನ್ ಮಾಡಿ.",
+  "@signInToSync": {
+    "description": "Localized string for signInToSync"
+  },
+  "signedInAndSyncing": "ಸೈನ್ ಇನ್ ಮಾಡಲಾಗಿದೆ ಮತ್ತು ಕ್ಲೌಡ್‌ಗೆ ಸಿಂಕ್ ಮಾಡಲಾಗುತ್ತಿದೆ.",
+  "@signedInAndSyncing": {
+    "description": "Localized string for signedInAndSyncing"
+  },
+  "developedBy": "ಅಭಿವೃದ್ಧಿಪಡಿಸಿದವರು",
+  "@developedBy": {
+    "description": "Localized string for developedBy"
+  },
+  "couldNotAnalyzeWatchHistory": "ಇದೀಗ ವೀಕ್ಷಣಾ ಇತಿಹಾಸವನ್ನು ವಿಶ್ಲೇಷಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+  "@couldNotAnalyzeWatchHistory": {
+    "description": "Localized string for couldNotAnalyzeWatchHistory"
+  },
+  "includeLocalLibrary": "ಸ್ಥಳೀಯ ಗ್ರಂಥಾಲಯವನ್ನು ಸೇರಿಸಿ",
+  "@includeLocalLibrary": {
+    "description": "Localized string for includeLocalLibrary"
+  },
+  "useCloudOnly": "ಕ್ಲೌಡ್ ಮಾತ್ರ ಬಳಸಿ",
+  "@useCloudOnly": {
+    "description": "Localized string for useCloudOnly"
+  },
+  "localLibrarySyncDescription": "ಈ ಸಾಧನವು ಈಗಾಗಲೇ ಸ್ಥಳೀಯ ಲೈಬ್ರರಿ ಶೀರ್ಷಿಕೆಗಳನ್ನು ಹೊಂದಿದೆ. ಅವುಗಳನ್ನು ನಿಮ್ಮ ಸೈನ್-ಇನ್ ಮಾಡಿದ ಲೈಬ್ರರಿಯಲ್ಲಿ ಸೇರಿಸಿ, ಅಥವಾ ಸ್ಥಳೀಯ ಲೈಬ್ರರಿ ಡೇಟಾವನ್ನು ನಿಮ್ಮ ಕ್ಲೌಡ್ ಲೈಬ್ರರಿಯೊಂದಿಗೆ ಬದಲಾಯಿಸಿ.",
+  "@localLibrarySyncDescription": {
+    "description": "Localized string for localLibrarySyncDescription"
+  },
+  "mergedLocalTitles": "ನಿಮ್ಮ ಸೈನ್ ಇನ್ ಮಾಡಿದ ಲೈಬ್ರರಿಗೆ ಸ್ಥಳೀಯ ಶೀರ್ಷಿಕೆಗಳನ್ನು ವಿಲೀನಗೊಳಿಸಲಾಗಿದೆ.",
+  "@mergedLocalTitles": {
+    "description": "Localized string for mergedLocalTitles"
+  },
+  "replacedLocalLibrary": "ಸ್ಥಳೀಯ ಲೈಬ್ರರಿ ಡೇಟಾವನ್ನು ನಿಮ್ಮ ಕ್ಲೌಡ್ ಲೈಬ್ರರಿಯೊಂದಿಗೆ ಬದಲಾಯಿಸಲಾಗಿದೆ.",
+  "@replacedLocalLibrary": {
+    "description": "Localized string for replacedLocalLibrary"
+  },
+  "deleteAccountConfirmation": "ಇದು ನಿಮ್ಮ Lumi ಖಾತೆ ಮತ್ತು ಸಿಂಕ್ ಮಾಡಿದ ಕ್ಲೌಡ್ ಡೇಟಾವನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸುತ್ತದೆ. ನೀವು ಅಪ್ಲಿಕೇಶನ್ ಡೇಟಾವನ್ನು ಪ್ರತ್ಯೇಕವಾಗಿ ತೆಗೆದುಹಾಕದ ಹೊರತು ಈ ಸಾಧನದಲ್ಲಿರುವ ಸ್ಥಳೀಯ ಡೇಟಾ ಉಳಿಯುತ್ತದೆ.",
+  "@deleteAccountConfirmation": {
+    "description": "Localized string for deleteAccountConfirmation"
+  },
+  "signedOutAndCleared": "ಈ ಸಾಧನದಿಂದ ಸೈನ್ ಔಟ್ ಮಾಡಲಾಗಿದೆ ಮತ್ತು ಸ್ಥಳೀಯ ಲೈಬ್ರರಿಯನ್ನು ತೆರವುಗೊಳಿಸಲಾಗಿದೆ.",
+  "@signedOutAndCleared": {
+    "description": "Localized string for signedOutAndCleared"
+  },
+  "keepLocalLibrary": "ಸ್ಥಳೀಯ ಗ್ರಂಥಾಲಯವನ್ನು ಇರಿಸಿ",
+  "@keepLocalLibrary": {
+    "description": "Localized string for keepLocalLibrary"
+  },
+  "clearLocalLibrary": "ಸ್ಥಳೀಯ ಗ್ರಂಥಾಲಯವನ್ನು ತೆರವುಗೊಳಿಸಿ",
+  "@clearLocalLibrary": {
+    "description": "Localized string for clearLocalLibrary"
+  },
+  "signOutChoiceDescription": "ಸೈನ್ ಔಟ್ ಮಾಡಿದ ನಂತರ ಈ ಸಾಧನದಲ್ಲಿ ಸ್ಥಳೀಯ ಲೈಬ್ರರಿಯನ್ನು ಇಟ್ಟುಕೊಳ್ಳಬೇಕೆ ಅಥವಾ ಬೇಡವೇ ಎಂಬುದನ್ನು ಆರಿಸಿ.",
+  "@signOutChoiceDescription": {
+    "description": "Localized string for signOutChoiceDescription"
+  },
+  "disable": "ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ",
+  "@disable": {
+    "description": "Localized string for disable"
+  },
+  "aiRecommendationsEnabled": "AI ಶಿಫಾರಸುಗಳ ಡೇಟಾ ಹಂಚಿಕೆಯನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ.",
+  "@aiRecommendationsEnabled": {
+    "description": "Localized string for aiRecommendationsEnabled"
+  },
+  "aiRecommendationsDisabled": "AI ಶಿಫಾರಸುಗಳ ಡೇಟಾ ಹಂಚಿಕೆಯನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ.",
+  "@aiRecommendationsDisabled": {
+    "description": "Localized string for aiRecommendationsDisabled"
+  },
+  "reviewAndManageConsent": "AI ಪೂರೈಕೆದಾರರಿಗೆ ಗ್ರಂಥಾಲಯ ಡೇಟಾವನ್ನು ಕಳುಹಿಸಲು ಸಮ್ಮತಿಯನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತು ನಿರ್ವಹಿಸಿ.",
+  "@reviewAndManageConsent": {
+    "description": "Localized string for reviewAndManageConsent"
+  },
+  "aiRecommendationsEnabledSubtitle": "ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ. ಇಂದು ರಾತ್ರಿ ಶಿಫಾರಸು ಮಾಡಿ ನಿಮ್ಮ ಗ್ರಂಥಾಲಯ ಸಾರಾಂಶ ಮತ್ತು ಇತ್ತೀಚಿನ ಪ್ರಶ್ನೆಗಳನ್ನು AI ಪೂರೈಕೆದಾರರಿಗೆ ಕಳುಹಿಸಬಹುದು.",
+  "@aiRecommendationsEnabledSubtitle": {
+    "description": "Localized string for aiRecommendationsEnabledSubtitle"
+  },
+  "basedOnWatchedTitles": "{count} ವೀಕ್ಷಿಸಿದ ಶೀರ್ಷಿಕೆಗಳನ್ನು ಆಧರಿಸಿದೆ",
+  "@basedOnWatchedTitles": {
+    "description": "Localized string for basedOnWatchedTitles",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "lastUpdated": "ಕೊನೆಯದಾಗಿ ನವೀಕರಿಸಿದ್ದು: {date}",
+  "@lastUpdated": {
+    "description": "Localized string for lastUpdated",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "chooseYourVibe": "ನಿಮ್ಮ ವಾತಾವರಣವನ್ನು ಆರಿಸಿ",
+  "@chooseYourVibe": {
+    "description": "Localized string for chooseYourVibe"
+  },
+  "appearanceDescription": "ಯಾವುದೇ ನಡವಳಿಕೆಯನ್ನು ಬದಲಾಯಿಸದೆ ಸಿನಿಮೀಯ ವ್ಯಕ್ತಿಗಳ ನಡುವೆ ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ಬದಲಾಯಿಸಿ.",
+  "@appearanceDescription": {
+    "description": "Localized string for appearanceDescription"
+  },
+  "exitAppConfirmation": "ನೀವು ಲುಮಿಯಿಂದ ನಿರ್ಗಮಿಸಲು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?",
+  "@exitAppConfirmation": {
+    "description": "Localized string for exitAppConfirmation"
+  },
+  "dismiss": "ವಜಾಗೊಳಿಸಿ",
+  "@dismiss": {
+    "description": "Localized string for dismiss"
+  },
+  "generatingWatchAnalytics": "ಗಡಿಯಾರ ವಿಶ್ಲೇಷಣೆಯನ್ನು ರಚಿಸಲಾಗುತ್ತಿದೆ",
+  "@generatingWatchAnalytics": {
+    "description": "Localized string for generatingWatchAnalytics"
+  },
+  "thisUsuallyTakesAFewSeconds": "ಇದು ಸಾಮಾನ್ಯವಾಗಿ ಕೆಲವು ಸೆಕೆಂಡುಗಳನ್ನು ತೆಗೆದುಕೊಳ್ಳುತ್ತದೆ.",
+  "@thisUsuallyTakesAFewSeconds": {
+    "description": "Localized string for thisUsuallyTakesAFewSeconds"
+  },
+  "yourScreenStory": "ನಿಮ್ಮ ಪರದೆಯ ಕಥೆ",
+  "@yourScreenStory": {
+    "description": "Localized string for yourScreenStory"
+  },
+  "snapshotOfHowAndWhatYouWatch": "ನೀವು ಹೇಗೆ ಮತ್ತು ಏನನ್ನು ವೀಕ್ಷಿಸುತ್ತೀರಿ ಎಂಬುದರ ಸ್ನ್ಯಾಪ್‌ಶಾಟ್",
+  "@snapshotOfHowAndWhatYouWatch": {
+    "description": "Localized string for snapshotOfHowAndWhatYouWatch"
+  },
+  "yourFavoriteGenres": "ನಿಮ್ಮ ನೆಚ್ಚಿನ ಪ್ರಕಾರಗಳು",
+  "@yourFavoriteGenres": {
+    "description": "Localized string for yourFavoriteGenres"
+  },
+  "genrePerformanceHighestRated": "ಪ್ರಕಾರದ ಕಾರ್ಯಕ್ಷಮತೆ (ಅತ್ಯಧಿಕ ರೇಟಿಂಗ್)",
+  "@genrePerformanceHighestRated": {
+    "description": "Localized string for genrePerformanceHighestRated"
+  },
+  "personalizedViewingPatterns": "ವೈಯಕ್ತಿಕಗೊಳಿಸಿದ ವೀಕ್ಷಣಾ ಮಾದರಿಗಳು",
+  "@personalizedViewingPatterns": {
+    "description": "Localized string for personalizedViewingPatterns"
+  },
+  "builtWithLumi": "ಲುಮಿಯೊಂದಿಗೆ ನಿರ್ಮಿಸಲಾಗಿದೆ",
+  "@builtWithLumi": {
+    "description": "Localized string for builtWithLumi"
+  },
+  "sharedWithLumi": "ಲುಮಿ ಜೊತೆ ಹಂಚಿಕೊಳ್ಳಲಾಗಿದೆ",
+  "@sharedWithLumi": {
+    "description": "Localized string for sharedWithLumi"
+  },
+  "shareAnalytics": "ಹಂಚಿಕೆ ವಿಶ್ಲೇಷಣೆಗಳು",
+  "@shareAnalytics": {
+    "description": "Localized string for shareAnalytics"
+  },
+  "analyzedTitlesUpdated": "{count} ಶೀರ್ಷಿಕೆಗಳನ್ನು ವಿಶ್ಲೇಷಿಸಲಾಗಿದೆ • ನವೀಕರಿಸಲಾಗಿದೆ {date}",
+  "@analyzedTitlesUpdated": {
+    "description": "Localized string for analyzedTitlesUpdated",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "allSeasons": "ಎಲ್ಲಾ ಋತುಗಳು",
+  "@allSeasons": {
+    "description": "Localized string for allSeasons"
+  },
+  "castAndCrew": "ಪಾತ್ರವರ್ಗ & ತಂಡ",
+  "@castAndCrew": {
+    "description": "Localized string for castAndCrew"
+  },
+  "featuredCrew": "ವೈಶಿಷ್ಟ್ಯಗೊಳಿಸಿದ ಸಿಬ್ಬಂದಿ",
+  "@featuredCrew": {
+    "description": "Localized string for featuredCrew"
+  },
+  "stills": "ಸ್ಟಿಲ್ಸ್",
+  "@stills": {
+    "description": "Localized string for stills"
+  },
+  "accoladeSummary": "ಪ್ರಶಸ್ತಿ ಸಾರಾಂಶ",
+  "@accoladeSummary": {
+    "description": "Localized string for accoladeSummary"
+  },
+  "awardsAndAccolades": "ಪ್ರಶಸ್ತಿಗಳು ಮತ್ತು ಪುರಸ್ಕಾರಗಳು",
+  "@awardsAndAccolades": {
+    "description": "Localized string for awardsAndAccolades"
+  },
+  "unableToLoadMovieDetails": "ಚಲನಚಿತ್ರ ವಿವರಗಳನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗುತ್ತಿಲ್ಲ.",
+  "@unableToLoadMovieDetails": {
+    "description": "Localized string for unableToLoadMovieDetails"
+  },
+  "overviewUnavailable": "ಈ ಶೀರ್ಷಿಕೆಗೆ ಅವಲೋಕನ ಲಭ್ಯವಿಲ್ಲ.",
+  "@overviewUnavailable": {
+    "description": "Localized string for overviewUnavailable"
+  },
+  "openCompletePlot": "OMDb ಯಿಂದ ಸಂಪೂರ್ಣ ಕಥಾವಸ್ತು ಮತ್ತು ಹೆಚ್ಚುವರಿ ಮೆಟಾಡೇಟಾವನ್ನು ತೆರೆಯಿರಿ.",
+  "@openCompletePlot": {
+    "description": "Localized string for openCompletePlot"
+  },
+  "noOverviewForSeason": "ಈ ಋತುವಿನ ಯಾವುದೇ ಅವಲೋಕನ ಲಭ್ಯವಿಲ್ಲ.",
+  "@noOverviewForSeason": {
+    "description": "Localized string for noOverviewForSeason"
+  },
+  "userScore": "ಬಳಕೆದಾರರ ಸ್ಕೋರ್",
+  "@userScore": {
+    "description": "Localized string for userScore"
+  },
+  "playTrailer": "ಟ್ರೇಲರ್ ಪ್ಲೇ ಮಾಡಿ",
+  "@playTrailer": {
+    "description": "Localized string for playTrailer"
+  },
+  "whereToWatch": "ಎಲ್ಲಿ ವೀಕ್ಷಿಸಬೇಕು",
+  "@whereToWatch": {
+    "description": "Localized string for whereToWatch"
+  },
+  "availabilityDataByJustWatch": "JustWatch ನಿಂದ ಲಭ್ಯತೆಯ ಡೇಟಾ.",
+  "@availabilityDataByJustWatch": {
+    "description": "Localized string for availabilityDataByJustWatch"
+  },
+  "reminderSaved": "ಜ್ಞಾಪನೆಯನ್ನು ಉಳಿಸಲಾಗಿದೆ",
+  "@reminderSaved": {
+    "description": "Localized string for reminderSaved"
+  },
+  "reminderForTitle": "{title} ಗಾಗಿ ಜ್ಞಾಪನೆ",
+  "@reminderForTitle": {
+    "description": "Localized string for reminderForTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "pleaseSelectFutureTime": "ದಯವಿಟ್ಟು ಭವಿಷ್ಯದ ಸಮಯವನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
+  "@pleaseSelectFutureTime": {
+    "description": "Localized string for pleaseSelectFutureTime"
+  },
+  "notifyAt": "ಸೂಚಿಸು",
+  "@notifyAt": {
+    "description": "Localized string for notifyAt"
+  },
+  "notifyHoursBeforeAiring": "ಪ್ರಸಾರಕ್ಕೆ ಎಷ್ಟು ಗಂಟೆಗಳ ಮೊದಲು ಸೂಚಿಸಿ?",
+  "@notifyHoursBeforeAiring": {
+    "description": "Localized string for notifyHoursBeforeAiring"
+  },
+  "enterNumberBetween": "1 ಮತ್ತು {maxHours} ನಡುವಿನ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ",
+  "@enterNumberBetween": {
+    "description": "Localized string for enterNumberBetween",
+    "placeholders": {
+      "maxHours": {
+        "type": "String"
+      }
+    }
+  },
+  "set": "ಹೊಂದಿಸಿ",
+  "@set": {
+    "description": "Localized string for set"
+  },
+  "selectedReminderTimePassed": "ಆಯ್ಕೆ ಮಾಡಿದ ಜ್ಞಾಪನೆ ಸಮಯ ಈಗಾಗಲೇ ಮುಗಿದಿದೆ.",
+  "@selectedReminderTimePassed": {
+    "description": "Localized string for selectedReminderTimePassed"
+  },
+  "episodeReminderSaved": "{date} ಗಾಗಿ ಸಂಚಿಕೆಯ ಜ್ಞಾಪನೆಯನ್ನು ಉಳಿಸಲಾಗಿದೆ",
+  "@episodeReminderSaved": {
+    "description": "Localized string for episodeReminderSaved",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "areYouSureDeleteNote": "ಈ ಟಿಪ್ಪಣಿಯನ್ನು ಅಳಿಸಲು ನೀವು ಖಚಿತವಾಗಿ ಬಯಸುವಿರಾ?",
+  "@areYouSureDeleteNote": {
+    "description": "Localized string for areYouSureDeleteNote"
+  },
+  "noteAdded": "ಟಿಪ್ಪಣಿ ಸೇರಿಸಲಾಗಿದೆ",
+  "@noteAdded": {
+    "description": "Localized string for noteAdded"
+  },
+  "lastSeason": "ಕಳೆದ ಸೀಸನ್",
+  "@lastSeason": {
+    "description": "Localized string for lastSeason"
+  },
+  "currentSeason": "ಪ್ರಸ್ತುತ ಸೀಸನ್",
+  "@currentSeason": {
+    "description": "Localized string for currentSeason"
+  },
+  "viewAllSeasons": "ಎಲ್ಲಾ ಸೀಸನ್‌ಗಳನ್ನು ವೀಕ್ಷಿಸಿ",
+  "@viewAllSeasons": {
+    "description": "Localized string for viewAllSeasons"
+  },
+  "removedFromFavourites": "ಮೆಚ್ಚಿನವುಗಳಿಂದ ತೆಗೆದುಹಾಕಲಾಗಿದೆ",
+  "@removedFromFavourites": {
+    "description": "Localized string for removedFromFavourites"
+  },
+  "addedToFavourites": "ಮೆಚ್ಚಿನವುಗಳಿಗೆ ಸೇರಿಸಲಾಗಿದೆ",
+  "@addedToFavourites": {
+    "description": "Localized string for addedToFavourites"
+  },
+  "awardsAndNominations": "ಪ್ರಶಸ್ತಿಗಳು ಮತ್ತು ನಾಮನಿರ್ದೇಶನಗಳು",
+  "@awardsAndNominations": {
+    "description": "Localized string for awardsAndNominations"
+  },
+  "viewAll": "ಎಲ್ಲವನ್ನೂ ವೀಕ್ಷಿಸಿ",
+  "@viewAll": {
+    "description": "Localized string for viewAll"
+  },
+  "boxOfficeFinancials": "ಬಾಕ್ಸ್ ಆಫೀಸ್ ಹಣಕಾಸು",
+  "@boxOfficeFinancials": {
+    "description": "Localized string for boxOfficeFinancials"
+  },
+  "successMeter": "ಯಶಸ್ಸಿನ ಮೀಟರ್",
+  "@successMeter": {
+    "description": "Localized string for successMeter"
+  },
+  "blockbuster": "ಬ್ಲಾಕ್‌ಬಸ್ಟರ್",
+  "@blockbuster": {
+    "description": "Localized string for blockbuster"
+  },
+  "hit": "ಹಿಟ್",
+  "@hit": {
+    "description": "Localized string for hit"
+  },
+  "breakEven": "ಬ್ರೇಕ್-ಈವ್ನ್",
+  "@breakEven": {
+    "description": "Localized string for breakEven"
+  },
+  "underperformer": "ಅಂಡರ್‌ಪರ್‌ಫಾರ್ಮರ್",
+  "@underperformer": {
+    "description": "Localized string for underperformer"
+  },
+  "boxOfficeBomb": "ಬಾಕ್ಸ್ ಆಫೀಸ್ ಬಾಂಬ್",
+  "@boxOfficeBomb": {
+    "description": "Localized string for boxOfficeBomb"
+  },
+  "episodeTracker": "ಸಂಚಿಕೆ ಟ್ರ್ಯಾಕರ್",
+  "@episodeTracker": {
+    "description": "Localized string for episodeTracker"
+  },
+  "setAiringReminder": "ಪ್ರಸಾರ ಜ್ಞಾಪನೆಯನ್ನು ಹೊಂದಿಸಿ",
+  "@setAiringReminder": {
+    "description": "Localized string for setAiringReminder"
+  },
+  "nextEpisodeCountdown": "ಮುಂದಿನ ಕಂತಿನ ಕೌಂಟ್‌ಡೌನ್",
+  "@nextEpisodeCountdown": {
+    "description": "Localized string for nextEpisodeCountdown"
+  },
+  "nextEpisode": "ಮುಂದಿನ ಕಂತು",
+  "@nextEpisode": {
+    "description": "Localized string for nextEpisode"
+  },
+  "lastEpisodeToAir": "ಪ್ರಸಾರವಾದ ಕೊನೆಯ ಕಂತು",
+  "@lastEpisodeToAir": {
+    "description": "Localized string for lastEpisodeToAir"
+  },
+  "unknown": "ಅಜ್ಞಾತ",
+  "@unknown": {
+    "description": "Localized string for unknown"
+  },
+  "contentAdvisory": "ವಿಷಯ ಸಲಹಾ",
+  "@contentAdvisory": {
+    "description": "Localized string for contentAdvisory"
+  },
+  "violence": "ಹಿಂಸೆ",
+  "@violence": {
+    "description": "Localized string for violence"
+  },
+  "sexAndNudity": "ಲೈಂಗಿಕತೆ ಮತ್ತು ನಗ್ನತೆ",
+  "@sexAndNudity": {
+    "description": "Localized string for sexAndNudity"
+  },
+  "foulLanguage": "ಭಾಷೆ",
+  "@foulLanguage": {
+    "description": "Localized string for foulLanguage"
+  },
+  "substances": "ಪದಾರ್ಥಗಳು",
+  "@substances": {
+    "description": "Localized string for substances"
+  },
+  "fearAndHorror": "ಭಯ & ಭಯಾನಕ",
+  "@fearAndHorror": {
+    "description": "Localized string for fearAndHorror"
+  },
+  "familyFriendly": "ಕುಟುಂಬ ಸ್ನೇಹಿ",
+  "@familyFriendly": {
+    "description": "Localized string for familyFriendly"
+  },
+  "generalAudience": "ಸಾಮಾನ್ಯ ಪ್ರೇಕ್ಷಕರು",
+  "@generalAudience": {
+    "description": "Localized string for generalAudience"
+  },
+  "releaseTimeline": "ಬಿಡುಗಡೆಯ ಟೈಮ್‌ಲೈನ್",
+  "@releaseTimeline": {
+    "description": "Localized string for releaseTimeline"
+  },
+  "notifyMe": "ನನಗೆ ಸೂಚಿಸಿ",
+  "@notifyMe": {
+    "description": "Localized string for notifyMe"
+  },
+  "theatricalRelease": "ನಾಟಕೀಯ ಬಿಡುಗಡೆ",
+  "@theatricalRelease": {
+    "description": "Localized string for theatricalRelease"
+  },
+  "digitalStreaming": "ಡಿಜಿಟಲ್ / ಸ್ಟ್ರೀಮಿಂಗ್",
+  "@digitalStreaming": {
+    "description": "Localized string for digitalStreaming"
+  },
+  "physicalRelease": "ಭೌತಿಕ (ಬ್ಲೂ-ರೇ / ಡಿವಿಡಿ)",
+  "@physicalRelease": {
+    "description": "Localized string for physicalRelease"
+  },
+  "awesome": "ಅದ್ಭುತ",
+  "@awesome": {
+    "description": "Localized string for awesome"
+  },
+  "keywordsAndThemes": "ಕೀವರ್ಡ್‌ಗಳು ಮತ್ತು ಥೀಮ್‌ಗಳು",
+  "@keywordsAndThemes": {
+    "description": "Localized string for keywordsAndThemes"
+  },
+  "videosAndBehindTheScenes": "ವೀಡಿಯೊಗಳು & ತೆರೆಮರೆ",
+  "@videosAndBehindTheScenes": {
+    "description": "Localized string for videosAndBehindTheScenes"
+  },
+  "productionStudios": "ನಿರ್ಮಾಣ ಸ್ಟುಡಿಯೋಗಳು",
+  "@productionStudios": {
+    "description": "Localized string for productionStudios"
+  },
+  "fetchingWatchLink": "ಗಡಿಯಾರ ಲಿಂಕ್ ಅನ್ನು ಪಡೆಯಲಾಗುತ್ತಿದೆ",
+  "@fetchingWatchLink": {
+    "description": "Localized string for fetchingWatchLink"
+  },
+  "findingBestProviderPage": "ಈ ಶೀರ್ಷಿಕೆಗೆ ಉತ್ತಮ ಪೂರೈಕೆದಾರರ ಪುಟವನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ.",
+  "@findingBestProviderPage": {
+    "description": "Localized string for findingBestProviderPage"
+  },
+  "episodeCode": "ಎಸ್__ಪಿಹೆಚ್000__ಇ__ಪಿಹೆಚ್001__",
+  "@episodeCode": {
+    "description": "Localized string for episodeCode",
+    "placeholders": {
+      "season": {
+        "type": "String"
+      },
+      "episode": {
+        "type": "String"
+      }
+    }
+  },
+  "error": "ದೋಷ",
+  "@error": {
+    "description": "Localized string for error"
+  },
+  "failedToLoadSeasonDetails": "ಸೀಸನ್ ವಿವರಗಳನ್ನು ಲೋಡ್ ಮಾಡಲು ವಿಫಲವಾಗಿದೆ.",
+  "@failedToLoadSeasonDetails": {
+    "description": "Localized string for failedToLoadSeasonDetails"
+  },
+  "loading": "ಲೋಡ್ ಆಗುತ್ತಿದೆ...",
+  "@loading": {
+    "description": "Localized string for loading"
+  },
+  "runtimeSeparator": "ಈ ಅಪ್ಲಿಕೇಶನ್ ಲೇಬಲ್ ಅನ್ನು kn: • {runtime} ಗೆ ಅನುವಾದಿಸಿ",
+  "@runtimeSeparator": {
+    "description": "Localized string for runtimeSeparator",
+    "placeholders": {
+      "runtime": {
+        "type": "String"
+      }
+    }
+  },
+  "fullCastAndCrew": "ಪೂರ್ಣ ಪಾತ್ರವರ್ಗ & ಸಿಬ್ಬಂದಿ",
+  "@fullCastAndCrew": {
+    "description": "Localized string for fullCastAndCrew"
+  },
+  "shareMovie": "ಚಲನಚಿತ್ರ ಹಂಚಿಕೊಳ್ಳಿ",
+  "@shareMovie": {
+    "description": "Localized string for shareMovie"
+  },
+  "quotes": "ಉಲ್ಲೇಖಗಳು",
+  "@quotes": {
+    "description": "Localized string for quotes"
+  },
+  "mayIncludeMismatches": "ಲೆಕ್ಸಿಕಲ್ ಉಲ್ಲೇಖ ಹುಡುಕಾಟದಿಂದಾಗಿ ಸಾಂದರ್ಭಿಕ ಹೊಂದಾಣಿಕೆಯಾಗದಿರಬಹುದು.",
+  "@mayIncludeMismatches": {
+    "description": "Localized string for mayIncludeMismatches"
+  },
+  "movieApiConfigurationRequired": "ಚಲನಚಿತ್ರ API ಕಾನ್ಫಿಗರೇಶನ್ ಅಗತ್ಯವಿದೆ",
+  "@movieApiConfigurationRequired": {
+    "description": "Localized string for movieApiConfigurationRequired"
+  },
+  "addMovieProxyBaseUrl": "ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು TMDB ಪ್ರಾಕ್ಸಿಗೆ ಸಂಪರ್ಕಿಸಲು MOVIE_PROXY_BASE_URL ಸೇರಿಸಿ.",
+  "@addMovieProxyBaseUrl": {
+    "description": "Localized string for addMovieProxyBaseUrl"
+  },
+  "cinematicPicksContext": "ಕ್ಷಣ ಕ್ಷಣದ ಅನುಭವ ನೀಡುವ ಸಿನಿಮೀಯ ಆಯ್ಕೆಗಳು. ಮತ್ತೊಂದು ಅಚ್ಚರಿಯ ಸಂದೇಶಕ್ಕಾಗಿ ಕಾಯಿರಿ.",
+  "@cinematicPicksContext": {
+    "description": "Localized string for cinematicPicksContext"
+  },
+  "curatedTonight": "ಇಂದು ರಾತ್ರಿ ಸಂಗ್ರಹಿಸಲಾಗಿದೆ",
+  "@curatedTonight": {
+    "description": "Localized string for curatedTonight"
+  },
+  "curatedTonightTitle": "ಇಂದು ರಾತ್ರಿ ಸಂಗ್ರಹಿಸಲಾಗಿದೆ: {title}",
+  "@curatedTonightTitle": {
+    "description": "Localized string for curatedTonightTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "describeItYourWay": "ಅದನ್ನು ನಿಮ್ಮ ರೀತಿಯಲ್ಲಿ ವಿವರಿಸಿ.\nನಾವು ಅತ್ಯುತ್ತಮ ಹೊಂದಾಣಿಕೆಗಳನ್ನು ಕಂಡುಕೊಳ್ಳುತ್ತೇವೆ.",
+  "@describeItYourWay": {
+    "description": "Localized string for describeItYourWay"
+  },
+  "hide": "ಮರೆಮಾಡಿ",
+  "@hide": {
+    "description": "Localized string for hide"
+  },
+  "hideTitleDescription": "ಈ ಶೀರ್ಷಿಕೆಯನ್ನು ಮರೆಮಾಡುವುದರಿಂದ ಭವಿಷ್ಯದಲ್ಲಿ ಸ್ಪಾಟ್‌ಲೈಟ್ ವಿಭಾಗದಲ್ಲಿ ಕಾಣಿಸಿಕೊಳ್ಳುವುದನ್ನು ತಡೆಯುತ್ತದೆ.",
+  "@hideTitleDescription": {
+    "description": "Localized string for hideTitleDescription"
+  },
+  "dontAskAgain": "ಮತ್ತೆ ಕೇಳಬೇಡಿ",
+  "@dontAskAgain": {
+    "description": "Localized string for dontAskAgain"
+  },
+  "imdbNa": "ಐಎಮ್‌ಡಿಬಿ ವರದಿ",
+  "@imdbNa": {
+    "description": "Localized string for imdbNa"
+  },
+  "noDiscoverPicks": "ಇದೀಗ ಯಾವುದೇ ಡಿಸ್ಕವರ್ ಆಯ್ಕೆಗಳು ಲಭ್ಯವಿಲ್ಲ.",
+  "@noDiscoverPicks": {
+    "description": "Localized string for noDiscoverPicks"
+  },
+  "playPreview": "ಪೂರ್ವವೀಕ್ಷಣೆ ಪ್ಲೇ ಮಾಡಿ",
+  "@playPreview": {
+    "description": "Localized string for playPreview"
+  },
+  "recommendedForYou": "ನಿಮಗಾಗಿ ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ",
+  "@recommendedForYou": {
+    "description": "Localized string for recommendedForYou"
+  },
+  "spotlightCompleted": "ಸ್ಪಾಟ್‌ಲೈಟ್ ಪೂರ್ಣಗೊಂಡಿದೆ",
+  "@spotlightCompleted": {
+    "description": "Localized string for spotlightCompleted"
+  },
+  "startAddingTitlesForRecommendations": "ಶಿಫಾರಸುಗಳಿಗೆ ಶೀರ್ಷಿಕೆಗಳನ್ನು ಸೇರಿಸಲು ಪ್ರಾರಂಭಿಸಿ",
+  "@startAddingTitlesForRecommendations": {
+    "description": "Localized string for startAddingTitlesForRecommendations"
+  },
+  "clearedAllChoices": "ನಿಮ್ಮ ಡಿಸ್ಕವರ್ ಫೀಡ್‌ನಲ್ಲಿರುವ ಎಲ್ಲಾ ಆಯ್ಕೆಗಳನ್ನು ನೀವು ಸ್ವೈಪ್ ಮಾಡಿ ತೆರವುಗೊಳಿಸಿದ್ದೀರಿ.",
+  "@clearedAllChoices": {
+    "description": "Localized string for clearedAllChoices"
+  },
+  "whatsPopular": "ಜನಪ್ರಿಯವಾದದ್ದು ಏನು",
+  "@whatsPopular": {
+    "description": "Localized string for whatsPopular"
+  },
+  "trending": "ಟ್ರೆಂಡಿಂಗ್",
+  "@trending": {
+    "description": "Localized string for trending"
+  },
+  "nowPlaying": "ಈಗ ಪ್ಲೇ ಆಗುತ್ತಿದೆ",
+  "@nowPlaying": {
+    "description": "Localized string for nowPlaying"
+  },
+  "tvTrending": "ಟಿವಿ ಟ್ರೆಂಡಿಂಗ್",
+  "@tvTrending": {
+    "description": "Localized string for tvTrending"
+  },
+  "discoverByMood": "ಮೂಡ್ ಅವರಿಂದ ಅನ್ವೇಷಿಸಿ",
+  "@discoverByMood": {
+    "description": "Localized string for discoverByMood"
+  },
+  "needSomethingToWatchTonight": "ಇಂದು ರಾತ್ರಿ ನೋಡಲು ಏನಾದರೂ ಬೇಕೇ?",
+  "@needSomethingToWatchTonight": {
+    "description": "Localized string for needSomethingToWatchTonight"
+  },
+  "needAMovieForTonight": "ಇಂದು ರಾತ್ರಿ ಸಿನಿಮಾ ನೋಡಬೇಕೇ?",
+  "@needAMovieForTonight": {
+    "description": "Localized string for needAMovieForTonight"
+  },
+  "tryAiShows": "AI ಪ್ರದರ್ಶನಗಳನ್ನು ಪ್ರಯತ್ನಿಸಿ",
+  "@tryAiShows": {
+    "description": "Localized string for tryAiShows"
+  },
+  "tryAiMovies": "AI ಚಲನಚಿತ್ರಗಳನ್ನು ಪ್ರಯತ್ನಿಸಿ",
+  "@tryAiMovies": {
+    "description": "Localized string for tryAiMovies"
+  },
+  "findShows": "ಪ್ರದರ್ಶನಗಳನ್ನು ಹುಡುಕಿ",
+  "@findShows": {
+    "description": "Localized string for findShows"
+  },
+  "findMovies": "ಚಲನಚಿತ್ರಗಳನ್ನು ಹುಡುಕಿ",
+  "@findMovies": {
+    "description": "Localized string for findMovies"
+  },
+  "couldNotLoadThisRail": "ಈ ರೈಲ್ ಅನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+  "@couldNotLoadThisRail": {
+    "description": "Localized string for couldNotLoadThisRail"
+  },
+  "temporaryIssueLoadingRail": "ಈ ರೈಲನ್ನು ಲೋಡ್ ಮಾಡುವಾಗ ತಾತ್ಕಾಲಿಕ ಸಮಸ್ಯೆ ಎದುರಾಗಿದೆ.",
+  "@temporaryIssueLoadingRail": {
+    "description": "Localized string for temporaryIssueLoadingRail"
+  },
+  "noTitlesHereYet": "ಇಲ್ಲಿ ಇನ್ನೂ ಯಾವುದೇ ಶೀರ್ಷಿಕೆಗಳಿಲ್ಲ.",
+  "@noTitlesHereYet": {
+    "description": "Localized string for noTitlesHereYet"
+  },
+  "noHiddenGemsForGenre": "ಈ ಪ್ರಕಾರಕ್ಕೆ ಇನ್ನೂ ಯಾವುದೇ ಗುಪ್ತ ರತ್ನಗಳು ಕಂಡುಬಂದಿಲ್ಲ. ಬೇರೆ ಪ್ರಕಾರವನ್ನು ಪ್ರಯತ್ನಿಸಿ.",
+  "@noHiddenGemsForGenre": {
+    "description": "Localized string for noHiddenGemsForGenre"
+  },
+  "tryAnotherFilter": "ವಿಶಾಲವಾದ ಅನ್ವೇಷಣೆಗಾಗಿ ಬೇರೆ ಫಿಲ್ಟರ್ ಪ್ರಯತ್ನಿಸಿ ಅಥವಾ ಈ ವಿಭಾಗವನ್ನು ತೆರೆಯಿರಿ.",
+  "@tryAnotherFilter": {
+    "description": "Localized string for tryAnotherFilter"
+  },
+  "seeAllFilters": "ಎಲ್ಲಾ ಫಿಲ್ಟರ್‌ಗಳನ್ನು ನೋಡಿ",
+  "@seeAllFilters": {
+    "description": "Localized string for seeAllFilters"
+  },
+  "couldNotLoadCuratedPicks": "ಕ್ಯುರೇಟೆಡ್ ಆಯ್ಕೆಗಳನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+  "@couldNotLoadCuratedPicks": {
+    "description": "Localized string for couldNotLoadCuratedPicks"
+  },
+  "temporaryIssueLoadingCurated": "ಇಂದು ರಾತ್ರಿಯ ಕ್ಯುರೇಟೆಡ್ ಪಟ್ಟಿಯನ್ನು ಲೋಡ್ ಮಾಡುವಾಗ ತಾತ್ಕಾಲಿಕ ಸಮಸ್ಯೆ ಎದುರಾಗಿದೆ.",
+  "@temporaryIssueLoadingCurated": {
+    "description": "Localized string for temporaryIssueLoadingCurated"
+  },
+  "noCuratedPicksAvailable": "ಯಾವುದೇ ಕ್ಯುರೇಟೆಡ್ ಆಯ್ಕೆಗಳು ಲಭ್ಯವಿಲ್ಲ.",
+  "@noCuratedPicksAvailable": {
+    "description": "Localized string for noCuratedPicksAvailable"
+  },
+  "tryAgainWhileRefresh": "ಇಂದು ರಾತ್ರಿಯ TMDB ಪಟ್ಟಿಯನ್ನು ರಿಫ್ರೆಶ್ ಮಾಡುವಾಗ ಸ್ವಲ್ಪ ಸಮಯದ ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+  "@tryAgainWhileRefresh": {
+    "description": "Localized string for tryAgainWhileRefresh"
+  },
+  "fromSpotlight": "ಸ್ಪಾಟ್‌ಲೈಟ್‌ನಿಂದ",
+  "@fromSpotlight": {
+    "description": "Localized string for fromSpotlight"
+  },
+  "addShowsMoviesForRecommendations": "ನೀವು ಇಷ್ಟಪಡಬಹುದಾದ ಶೀರ್ಷಿಕೆಗಳನ್ನು ನೋಡಲು ನಿಮ್ಮ ವೀಕ್ಷಣಾ ಪಟ್ಟಿ, ಮೆಚ್ಚಿನವುಗಳು ಅಥವಾ ವೀಕ್ಷಿಸಿದ ಪಟ್ಟಿಗೆ ಟಿವಿ ಕಾರ್ಯಕ್ರಮಗಳು/ಚಲನಚಿತ್ರಗಳನ್ನು ಸೇರಿಸಿ.",
+  "@addShowsMoviesForRecommendations": {
+    "description": "Localized string for addShowsMoviesForRecommendations"
+  },
+  "allow": "ಅನುಮತಿಸಿ",
+  "@allow": {
+    "description": "Localized string for allow"
+  },
+  "notNow": "ಈಗಲ್ಲ",
+  "@notNow": {
+    "description": "Localized string for notNow"
+  },
+  "allowAiDataSharingTitle": "AI ಡೇಟಾ ಹಂಚಿಕೆಯನ್ನು ಅನುಮತಿಸುವುದೇ?",
+  "@allowAiDataSharingTitle": {
+    "description": "Localized string for allowAiDataSharingTitle"
+  },
+  "allowAiDataSharingDescription": "ನೀವು ಚಲನಚಿತ್ರ ಶಿಫಾರಸು ವಿನಂತಿ ಮತ್ತು ತಾತ್ಕಾಲಿಕ ಪ್ರಶ್ನೆ-ಪರಿಷ್ಕರಣೆ ಸಂದರ್ಭಕ್ಕಾಗಿ ಟೈಪ್ ಮಾಡುವ ಪಠ್ಯವನ್ನು ಇಂದು ರಾತ್ರಿ ಶಿಫಾರಸು ಮಾಡಿ Google Gemini ಮತ್ತು OpenRouter ಗೆ ಕಳುಹಿಸುತ್ತದೆ. ನಿಮ್ಮ ಪೂರ್ಣ ಲೈಬ್ರರಿ ಮತ್ತು ನಿಮ್ಮ ಸೈನ್-ಇನ್ ರುಜುವಾತುಗಳನ್ನು ಆ AI ಪೂರೈಕೆದಾರರಿಗೆ ಕಳುಹಿಸಲಾಗುವುದಿಲ್ಲ. AI ಶಿಫಾರಸುಗಳಿಗಾಗಿ ಈ ಡೇಟಾ ಹಂಚಿಕೆಯನ್ನು ಅನುಮತಿಸುವುದೇ?",
+  "@allowAiDataSharingDescription": {
+    "description": "Localized string for allowAiDataSharingDescription"
+  },
+  "liveProgress": "ನೇರ ಪ್ರಗತಿ",
+  "@liveProgress": {
+    "description": "Localized string for liveProgress"
+  },
+  "percentComplete": "{percent}% ಪೂರ್ಣಗೊಂಡಿದೆ",
+  "@percentComplete": {
+    "description": "Localized string for percentComplete",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "describeIdealShowNight": "ನಿಮ್ಮ ಆದರ್ಶ ಪ್ರದರ್ಶನ ರಾತ್ರಿಯನ್ನು ವಿವರಿಸಿ.",
+  "@describeIdealShowNight": {
+    "description": "Localized string for describeIdealShowNight"
+  },
+  "describeIdealMovieNight": "ನಿಮ್ಮ ಆದರ್ಶ ಚಲನಚಿತ್ರ ರಾತ್ರಿಯನ್ನು ವಿವರಿಸಿ.",
+  "@describeIdealMovieNight": {
+    "description": "Localized string for describeIdealMovieNight"
+  },
+  "useNaturalLanguage": "ಸಹಜ ಭಾಷೆಯನ್ನು ಬಳಸಿ. ನಿಮಗೆ ಏನು ಬೇಕು, ಏನನ್ನು ತಪ್ಪಿಸಬೇಕು ಮತ್ತು ಐಚ್ಛಿಕ ಭಾಷೆ/ರನ್‌ಟೈಮ್ ಸುಳಿವುಗಳನ್ನು ಉಲ್ಲೇಖಿಸಿ.",
+  "@useNaturalLanguage": {
+    "description": "Localized string for useNaturalLanguage"
+  },
+  "listeningTapMicToStop": "ಕೇಳುತ್ತಿದ್ದೇನೆ... ನಿಲ್ಲಿಸಲು ಮತ್ತೊಮ್ಮೆ ಮೈಕ್ ಟ್ಯಾಪ್ ಮಾಡಿ.",
+  "@listeningTapMicToStop": {
+    "description": "Localized string for listeningTapMicToStop"
+  },
+  "voiceInputError": "ಧ್ವನಿ ಇನ್‌ಪುಟ್ ದೋಷ: {error}",
+  "@voiceInputError": {
+    "description": "Localized string for voiceInputError",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "tapMicToDictate": "ನಿಮ್ಮ ವಿನಂತಿಯನ್ನು ನಿರ್ದೇಶಿಸಲು ಮೈಕ್ ಟ್ಯಾಪ್ ಮಾಡಿ.",
+  "@tapMicToDictate": {
+    "description": "Localized string for tapMicToDictate"
+  },
+  "tapMicToEnableVoice": "ಧ್ವನಿ ಇನ್‌ಪುಟ್ ಸಕ್ರಿಯಗೊಳಿಸಲು ಮೈಕ್ ಟ್ಯಾಪ್ ಮಾಡಿ.",
+  "@tapMicToEnableVoice": {
+    "description": "Localized string for tapMicToEnableVoice"
+  },
+  "findingShows": "ಪ್ರದರ್ಶನಗಳನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ...",
+  "@findingShows": {
+    "description": "Localized string for findingShows"
+  },
+  "findingMovies": "ಚಲನಚಿತ್ರಗಳನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ...",
+  "@findingMovies": {
+    "description": "Localized string for findingMovies"
+  },
+  "tonightsLumiPicksFor": "ಇಂದು ರಾತ್ರಿಯ ಲುಮಿ ಆಯ್ಕೆಗಳು: {prompt}",
+  "@tonightsLumiPicksFor": {
+    "description": "Localized string for tonightsLumiPicksFor",
+    "placeholders": {
+      "prompt": {
+        "type": "String"
+      }
+    }
+  },
+  "tonightsPicks": "ಇಂದು ರಾತ್ರಿಯ ಆಯ್ಕೆಗಳು",
+  "@tonightsPicks": {
+    "description": "Localized string for tonightsPicks"
+  },
+  "sharedFromLumi": "ಲುಮಿ ಅವರಿಂದ ಹಂಚಿಕೊಳ್ಳಲಾಗಿದೆ",
+  "@sharedFromLumi": {
+    "description": "Localized string for sharedFromLumi"
+  },
+  "intent": "ಉದ್ದೇಶ:",
+  "@intent": {
+    "description": "Localized string for intent"
+  },
+  "genreLabel": "ಪ್ರಕಾರ:",
+  "@genreLabel": {
+    "description": "Localized string for genreLabel"
+  },
+  "avoid": "ತಪ್ಪಿಸಿ:",
+  "@avoid": {
+    "description": "Localized string for avoid"
+  },
+  "languageLabel": "ಭಾಷೆ:",
+  "@languageLabel": {
+    "description": "Localized string for languageLabel"
+  },
+  "runtimeAtMost": "ರನ್‌ಟೈಮ್ <= {minutes} ನಿಮಿಷ",
+  "@runtimeAtMost": {
+    "description": "Localized string for runtimeAtMost",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "runtimeAtLeast": "ರನ್‌ಟೈಮ್ >= {minutes} ನಿಮಿಷ",
+  "@runtimeAtLeast": {
+    "description": "Localized string for runtimeAtLeast",
+    "placeholders": {
+      "minutes": {
+        "type": "String"
+      }
+    }
+  },
+  "yearLabel": "ವರ್ಷ:",
+  "@yearLabel": {
+    "description": "Localized string for yearLabel"
+  },
+  "yearAfter": "{year} ನಂತರ",
+  "@yearAfter": {
+    "description": "Localized string for yearAfter",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "yearBefore": "{year} ಮೊದಲು",
+  "@yearBefore": {
+    "description": "Localized string for yearBefore",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "like": "ಹಾಗೆ:",
+  "@like": {
+    "description": "Localized string for like"
+  },
+  "signal": "ಸಿಗ್ನಲ್:",
+  "@signal": {
+    "description": "Localized string for signal"
+  },
+  "readingWatchedHistory": "ನಿಮ್ಮ ವೀಕ್ಷಿಸಿದ ಇತಿಹಾಸವನ್ನು ಓದಲಾಗುತ್ತಿದೆ...",
+  "@readingWatchedHistory": {
+    "description": "Localized string for readingWatchedHistory"
+  },
+  "findingTopGenres": "ನಿಮ್ಮ ಪ್ರಮುಖ ಪ್ರಕಾರಗಳು ಮತ್ತು ಮಾದರಿಗಳನ್ನು ಹುಡುಕಲಾಗುತ್ತಿದೆ...",
+  "@findingTopGenres": {
+    "description": "Localized string for findingTopGenres"
+  },
+  "buildingTrends": "ಮಾಸಿಕ ಮತ್ತು ರೇಟಿಂಗ್ ಪ್ರವೃತ್ತಿಗಳನ್ನು ನಿರ್ಮಿಸಲಾಗುತ್ತಿದೆ...",
+  "@buildingTrends": {
+    "description": "Localized string for buildingTrends"
+  },
+  "writingInsights": "ನಿಮ್ಮ ವೈಯಕ್ತಿಕಗೊಳಿಸಿದ ಒಳನೋಟಗಳನ್ನು ಬರೆಯಲಾಗುತ್ತಿದೆ...",
+  "@writingInsights": {
+    "description": "Localized string for writingInsights"
+  },
+  "applyFilters": "ಫಿಲ್ಟರ್‌ಗಳನ್ನು ಅನ್ವಯಿಸಿ",
+  "@applyFilters": {
+    "description": "Localized string for applyFilters"
+  },
+  "includeNotRated": "ರೇಟ್ ಮಾಡದಿರುವುದನ್ನು ಸೇರಿಸಿ",
+  "@includeNotRated": {
+    "description": "Localized string for includeNotRated"
+  },
+  "errorLoadingTvGenres": "ಟಿವಿ ಪ್ರಕಾರಗಳನ್ನು ಲೋಡ್ ಮಾಡುವಾಗ ದೋಷ ಉಂಟಾಗಿದೆ.",
+  "@errorLoadingTvGenres": {
+    "description": "Localized string for errorLoadingTvGenres"
+  },
+  "alsoKnownAs": "ಎಂದೂ ಕರೆಯುತ್ತಾರೆ",
+  "@alsoKnownAs": {
+    "description": "Localized string for alsoKnownAs"
+  },
+  "biography": "ಜೀವನ ಚರಿತ್ರೆ",
+  "@biography": {
+    "description": "Localized string for biography"
+  },
+  "careerStatistics": "ವೃತ್ತಿ ಅಂಕಿಅಂಶಗಳು",
+  "@careerStatistics": {
+    "description": "Localized string for careerStatistics"
+  },
+  "frequentlyCollaboratesWith": "ಆಗಾಗ್ಗೆ ಸಹಕರಿಸುತ್ತದೆ",
+  "@frequentlyCollaboratesWith": {
+    "description": "Localized string for frequentlyCollaboratesWith"
+  },
+  "notableQuotes": "ಗಮನಾರ್ಹ ಉಲ್ಲೇಖಗಳು",
+  "@notableQuotes": {
+    "description": "Localized string for notableQuotes"
+  },
+  "primaryRole": "ಪ್ರಾಥಮಿಕ ಪಾತ್ರ",
+  "@primaryRole": {
+    "description": "Localized string for primaryRole"
+  },
+  "averageRating": "ಸರಾಸರಿ ರೇಟಿಂಗ್",
+  "@averageRating": {
+    "description": "Localized string for averageRating"
+  },
+  "topGenre": "ಉನ್ನತ ಪ್ರಕಾರ",
+  "@topGenre": {
+    "description": "Localized string for topGenre"
+  },
+  "peakBoxOffice": "ಪೀಕ್ ಬಾಕ್ಸ್ ಆಫೀಸ್",
+  "@peakBoxOffice": {
+    "description": "Localized string for peakBoxOffice"
+  },
+  "percentOfTitles": "{percent}% ಶೀರ್ಷಿಕೆಗಳು",
+  "@percentOfTitles": {
+    "description": "Localized string for percentOfTitles",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "sharedTitleCount": "{count} ಹಂಚಿಕೊಂಡ ಶೀರ್ಷಿಕೆ(ಗಳು)",
+  "@sharedTitleCount": {
+    "description": "Localized string for sharedTitleCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "billingOrder": "ಬಿಲ್ ಮಾಡಲಾಗಿದೆ #{order}",
+  "@billingOrder": {
+    "description": "Localized string for billingOrder",
+    "placeholders": {
+      "order": {
+        "type": "String"
+      }
+    }
+  },
+  "startTypingToSearch": "ಹುಡುಕಲು ಟೈಪ್ ಮಾಡಲು ಪ್ರಾರಂಭಿಸಿ",
+  "@startTypingToSearch": {
+    "description": "Localized string for startTypingToSearch"
+  },
+  "movieDiscoveryMadePersonal": "ಚಲನಚಿತ್ರ ಅನ್ವೇಷಣೆ, ವೈಯಕ್ತಿಕಗೊಳಿಸಲಾಗಿದೆ",
+  "@movieDiscoveryMadePersonal": {
+    "description": "Localized string for movieDiscoveryMadePersonal"
+  },
+  "allNotes": "ಎಲ್ಲಾ ಟಿಪ್ಪಣಿಗಳು",
+  "@allNotes": {
+    "description": "Localized string for allNotes"
+  },
+  "viewPersonalizedInsights": "ವೈಯಕ್ತಿಕಗೊಳಿಸಿದ ಒಳನೋಟಗಳು, ಚಾರ್ಟ್‌ಗಳು ಮತ್ತು ಟ್ರೆಂಡ್‌ಗಳನ್ನು ವೀಕ್ಷಿಸಿ.",
+  "@viewPersonalizedInsights": {
+    "description": "Localized string for viewPersonalizedInsights"
+  },
+  "curatedCollections": "ಸಂಗ್ರಹಿಸಲಾದ ಸಂಗ್ರಹಗಳು",
+  "@curatedCollections": {
+    "description": "Localized string for curatedCollections"
+  },
+  "list": "ಪಟ್ಟಿ",
+  "@list": {
+    "description": "Localized string for list"
+  },
+  "openList": "ಪಟ್ಟಿಯನ್ನು ತೆರೆಯಿರಿ",
+  "@openList": {
+    "description": "Localized string for openList"
+  },
+  "thisListNoLongerExists": "ಈ ಪಟ್ಟಿ ಇನ್ನು ಮುಂದೆ ಅಸ್ತಿತ್ವದಲ್ಲಿಲ್ಲ.",
+  "@thisListNoLongerExists": {
+    "description": "Localized string for thisListNoLongerExists"
+  },
+  "listRenamed": "ಪಟ್ಟಿಯನ್ನು {name} ಎಂದು ಮರುಹೆಸರಿಸಲಾಗಿದೆ",
+  "@listRenamed": {
+    "description": "Localized string for listRenamed",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "listDeleted": "ಪಟ್ಟಿ {name} ಅಳಿಸಲಾಗಿದೆ",
+  "@listDeleted": {
+    "description": "Localized string for listDeleted",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInWatchlist": "ನಿಮ್ಮ ವೀಕ್ಷಣಾ ಪಟ್ಟಿಯಲ್ಲಿ {filter} ಇಲ್ಲ.",
+  "@noFilterInWatchlist": {
+    "description": "Localized string for noFilterInWatchlist",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInFavourites": "ನಿಮ್ಮ ಮೆಚ್ಚಿನವುಗಳಲ್ಲಿ {filter} ಇಲ್ಲ.",
+  "@noFilterInFavourites": {
+    "description": "Localized string for noFilterInFavourites",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInWatched": "ವೀಕ್ಷಿಸಿದ ವೀಡಿಯೊಗಳಲ್ಲಿ {filter} ಇಲ್ಲ",
+  "@noFilterInWatched": {
+    "description": "Localized string for noFilterInWatched",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noFilterInThisList": "ಈ ಪಟ್ಟಿಯಲ್ಲಿ {filter} ಇಲ್ಲ.",
+  "@noFilterInThisList": {
+    "description": "Localized string for noFilterInThisList",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "noListsWithFilter": "{filter} ಇರುವ ಪಟ್ಟಿಗಳಿಲ್ಲ",
+  "@noListsWithFilter": {
+    "description": "Localized string for noListsWithFilter",
+    "placeholders": {
+      "filter": {
+        "type": "String"
+      }
+    }
+  },
+  "importedInto": "\"{name}\" ಗೆ ಆಮದು ಮಾಡಿಕೊಳ್ಳಲಾಗಿದೆ",
+  "@importedInto": {
+    "description": "Localized string for importedInto",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "couldNotImportList": "ಪಟ್ಟಿಯನ್ನು ಆಮದು ಮಾಡಿಕೊಳ್ಳಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+  "@couldNotImportList": {
+    "description": "Localized string for couldNotImportList"
+  },
+  "importing": "ಆಮದು ಮಾಡಿಕೊಳ್ಳಲಾಗುತ್ತಿದೆ...",
+  "@importing": {
+    "description": "Localized string for importing"
+  },
+  "couldNotLoadSharedList": "ಈ ಹಂಚಿಕೊಂಡ ಪಟ್ಟಿಯನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+  "@couldNotLoadSharedList": {
+    "description": "Localized string for couldNotLoadSharedList"
+  },
+  "editWatchedInfo": "ವೀಕ್ಷಿಸಿದ ಮಾಹಿತಿಯನ್ನು ಸಂಪಾದಿಸಿ",
+  "@editWatchedInfo": {
+    "description": "Localized string for editWatchedInfo"
+  },
+  "watchDate": "ವೀಕ್ಷಣೆ ದಿನಾಂಕ",
+  "@watchDate": {
+    "description": "Localized string for watchDate"
+  },
+  "rewatchCount": "ಮರು ವೀಕ್ಷಣೆ ಎಣಿಕೆ",
+  "@rewatchCount": {
+    "description": "Localized string for rewatchCount"
+  },
+  "watchedInfoUpdated": "ವೀಕ್ಷಿಸಿದ ಮಾಹಿತಿಯನ್ನು ನವೀಕರಿಸಲಾಗಿದೆ",
+  "@watchedInfoUpdated": {
+    "description": "Localized string for watchedInfoUpdated"
+  },
+  "removedFromList": "{listName} ನಿಂದ ತೆಗೆದುಹಾಕಲಾಗಿದೆ",
+  "@removedFromList": {
+    "description": "Localized string for removedFromList",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "addedToList": "{listName} ಗೆ ಸೇರಿಸಲಾಗಿದೆ",
+  "@addedToList": {
+    "description": "Localized string for addedToList",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "addedToListAndWatchlist": "{listName} ಮತ್ತು ವೀಕ್ಷಣೆ ಪಟ್ಟಿಗೆ ಸೇರಿಸಲಾಗಿದೆ",
+  "@addedToListAndWatchlist": {
+    "description": "Localized string for addedToListAndWatchlist",
+    "placeholders": {
+      "listName": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTrailersLikeThis": "ಇದೇ ರೀತಿಯ ಇನ್ನಷ್ಟು ಟ್ರೇಲರ್‌ಗಳು",
+  "@moreTrailersLikeThis": {
+    "description": "Localized string for moreTrailersLikeThis"
+  },
+  "noDescriptionForTrailer": "ಈ ಟ್ರೇಲರ್‌ಗೆ ಯಾವುದೇ ವಿವರಣೆ ಲಭ್ಯವಿಲ್ಲ.",
+  "@noDescriptionForTrailer": {
+    "description": "Localized string for noDescriptionForTrailer"
+  },
+  "closeTrailer": "ಟ್ರೇಲರ್ ಮುಚ್ಚಿ",
+  "@closeTrailer": {
+    "description": "Localized string for closeTrailer"
+  },
+  "recommendedSeries": "ಶಿಫಾರಸು ಮಾಡಲಾದ ಸರಣಿಗಳು",
+  "@recommendedSeries": {
+    "description": "Localized string for recommendedSeries"
+  },
+  "recommendedMovie": "ಶಿಫಾರಸು ಮಾಡಲಾದ ಚಲನಚಿತ್ರ",
+  "@recommendedMovie": {
+    "description": "Localized string for recommendedMovie"
+  },
+  "notEnoughDataYet": "ಇನ್ನೂ ಸಾಕಷ್ಟು ಡೇಟಾ ಇಲ್ಲ.",
+  "@notEnoughDataYet": {
+    "description": "Localized string for notEnoughDataYet"
+  },
+  "addAndRateMoreTitles": "ವಿಶ್ಲೇಷಣೆಯನ್ನು ಅನ್‌ಲಾಕ್ ಮಾಡಲು ಕನಿಷ್ಠ {count} ಶೀರ್ಷಿಕೆಗಳನ್ನು ಸೇರಿಸಿ ಮತ್ತು ರೇಟ್ ಮಾಡಿ.",
+  "@addAndRateMoreTitles": {
+    "description": "Localized string for addAndRateMoreTitles",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "addMoreTitlesToUnlock": "ನೀವು {watchedCount}/{requiredCount} ವೀಕ್ಷಿಸಿದ ಶೀರ್ಷಿಕೆಗಳನ್ನು ಹೊಂದಿದ್ದೀರಿ. ವಿಶ್ಲೇಷಣೆಯನ್ನು ಅನ್‌ಲಾಕ್ ಮಾಡಲು {remaining} ಇನ್ನಷ್ಟು ಸೇರಿಸಿ.",
+  "@addMoreTitlesToUnlock": {
+    "description": "Localized string for addMoreTitlesToUnlock",
+    "placeholders": {
+      "watchedCount": {
+        "type": "String"
+      },
+      "requiredCount": {
+        "type": "String"
+      },
+      "remaining": {
+        "type": "String"
+      }
+    }
+  },
+  "moviesPerMonth": "ತಿಂಗಳಿಗೆ ಚಲನಚಿತ್ರಗಳು",
+  "@moviesPerMonth": {
+    "description": "Localized string for moviesPerMonth"
+  },
+  "genreDistribution": "ಪ್ರಕಾರ ವಿತರಣೆ",
+  "@genreDistribution": {
+    "description": "Localized string for genreDistribution"
+  },
+  "ratingTrends": "ರೇಟಿಂಗ್ ಟ್ರೆಂಡ್‌ಗಳು",
+  "@ratingTrends": {
+    "description": "Localized string for ratingTrends"
+  },
+  "noData": "ಡೇಟಾ ಇಲ್ಲ",
+  "@noData": {
+    "description": "Localized string for noData"
+  },
+  "myLatestWatchAnalytics": "ಲುಮಿಯಲ್ಲಿ ನನ್ನ ಇತ್ತೀಚಿನ ಗಡಿಯಾರ ವಿಶ್ಲೇಷಣೆ",
+  "@myLatestWatchAnalytics": {
+    "description": "Localized string for myLatestWatchAnalytics"
+  },
+  "myWatchInsights": "ಲುಮಿ ಬಗ್ಗೆ ನನ್ನ ಗಡಿಯಾರದ ಒಳನೋಟಗಳು",
+  "@myWatchInsights": {
+    "description": "Localized string for myWatchInsights"
+  },
+  "infographicsCard": "ಇನ್ಫೋಗ್ರಾಫಿಕ್ಸ್ ಕಾರ್ಡ್",
+  "@infographicsCard": {
+    "description": "Localized string for infographicsCard"
+  },
+  "watchInsightsSnapshot": "ಒಳನೋಟಗಳ ಸ್ನ್ಯಾಪ್‌ಶಾಟ್ ವೀಕ್ಷಿಸಿ",
+  "@watchInsightsSnapshot": {
+    "description": "Localized string for watchInsightsSnapshot"
+  },
+  "availableOnceInsightsReady": "ಒಳನೋಟಗಳು ಸಿದ್ಧವಾದ ನಂತರ ಲಭ್ಯವಿರುತ್ತದೆ.",
+  "@availableOnceInsightsReady": {
+    "description": "Localized string for availableOnceInsightsReady"
+  },
+  "shareYourWatchInsights": "ನಿಮ್ಮ ಗಡಿಯಾರದ ಒಳನೋಟಗಳ ಕಾರ್ಡ್ ಹಂಚಿಕೊಳ್ಳಿ",
+  "@shareYourWatchInsights": {
+    "description": "Localized string for shareYourWatchInsights"
+  },
+  "recentlyWatchedVibe": "ಇತ್ತೀಚೆಗೆ ವೀಕ್ಷಿಸಿದ ವೈಬ್",
+  "@recentlyWatchedVibe": {
+    "description": "Localized string for recentlyWatchedVibe"
+  },
+  "mixedAcrossGenres": "ವಿವಿಧ ಪ್ರಕಾರಗಳಲ್ಲಿ ಮಿಶ್ರಣ ಮಾಡಲಾಗಿದೆ",
+  "@mixedAcrossGenres": {
+    "description": "Localized string for mixedAcrossGenres"
+  },
+  "moviesPerMonthShort": "ಚಲನಚಿತ್ರಗಳು / ತಿಂಗಳು",
+  "@moviesPerMonthShort": {
+    "description": "Localized string for moviesPerMonthShort"
+  },
+  "ratingTrend": "ರೇಟಿಂಗ್ ಟ್ರೆಂಡ್",
+  "@ratingTrend": {
+    "description": "Localized string for ratingTrend"
+  },
+  "balanced": "ಸಮತೋಲಿತ",
+  "@balanced": {
+    "description": "Localized string for balanced"
+  },
+  "noWatchNextSuggestionsYet": "ಮುಂದಿನ ವೀಕ್ಷಣೆಗೆ ಇನ್ನೂ ಯಾವುದೇ ಸಲಹೆಗಳಿಲ್ಲ.",
+  "@noWatchNextSuggestionsYet": {
+    "description": "Localized string for noWatchNextSuggestionsYet"
+  },
+  "upcomingFromLibrary": "ನಿಮ್ಮ ಲೈಬ್ರರಿಯಿಂದ ಮುಂಬರುವವುಗಳು",
+  "@upcomingFromLibrary": {
+    "description": "Localized string for upcomingFromLibrary"
+  },
+  "removeReminder": "ಜ್ಞಾಪನೆಯನ್ನು ತೆಗೆದುಹಾಕಿ",
+  "@removeReminder": {
+    "description": "Localized string for removeReminder"
+  },
+  "remindMe": "ನನಗೆ ನೆನಪಿಸಿ",
+  "@remindMe": {
+    "description": "Localized string for remindMe"
+  },
+  "titleReleasesToday": "{title} ಇಂದು ಬಿಡುಗಡೆಯಾಗುತ್ತಿದೆ.",
+  "@titleReleasesToday": {
+    "description": "Localized string for titleReleasesToday",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "titleAirsSoon": "{title} {subtitle} ಶೀಘ್ರದಲ್ಲೇ ಪ್ರಸಾರವಾಗಲಿದೆ.",
+  "@titleAirsSoon": {
+    "description": "Localized string for titleAirsSoon",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "subtitle": {
+        "type": "String"
+      }
+    }
+  },
+  "controlPremiereAlerts": "ಪ್ರೀಮಿಯರ್ ಎಚ್ಚರಿಕೆಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ ಮತ್ತು ಜ್ಞಾಪನೆಗಳನ್ನು ಬಿಡುಗಡೆ ಮಾಡಿ.",
+  "@controlPremiereAlerts": {
+    "description": "Localized string for controlPremiereAlerts"
+  },
+  "upcomingReleasesCount": "{count} ನಿಮ್ಮ ಲೈಬ್ರರಿಯಾದ್ಯಂತ ಮುಂಬರುವ ಬಿಡುಗಡೆ(ಗಳು).",
+  "@upcomingReleasesCount": {
+    "description": "Localized string for upcomingReleasesCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "sittingInWatchlist": "{days} ದಿನಗಳವರೆಗೆ ನಿಮ್ಮ ವೀಕ್ಷಣಾ ಪಟ್ಟಿಯಲ್ಲಿರುತ್ತೇನೆ",
+  "@sittingInWatchlist": {
+    "description": "Localized string for sittingInWatchlist",
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "alreadyOnWatchlist": "ಈಗಾಗಲೇ ನಿಮ್ಮ ವೀಕ್ಷಣಾ ಪಟ್ಟಿಯಲ್ಲಿದೆ",
+  "@alreadyOnWatchlist": {
+    "description": "Localized string for alreadyOnWatchlist"
+  },
+  "favouritedButNotWatched": "ನೀವು ಇದನ್ನು ಮೆಚ್ಚಿದ್ದೀರಿ ಆದರೆ ಇನ್ನೂ ವೀಕ್ಷಿಸಲಾಗಿದೆ ಎಂದು ಗುರುತಿಸಿಲ್ಲ.",
+  "@favouritedButNotWatched": {
+    "description": "Localized string for favouritedButNotWatched"
+  },
+  "savedInListReady": "ನಿಮ್ಮ ಪಟ್ಟಿಗಳಲ್ಲಿ ಒಂದರಲ್ಲಿ ಉಳಿಸಲಾಗಿದೆ ಮತ್ತು ವೀಕ್ಷಿಸಲು ಸಿದ್ಧವಾಗಿದೆ.",
+  "@savedInListReady": {
+    "description": "Localized string for savedInListReady"
+  },
+  "matchesTitlesYouTrack": "ನೀವು ಈಗಾಗಲೇ ಟ್ರ್ಯಾಕ್ ಮಾಡಿರುವ ಶೀರ್ಷಿಕೆಗಳಿಗೆ ಹೊಂದಿಕೆಯಾಗುತ್ತದೆ",
+  "@matchesTitlesYouTrack": {
+    "description": "Localized string for matchesTitlesYouTrack"
+  },
+  "noOfficialSite": "ಯಾವುದೇ ಅಧಿಕೃತ ಸೈಟ್ ಇಲ್ಲ",
+  "@noOfficialSite": {
+    "description": "Localized string for noOfficialSite"
+  },
+  "episodeAiring": "ಸಂಚಿಕೆ ಪ್ರಸಾರವಾಗುತ್ತಿದೆ",
+  "@episodeAiring": {
+    "description": "Localized string for episodeAiring"
+  },
+  "general": "ಜನರಲ್",
+  "@general": {
+    "description": "Localized string for general"
+  },
+  "scheduledFor": "{date} ಗೆ ನಿಗದಿಪಡಿಸಲಾಗಿದೆ",
+  "@scheduledFor": {
+    "description": "Localized string for scheduledFor",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "wasScheduledFor": "{date} ಕ್ಕೆ ನಿಗದಿಪಡಿಸಲಾಗಿತ್ತು",
+  "@wasScheduledFor": {
+    "description": "Localized string for wasScheduledFor",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "noOverviewAvailable": "ಯಾವುದೇ ಅವಲೋಕನ ಲಭ್ಯವಿಲ್ಲ.",
+  "@noOverviewAvailable": {
+    "description": "Localized string for noOverviewAvailable"
+  },
+  "searchHistoryCleared": "ಹುಡುಕಾಟ ಇತಿಹಾಸವನ್ನು ತೆರವುಗೊಳಿಸಲಾಗಿದೆ",
+  "@searchHistoryCleared": {
+    "description": "Localized string for searchHistoryCleared"
+  },
+  "visualMovieCard": "ದೃಶ್ಯ ಚಲನಚಿತ್ರ ಕಾರ್ಡ್",
+  "@visualMovieCard": {
+    "description": "Localized string for visualMovieCard"
+  },
+  "smartLumiLink": "ಸ್ಮಾರ್ಟ್ ಲುಮಿ ಲಿಂಕ್",
+  "@smartLumiLink": {
+    "description": "Localized string for smartLumiLink"
+  },
+  "directTmdbLink": "ನೇರ TMDB ಲಿಂಕ್",
+  "@directTmdbLink": {
+    "description": "Localized string for directTmdbLink"
+  },
+  "recommendedOnLumi": "Lumi ನಲ್ಲಿ ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ: {title}",
+  "@recommendedOnLumi": {
+    "description": "Localized string for recommendedOnLumi",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "checkOutOnLumi": "ಲುಮಿಯಲ್ಲಿ {title} ಪರಿಶೀಲಿಸಿ!\n\n{link}\n\nಲುಮಿ ಪಡೆಯಿರಿ: {appLink}",
+  "@checkOutOnLumi": {
+    "description": "Localized string for checkOutOnLumi",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      },
+      "appLink": {
+        "type": "String"
+      }
+    }
+  },
+  "checkOutOnTmdb": "TMDB ನಲ್ಲಿ {title} ಪರಿಶೀಲಿಸಿ: {link}",
+  "@checkOutOnTmdb": {
+    "description": "Localized string for checkOutOnTmdb",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseAlertTitle": "{title} ಬಿಡುಗಡೆ ಎಚ್ಚರಿಕೆ",
+  "@releaseAlertTitle": {
+    "description": "Localized string for releaseAlertTitle",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseAlertFullMessage": "{date} ಗಾಗಿ ಬಿಡುಗಡೆ ಗಡಿಯಾರ ಎಚ್ಚರಿಕೆಯನ್ನು ಹೊಂದಿಸಲಾಗಿದೆ. ಅದು ಹೊರಬಂದಾಗ ನಾವು ನಿಮಗೆ ತಿಳಿಸುತ್ತೇವೆ.",
+  "@releaseAlertFullMessage": {
+    "description": "Localized string for releaseAlertFullMessage",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "releaseSuccessDialogContent": "\"{title}\" ಡಿಜಿಟಲ್ ಅಥವಾ ಬ್ಲೂ-ರೇ/ಡಿವಿಡಿಯಲ್ಲಿ ಬಿಡುಗಡೆಯಾದ ತಕ್ಷಣ ನಾವು ನಿಮಗೆ ತಿಳಿಸುತ್ತೇವೆ!",
+  "@releaseSuccessDialogContent": {
+    "description": "Localized string for releaseSuccessDialogContent",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "episodeAlreadyDueToAir": "ಈ ಸಂಚಿಕೆ ಈಗಾಗಲೇ ಪ್ರಸಾರವಾಗಿದೆ.",
+  "@episodeAlreadyDueToAir": {
+    "description": "Localized string for episodeAlreadyDueToAir"
+  },
+  "reminderSetSuccessfully": "ಜ್ಞಾಪನೆಯನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಹೊಂದಿಸಲಾಗಿದೆ",
+  "@reminderSetSuccessfully": {
+    "description": "Localized string for reminderSetSuccessfully"
+  },
+  "speechRecognitionNotAvailable": "ಈ ಸಾಧನದಲ್ಲಿ ಭಾಷಣ ಗುರುತಿಸುವಿಕೆ ಲಭ್ಯವಿಲ್ಲ.",
+  "@speechRecognitionNotAvailable": {
+    "description": "Localized string for speechRecognitionNotAvailable"
+  },
+  "describeShowMood": "ನೀವು ಯಾವ ಕಾರ್ಯಕ್ರಮದ ಬಗ್ಗೆ ಯೋಚಿಸುತ್ತಿದ್ದೀರಿ ಎಂದು ವಿವರಿಸಿ, ನಾವು ಶ್ರೇಯಾಂಕಿತ ಪಟ್ಟಿಯನ್ನು ಹಿಂತಿರುಗಿಸುತ್ತೇವೆ.",
+  "@describeShowMood": {
+    "description": "Localized string for describeShowMood"
+  },
+  "describeMovieMood": "ನೀವು ಯಾವ ಚಲನಚಿತ್ರದ ಮೂಡ್‌ನಲ್ಲಿದ್ದೀರಿ ಎಂದು ವಿವರಿಸಿ, ನಾವು ಶ್ರೇಯಾಂಕಿತ ಪಟ್ಟಿಯನ್ನು ಹಿಂತಿರುಗಿಸುತ್ತೇವೆ.",
+  "@describeMovieMood": {
+    "description": "Localized string for describeMovieMood"
+  },
+  "aiLauncherDescription": "ನೈಸರ್ಗಿಕ ಭಾಷೆಯ ವಿನಂತಿಯನ್ನು ಟೈಪ್ ಮಾಡಿ ಅಥವಾ ಮಾತನಾಡಿ. ಲುಮಿ AI ಯೋಜನೆಯನ್ನು ನಿರ್ಮಿಸುತ್ತದೆ, ವೆಕ್ಟರ್ ಹುಡುಕಾಟವನ್ನು ನಡೆಸುತ್ತದೆ ಮತ್ತು ಬಹು ಪ್ರದರ್ಶನ/ಚಲನಚಿತ್ರ ಆಯ್ಕೆಗಳನ್ನು ಹಿಂತಿರುಗಿಸುತ್ತದೆ.",
+  "@aiLauncherDescription": {
+    "description": "Localized string for aiLauncherDescription"
+  },
+  "yearRange": "ಈ ಅಪ್ಲಿಕೇಶನ್ ಲೇಬಲ್ ಅನ್ನು kn ಗೆ ಅನುವಾದಿಸಿ: {from}-{to}",
+  "@yearRange": {
+    "description": "Localized string for yearRange",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "remindersCountScheduled": "{count} ಜ್ಞಾಪನೆ(ಗಳು) ನಿಗದಿಪಡಿಸಲಾಗಿದೆ.",
+  "@remindersCountScheduled": {
+    "description": "Localized string for remindersCountScheduled",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "regionAutoDetected": "ಸ್ವಯಂ-ಪತ್ತೆಹಚ್ಚಲಾಗಿದೆ: {region}",
+  "@regionAutoDetected": {
+    "description": "Localized string for regionAutoDetected",
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "regionSelected": "ಆಯ್ಕೆ ಮಾಡಲಾಗಿದೆ: {region}",
+  "@regionSelected": {
+    "description": "Localized string for regionSelected",
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "allLanguagesSubtitle": "ಎಲ್ಲಾ ಭಾಷೆಗಳು",
+  "@allLanguagesSubtitle": {
+    "description": "Localized string for allLanguagesSubtitle"
+  },
+  "currentlySetToLanguage": "ಪ್ರಸ್ತುತ {language} ಗೆ ಹೊಂದಿಸಲಾಗಿದೆ",
+  "@currentlySetToLanguage": {
+    "description": "Localized string for currentlySetToLanguage",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "availabilities": "ಲಭ್ಯತೆಗಳು",
+  "@availabilities": {
+    "description": "Localized string for availabilities"
+  },
+  "mood": "ಮನಸ್ಥಿತಿ",
+  "@mood": {
+    "description": "Localized string for mood"
+  },
+  "people": "ಜನರು",
+  "@people": {
+    "description": "Localized string for people"
+  },
+  "ads": "ಜಾಹೀರಾತುಗಳು",
+  "@ads": {
+    "description": "Localized string for ads"
+  },
+  "theatricalLimited": "ಥಿಯೇಟ್ರಿಕಲ್ ಲಿಮಿಟೆಡ್",
+  "@theatricalLimited": {
+    "description": "Localized string for theatricalLimited"
+  },
+  "premier": "ಪ್ರೀಮಿಯರ್",
+  "@premier": {
+    "description": "Localized string for premier"
+  },
+  "mediaType": "ಮಾಧ್ಯಮ ಪ್ರಕಾರ",
+  "@mediaType": {
+    "description": "Localized string for mediaType"
+  },
+  "couldNotLoadAnalytics": "ವಿಶ್ಲೇಷಣೆಯನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ.",
+  "@couldNotLoadAnalytics": {
+    "description": "Localized string for couldNotLoadAnalytics"
+  },
+  "viewAllAwards": "ಎಲ್ಲವನ್ನೂ ವೀಕ್ಷಿಸಿ",
+  "@viewAllAwards": {
+    "description": "Localized string for viewAllAwards"
+  },
+  "win": "ಗೆಲುವು",
+  "@win": {
+    "description": "Localized string for win"
+  },
+  "wins": "ಗೆಲುವುಗಳು",
+  "@wins": {
+    "description": "Localized string for wins"
+  },
+  "nomination": "ನಾಮನಿರ್ದೇಶನ",
+  "@nomination": {
+    "description": "Localized string for nomination"
+  },
+  "nominations": "ನಾಮನಿರ್ದೇಶನಗಳು",
+  "@nominations": {
+    "description": "Localized string for nominations"
+  },
+  "sharedBy": "{name} ಹಂಚಿಕೊಂಡಿದ್ದಾರೆ",
+  "@sharedBy": {
+    "description": "Localized string for sharedBy",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "titleCount": "{count} ಶೀರ್ಷಿಕೆ(ಗಳು)",
+  "@titleCount": {
+    "description": "Localized string for titleCount",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "savedTitlesAcrossLists": "ನಿಮ್ಮ ಪಟ್ಟಿಗಳಲ್ಲಿ {count} ಉಳಿಸಲಾದ ಶೀರ್ಷಿಕೆಗಳು",
+  "@savedTitlesAcrossLists": {
+    "description": "Localized string for savedTitlesAcrossLists",
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "curatedCollectionsSubtitle": "ನೀವು ಸಂಘಟಿಸಬಹುದಾದ ಮತ್ತು ಹಂಚಿಕೊಳ್ಳಬಹುದಾದ ಕ್ಯುರೇಟೆಡ್ ಸಂಗ್ರಹಗಳು.",
+  "@curatedCollectionsSubtitle": {
+    "description": "Localized string for curatedCollectionsSubtitle"
+  },
+  "shareListMessage": "\"{name}\" ಅನ್ನು ಲುಮಿ ({count} {itemLabel}) ಗೆ ಆಮದು ಮಾಡಿ: {link}",
+  "@shareListMessage": {
+    "description": "Localized string for shareListMessage",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "String"
+      },
+      "itemLabel": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "notEnoughData": "ಸಾಕಷ್ಟು ಡೇಟಾ ಇಲ್ಲ.",
+  "@notEnoughData": {
+    "description": "Localized string for notEnoughData"
+  },
+  "shareQuote": "ಲುಮಿಯಲ್ಲಿ \"{title}\" ನಿಂದ ಈ ಉಲ್ಲೇಖವನ್ನು ಪರಿಶೀಲಿಸಿ!",
+  "@shareQuote": {
+    "description": "Localized string for shareQuote",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "shareMovieMessage": "Lumi ನಲ್ಲಿ ಶಿಫಾರಸು ಮಾಡಲಾಗಿದೆ: {title}\n\n{link}",
+  "@shareMovieMessage": {
+    "description": "Localized string for shareMovieMessage",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "aiLauncherDescriptionShow": "ನೈಸರ್ಗಿಕ ಭಾಷೆಯ ವಿನಂತಿಯನ್ನು ಟೈಪ್ ಮಾಡಿ ಅಥವಾ ಮಾತನಾಡಿ. ಲುಮಿ AI ಯೋಜನೆಯನ್ನು ನಿರ್ಮಿಸುತ್ತದೆ, ವೆಕ್ಟರ್ ಹುಡುಕಾಟವನ್ನು ನಡೆಸುತ್ತದೆ ಮತ್ತು ಬಹು ಪ್ರದರ್ಶನ ಆಯ್ಕೆಗಳನ್ನು ಹಿಂತಿರುಗಿಸುತ್ತದೆ.",
+  "@aiLauncherDescriptionShow": {
+    "description": "Localized string for aiLauncherDescriptionShow"
+  },
+  "aiLauncherDescriptionMovie": "ನೈಸರ್ಗಿಕ ಭಾಷೆಯ ವಿನಂತಿಯನ್ನು ಟೈಪ್ ಮಾಡಿ ಅಥವಾ ಮಾತನಾಡಿ. ಲುಮಿ AI ಯೋಜನೆಯನ್ನು ನಿರ್ಮಿಸುತ್ತದೆ, ವೆಕ್ಟರ್ ಹುಡುಕಾಟವನ್ನು ನಡೆಸುತ್ತದೆ ಮತ್ತು ಬಹು ಚಲನಚಿತ್ರ ಆಯ್ಕೆಗಳನ್ನು ಹಿಂತಿರುಗಿಸುತ್ತದೆ.",
+  "@aiLauncherDescriptionMovie": {
+    "description": "Localized string for aiLauncherDescriptionMovie"
+  },
+  "warmingUpMovieSearch": "ನಿಮ್ಮ ಚಲನಚಿತ್ರ ಹುಡುಕಾಟವನ್ನು ಹೆಚ್ಚಿಸಲಾಗುತ್ತಿದೆ",
+  "@warmingUpMovieSearch": {
+    "description": "Localized string for warmingUpMovieSearch"
+  },
+  "connectingToRecommendationEngine": "ಶಿಫಾರಸು ಎಂಜಿನ್‌ಗೆ ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ",
+  "@connectingToRecommendationEngine": {
+    "description": "Localized string for connectingToRecommendationEngine"
+  },
+  "understandingYourTaste": "ನೀವು ಯಾವುದರ ಮನಸ್ಥಿತಿಯಲ್ಲಿದ್ದೀರಿ ಎಂಬುದನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳುವುದು",
+  "@understandingYourTaste": {
+    "description": "Localized string for understandingYourTaste"
+  },
+  "buildingCustomSearch": "ನಿಮ್ಮ ವಿನಂತಿಯಿಂದ ಕಸ್ಟಮ್ ಹುಡುಕಾಟವನ್ನು ನಿರ್ಮಿಸುವುದು",
+  "@buildingCustomSearch": {
+    "description": "Localized string for buildingCustomSearch"
+  },
+  "tinyNetworkHiccup": "ಸಣ್ಣ ನೆಟ್‌ವರ್ಕ್ ಸಮಸ್ಯೆ, ಮತ್ತೆ ಪ್ರಯತ್ನಿಸುತ್ತಿದ್ದೇನೆ",
+  "@tinyNetworkHiccup": {
+    "description": "Localized string for tinyNetworkHiccup"
+  },
+  "planLocked": "ಯೋಜನೆ ಲಾಕ್ ಆಗಿದೆ: ಪ್ರಕಾರ, ಶೈಲಿ, ಭಾಷೆ ಮತ್ತು ರನ್‌ಟೈಮ್",
+  "@planLocked": {
+    "description": "Localized string for planLocked"
+  },
+  "scanningTmdb": "ಬಲವಾದ ಹೊಂದಾಣಿಕೆಗಳಿಗಾಗಿ TMDB ಅನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಲಾಗುತ್ತಿದೆ",
+  "@scanningTmdb": {
+    "description": "Localized string for scanningTmdb"
+  },
+  "collectingDetails": "ಉನ್ನತ ಆಯ್ಕೆಗಳಿಗಾಗಿ ಪೋಸ್ಟರ್‌ಗಳು, ರೇಟಿಂಗ್‌ಗಳು ಮತ್ತು ರನ್‌ಟೈಮ್ ಅನ್ನು ಸಂಗ್ರಹಿಸುವುದು",
+  "@collectingDetails": {
+    "description": "Localized string for collectingDetails"
+  },
+  "shortlistingPicksCount": "ಶಾರ್ಟ್‌ಲಿಸ್ಟಿಂಗ್ ಆಯ್ಕೆಗಳು ({current}/{total})",
+  "@shortlistingPicksCount": {
+    "description": "Localized string for shortlistingPicksCount",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "shortlistingBestPicks": "ಅತ್ಯುತ್ತಮ ಆಯ್ಕೆಗಳನ್ನು ಶಾರ್ಟ್‌ಲಿಸ್ಟ್ ಮಾಡುವುದು",
+  "@shortlistingBestPicks": {
+    "description": "Localized string for shortlistingBestPicks"
+  },
+  "finalPolish": "ನಿಮ್ಮ ಶಿಫಾರಸುಗಳ ಅಂತಿಮ ಸುಧಾರಣೆ",
+  "@finalPolish": {
+    "description": "Localized string for finalPolish"
+  },
+  "retryingAfterIssue": "ತಾತ್ಕಾಲಿಕ ಸಮಸ್ಯೆಯ ನಂತರ ಮರುಪ್ರಯತ್ನಿಸಲಾಗುತ್ತಿದೆ",
+  "@retryingAfterIssue": {
+    "description": "Localized string for retryingAfterIssue"
+  },
+  "regionUnitedStates": "ಅಮೇರಿಕ ಸಂಯುಕ್ತ ಸಂಸ್ಥಾನ",
+  "@regionUnitedStates": {
+    "description": "Region label for United States"
+  },
+  "regionIndia": "ಭಾರತ",
+  "@regionIndia": {
+    "description": "Region label for India"
+  },
+  "regionUnitedKingdom": "ಯುನೈಟೆಡ್ ಕಿಂಗ್‌ಡಮ್",
+  "@regionUnitedKingdom": {
+    "description": "Region label for United Kingdom"
+  },
+  "regionCanada": "ಕೆನಡಾ",
+  "@regionCanada": {
+    "description": "Region label for Canada"
+  },
+  "regionAustralia": "ಆಸ್ಟ್ರೇಲಿಯಾ",
+  "@regionAustralia": {
+    "description": "Region label for Australia"
+  },
+  "regionNewZealand": "ನ್ಯೂಜಿಲೆಂಡ್",
+  "@regionNewZealand": {
+    "description": "Region label for New Zealand"
+  },
+  "regionGermany": "ಜರ್ಮನಿ",
+  "@regionGermany": {
+    "description": "Region label for Germany"
+  },
+  "regionFrance": "ಫ್ರಾನ್ಸ್",
+  "@regionFrance": {
+    "description": "Region label for France"
+  },
+  "regionSpain": "ಸ್ಪೇನ್",
+  "@regionSpain": {
+    "description": "Region label for Spain"
+  },
+  "regionItaly": "ಇಟಲಿ",
+  "@regionItaly": {
+    "description": "Region label for Italy"
+  },
+  "regionJapan": "ಜಪಾನ್",
+  "@regionJapan": {
+    "description": "Region label for Japan"
+  },
+  "regionSouthKorea": "ದಕ್ಷಿಣ ಕೊರಿಯಾ",
+  "@regionSouthKorea": {
+    "description": "Region label for South Korea"
+  },
+  "regionBrazil": "ಬ್ರೆಜಿಲ್",
+  "@regionBrazil": {
+    "description": "Region label for Brazil"
+  },
+  "regionMexico": "ಮೆಕ್ಸಿಕೋ",
+  "@regionMexico": {
+    "description": "Region label for Mexico"
+  },
+  "regionSingapore": "ಸಿಂಗಾಪುರ್",
+  "@regionSingapore": {
+    "description": "Region label for Singapore"
+  },
+  "regionPhilippines": "ಫಿಲಿಪೈನ್ಸ್",
+  "@regionPhilippines": {
+    "description": "Region label for Philippines"
+  },
+  "regionIndonesia": "ಇಂಡೋನೇಷ್ಯಾ",
+  "@regionIndonesia": {
+    "description": "Region label for Indonesia"
+  },
+  "regionUnitedArabEmirates": "ಯುನೈಟೆಡ್ ಅರಬ್ ಎಮಿರೇಟ್ಸ್",
+  "@regionUnitedArabEmirates": {
+    "description": "Region label for United Arab Emirates"
+  },
+  "regionSaudiArabia": "ಸೌದಿ ಅರೇಬಿಯಾ",
+  "@regionSaudiArabia": {
+    "description": "Region label for Saudi Arabia"
+  },
+  "regionTurkey": "ಟರ್ಕಿ",
+  "@regionTurkey": {
+    "description": "Region label for Turkey"
+  },
+  "regionAutoDetectedSubtitle": "ಸ್ವಯಂ-ಪತ್ತೆಯಾದ ಪ್ರದೇಶ: {regionLabel} ({regionCode}). ಸ್ಥಳೀಯ ಚಲನಚಿತ್ರ ಪ್ರಶ್ನೆಗಳು ಮತ್ತು ಗಡಿಯಾರ-ಪೂರೈಕೆದಾರರ ಹುಡುಕಾಟಗಳಿಗಾಗಿ ಅತಿಕ್ರಮಿಸಲು ಪ್ರದೇಶವನ್ನು ಆಯ್ಕೆಮಾಡಿ.",
+  "@regionAutoDetectedSubtitle": {
+    "description": "Subtitle when region is auto-detected",
+    "placeholders": {
+      "regionLabel": {
+        "type": "String"
+      },
+      "regionCode": {
+        "type": "String"
+      }
+    }
+  },
+  "regionSelectedSubtitle": "ಆಯ್ಕೆ ಮಾಡಿದ ಪ್ರದೇಶ: {regionLabel} ({regionCode}). ಬೆಂಬಲಿತ ಚಲನಚಿತ್ರ ಪ್ರಶ್ನೆಗಳು ಮತ್ತು ಗಡಿಯಾರ-ಪೂರೈಕೆದಾರರ ಹುಡುಕಾಟಗಳು ಮುಂದಿನ ಬಾರಿ ಇದನ್ನು ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಮರುಬಳಕೆ ಮಾಡುತ್ತವೆ.",
+  "@regionSelectedSubtitle": {
+    "description": "Subtitle when region is manually selected",
+    "placeholders": {
+      "regionLabel": {
+        "type": "String"
+      },
+      "regionCode": {
+        "type": "String"
+      }
+    }
+  },
+  "syncSignInTooltip": "ಕ್ಲೌಡ್‌ನೊಂದಿಗೆ ಸಿಂಕ್ ಮಾಡಲು ಸೈನ್ ಇನ್ ಮಾಡಿ",
+  "@syncSignInTooltip": {
+    "description": "Tooltip prompting sign in to sync library"
+  },
+  "syncFailedTooltip": "ಸಿಂಕ್ ವಿಫಲವಾಗಿದೆ. ಮರುಪ್ರಯತ್ನಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ.",
+  "@syncFailedTooltip": {
+    "description": "Tooltip shown when library sync failed"
+  },
+  "syncedTooltip": "ಲೈಬ್ರರಿಯನ್ನು ಕ್ಲೌಡ್‌ನೊಂದಿಗೆ ಸಿಂಕ್ ಮಾಡಲಾಗಿದೆ",
+  "@syncedTooltip": {
+    "description": "Tooltip shown when library is synced"
+  },
+  "shareQuoteTooltip": "ಉಲ್ಲೇಖವನ್ನು ಹಂಚಿಕೊಳ್ಳಿ",
+  "@shareQuoteTooltip": {
+    "description": "Tooltip to share a quote"
+  },
+  "copyQuoteTooltip": "ಉಲ್ಲೇಖವನ್ನು ನಕಲಿಸಿ",
+  "@copyQuoteTooltip": {
+    "description": "Tooltip to copy a quote"
+  },
+  "quoteCopiedToast": "ಉಲ್ಲೇಖವನ್ನು ಕ್ಲಿಪ್‌ಬೋರ್ಡ್‌ಗೆ ನಕಲಿಸಲಾಗಿದೆ",
+  "@quoteCopiedToast": {
+    "description": "Toast message after copying a quote"
+  },
+  "shareDialogueTooltip": "ಸಂವಾದ ಹಂಚಿಕೊಳ್ಳಿ",
+  "@shareDialogueTooltip": {
+    "description": "Tooltip to share a dialogue"
+  },
+  "copyDialogueTooltip": "ಸಂವಾದವನ್ನು ನಕಲಿಸಿ",
+  "@copyDialogueTooltip": {
+    "description": "Tooltip to copy a dialogue"
+  },
+  "dialogueCopiedToast": "ಸಂವಾದವನ್ನು ಕ್ಲಿಪ್‌ಬೋರ್ಡ್‌ಗೆ ನಕಲಿಸಲಾಗಿದೆ",
+  "@dialogueCopiedToast": {
+    "description": "Toast message after copying a dialogue"
+  },
+  "tvAirsInOneHourTitle": "{title} 1 ಗಂಟೆಯಲ್ಲಿ ಪ್ರಸಾರವಾಗುತ್ತದೆ",
+  "@tvAirsInOneHourTitle": {
+    "description": "Notification title for a TV episode airing in one hour",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "tvAirsInOneHourBody": "{episodeLabel} \"{episodeName}\" {localAirTime} ನಲ್ಲಿ ಪ್ರಸಾರವಾಗುತ್ತದೆ.",
+  "@tvAirsInOneHourBody": {
+    "description": "Notification body for a TV episode airing in one hour",
+    "placeholders": {
+      "episodeLabel": {
+        "type": "String"
+      },
+      "episodeName": {
+        "type": "String"
+      },
+      "localAirTime": {
+        "type": "String"
+      }
+    }
+  },
+  "movieReleasesTodayTitle": "{title} ಇಂದು ಬಿಡುಗಡೆಯಾಗುತ್ತಿದೆ",
+  "@movieReleasesTodayTitle": {
+    "description": "Notification title for a movie releasing today",
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "movieReleasesTodayBody": "ನಿಮ್ಮ ಲೈಬ್ರರಿಯಲ್ಲಿರುವ ಒಂದು ಚಲನಚಿತ್ರ {localDate} ರಂದು ಬಿಡುಗಡೆಯಾಗುತ್ತಿದೆ.",
+  "@movieReleasesTodayBody": {
+    "description": "Notification body for a movie releasing today",
+    "placeholders": {
+      "localDate": {
+        "type": "String"
+      }
+    }
+  },
+  "curatedNeoNoirNights": "ನಿಯೋ-ನಾಯ್ರ್ ನೈಟ್ಸ್",
+  "@curatedNeoNoirNights": {
+    "description": "Curated collection title"
+  },
+  "curatedPulsePoundingRush": "ಪಲ್ಸ್-ಪೌಂಡಿಂಗ್ ರಶ್",
+  "@curatedPulsePoundingRush": {
+    "description": "Curated collection title"
+  },
+  "curatedFeelGoodEscape": "ಫೀಲ್-ಗುಡ್ ಎಸ್ಕೇಪ್",
+  "@curatedFeelGoodEscape": {
+    "description": "Curated collection title"
+  },
+  "curatedMindBenders": "ಮನಸ್ಸನ್ನು ಬೆಂಡರ್ ಮಾಡುವವರು",
+  "@curatedMindBenders": {
+    "description": "Curated collection title"
+  },
+  "curatedEpicWorlds": "ಮಹಾಕಾವ್ಯ ಪ್ರಪಂಚಗಳು",
+  "@curatedEpicWorlds": {
+    "description": "Curated collection title"
+  },
+  "curatedHumanStories": "ಮಾನವ ಕಥೆಗಳು",
+  "@curatedHumanStories": {
+    "description": "Curated collection title"
+  },
+  "curatedDarkDetectiveFiles": "ಡಾರ್ಕ್ ಡಿಟೆಕ್ಟಿವ್ ಫೈಲ್‌ಗಳು",
+  "@curatedDarkDetectiveFiles": {
+    "description": "Curated collection title"
+  },
+  "curatedNeoNoirNightsDescription": "ಮಳೆಯಲ್ಲಿ ನೆನೆಸಿದ ಉದ್ವಿಗ್ನತೆ, ನೈತಿಕವಾಗಿ ಬೂದುಬಣ್ಣದ ಕಥೆಗಳು ಮತ್ತು ವಾತಾವರಣದ ನಗರ ಕಥೆಗಳು.",
+  "@curatedNeoNoirNightsDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedPulsePoundingRushDescription": "ಹೆಚ್ಚಿನ ಅಪಾಯದ ಬೆನ್ನಟ್ಟುವಿಕೆಗಳು, ಹೆಚ್ಚುತ್ತಿರುವ ಅಪಾಯ ಮತ್ತು ಉಸಿರಾಡಲು ಸಮಯವಿಲ್ಲದ ವೇಗ.",
+  "@curatedPulsePoundingRushDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedFeelGoodEscapeDescription": "ವಿಶ್ರಾಂತಿ ರಾತ್ರಿಗಾಗಿ ಬೆಚ್ಚಗಿನ ಕಥೆಗಳು, ಹುರಿದುಂಬಿಸುವ ಕಥಾವಸ್ತುಗಳು ಮತ್ತು ಸಾಂತ್ವನ ನೀಡುವ ಆಯ್ಕೆಗಳು.",
+  "@curatedFeelGoodEscapeDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedMindBendersDescription": "ವಾಸ್ತವವನ್ನು ತಿರುಚುವ ಪರಿಕಲ್ಪನೆಗಳು, ತಿರುಚಿದ ಕಥಾವಸ್ತು ಮತ್ತು ದೊಡ್ಡ ಕಲ್ಪನೆಯ ಕಥೆ ಹೇಳುವಿಕೆ.",
+  "@curatedMindBendersDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedEpicWorldsDescription": "ಮಹಾ ಬ್ರಹ್ಮಾಂಡದ ಸಾಹಸಗಳು, ಪೌರಾಣಿಕ ಸಾಹಸಗಳು ಮತ್ತು ಸಿನಿಮೀಯ ಅಳತೆ.",
+  "@curatedEpicWorldsDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedHumanStoriesDescription": "ಭಾವನಾತ್ಮಕ ಸೆಳೆತ ಮತ್ತು ಸ್ಮರಣೀಯ ಅಭಿನಯದೊಂದಿಗೆ ಪಾತ್ರಗಳಿಗೆ ಮೊದಲ ಆದ್ಯತೆ ನೀಡುವ ನಾಟಕಗಳು.",
+  "@curatedHumanStoriesDescription": {
+    "description": "Curated collection description"
+  },
+  "curatedDarkDetectiveFilesDescription": "ಕೋಲ್ಡ್ ಸುಳಿವುಗಳು, ಪದರಗಳ ಶಂಕಿತರು ಮತ್ತು ನಿಧಾನ-ಸುಡುವ ತನಿಖೆಗಳು.",
+  "@curatedDarkDetectiveFilesDescription": {
+    "description": "Curated collection description"
+  },
+  "appLanguage": "ಅಪ್ಲಿಕೇಶನ್ ಭಾಷೆ",
+  "@appLanguage": {
+    "description": "App language setting title"
+  },
+  "appLanguageSystemDefault": "ಸಿಸ್ಟಂ ಡೀಫಾಲ್ಟ್",
+  "@appLanguageSystemDefault": {
+    "description": "Label for using the system language"
+  },
+  "appLanguageSelectedSubtitle": "ಅಪ್ಲಿಕೇಶನ್ ಭಾಷೆಯನ್ನು {language} ಗೆ ಹೊಂದಿಸಲಾಗಿದೆ. ಇದು ಅಪ್ಲಿಕೇಶನ್ ಇಂಟರ್ಫೇಸ್ ಅನ್ನು ಮಾತ್ರ ಬದಲಾಯಿಸುತ್ತದೆ, ಚಲನಚಿತ್ರ ಮತ್ತು ಪ್ರದರ್ಶನದ ಭಾಷೆಯನ್ನು ಬದಲಾಯಿಸುವುದಿಲ್ಲ.",
+  "@appLanguageSelectedSubtitle": {
+    "description": "Subtitle when an app language is selected",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  },
+  "appLanguageSystemSubtitle": "ಅಪ್ಲಿಕೇಶನ್ ಭಾಷೆ ನಿಮ್ಮ ಸಾಧನದ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಅನುಸರಿಸುತ್ತದೆ. ಇಂಟರ್ಫೇಸ್ ಅನ್ನು ಬೇರೆ ಭಾಷೆಯಲ್ಲಿ ಇರಿಸಿಕೊಳ್ಳಲು ಅದನ್ನು ಬದಲಾಯಿಸಿ.",
+  "@appLanguageSystemSubtitle": {
+    "description": "Subtitle when app language follows system"
+  },
+  "contentLanguageAllSubtitle": "ಎಲ್ಲಾ ಭಾಷೆಗಳು. ಚಲನಚಿತ್ರಗಳು ಮತ್ತು ಟಿವಿ ಟ್ಯಾಬ್‌ಗಳು ವಿಶಾಲವಾಗಿರುತ್ತವೆ, ಆದರೆ ಎಕ್ಸ್‌ಪ್ಲೋರ್ ಲಭ್ಯವಿದ್ದಾಗ ಇನ್ನೂ ಬಲವಾದ ಸ್ಥಳೀಯ ಫಿಟ್‌ಗಳಿಗೆ ಆದ್ಯತೆ ನೀಡಬಹುದು.",
+  "@contentLanguageAllSubtitle": {
+    "description": "Subtitle when content language is set to all languages"
+  },
+  "contentLanguageSelectedSubtitle": "ಪ್ರಸ್ತುತ {language} ಗೆ ಹೊಂದಿಸಲಾಗಿದೆ. ಚಲನಚಿತ್ರಗಳು ಮತ್ತು ಟಿವಿ ಟ್ಯಾಬ್‌ಗಳು ಕಟ್ಟುನಿಟ್ಟಾಗಿ ಉಳಿಯುತ್ತವೆ, ಆದರೆ ಎಕ್ಸ್‌ಪ್ಲೋರ್ ಮೊದಲು ಈ ಭಾಷೆಯನ್ನು ಆದ್ಯತೆ ನೀಡುತ್ತದೆ.",
+  "@contentLanguageSelectedSubtitle": {
+    "description": "Subtitle when a specific content language is selected",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      }
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/presentation/providers/auth_provider.dart';
 import 'package:cineverse/presentation/providers/sync_provider.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +19,7 @@ class SyncIndicator extends ConsumerWidget {
       return IconButton(
         onPressed: () => context.push('/account'),
         icon: const Icon(Icons.cloud_off_rounded, color: Colors.white38),
-        tooltip: 'Sign in to sync with cloud',
+        tooltip: context.l10n.syncSignInTooltip,
       );
     }
 
@@ -39,13 +40,13 @@ class SyncIndicator extends ConsumerWidget {
         return IconButton(
           onPressed: () => ref.read(syncServiceProvider).syncAllToRemote(),
           icon: const Icon(Icons.sync_problem_rounded, color: Colors.redAccent),
-          tooltip: 'Sync failed. Tap to retry.',
+          tooltip: context.l10n.syncFailedTooltip,
         );
       case SyncStatus.idle:
         return IconButton(
           onPressed: () => ref.read(syncServiceProvider).syncAllToRemote(),
           icon: Icon(Icons.cloud_done_rounded, color: AppColors.cinemaAccent),
-          tooltip: 'Library synced with cloud',
+          tooltip: context.l10n.syncedTooltip,
         );
     }
   }

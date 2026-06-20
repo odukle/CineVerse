@@ -14,6 +14,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:cineverse/presentation/providers/quotes_provider.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/presentation/features/person/providers/person_details_provider.dart';
 import 'package:cineverse/domain/entities/person_details.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
@@ -206,25 +207,25 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                           children: [
                                             if (details.birthday != null)
                                               _InfoItem(
-                                                label: 'Born',
+                                                label: context.l10n.born,
                                                 value:
                                                     '${details.birthday!}${details.deathday == null ? _calculateAge(details.birthday!, null) : ""}',
                                               ),
                                             if (details.placeOfBirth != null)
                                               _InfoItem(
-                                                label: 'Birthplace',
+                                                label: context.l10n.birthplace,
                                                 value: details.placeOfBirth!,
                                               ),
                                             if (details.deathday != null)
                                               _InfoItem(
-                                                label: 'Died',
+                                                label: context.l10n.died,
                                                 value:
                                                     '${details.deathday!}${_calculateLifespan(details.birthday ?? "", details.deathday!)}',
                                               ),
                                             if (details.knownForDepartment !=
                                                 null)
                                               _InfoItem(
-                                                label: 'Known For',
+                                                label: context.l10n.knownFor,
                                                 value:
                                                     details.knownForDepartment!,
                                               ),
@@ -310,7 +311,7 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                           8,
                                         ),
                                         child: Text(
-                                          'Credits',
+                                          context.l10n.credits,
                                           style: theme.textTheme.titleLarge
                                               ?.copyWith(
                                                 color: Colors.white,
@@ -433,7 +434,7 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                             Row(
                                               children: [
                                                 _FilterChip(
-                                                  label: 'All',
+                                                  label: context.l10n.all,
                                                   isActive:
                                                       _activeFilter == 'all',
                                                   onTap: () => setState(() {
@@ -443,7 +444,7 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                                 ),
                                                 const SizedBox(width: 8),
                                                 _FilterChip(
-                                                  label: 'Movies',
+                                                  label: context.l10n.toggleMovies,
                                                   isActive:
                                                       _activeFilter == 'movie',
                                                   onTap: () => setState(() {
@@ -453,7 +454,7 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                                 ),
                                                 const SizedBox(width: 8),
                                                 _FilterChip(
-                                                  label: 'TV',
+                                                  label: context.l10n.toggleTv,
                                                   isActive:
                                                       _activeFilter == 'tv',
                                                   onTap: () => setState(() {
@@ -564,9 +565,9 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                         size: 48,
                                       ),
                                       const SizedBox(height: 12),
-                                      const Text(
-                                        'No credits found for this filter.',
-                                        style: TextStyle(
+                                      Text(
+                                        context.l10n.noProductionsFound,
+                                        style: const TextStyle(
                                           color: Colors.white54,
                                           fontSize: 14,
                                         ),
@@ -624,6 +625,7 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                                       : null;
                                   final String? subtitleOverride =
                                       _buildCreditSubtitleForSort(
+                                        context,
                                         credit,
                                         _activeSort,
                                         hydratedRevenue: hydratedRevenue,
@@ -653,14 +655,14 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
             );
           },
           loading: () => const _PersonDetailsShimmer(),
-          error: (err, _) => Center(child: Text('Error: $err')),
+          error: (err, _) => Center(child: Text(context.l10n.errorGeneric(err.toString()))),
         ),
       ),
     );
   }
 }
 
-String? _buildCreditSubtitle(PersonCredit credit) {
+String? _buildCreditSubtitle(BuildContext context, PersonCredit credit) {
   final List<String> segments = <String>[];
   final String role = (credit.role ?? '').trim();
   final String department = (credit.department ?? '').trim();
@@ -674,11 +676,11 @@ String? _buildCreditSubtitle(PersonCredit credit) {
   final bool isTv = credit.media.mediaType == GlobalMediaType.tv;
   if (isTv && (credit.episodeCount ?? 0) > 0) {
     final count = credit.episodeCount!;
-    segments.add('$count ${count == 1 ? 'episode' : 'episodes'}');
+    segments.add(context.l10n.episodeCount(count));
   }
 
   if (credit.isCastCredit && credit.billingOrder != null) {
-    segments.add('Billed #${credit.billingOrder! + 1}');
+    segments.add(context.l10n.billingOrder('${credit.billingOrder! + 1}'));
   }
 
   final String subtitle = segments.join(' • ').trim();
@@ -686,6 +688,7 @@ String? _buildCreditSubtitle(PersonCredit credit) {
 }
 
 String? _buildCreditSubtitleForSort(
+  BuildContext context,
   PersonCredit credit,
   String activeSort, {
   int? hydratedRevenue,
@@ -716,7 +719,7 @@ String? _buildCreditSubtitleForSort(
       ).format(revenue);
     case 'popularity':
     default:
-      return _buildCreditSubtitle(credit);
+      return _buildCreditSubtitle(context, credit);
   }
 }
 
@@ -798,32 +801,32 @@ class _PersonSocialLinks extends StatelessWidget {
     final List<_PersonSocialLinkItem> links =
         <_PersonSocialLinkItem>[
               _PersonSocialLinkItem(
-                label: 'Instagram',
+                label: context.l10n.instagram,
                 icon: const FaIcon(FontAwesomeIcons.instagram),
                 url: _personSocialProfileUrl('instagram', details.instagramId),
               ),
               _PersonSocialLinkItem(
-                label: 'X',
+                label: context.l10n.twitterX,
                 icon: const FaIcon(FontAwesomeIcons.xTwitter),
                 url: _personSocialProfileUrl('x', details.twitterId),
               ),
               _PersonSocialLinkItem(
-                label: 'Facebook',
+                label: context.l10n.facebook,
                 icon: const FaIcon(FontAwesomeIcons.facebook),
                 url: _personSocialProfileUrl('facebook', details.facebookId),
               ),
               _PersonSocialLinkItem(
-                label: 'TikTok',
+                label: context.l10n.tikTok,
                 icon: const FaIcon(FontAwesomeIcons.tiktok),
                 url: _personSocialProfileUrl('tiktok', details.tiktokId),
               ),
               _PersonSocialLinkItem(
-                label: 'YouTube',
+                label: context.l10n.youtube,
                 icon: const FaIcon(FontAwesomeIcons.youtube),
                 url: _personSocialProfileUrl('youtube', details.youtubeId),
               ),
               _PersonSocialLinkItem(
-                label: 'Website',
+                label: context.l10n.website,
                 icon: const Icon(Icons.language_rounded),
                 url: details.homepage?.trim(),
               ),
@@ -970,7 +973,7 @@ class _AlsoKnownAsSection extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Also Known As',
+              context.l10n.alsoKnownAs,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 color: Colors.white.withValues(alpha: 0.95),
                 fontWeight: FontWeight.w700,
@@ -1035,11 +1038,11 @@ class _PersonImagesCarousel extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (profiles.isNotEmpty) ...[
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 24, 16, 12),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
                 child: Text(
-                  'Photos',
-                  style: TextStyle(
+                  context.l10n.photos,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -1083,11 +1086,11 @@ class _PersonImagesCarousel extends ConsumerWidget {
               ),
             ],
             if (tagged.isNotEmpty) ...[
-              const Padding(
-                padding: EdgeInsets.fromLTRB(16, 20, 16, 12),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
                 child: Text(
-                  'Tagged Images',
-                  style: TextStyle(
+                  context.l10n.taggedImages,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -1162,7 +1165,7 @@ class _PersonQuotes extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Notable Quotes',
+                    context.l10n.notableQuotes,
                     style: theme.textTheme.titleLarge?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -1170,7 +1173,7 @@ class _PersonQuotes extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'May include occasional mismatches due to lexical quote search.',
+                    context.l10n.mayIncludeMismatches,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(
@@ -1362,15 +1365,15 @@ class _SortSelector extends StatelessWidget {
     String getSortLabel(String value) {
       switch (value) {
         case 'popularity':
-          return 'Popularity';
+          return context.l10n.popularity;
         case 'releaseDate':
-          return 'Release Date';
+          return context.l10n.releaseDate;
         case 'voteAverage':
-          return 'Rating';
+          return context.l10n.rating;
         case 'revenue':
-          return 'Revenue';
+          return context.l10n.revenue;
         default:
-          return 'Popularity';
+          return context.l10n.popularity;
       }
     }
 
@@ -1415,33 +1418,33 @@ class _SortSelector extends StatelessWidget {
           ),
         ),
         itemBuilder: (context) => [
-          const PopupMenuItem(
+          PopupMenuItem(
             value: 'popularity',
             child: Text(
-              'Popularity',
-              style: TextStyle(color: Colors.white, fontSize: 13),
+              context.l10n.popularity,
+              style: const TextStyle(color: Colors.white, fontSize: 13),
             ),
           ),
-          const PopupMenuItem(
+          PopupMenuItem(
             value: 'releaseDate',
             child: Text(
-              'Release Date',
-              style: TextStyle(color: Colors.white, fontSize: 13),
+              context.l10n.releaseDate,
+              style: const TextStyle(color: Colors.white, fontSize: 13),
             ),
           ),
-          const PopupMenuItem(
+          PopupMenuItem(
             value: 'voteAverage',
             child: Text(
-              'Rating',
-              style: TextStyle(color: Colors.white, fontSize: 13),
+              context.l10n.rating,
+              style: const TextStyle(color: Colors.white, fontSize: 13),
             ),
           ),
           if (showRevenue)
-            const PopupMenuItem(
+            PopupMenuItem(
               value: 'revenue',
               child: Text(
-                'Revenue',
-                style: TextStyle(color: Colors.white, fontSize: 13),
+                context.l10n.revenue,
+                style: const TextStyle(color: Colors.white, fontSize: 13),
               ),
             ),
         ],
@@ -1496,7 +1499,7 @@ class _ExpandableBiographyCardState extends State<_ExpandableBiographyCard> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Biography',
+                      context.l10n.biography,
                       style: theme.textTheme.titleMedium?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -1568,11 +1571,11 @@ class _KnownForCarousel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Padding(
-          padding: EdgeInsets.fromLTRB(16, 24, 16, 12),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
           child: Text(
-            'Known For',
-            style: TextStyle(
+            context.l10n.knownFor,
+            style: const TextStyle(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -1743,7 +1746,7 @@ class _PersonStatsDashboard extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Career Statistics',
+                  context.l10n.careerStatistics,
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -1755,20 +1758,22 @@ class _PersonStatsDashboard extends ConsumerWidget {
                     Expanded(
                       child: _StatCard(
                         icon: Icons.movie_outlined,
-                        title: 'Primary Role',
+                        title: context.l10n.primaryRole,
                         value: maxCreditsEntry?.key ?? 'N/A',
-                        subtitle: '${maxCreditsEntry?.value ?? 0} Credits',
+                        subtitle: context.l10n.creditsCount(
+                          '${maxCreditsEntry?.value ?? 0}',
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: _StatCard(
                         icon: Icons.star_border_rounded,
-                        title: 'Average Rating',
+                        title: context.l10n.averageRating,
                         value: data.averageRating > 0
                             ? '${data.averageRating.toStringAsFixed(1)}/10'
                             : 'N/A',
-                        subtitle: 'Across filmography',
+                        subtitle: context.l10n.acrossFilmography,
                       ),
                     ),
                   ],
@@ -1779,10 +1784,12 @@ class _PersonStatsDashboard extends ConsumerWidget {
                     Expanded(
                       child: _StatCard(
                         icon: Icons.category_outlined,
-                        title: 'Top Genre',
+                        title: context.l10n.topGenre,
                         value: data.mostFrequentGenre,
                         subtitle: data.mostFrequentGenrePercent > 0
-                            ? '${data.mostFrequentGenrePercent}% of titles'
+                            ? context.l10n.percentOfTitles(
+                                data.mostFrequentGenrePercent.toString(),
+                              )
                             : 'N/A',
                       ),
                     ),
@@ -1790,7 +1797,7 @@ class _PersonStatsDashboard extends ConsumerWidget {
                     Expanded(
                       child: _StatCard(
                         icon: Icons.trending_up_rounded,
-                        title: 'Peak Box Office',
+                        title: context.l10n.peakBoxOffice,
                         value: revenueStr,
                         subtitle: highestGrossMovieTitle,
                       ),
@@ -1904,7 +1911,7 @@ class _FrequentCollaboratorsSection extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Frequently Collaborates With',
+                context.l10n.frequentlyCollaboratesWith,
                 style: theme.textTheme.titleMedium?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -2043,7 +2050,7 @@ class _CollaboratorTitlesScreen extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               Text(
-                '${sharedTitles.length} shared ${sharedTitles.length == 1 ? "title" : "titles"}',
+                context.l10n.sharedTitleCount(sharedTitles.length.toString()),
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: Colors.white.withValues(alpha: 0.74),
                 ),
@@ -2054,7 +2061,7 @@ class _CollaboratorTitlesScreen extends StatelessWidget {
         body: sharedTitles.isEmpty
             ? Center(
                 child: Text(
-                  'No shared titles available.',
+                  context.l10n.noSharedTitlesAvailable,
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: Colors.white70,
                   ),

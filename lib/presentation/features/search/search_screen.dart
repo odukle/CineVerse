@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/constants/app_constants.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
@@ -136,7 +137,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     ref.read(searchProvider.notifier).submitSearch();
                   },
                   decoration: InputDecoration(
-                    hintText: 'Search movies, TV shows, companies...',
+                    hintText: context.l10n.searchHint,
                     hintStyle: TextStyle(
                       color: Colors.white.withValues(alpha: 0.5),
                     ),
@@ -348,7 +349,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Start typing to search',
+            context.l10n.startTypingToSearch,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.4),
               fontSize: 16,
@@ -376,7 +377,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     if (results.isEmpty && !isLoadingMore) {
       return Center(
         child: Text(
-          'No results found',
+          context.l10n.noResultsFound,
           style: TextStyle(color: Colors.white.withValues(alpha: 0.72)),
         ),
       );
@@ -433,7 +434,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     ref.read(searchProvider.notifier).loadMore();
                   },
                   child: Text(
-                    'Load More',
+                    context.l10n.loadMore,
                     style: TextStyle(color: AppColors.cinemaAccent),
                   ),
                 ),
@@ -446,7 +447,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               padding: const EdgeInsets.only(bottom: 32),
               child: Center(
                 child: Text(
-                  'No more results found.',
+                  context.l10n.noMoreResultsFound,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.4),
                     fontSize: 14,
@@ -474,10 +475,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
 
     if (results.isEmpty && !isLoadingMore) {
-      return const Center(
+      return Center(
         child: Text(
-          'No collections found',
-          style: TextStyle(color: Colors.white70),
+          context.l10n.noCollectionsFound,
+          style: const TextStyle(color: Colors.white70),
         ),
       );
     }
@@ -506,7 +507,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     ref.read(searchProvider.notifier).loadMore();
                   },
                   child: Text(
-                    'Load More',
+                    context.l10n.loadMore,
                     style: TextStyle(color: AppColors.cinemaAccent),
                   ),
                 ),
@@ -595,7 +596,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                           const SizedBox(height: 6),
                           Expanded(
                             child: Text(
-                              collection.overview ?? 'No overview available.',
+                              collection.overview ?? context.l10n.noOverviewAvailable,
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.6),
                                 fontSize: 13,
@@ -638,10 +639,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
 
     if (results.isEmpty && !isLoadingMore) {
-      return const Center(
+      return Center(
         child: Text(
-          'No keywords found',
-          style: TextStyle(color: Colors.white70),
+          context.l10n.noKeywordsFound,
+          style: const TextStyle(color: Colors.white70),
         ),
       );
     }
@@ -670,7 +671,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     ref.read(searchProvider.notifier).loadMore();
                   },
                   child: Text(
-                    'Load More',
+                    context.l10n.loadMore,
                     style: TextStyle(color: AppColors.cinemaAccent),
                   ),
                 ),
@@ -746,10 +747,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     }
 
     if (results.isEmpty && !isLoadingMore) {
-      return const Center(
+      return Center(
         child: Text(
-          'No companies found',
-          style: TextStyle(color: Colors.white70),
+          context.l10n.noCompaniesFound,
+          style: const TextStyle(color: Colors.white70),
         ),
       );
     }
@@ -778,7 +779,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                     ref.read(searchProvider.notifier).loadMore();
                   },
                   child: Text(
-                    'Load More',
+                    context.l10n.loadMore,
                     style: TextStyle(color: AppColors.cinemaAccent),
                   ),
                 ),
@@ -882,7 +883,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Start typing to search',
+                  context.l10n.startTypingToSearch,
                   style: TextStyle(
                     color: Colors.white.withValues(alpha: 0.4),
                     fontSize: 16,
@@ -901,9 +902,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text(
-                    'Recent Searches',
-                    style: TextStyle(
+                  Text(
+                    context.l10n.recentQueries,
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -912,10 +913,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
                   TextButton(
                     onPressed: () {
                       ref.read(searchHistoryProvider.notifier).clearAll();
-                      ToastUtils.showToast(context, 'Search history cleared');
+                      ToastUtils.showToast(context, context.l10n.searchHistoryCleared);
                     },
                     child: Text(
-                      'Clear All',
+                      context.l10n.clearAll,
                       style: TextStyle(color: AppColors.cinemaAccent),
                     ),
                   ),

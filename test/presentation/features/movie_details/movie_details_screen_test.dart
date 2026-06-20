@@ -7,11 +7,20 @@ import 'package:cineverse/presentation/features/movies/providers/movies_provider
 import 'package:cineverse/presentation/features/movie_details/providers/movie_awards_provider.dart';
 import 'package:cineverse/presentation/features/movie_details/widgets/movie_awards_helper.dart';
 import 'package:cineverse/presentation/features/movie_details/movie_awards_screen.dart';
+import 'package:cineverse/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  const localizationsDelegates = [
+    AppLocalizations.delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+  ];
+
   testWidgets('movie details renders watch providers between overview and cast', (
     WidgetTester tester,
   ) async {
@@ -63,7 +72,11 @@ void main() {
             (ref) async => MediaImages.empty,
           ),
         ],
-        child: const MaterialApp(home: MovieDetailsScreen(movieId: 231)),
+        child: const MaterialApp(
+          localizationsDelegates: localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: MovieDetailsScreen(movieId: 231),
+        ),
       ),
     );
 
@@ -76,7 +89,7 @@ void main() {
     );
     final Finder overviewFinder = find.text('Overview', skipOffstage: false);
     final Finder watchFinder = find.text('Where to Watch', skipOffstage: false);
-    final Finder castFinder = find.text('Top Billed Cast', skipOffstage: false);
+    final Finder castFinder = find.text('Cast', skipOffstage: false);
 
     expect(find.textContaining('Titanic (1997)'), findsOneWidget);
     expect(overviewFinder, findsOneWidget);
@@ -137,7 +150,11 @@ void main() {
             (ref) async => MediaImages.empty,
           ),
         ],
-        child: const MaterialApp(home: MovieDetailsScreen(movieId: 77)),
+        child: const MaterialApp(
+          localizationsDelegates: localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: MovieDetailsScreen(movieId: 77),
+        ),
       ),
     );
 
@@ -177,7 +194,11 @@ void main() {
             (ref) async => MediaImages.empty,
           ),
         ],
-        child: const MaterialApp(home: MovieDetailsScreen(movieId: 231)),
+        child: const MaterialApp(
+          localizationsDelegates: localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: MovieDetailsScreen(movieId: 231),
+        ),
       ),
     );
 
@@ -227,7 +248,11 @@ void main() {
             ),
           ),
         ],
-        child: const MaterialApp(home: MovieDetailsScreen(movieId: 231)),
+        child: const MaterialApp(
+          localizationsDelegates: localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          home: MovieDetailsScreen(movieId: 231),
+        ),
       ),
     );
 
@@ -263,6 +288,8 @@ void main() {
 
     await tester.pumpWidget(
       const MaterialApp(
+        localizationsDelegates: localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: MovieAwardsScreen(
           awards: awards,
           movieTitle: 'Titanic',

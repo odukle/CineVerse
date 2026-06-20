@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/movie_note.dart';
@@ -32,9 +33,9 @@ class NoteDetailsScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.cinemaBackground,
         elevation: 0,
-        title: const Text(
-          'Notes',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: Text(
+          context.l10n.notes,
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
@@ -50,10 +51,10 @@ class NoteDetailsScreen extends ConsumerWidget {
           );
 
           if (note == null) {
-            return const Center(
+            return Center(
               child: Text(
-                'Note not found.',
-                style: TextStyle(color: Colors.white54),
+                context.l10n.noteNotFound,
+                style: const TextStyle(color: Colors.white54),
               ),
             );
           }
@@ -189,7 +190,7 @@ class NoteDetailsScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 32),
                 Text(
-                  'Your Notes (${relatedNotes.length})',
+                  context.l10n.yourNotesCount(relatedNotes.length),
                   style: const TextStyle(
                     color: Colors.white38,
                     fontSize: 12,
@@ -255,7 +256,7 @@ class NoteDetailsScreen extends ConsumerWidget {
                                     item,
                                     popAfterDelete: relatedNotes.length == 1,
                                   ),
-                                  tooltip: 'Delete Note',
+                                  tooltip: context.l10n.deleteNote,
                                 ),
                               ],
                             ),
@@ -284,7 +285,7 @@ class NoteDetailsScreen extends ConsumerWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Error: $err',
+                context.l10n.errorGeneric(err.toString()),
                 style: const TextStyle(color: Colors.redAccent),
               ),
               const SizedBox(height: 16),
@@ -294,7 +295,7 @@ class NoteDetailsScreen extends ConsumerWidget {
                   backgroundColor: AppColors.cinemaAccent,
                   foregroundColor: Colors.black,
                 ),
-                child: const Text('Retry'),
+                child: Text(context.l10n.retry),
               ),
             ],
           ),
@@ -326,10 +327,10 @@ class NoteDetailsScreen extends ConsumerWidget {
     if (!context.mounted) return;
     ToastUtils.showToast(
       context,
-      'Note deleted',
+      context.l10n.noteDeleted,
       duration: const Duration(seconds: 5),
       action: SnackBarAction(
-        label: 'UNDO',
+        label: context.l10n.undo,
         textColor: AppColors.cinemaAccent,
         onPressed: () async {
           await actions.addNote(
@@ -379,7 +380,7 @@ class _UndoSnackBarContentState extends State<_UndoSnackBarContent> {
       children: [
         Expanded(
           child: Text(
-            'Note deleted ($_remaining s)',
+            context.l10n.noteDeletedWithCount(_remaining),
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.bold,
@@ -393,7 +394,7 @@ class _UndoSnackBarContentState extends State<_UndoSnackBarContent> {
             ScaffoldMessenger.of(context).hideCurrentSnackBar();
           },
           child: Text(
-            'UNDO',
+            context.l10n.undo,
             style: TextStyle(
               color: AppColors.cinemaAccent,
               fontWeight: FontWeight.bold,

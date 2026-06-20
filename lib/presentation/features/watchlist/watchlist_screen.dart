@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cineverse/app/router/app_router.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
+import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/core/utils/toast_utils.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
@@ -25,16 +26,23 @@ import 'package:share_plus/share_plus.dart';
 import 'package:cineverse/presentation/features/watchlist/providers/shared_named_list_provider.dart';
 
 enum LibrarySection {
-  watchlist('watchlist', 'Watchlist'),
-  favourites('favourites', 'Favourites'),
-  lists('lists', 'Lists'),
-  notes('notes', 'Notes'),
-  watched('watched', 'Watched');
+  watchlist('watchlist'),
+  favourites('favourites'),
+  lists('lists'),
+  notes('notes'),
+  watched('watched');
 
-  const LibrarySection(this.slug, this.label);
+  const LibrarySection(this.slug);
 
   final String slug;
-  final String label;
+
+  String label(BuildContext context) => switch (this) {
+    LibrarySection.watchlist => context.l10n.watchlist,
+    LibrarySection.favourites => context.l10n.favourites,
+    LibrarySection.lists => context.l10n.lists,
+    LibrarySection.notes => context.l10n.notes,
+    LibrarySection.watched => context.l10n.watched,
+  };
 
   static LibrarySection fromSlug(String slug) {
     return LibrarySection.values.firstWhere(
@@ -45,13 +53,15 @@ enum LibrarySection {
 }
 
 enum LibraryMediaFilter {
-  all('All'),
-  movies('Movies'),
-  tv('TV');
+  all,
+  movies,
+  tv;
 
-  const LibraryMediaFilter(this.label);
-
-  final String label;
+  String label(BuildContext context) => switch (this) {
+    LibraryMediaFilter.all => context.l10n.all,
+    LibraryMediaFilter.movies => context.l10n.navMovies,
+    LibraryMediaFilter.tv => context.l10n.tv,
+  };
 }
 
 class WatchlistScreen extends ConsumerStatefulWidget {
@@ -102,14 +112,14 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
         icon: Icons.bookmark_rounded,
         accent: const Color(0xFF63D3FF),
         countLabel: _countLabel(watchlistCount, 'title'),
-        subtitle: 'Everything you plan to watch next.',
+        subtitle: context.l10n.everythingYouPlanToWatch,
       ),
       _LibraryHubCardData(
         section: LibrarySection.favourites,
         icon: Icons.favorite_rounded,
         accent: const Color(0xFFFF6B7A),
         countLabel: _countLabel(favouritesCount, 'favourite'),
-        subtitle: 'The titles you never want to lose.',
+        subtitle: context.l10n.titlesYouNeverWantToLose,
       ),
       _LibraryHubCardData(
         section: LibrarySection.lists,
@@ -117,7 +127,7 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
         accent: const Color(0xFFFFB84D),
         countLabel: namedLists == null
             ? '...'
-            : '${namedLists.length} ${namedLists.length == 1 ? "list" : "lists"}',
+            : '${namedLists.length} ${namedLists.length == 1 ? context.l10n.list : context.l10n.lists}',
         subtitle: namedLists == null
             ? 'Curated collections you can organize and share.'
             : '${namedLists.fold<int>(0, (sum, list) => sum + list.items.length)} saved titles across your lists.',
@@ -127,14 +137,14 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
         icon: Icons.sticky_note_2_rounded,
         accent: const Color(0xFF8FBC8F),
         countLabel: _countLabel(notesCount, 'note'),
-        subtitle: 'Your thoughts, reactions, and reminders.',
+        subtitle: context.l10n.yourThoughtsReactions,
       ),
       _LibraryHubCardData(
         section: LibrarySection.watched,
         icon: Icons.check_circle_rounded,
         accent: const Color(0xFF9C88FF),
         countLabel: _countLabel(watchedCount, 'watched'),
-        subtitle: 'Finished titles plus your history and stats.',
+        subtitle: context.l10n.finishedTitlesAndHistory,
       ),
     ];
 
@@ -174,7 +184,7 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Library',
+                      context.l10n.navLibrary,
                       style: Theme.of(context).textTheme.headlineSmall
                           ?.copyWith(
                             color: Colors.white,
@@ -183,7 +193,7 @@ class _WatchlistScreenState extends ConsumerState<WatchlistScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Keep everything organized by collection, favourites, notes, and watch history.',
+                      context.l10n.librarySubtitle,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.68),
                         fontSize: 13,
@@ -238,7 +248,7 @@ class _LibrarySectionScreenState extends ConsumerState<LibrarySectionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.section.label),
+        title: Text(widget.section.label(context)),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_rounded),
           onPressed: () => context.pop(),
@@ -294,7 +304,7 @@ class _LibraryMediaFilterBar extends StatelessWidget {
           final filter = LibraryMediaFilter.values[index];
           final isSelected = filter == selected;
           return ChoiceChip(
-            label: Text(filter.label),
+            label: Text(filter.label(context)),
             selected: isSelected,
             onSelected: (_) => onSelected(filter),
             selectedColor: AppColors.cinemaAccent.withValues(alpha: 0.2),
@@ -411,7 +421,7 @@ class _LibraryHubCard extends StatelessWidget {
                 ),
                 const Spacer(),
                 Text(
-                  card.section.label,
+                  card.section.label(context),
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
@@ -473,13 +483,18 @@ class _WatchlistTab extends ConsumerWidget {
                 ),
               )
               .toList(),
-          emptyLabel: 'No ${filter.label.toLowerCase()} in your watchlist',
+          emptyLabel: context.l10n.noFilterInWatchlist(
+            filter.label(context).toLowerCase(),
+          ),
           emptyIcon: Icons.bookmark_border_rounded,
         );
       },
       loading: () => const _LoadingGrid(),
       error: (e, _) => Center(
-        child: Text('Error: $e', style: const TextStyle(color: Colors.white)),
+        child: Text(
+          context.l10n.errorGeneric(e.toString()),
+          style: const TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
@@ -511,13 +526,18 @@ class _FavouritesTab extends ConsumerWidget {
                 ),
               )
               .toList(),
-          emptyLabel: 'No ${filter.label.toLowerCase()} in favourites',
+          emptyLabel: context.l10n.noFilterInFavourites(
+            filter.label(context).toLowerCase(),
+          ),
           emptyIcon: Icons.favorite_border_rounded,
         );
       },
       loading: () => const _LoadingGrid(),
       error: (e, _) => Center(
-        child: Text('Error: $e', style: const TextStyle(color: Colors.white)),
+        child: Text(
+          context.l10n.errorGeneric(e.toString()),
+          style: const TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
@@ -550,7 +570,10 @@ class _WatchedTab extends ConsumerWidget {
       ),
       loading: () => const _LoadingGrid(),
       error: (e, _) => Center(
-        child: Text('Error: $e', style: const TextStyle(color: Colors.white)),
+        child: Text(
+          context.l10n.errorGeneric(e.toString()),
+          style: const TextStyle(color: Colors.white),
+        ),
       ),
     );
   }
@@ -592,7 +615,9 @@ class _WatchedScrollableContent extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'No ${filter.label.toLowerCase()} in watched',
+                    context.l10n.noFilterInWatched(
+                      filter.label(context).toLowerCase(),
+                    ),
                     style: TextStyle(
                       color: Colors.white54,
                       fontSize: 16,
@@ -611,7 +636,7 @@ class _WatchedScrollableContent extends StatelessWidget {
                 final media = items[index];
                 return MediaPosterGridCard(
                   movie: media,
-                  sectionTitle: 'library',
+                  sectionTitle: context.l10n.navLibrary,
                   width: cardWidth,
                   isTvTitle: media.mediaType == GlobalMediaType.tv,
                   enableWatchlistUndoOnRemove: true,
@@ -684,9 +709,9 @@ class _WatchHistoryAnalyticsCard extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Watch History Analytics',
-                        style: TextStyle(
+                      Text(
+                        context.l10n.watchAnalytics,
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
@@ -694,7 +719,7 @@ class _WatchHistoryAnalyticsCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        'View personalized insights, charts, and trends.',
+                        context.l10n.viewPersonalizedInsights,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.6),
                           fontSize: 11,
@@ -727,10 +752,10 @@ class _ListsTab extends ConsumerWidget {
     return listsAsync.when(
       data: (lists) {
         if (lists.isEmpty) {
-          return const Center(
+          return Center(
             child: Text(
-              'No lists created yet.',
-              style: TextStyle(color: Colors.white54),
+              context.l10n.noListsCreatedYet,
+              style: const TextStyle(color: Colors.white54),
             ),
           );
         }
@@ -748,7 +773,7 @@ class _ListsTab extends ConsumerWidget {
 
         if (filteredLists.isEmpty) {
           return _buildEmptyState(
-            'No lists with ${filter.label.toLowerCase()}',
+            context.l10n.noListsWithFilter(filter.label(context).toLowerCase()),
             Icons.list_rounded,
           );
         }
@@ -791,7 +816,8 @@ class _ListsTab extends ConsumerWidget {
       loading: () => Center(
         child: CircularProgressIndicator(color: AppColors.cinemaAccent),
       ),
-      error: (e, _) => Center(child: Text('Error: $e')),
+      error: (e, _) =>
+          Center(child: Text(context.l10n.errorGeneric(e.toString()))),
     );
   }
 
@@ -836,7 +862,7 @@ class _ListsTab extends ConsumerWidget {
                 size: 18,
               ),
               label: Text(
-                'Share',
+                context.l10n.share,
                 style: TextStyle(
                   color: canShare ? Colors.white : Colors.white38,
                   fontSize: 13,
@@ -866,7 +892,7 @@ class _ListsTab extends ConsumerWidget {
                 size: 18,
               ),
               label: Text(
-                'Rename',
+                context.l10n.renameList,
                 style: TextStyle(color: AppColors.cinemaAccent, fontSize: 13),
               ),
               style: TextButton.styleFrom(
@@ -890,9 +916,9 @@ class _ListsTab extends ConsumerWidget {
                 color: Colors.redAccent,
                 size: 18,
               ),
-              label: const Text(
-                'Delete',
-                style: TextStyle(color: Colors.redAccent, fontSize: 13),
+              label: Text(
+                context.l10n.delete,
+                style: const TextStyle(color: Colors.redAccent, fontSize: 13),
               ),
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
@@ -950,7 +976,7 @@ class _ListsTab extends ConsumerWidget {
           ),
         ),
         title: Text(
-          'Rename List',
+          context.l10n.renameList,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -961,7 +987,7 @@ class _ListsTab extends ConsumerWidget {
           style: const TextStyle(color: Colors.white, fontSize: 14),
           autofocus: true,
           decoration: InputDecoration(
-            hintText: 'Enter new name...',
+            hintText: context.l10n.enterNewName,
             hintStyle: const TextStyle(color: Colors.white38),
             filled: true,
             fillColor: Colors.white.withValues(alpha: 0.03),
@@ -983,9 +1009,9 @@ class _ListsTab extends ConsumerWidget {
           TextButton(
             onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(foregroundColor: Colors.white60),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            child: Text(
+              context.l10n.cancel,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           ElevatedButton(
@@ -997,7 +1023,10 @@ class _ListsTab extends ConsumerWidget {
                     .renameList(list.id, newName);
                 if (context.mounted) {
                   Navigator.pop(context);
-                  ToastUtils.showToast(context, 'List renamed to "$newName"');
+                  ToastUtils.showToast(
+                    context,
+                    context.l10n.listRenamed(newName),
+                  );
                 }
               } else {
                 Navigator.pop(context);
@@ -1012,9 +1041,9 @@ class _ListsTab extends ConsumerWidget {
               ),
               elevation: 0,
             ),
-            child: const Text(
-              'Rename',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            child: Text(
+              context.l10n.renameList,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -1035,23 +1064,23 @@ class _ListsTab extends ConsumerWidget {
           ),
         ),
         title: Text(
-          'Delete List?',
+          context.l10n.deleteListTitle,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
         content: Text(
-          'Are you sure you want to delete "${list.name}"?',
+          context.l10n.deleteListConfirmation(list.name),
           style: const TextStyle(color: Colors.white70, fontSize: 14),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
             style: TextButton.styleFrom(foregroundColor: Colors.white60),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(fontWeight: FontWeight.w600),
+            child: Text(
+              context.l10n.cancel,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
           TextButton(
@@ -1059,13 +1088,16 @@ class _ListsTab extends ConsumerWidget {
               await ref.read(namedListsProvider.notifier).deleteList(list.id);
               if (context.mounted) {
                 Navigator.pop(context);
-                ToastUtils.showToast(context, 'List "${list.name}" deleted');
+                ToastUtils.showToast(
+                  context,
+                  context.l10n.listDeleted(list.name),
+                );
               }
             },
             style: TextButton.styleFrom(foregroundColor: Colors.redAccent),
-            child: const Text(
-              'Delete',
-              style: TextStyle(fontWeight: FontWeight.bold),
+            child: Text(
+              context.l10n.delete,
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],
@@ -1102,7 +1134,7 @@ class NamedListDetailsScreen extends ConsumerWidget {
 
           if (selectedList == null) {
             return _buildEmptyState(
-              'This list no longer exists',
+              context.l10n.thisListNoLongerExists,
               Icons.list_alt,
             );
           }
@@ -1151,7 +1183,9 @@ class NamedListDetailsScreen extends ConsumerWidget {
               Expanded(
                 child: mediaTitles.isEmpty
                     ? _buildEmptyState(
-                        'No ${filter.label.toLowerCase()} in this list',
+                        context.l10n.noFilterInThisList(
+                          filter.label(context).toLowerCase(),
+                        ),
                         Icons.list_rounded,
                       )
                     : _NamedListMediaGrid(items: mediaTitles),
@@ -1163,7 +1197,8 @@ class NamedListDetailsScreen extends ConsumerWidget {
           );
         },
         loading: () => const _LoadingGrid(),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) =>
+            Center(child: Text(context.l10n.errorGeneric(e.toString()))),
       ),
     );
   }
@@ -1276,7 +1311,7 @@ class _NamedListCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  previewItem?.title ?? 'Open list',
+                  previewItem?.title ?? context.l10n.openList,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
@@ -1320,7 +1355,7 @@ class _NamedListMediaGrid extends StatelessWidget {
         final media = items[index];
         return MediaPosterGridCard(
           movie: media,
-          sectionTitle: 'library',
+          sectionTitle: context.l10n.navLibrary,
           width: cardWidth,
           isTvTitle: media.mediaType == GlobalMediaType.tv,
           enableWatchlistUndoOnRemove: true,
@@ -1346,10 +1381,10 @@ class _NotesTab extends ConsumerWidget {
             .where((note) => _matchesLibraryMediaFilter(note.mediaType, filter))
             .toList(growable: false);
         if (filteredNotes.isEmpty) {
-          return const Center(
+          return Center(
             child: Text(
-              'No notes found.',
-              style: TextStyle(color: Colors.white54),
+              context.l10n.noNotesFound,
+              style: const TextStyle(color: Colors.white54),
             ),
           );
         }
@@ -1381,7 +1416,7 @@ class _NotesTab extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Error: $err',
+              context.l10n.errorGeneric(err.toString()),
               style: const TextStyle(color: Colors.redAccent),
             ),
             const SizedBox(height: 16),
@@ -1391,7 +1426,7 @@ class _NotesTab extends ConsumerWidget {
                 backgroundColor: AppColors.cinemaAccent,
                 foregroundColor: Colors.black,
               ),
-              child: const Text('Retry'),
+              child: Text(context.l10n.retry),
             ),
           ],
         ),
@@ -1608,7 +1643,7 @@ class _MediaGrid extends StatelessWidget {
         final media = items[index];
         return MediaPosterGridCard(
           movie: media,
-          sectionTitle: 'library',
+          sectionTitle: context.l10n.navLibrary,
           width: cardWidth,
           isTvTitle: media.mediaType == GlobalMediaType.tv,
           enableWatchlistUndoOnRemove: true,

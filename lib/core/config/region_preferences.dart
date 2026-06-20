@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui' show PlatformDispatcher;
 
 import 'package:cineverse/core/constants/app_constants.dart';
+import 'package:cineverse/l10n/app_localizations.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -54,6 +55,32 @@ RegionOption? regionOptionForCode(String code) {
 
 String regionLabelForCode(String code) {
   return regionOptionForCode(code)?.label ?? code;
+}
+
+String localizedRegionLabel(AppLocalizations l10n, String code) {
+  return switch (code) {
+    'US' => l10n.regionUnitedStates,
+    'IN' => l10n.regionIndia,
+    'GB' => l10n.regionUnitedKingdom,
+    'CA' => l10n.regionCanada,
+    'AU' => l10n.regionAustralia,
+    'NZ' => l10n.regionNewZealand,
+    'DE' => l10n.regionGermany,
+    'FR' => l10n.regionFrance,
+    'ES' => l10n.regionSpain,
+    'IT' => l10n.regionItaly,
+    'JP' => l10n.regionJapan,
+    'KR' => l10n.regionSouthKorea,
+    'BR' => l10n.regionBrazil,
+    'MX' => l10n.regionMexico,
+    'SG' => l10n.regionSingapore,
+    'PH' => l10n.regionPhilippines,
+    'ID' => l10n.regionIndonesia,
+    'AE' => l10n.regionUnitedArabEmirates,
+    'SA' => l10n.regionSaudiArabia,
+    'TR' => l10n.regionTurkey,
+    _ => regionLabelForCode(code),
+  };
 }
 
 class SelectedRegionController extends AsyncNotifier<String?> {
