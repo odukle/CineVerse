@@ -72,6 +72,7 @@ class _MovieDetailsShareBottomSheetState
         isTv: widget.isTv,
         posterProvider: posterProvider,
         backdropProvider: backdropProvider,
+        footerLabel: l10n.discoverOnLumi,
       ),
       context: context,
       delay: const Duration(milliseconds: 150),
@@ -261,12 +262,14 @@ class _ShareableCard extends StatelessWidget {
   const _ShareableCard({
     required this.details,
     required this.isTv,
+    required this.footerLabel,
     this.posterProvider,
     this.backdropProvider,
   });
 
   final MovieDetails details;
   final bool isTv;
+  final String footerLabel;
   final ImageProvider<Object>? posterProvider;
   final ImageProvider<Object>? backdropProvider;
 
@@ -416,7 +419,7 @@ class _ShareableCard extends StatelessWidget {
                 const Spacer(),
 
                 Text(
-                  context.l10n.discoverOnLumi,
+                  footerLabel,
                   style: const TextStyle(
                     color: Colors.white24,
                     fontSize: 10,
