@@ -57,43 +57,62 @@ class _MovieDetailsShareBottomSheetState
 
   Future<void> _shareVisualCard() async {
     final l10n = context.l10n;
+    final ImageProvider<Object>? posterProvider = await _resolveImageProvider(
+      widget.details.posterPath,
+    );
+    final ImageProvider<Object>? backdropProvider = await _resolveImageProvider(
+      widget.details.backdropPath,
+    );
+    if (!mounted) {
+      return;
+    }
     final imageBytes = await _screenshotController.captureFromWidget(
-      _ShareableCard(details: widget.details, isTv: widget.isTv),
+      _ShareableCard(
+        details: widget.details,
+        isTv: widget.isTv,
+        posterProvider: posterProvider,
+        backdropProvider: backdropProvider,
+      ),
       context: context,
-      delay: const Duration(milliseconds: 500),
+      delay: const Duration(milliseconds: 150),
     );
 
     final tempDir = await getTemporaryDirectory();
     final file = await File('${tempDir.path}/cineverse_share.png').create();
     await file.writeAsBytes(imageBytes);
 
-    await Share.shareXFiles(
-      [XFile(file.path)],
-      text: l10n.recommendedOnLumi(widget.details.title),
-    );
+    await Share.shareXFiles([
+      XFile(file.path),
+    ], text: l10n.recommendedOnLumi(widget.details.title));
+  }
+
+  Future<ImageProvider<Object>?> _resolveImageProvider(String? imageUrl) async {
+    if (imageUrl == null || imageUrl.isEmpty) {
+      return null;
+    }
+    final provider = CachedNetworkImageProvider(imageUrl);
+    await precacheImage(provider, context);
+    return provider;
   }
 
   Future<void> _shareDeepLink() async {
     final l10n = context.l10n;
     final AppConfig appConfig = AppConfig.fromEnvironment();
-    final Uri linkUri = Uri.parse(
-      '${appConfig.effectiveMovieApiBaseUrl}/movies/${widget.details.id}',
-    ).replace(
-      queryParameters: <String, String>{
-        if (widget.isTv) 'isTv': 'true',
-        'title': widget.details.title,
-      },
-    );
+    final Uri linkUri =
+        Uri.parse(
+          '${appConfig.effectiveMovieApiBaseUrl}/movies/${widget.details.id}',
+        ).replace(
+          queryParameters: <String, String>{
+            if (widget.isTv) 'isTv': 'true',
+            'title': widget.details.title,
+          },
+        );
     final storeLink = Platform.isAndroid
         ? 'https://play.google.com/store/apps/details?id=com.odukle.cineverse'
         : 'https://apps.apple.com/app/id6775792556';
 
     await Share.share(
-      l10n.checkOutOnLumi(
-        widget.details.title,
-        linkUri.toString(),
-        storeLink,
-      ),
+      l10n.checkOutOnLumi(widget.details.title, linkUri.toString(), storeLink),
     );
   }
 
@@ -239,10 +258,17 @@ class _ShareOptionItem extends StatelessWidget {
 }
 
 class _ShareableCard extends StatelessWidget {
-  const _ShareableCard({required this.details, required this.isTv});
+  const _ShareableCard({
+    required this.details,
+    required this.isTv,
+    this.posterProvider,
+    this.backdropProvider,
+  });
 
   final MovieDetails details;
   final bool isTv;
+  final ImageProvider<Object>? posterProvider;
+  final ImageProvider<Object>? backdropProvider;
 
   @override
   Widget build(BuildContext context) {
@@ -256,14 +282,11 @@ class _ShareableCard extends StatelessWidget {
       child: Stack(
         children: [
           // Background Backdrop (Blurred)
-          if (details.backdropPath != null)
+          if (backdropProvider != null)
             Positioned.fill(
               child: Opacity(
                 opacity: 0.3,
-                child: CachedNetworkImage(
-                  imageUrl: details.backdropPath!,
-                  fit: BoxFit.cover,
-                ),
+                child: Image(image: backdropProvider!, fit: BoxFit.cover),
               ),
             ),
 
@@ -320,9 +343,9 @@ class _ShareableCard extends StatelessWidget {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: details.posterPath != null
-                        ? CachedNetworkImage(
-                            imageUrl: details.posterPath!,
+                    child: posterProvider != null
+                        ? Image(
+                            image: posterProvider!,
                             width: 160,
                             height: 240,
                             fit: BoxFit.cover,
