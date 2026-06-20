@@ -32,7 +32,7 @@ class WatchedRepositoryImpl implements WatchedRepository {
   Future<void> addToWatched(WatchedItem item) async {
     await _database.into(_database.watchedItemsTable).insert(
       WatchedItemsTableCompanion.insert(
-        id: Value(item.id),
+        id: item.id,
         title: item.title,
         posterPath: Value(item.posterPath),
         mediaType: item.mediaType,

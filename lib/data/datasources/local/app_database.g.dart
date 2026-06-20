@@ -16,7 +16,7 @@ class $WatchlistItemsTableTable extends WatchlistItemsTable
     aliasedName,
     false,
     type: DriftSqlType.int,
-    requiredDuringInsert: false,
+    requiredDuringInsert: true,
   );
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
@@ -106,6 +106,8 @@ class $WatchlistItemsTableTable extends WatchlistItemsTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
     }
     if (data.containsKey('title')) {
       context.handle(
@@ -151,7 +153,7 @@ class $WatchlistItemsTableTable extends WatchlistItemsTable
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {id, mediaType};
   @override
   WatchlistItemsTableData map(
     Map<String, dynamic> data, {
@@ -374,6 +376,7 @@ class WatchlistItemsTableCompanion
   final Value<GlobalMediaType> mediaType;
   final Value<DateTime> addedDate;
   final Value<double?> voteAverage;
+  final Value<int> rowid;
   const WatchlistItemsTableCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
@@ -382,16 +385,19 @@ class WatchlistItemsTableCompanion
     this.mediaType = const Value.absent(),
     this.addedDate = const Value.absent(),
     this.voteAverage = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   WatchlistItemsTableCompanion.insert({
-    this.id = const Value.absent(),
+    required int id,
     required String title,
     this.posterPath = const Value.absent(),
     this.releaseDate = const Value.absent(),
     required GlobalMediaType mediaType,
     required DateTime addedDate,
     this.voteAverage = const Value.absent(),
-  }) : title = Value(title),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       title = Value(title),
        mediaType = Value(mediaType),
        addedDate = Value(addedDate);
   static Insertable<WatchlistItemsTableData> custom({
@@ -402,6 +408,7 @@ class WatchlistItemsTableCompanion
     Expression<int>? mediaType,
     Expression<DateTime>? addedDate,
     Expression<double>? voteAverage,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -411,6 +418,7 @@ class WatchlistItemsTableCompanion
       if (mediaType != null) 'media_type': mediaType,
       if (addedDate != null) 'added_date': addedDate,
       if (voteAverage != null) 'vote_average': voteAverage,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -422,6 +430,7 @@ class WatchlistItemsTableCompanion
     Value<GlobalMediaType>? mediaType,
     Value<DateTime>? addedDate,
     Value<double?>? voteAverage,
+    Value<int>? rowid,
   }) {
     return WatchlistItemsTableCompanion(
       id: id ?? this.id,
@@ -431,6 +440,7 @@ class WatchlistItemsTableCompanion
       mediaType: mediaType ?? this.mediaType,
       addedDate: addedDate ?? this.addedDate,
       voteAverage: voteAverage ?? this.voteAverage,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -460,6 +470,9 @@ class WatchlistItemsTableCompanion
     if (voteAverage.present) {
       map['vote_average'] = Variable<double>(voteAverage.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -472,7 +485,297 @@ class WatchlistItemsTableCompanion
           ..write('releaseDate: $releaseDate, ')
           ..write('mediaType: $mediaType, ')
           ..write('addedDate: $addedDate, ')
-          ..write('voteAverage: $voteAverage')
+          ..write('voteAverage: $voteAverage, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $WatchlistRemovalTombstonesTableTable
+    extends WatchlistRemovalTombstonesTable
+    with
+        TableInfo<
+          $WatchlistRemovalTombstonesTableTable,
+          WatchlistRemovalTombstonesTableData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $WatchlistRemovalTombstonesTableTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<GlobalMediaType, int> mediaType =
+      GeneratedColumn<int>(
+        'media_type',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: true,
+      ).withConverter<GlobalMediaType>(
+        $WatchlistRemovalTombstonesTableTable.$convertermediaType,
+      );
+  static const VerificationMeta _removedAtMeta = const VerificationMeta(
+    'removedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> removedAt = GeneratedColumn<DateTime>(
+    'removed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [id, mediaType, removedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'watchlist_removal_tombstones_table';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<WatchlistRemovalTombstonesTableData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('removed_at')) {
+      context.handle(
+        _removedAtMeta,
+        removedAt.isAcceptableOrUnknown(data['removed_at']!, _removedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_removedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id, mediaType};
+  @override
+  WatchlistRemovalTombstonesTableData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WatchlistRemovalTombstonesTableData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      mediaType: $WatchlistRemovalTombstonesTableTable.$convertermediaType
+          .fromSql(
+            attachedDatabase.typeMapping.read(
+              DriftSqlType.int,
+              data['${effectivePrefix}media_type'],
+            )!,
+          ),
+      removedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}removed_at'],
+      )!,
+    );
+  }
+
+  @override
+  $WatchlistRemovalTombstonesTableTable createAlias(String alias) {
+    return $WatchlistRemovalTombstonesTableTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<GlobalMediaType, int, int> $convertermediaType =
+      const EnumIndexConverter<GlobalMediaType>(GlobalMediaType.values);
+}
+
+class WatchlistRemovalTombstonesTableData extends DataClass
+    implements Insertable<WatchlistRemovalTombstonesTableData> {
+  final int id;
+  final GlobalMediaType mediaType;
+  final DateTime removedAt;
+  const WatchlistRemovalTombstonesTableData({
+    required this.id,
+    required this.mediaType,
+    required this.removedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    {
+      map['media_type'] = Variable<int>(
+        $WatchlistRemovalTombstonesTableTable.$convertermediaType.toSql(
+          mediaType,
+        ),
+      );
+    }
+    map['removed_at'] = Variable<DateTime>(removedAt);
+    return map;
+  }
+
+  WatchlistRemovalTombstonesTableCompanion toCompanion(bool nullToAbsent) {
+    return WatchlistRemovalTombstonesTableCompanion(
+      id: Value(id),
+      mediaType: Value(mediaType),
+      removedAt: Value(removedAt),
+    );
+  }
+
+  factory WatchlistRemovalTombstonesTableData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WatchlistRemovalTombstonesTableData(
+      id: serializer.fromJson<int>(json['id']),
+      mediaType: $WatchlistRemovalTombstonesTableTable.$convertermediaType
+          .fromJson(serializer.fromJson<int>(json['mediaType'])),
+      removedAt: serializer.fromJson<DateTime>(json['removedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'mediaType': serializer.toJson<int>(
+        $WatchlistRemovalTombstonesTableTable.$convertermediaType.toJson(
+          mediaType,
+        ),
+      ),
+      'removedAt': serializer.toJson<DateTime>(removedAt),
+    };
+  }
+
+  WatchlistRemovalTombstonesTableData copyWith({
+    int? id,
+    GlobalMediaType? mediaType,
+    DateTime? removedAt,
+  }) => WatchlistRemovalTombstonesTableData(
+    id: id ?? this.id,
+    mediaType: mediaType ?? this.mediaType,
+    removedAt: removedAt ?? this.removedAt,
+  );
+  WatchlistRemovalTombstonesTableData copyWithCompanion(
+    WatchlistRemovalTombstonesTableCompanion data,
+  ) {
+    return WatchlistRemovalTombstonesTableData(
+      id: data.id.present ? data.id.value : this.id,
+      mediaType: data.mediaType.present ? data.mediaType.value : this.mediaType,
+      removedAt: data.removedAt.present ? data.removedAt.value : this.removedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WatchlistRemovalTombstonesTableData(')
+          ..write('id: $id, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('removedAt: $removedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, mediaType, removedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WatchlistRemovalTombstonesTableData &&
+          other.id == this.id &&
+          other.mediaType == this.mediaType &&
+          other.removedAt == this.removedAt);
+}
+
+class WatchlistRemovalTombstonesTableCompanion
+    extends UpdateCompanion<WatchlistRemovalTombstonesTableData> {
+  final Value<int> id;
+  final Value<GlobalMediaType> mediaType;
+  final Value<DateTime> removedAt;
+  final Value<int> rowid;
+  const WatchlistRemovalTombstonesTableCompanion({
+    this.id = const Value.absent(),
+    this.mediaType = const Value.absent(),
+    this.removedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  WatchlistRemovalTombstonesTableCompanion.insert({
+    required int id,
+    required GlobalMediaType mediaType,
+    required DateTime removedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       mediaType = Value(mediaType),
+       removedAt = Value(removedAt);
+  static Insertable<WatchlistRemovalTombstonesTableData> custom({
+    Expression<int>? id,
+    Expression<int>? mediaType,
+    Expression<DateTime>? removedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (mediaType != null) 'media_type': mediaType,
+      if (removedAt != null) 'removed_at': removedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  WatchlistRemovalTombstonesTableCompanion copyWith({
+    Value<int>? id,
+    Value<GlobalMediaType>? mediaType,
+    Value<DateTime>? removedAt,
+    Value<int>? rowid,
+  }) {
+    return WatchlistRemovalTombstonesTableCompanion(
+      id: id ?? this.id,
+      mediaType: mediaType ?? this.mediaType,
+      removedAt: removedAt ?? this.removedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (mediaType.present) {
+      map['media_type'] = Variable<int>(
+        $WatchlistRemovalTombstonesTableTable.$convertermediaType.toSql(
+          mediaType.value,
+        ),
+      );
+    }
+    if (removedAt.present) {
+      map['removed_at'] = Variable<DateTime>(removedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WatchlistRemovalTombstonesTableCompanion(')
+          ..write('id: $id, ')
+          ..write('mediaType: $mediaType, ')
+          ..write('removedAt: $removedAt, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -491,7 +794,7 @@ class $WatchedItemsTableTable extends WatchedItemsTable
     aliasedName,
     false,
     type: DriftSqlType.int,
-    requiredDuringInsert: false,
+    requiredDuringInsert: true,
   );
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
@@ -592,6 +895,8 @@ class $WatchedItemsTableTable extends WatchedItemsTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
     }
     if (data.containsKey('title')) {
       context.handle(
@@ -645,7 +950,7 @@ class $WatchedItemsTableTable extends WatchedItemsTable
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {id, mediaType};
   @override
   WatchedItemsTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -878,6 +1183,7 @@ class WatchedItemsTableCompanion
   final Value<int> rating;
   final Value<int> rewatchCount;
   final Value<double?> voteAverage;
+  final Value<int> rowid;
   const WatchedItemsTableCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
@@ -887,9 +1193,10 @@ class WatchedItemsTableCompanion
     this.rating = const Value.absent(),
     this.rewatchCount = const Value.absent(),
     this.voteAverage = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   WatchedItemsTableCompanion.insert({
-    this.id = const Value.absent(),
+    required int id,
     required String title,
     this.posterPath = const Value.absent(),
     required GlobalMediaType mediaType,
@@ -897,7 +1204,9 @@ class WatchedItemsTableCompanion
     required int rating,
     this.rewatchCount = const Value.absent(),
     this.voteAverage = const Value.absent(),
-  }) : title = Value(title),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       title = Value(title),
        mediaType = Value(mediaType),
        watchDate = Value(watchDate),
        rating = Value(rating);
@@ -910,6 +1219,7 @@ class WatchedItemsTableCompanion
     Expression<int>? rating,
     Expression<int>? rewatchCount,
     Expression<double>? voteAverage,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -920,6 +1230,7 @@ class WatchedItemsTableCompanion
       if (rating != null) 'rating': rating,
       if (rewatchCount != null) 'rewatch_count': rewatchCount,
       if (voteAverage != null) 'vote_average': voteAverage,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -932,6 +1243,7 @@ class WatchedItemsTableCompanion
     Value<int>? rating,
     Value<int>? rewatchCount,
     Value<double?>? voteAverage,
+    Value<int>? rowid,
   }) {
     return WatchedItemsTableCompanion(
       id: id ?? this.id,
@@ -942,6 +1254,7 @@ class WatchedItemsTableCompanion
       rating: rating ?? this.rating,
       rewatchCount: rewatchCount ?? this.rewatchCount,
       voteAverage: voteAverage ?? this.voteAverage,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -974,6 +1287,9 @@ class WatchedItemsTableCompanion
     if (voteAverage.present) {
       map['vote_average'] = Variable<double>(voteAverage.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -987,7 +1303,8 @@ class WatchedItemsTableCompanion
           ..write('watchDate: $watchDate, ')
           ..write('rating: $rating, ')
           ..write('rewatchCount: $rewatchCount, ')
-          ..write('voteAverage: $voteAverage')
+          ..write('voteAverage: $voteAverage, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -2890,6 +3207,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $WatchlistItemsTableTable watchlistItemsTable =
       $WatchlistItemsTableTable(this);
+  late final $WatchlistRemovalTombstonesTableTable
+  watchlistRemovalTombstonesTable = $WatchlistRemovalTombstonesTableTable(this);
   late final $WatchedItemsTableTable watchedItemsTable =
       $WatchedItemsTableTable(this);
   late final $MovieNotesTableTable movieNotesTable = $MovieNotesTableTable(
@@ -2911,6 +3230,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     watchlistItemsTable,
+    watchlistRemovalTombstonesTable,
     watchedItemsTable,
     movieNotesTable,
     searchHistoryTable,
@@ -2932,13 +3252,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 
 typedef $$WatchlistItemsTableTableCreateCompanionBuilder =
     WatchlistItemsTableCompanion Function({
-      Value<int> id,
+      required int id,
       required String title,
       Value<String?> posterPath,
       Value<String?> releaseDate,
       required GlobalMediaType mediaType,
       required DateTime addedDate,
       Value<double?> voteAverage,
+      Value<int> rowid,
     });
 typedef $$WatchlistItemsTableTableUpdateCompanionBuilder =
     WatchlistItemsTableCompanion Function({
@@ -2949,6 +3270,7 @@ typedef $$WatchlistItemsTableTableUpdateCompanionBuilder =
       Value<GlobalMediaType> mediaType,
       Value<DateTime> addedDate,
       Value<double?> voteAverage,
+      Value<int> rowid,
     });
 
 class $$WatchlistItemsTableTableFilterComposer
@@ -3129,6 +3451,7 @@ class $$WatchlistItemsTableTableTableManager
                 Value<GlobalMediaType> mediaType = const Value.absent(),
                 Value<DateTime> addedDate = const Value.absent(),
                 Value<double?> voteAverage = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
               }) => WatchlistItemsTableCompanion(
                 id: id,
                 title: title,
@@ -3137,16 +3460,18 @@ class $$WatchlistItemsTableTableTableManager
                 mediaType: mediaType,
                 addedDate: addedDate,
                 voteAverage: voteAverage,
+                rowid: rowid,
               ),
           createCompanionCallback:
               ({
-                Value<int> id = const Value.absent(),
+                required int id,
                 required String title,
                 Value<String?> posterPath = const Value.absent(),
                 Value<String?> releaseDate = const Value.absent(),
                 required GlobalMediaType mediaType,
                 required DateTime addedDate,
                 Value<double?> voteAverage = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
               }) => WatchlistItemsTableCompanion.insert(
                 id: id,
                 title: title,
@@ -3155,6 +3480,7 @@ class $$WatchlistItemsTableTableTableManager
                 mediaType: mediaType,
                 addedDate: addedDate,
                 voteAverage: voteAverage,
+                rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -3185,9 +3511,191 @@ typedef $$WatchlistItemsTableTableProcessedTableManager =
       WatchlistItemsTableData,
       PrefetchHooks Function()
     >;
+typedef $$WatchlistRemovalTombstonesTableTableCreateCompanionBuilder =
+    WatchlistRemovalTombstonesTableCompanion Function({
+      required int id,
+      required GlobalMediaType mediaType,
+      required DateTime removedAt,
+      Value<int> rowid,
+    });
+typedef $$WatchlistRemovalTombstonesTableTableUpdateCompanionBuilder =
+    WatchlistRemovalTombstonesTableCompanion Function({
+      Value<int> id,
+      Value<GlobalMediaType> mediaType,
+      Value<DateTime> removedAt,
+      Value<int> rowid,
+    });
+
+class $$WatchlistRemovalTombstonesTableTableFilterComposer
+    extends Composer<_$AppDatabase, $WatchlistRemovalTombstonesTableTable> {
+  $$WatchlistRemovalTombstonesTableTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<GlobalMediaType, GlobalMediaType, int>
+  get mediaType => $composableBuilder(
+    column: $table.mediaType,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<DateTime> get removedAt => $composableBuilder(
+    column: $table.removedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$WatchlistRemovalTombstonesTableTableOrderingComposer
+    extends Composer<_$AppDatabase, $WatchlistRemovalTombstonesTableTable> {
+  $$WatchlistRemovalTombstonesTableTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get mediaType => $composableBuilder(
+    column: $table.mediaType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get removedAt => $composableBuilder(
+    column: $table.removedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$WatchlistRemovalTombstonesTableTableAnnotationComposer
+    extends Composer<_$AppDatabase, $WatchlistRemovalTombstonesTableTable> {
+  $$WatchlistRemovalTombstonesTableTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<GlobalMediaType, int> get mediaType =>
+      $composableBuilder(column: $table.mediaType, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get removedAt =>
+      $composableBuilder(column: $table.removedAt, builder: (column) => column);
+}
+
+class $$WatchlistRemovalTombstonesTableTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $WatchlistRemovalTombstonesTableTable,
+          WatchlistRemovalTombstonesTableData,
+          $$WatchlistRemovalTombstonesTableTableFilterComposer,
+          $$WatchlistRemovalTombstonesTableTableOrderingComposer,
+          $$WatchlistRemovalTombstonesTableTableAnnotationComposer,
+          $$WatchlistRemovalTombstonesTableTableCreateCompanionBuilder,
+          $$WatchlistRemovalTombstonesTableTableUpdateCompanionBuilder,
+          (
+            WatchlistRemovalTombstonesTableData,
+            BaseReferences<
+              _$AppDatabase,
+              $WatchlistRemovalTombstonesTableTable,
+              WatchlistRemovalTombstonesTableData
+            >,
+          ),
+          WatchlistRemovalTombstonesTableData,
+          PrefetchHooks Function()
+        > {
+  $$WatchlistRemovalTombstonesTableTableTableManager(
+    _$AppDatabase db,
+    $WatchlistRemovalTombstonesTableTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$WatchlistRemovalTombstonesTableTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$WatchlistRemovalTombstonesTableTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$WatchlistRemovalTombstonesTableTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<GlobalMediaType> mediaType = const Value.absent(),
+                Value<DateTime> removedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => WatchlistRemovalTombstonesTableCompanion(
+                id: id,
+                mediaType: mediaType,
+                removedAt: removedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required int id,
+                required GlobalMediaType mediaType,
+                required DateTime removedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => WatchlistRemovalTombstonesTableCompanion.insert(
+                id: id,
+                mediaType: mediaType,
+                removedAt: removedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$WatchlistRemovalTombstonesTableTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $WatchlistRemovalTombstonesTableTable,
+      WatchlistRemovalTombstonesTableData,
+      $$WatchlistRemovalTombstonesTableTableFilterComposer,
+      $$WatchlistRemovalTombstonesTableTableOrderingComposer,
+      $$WatchlistRemovalTombstonesTableTableAnnotationComposer,
+      $$WatchlistRemovalTombstonesTableTableCreateCompanionBuilder,
+      $$WatchlistRemovalTombstonesTableTableUpdateCompanionBuilder,
+      (
+        WatchlistRemovalTombstonesTableData,
+        BaseReferences<
+          _$AppDatabase,
+          $WatchlistRemovalTombstonesTableTable,
+          WatchlistRemovalTombstonesTableData
+        >,
+      ),
+      WatchlistRemovalTombstonesTableData,
+      PrefetchHooks Function()
+    >;
 typedef $$WatchedItemsTableTableCreateCompanionBuilder =
     WatchedItemsTableCompanion Function({
-      Value<int> id,
+      required int id,
       required String title,
       Value<String?> posterPath,
       required GlobalMediaType mediaType,
@@ -3195,6 +3703,7 @@ typedef $$WatchedItemsTableTableCreateCompanionBuilder =
       required int rating,
       Value<int> rewatchCount,
       Value<double?> voteAverage,
+      Value<int> rowid,
     });
 typedef $$WatchedItemsTableTableUpdateCompanionBuilder =
     WatchedItemsTableCompanion Function({
@@ -3206,6 +3715,7 @@ typedef $$WatchedItemsTableTableUpdateCompanionBuilder =
       Value<int> rating,
       Value<int> rewatchCount,
       Value<double?> voteAverage,
+      Value<int> rowid,
     });
 
 class $$WatchedItemsTableTableFilterComposer
@@ -3397,6 +3907,7 @@ class $$WatchedItemsTableTableTableManager
                 Value<int> rating = const Value.absent(),
                 Value<int> rewatchCount = const Value.absent(),
                 Value<double?> voteAverage = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
               }) => WatchedItemsTableCompanion(
                 id: id,
                 title: title,
@@ -3406,10 +3917,11 @@ class $$WatchedItemsTableTableTableManager
                 rating: rating,
                 rewatchCount: rewatchCount,
                 voteAverage: voteAverage,
+                rowid: rowid,
               ),
           createCompanionCallback:
               ({
-                Value<int> id = const Value.absent(),
+                required int id,
                 required String title,
                 Value<String?> posterPath = const Value.absent(),
                 required GlobalMediaType mediaType,
@@ -3417,6 +3929,7 @@ class $$WatchedItemsTableTableTableManager
                 required int rating,
                 Value<int> rewatchCount = const Value.absent(),
                 Value<double?> voteAverage = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
               }) => WatchedItemsTableCompanion.insert(
                 id: id,
                 title: title,
@@ -3426,6 +3939,7 @@ class $$WatchedItemsTableTableTableManager
                 rating: rating,
                 rewatchCount: rewatchCount,
                 voteAverage: voteAverage,
+                rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -4776,6 +5290,12 @@ class $AppDatabaseManager {
   $AppDatabaseManager(this._db);
   $$WatchlistItemsTableTableTableManager get watchlistItemsTable =>
       $$WatchlistItemsTableTableTableManager(_db, _db.watchlistItemsTable);
+  $$WatchlistRemovalTombstonesTableTableTableManager
+  get watchlistRemovalTombstonesTable =>
+      $$WatchlistRemovalTombstonesTableTableTableManager(
+        _db,
+        _db.watchlistRemovalTombstonesTable,
+      );
   $$WatchedItemsTableTableTableManager get watchedItemsTable =>
       $$WatchedItemsTableTableTableManager(_db, _db.watchedItemsTable);
   $$MovieNotesTableTableTableManager get movieNotesTable =>

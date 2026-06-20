@@ -28,25 +28,51 @@ class WatchlistRepositoryImpl implements WatchlistRepository {
 
   @override
   Future<void> addToWatchlist(WatchlistItem item) async {
-    await _database.into(_database.watchlistItemsTable).insert(
-      WatchlistItemsTableCompanion.insert(
-        id: Value(item.id),
-        title: item.title,
-        posterPath: Value(item.posterPath),
-        releaseDate: Value(item.releaseDate),
-        mediaType: item.mediaType,
-        addedDate: item.addedDate,
-        voteAverage: Value(item.voteAverage),
-      ),
-      mode: InsertMode.insertOrReplace,
-    );
+    await _database.transaction(() async {
+      await (_database.delete(_database.watchlistRemovalTombstonesTable)
+            ..where(
+              (t) =>
+                  t.id.equals(item.id) &
+                  t.mediaType.equals(item.mediaType.index),
+            ))
+          .go();
+      await _database.into(_database.watchlistItemsTable).insert(
+        WatchlistItemsTableCompanion.insert(
+          id: item.id,
+          title: item.title,
+          posterPath: Value(item.posterPath),
+          releaseDate: Value(item.releaseDate),
+          mediaType: item.mediaType,
+          addedDate: item.addedDate,
+          voteAverage: Value(item.voteAverage),
+        ),
+        mode: InsertMode.insertOrReplace,
+      );
+    });
   }
 
   @override
   Future<void> removeFromWatchlist(int id) async {
-    await (_database.delete(_database.watchlistItemsTable)
-          ..where((t) => t.id.equals(id)))
-        .go();
+    await _database.transaction(() async {
+      final rows =
+          await (_database.select(_database.watchlistItemsTable)
+                ..where((t) => t.id.equals(id)))
+              .get();
+      final removedAt = DateTime.now();
+      for (final row in rows) {
+        await _database.into(_database.watchlistRemovalTombstonesTable).insert(
+          WatchlistRemovalTombstonesTableCompanion.insert(
+            id: row.id,
+            mediaType: row.mediaType,
+            removedAt: removedAt,
+          ),
+          mode: InsertMode.insertOrReplace,
+        );
+      }
+      await (_database.delete(_database.watchlistItemsTable)
+            ..where((t) => t.id.equals(id)))
+          .go();
+    });
   }
 
   @override

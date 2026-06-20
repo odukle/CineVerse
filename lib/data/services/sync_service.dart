@@ -86,6 +86,7 @@ class SyncService {
         await _db.delete(_db.favouritesTable).go();
         await _db.delete(_db.watchedItemsTable).go();
         await _db.delete(_db.watchlistItemsTable).go();
+        await _db.delete(_db.watchlistRemovalTombstonesTable).go();
       });
     } finally {
       _isPulling = wasPulling;
@@ -146,7 +147,7 @@ class SyncService {
     }
 
     for (final item in items) {
-      final docRef = collection.doc('${item.id}_${item.mediaType.index}');
+      final docRef = collection.doc(_libraryDocId(item.id, item.mediaType));
       batch.set(docRef, {
         'id': item.id,
         'title': item.title,
@@ -171,20 +172,36 @@ class SyncService {
 
     if (snapshot.docs.isEmpty) return;
 
+    final tombstoneRows = await _db
+        .select(_db.watchlistRemovalTombstonesTable)
+        .get();
+    final tombstoneKeys = tombstoneRows
+        .map((row) => _libraryDocId(row.id, row.mediaType))
+        .toSet();
+    final remoteDeleteBatch = _firestore.batch();
+    var hasRemoteDeletes = false;
+
     await _db.transaction(() async {
       for (final doc in snapshot.docs) {
         final data = doc.data();
+        final id = data['id'] as int;
+        final mediaTypeIndex = data['mediaType'] as int;
+        final mediaType = GlobalMediaType.values[mediaTypeIndex];
+        final docId = _libraryDocId(id, mediaType);
+        if (tombstoneKeys.contains(doc.id) || tombstoneKeys.contains(docId)) {
+          remoteDeleteBatch.delete(doc.reference);
+          hasRemoteDeletes = true;
+          continue;
+        }
         await _db
             .into(_db.watchlistItemsTable)
             .insert(
               WatchlistItemsTableCompanion(
-                id: Value(data['id'] as int),
+                id: Value(id),
                 title: Value(data['title'] as String),
                 posterPath: Value(data['posterPath'] as String?),
                 releaseDate: Value(data['releaseDate'] as String?),
-                mediaType: Value(
-                  GlobalMediaType.values[data['mediaType'] as int],
-                ),
+                mediaType: Value(mediaType),
                 addedDate: Value(DateTime.parse(data['addedDate'] as String)),
                 voteAverage: Value(data['voteAverage'] as double?),
               ),
@@ -192,6 +209,9 @@ class SyncService {
             );
       }
     });
+    if (hasRemoteDeletes) {
+      await remoteDeleteBatch.commit();
+    }
   }
 
   Future<void> pushWatched() async {
@@ -483,5 +503,9 @@ class SyncService {
             );
       }
     });
+  }
+
+  String _libraryDocId(int id, GlobalMediaType mediaType) {
+    return '${id}_${mediaType.index}';
   }
 }

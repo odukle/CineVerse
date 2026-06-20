@@ -92,10 +92,17 @@ def main() -> None:
         retries=args.retries,
     )
 
+    csv_path = Path(args.csv)
+    checkpoint_path = Path(args.checkpoint_file)
+    checkpoint = load_checkpoint(checkpoint_path)
+    checkpoint_export_name = str(checkpoint.get("export_name") or "").strip()
+    preferred_export_name = checkpoint_export_name if args.resume else ""
+
     ids, export_name = fetch_tmdb_export_ids_with_source(
         media_type="tv_series",
         cache_dir=Path(args.export_cache_dir),
         lookback_days=args.lookback_days,
+        preferred_export_name=preferred_export_name,
     )
     if args.max_ids > 0:
         ids = ids[: args.max_ids]
@@ -103,9 +110,6 @@ def main() -> None:
     if total_ids == 0:
         raise RuntimeError("No TV IDs found in export.")
 
-    csv_path = Path(args.csv)
-    checkpoint_path = Path(args.checkpoint_file)
-    checkpoint = load_checkpoint(checkpoint_path)
     checkpoint_run_key = str(checkpoint.get("run_key") or "").strip()
     run_key = "|".join(
         [

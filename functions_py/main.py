@@ -44,6 +44,12 @@ _PROVIDER_ALIASES: dict[str, list[str]] = {
     "google play movies": ["google play", "google play movies"],
 }
 
+_TMDB_WATCH_SLUG_OVERRIDES: dict[str, str] = {
+    # TMDB currently returns 502 for this title's details endpoints, so the
+    # resolver cannot derive the JustWatch slug from TMDB metadata.
+    "movie:1319765": "dhurandhar",
+}
+
 _firebase_app = initialize_app()
 _firestore_client = firestore.client(_firebase_app)
 
@@ -815,24 +821,30 @@ def _derive_justwatch_url_from_tmdb_watch_link(tmdb_watch_url: str) -> Optional[
     except Exception:
         return None
 
-    match = re.match(r"^/(movie|tv)/(\d+)(?:-[^/]+)?/watch/?$", parsed.path or "")
+    match = re.match(r"^/(movie|tv)/(\d+)(?:-([^/]+))?/watch/?$", parsed.path or "")
     if not match:
         return None
 
     media_kind = match.group(1)
     media_id = match.group(2)
+    path_slug = str(match.group(3) or "").strip()
+    if not path_slug:
+        path_slug = _TMDB_WATCH_SLUG_OVERRIDES.get(f"{media_kind}:{media_id}", "")
     media_type_paths = _justwatch_media_type_paths(media_kind)
 
     query = parse_qs(parsed.query)
     country_code = _tmdb_locale_to_country(query)
     preferred_language = _tmdb_preferred_language(query)
     preferred_locale = _tmdb_preferred_locale(query)
-    title_candidates, release_year = _tmdb_title_candidates_and_year(
-        media_kind=media_kind,
-        media_id=media_id,
-        preferred_language=preferred_language,
-        preferred_locale=preferred_locale,
-    )
+    title_candidates = _title_candidates_from_slug(path_slug)
+    release_year = _release_year_from_slug(path_slug)
+    if not title_candidates:
+        title_candidates, release_year = _tmdb_title_candidates_and_year(
+            media_kind=media_kind,
+            media_id=media_id,
+            preferred_language=preferred_language,
+            preferred_locale=preferred_locale,
+        )
     if not title_candidates:
         return None
 
@@ -845,8 +857,11 @@ def _derive_justwatch_url_from_tmdb_watch_link(tmdb_watch_url: str) -> Optional[
             base_url = f"https://www.justwatch.com/{country_code}/{media_type_path}/{slug}"
             if fallback_url is None:
                 fallback_url = base_url
-            if release_year:
-                with_year = f"{base_url}-{release_year}"
+            candidate_years = _candidate_release_years(release_year=release_year, slug=slug)
+            for candidate_year in candidate_years:
+                if not candidate_year:
+                    continue
+                with_year = f"{base_url}-{candidate_year}"
                 if _url_exists(with_year):
                     return with_year
             if _url_exists(base_url):
@@ -874,7 +889,19 @@ def _tmdb_title_candidates_and_year(
         response.raise_for_status()
         payload = response.json()
     except Exception:
-        return [], None
+        if preferred_locale:
+            try:
+                response = requests.get(
+                    endpoint,
+                    timeout=8,
+                    headers={"Accept": "application/json"},
+                )
+                response.raise_for_status()
+                payload = response.json()
+            except Exception:
+                return [], None
+        else:
+            return [], None
 
     if media_kind == "movie":
         primary_title = str(payload.get("title") or "").strip()
@@ -905,6 +932,37 @@ def _tmdb_title_candidates_and_year(
 
     year_match = re.match(r"^(\d{4})", date_value)
     return candidates, (year_match.group(1) if year_match else None)
+
+
+def _title_candidates_from_slug(slug: str) -> list[str]:
+    cleaned = re.sub(r"-+", "-", str(slug or "").strip().strip("-").lower())
+    if not cleaned:
+        return []
+
+    candidates = [cleaned.replace("-", " ")]
+    without_year = re.sub(r"-(19|20)\d{2}$", "", cleaned).strip("-")
+    if without_year and without_year != cleaned:
+        candidates.append(without_year.replace("-", " "))
+    return candidates
+
+
+def _release_year_from_slug(slug: str) -> Optional[str]:
+    match = re.search(r"-(19|20)\d{2}$", str(slug or "").strip().lower())
+    if not match:
+        return None
+    return match.group(0).strip("-")
+
+
+def _candidate_release_years(*, release_year: Optional[str], slug: str) -> list[str]:
+    years: list[str] = []
+    if release_year:
+        years.append(release_year)
+    slug_year_match = re.search(r"-(19|20)\d{2}$", slug)
+    if slug_year_match:
+        slug_year = slug_year_match.group(0).strip("-")
+        if slug_year not in years:
+            years.append(slug_year)
+    return years
 
 
 def _tmdb_translation_titles(

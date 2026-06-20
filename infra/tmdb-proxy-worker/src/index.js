@@ -59,6 +59,7 @@ const IOS_APP_LINKS = {
   appIDs: ["88KX9RVUCK.com.odukle.cineverse"],
   paths: ["/movies/*", "/lists/*"],
 };
+const DEFAULT_TMDB_BASE_URL = "https://api.themoviedb.org/3";
 
 
 export default {
@@ -76,9 +77,12 @@ export default {
       });
     }
 
-    if (!env.TMDB_API_KEY) {
+    if (!env.TMDB_API_KEY && !env.TMDB_BEARER_TOKEN) {
       return jsonResponse(
-        { error: "TMDB_API_KEY secret is not configured in the Worker." },
+        {
+          error:
+            "Neither TMDB_API_KEY nor TMDB_BEARER_TOKEN is configured in the Worker.",
+        },
         500,
       );
     }
@@ -158,16 +162,56 @@ export default {
     }
 
     const upstreamUrl = buildUpstreamUrl(url, env);
-    const upstreamResponse = await fetch(upstreamUrl, {
-      method: "GET",
-      headers: {
-        Accept: "application/json",
-      },
-      cf: {
-        cacheTtl: cacheTtlSeconds(url.pathname),
-        cacheEverything: true,
-      },
-    });
+    let upstreamResponse;
+    try {
+      upstreamResponse = await fetch(upstreamUrl, {
+        method: "GET",
+        headers: buildUpstreamHeaders(env),
+      });
+    } catch (error) {
+      return jsonResponse(
+        {
+          error: "Upstream TMDB fetch failed.",
+          detail: error instanceof Error ? error.message : String(error),
+          upstreamUrl,
+        },
+        502,
+        { "Cache-Control": "no-store" },
+      );
+    }
+
+    if (upstreamResponse.status >= 500) {
+      const fallbackResponse = await fetchFallbackDetailsResponse(url, env);
+      if (fallbackResponse?.ok) {
+        fallbackResponse.headers.set("Access-Control-Allow-Origin", "*");
+        fallbackResponse.headers.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+        fallbackResponse.headers.set("Access-Control-Allow-Headers", "Content-Type");
+        fallbackResponse.headers.set(
+          "Cache-Control",
+          `public, max-age=${cacheTtlSeconds(url.pathname)}`,
+        );
+        fallbackResponse.headers.set("X-Lumi-Fallback", "base-details");
+        ctx.waitUntil(cache.put(cacheKey, fallbackResponse.clone()));
+        return fallbackResponse;
+      }
+
+      let detail = "";
+      try {
+        detail = await upstreamResponse.text();
+      } catch (_) {
+        detail = "";
+      }
+      return jsonResponse(
+        {
+          error: "TMDB upstream returned a server error.",
+          status: upstreamResponse.status,
+          upstreamUrl,
+          detail: detail.slice(0, 500),
+        },
+        502,
+        { "Cache-Control": "no-store" },
+      );
+    }
 
     const response = new Response(upstreamResponse.body, upstreamResponse);
     response.headers.set("Access-Control-Allow-Origin", "*");
@@ -186,8 +230,57 @@ export default {
   },
 };
 
+function buildUpstreamHeaders(env) {
+  const headers = {
+    Accept: "application/json",
+    "User-Agent": "Lumi-TMDB-Proxy/1.0",
+  };
+
+  if (typeof env.TMDB_BEARER_TOKEN === "string" && env.TMDB_BEARER_TOKEN.trim()) {
+    headers.Authorization = `Bearer ${env.TMDB_BEARER_TOKEN.trim()}`;
+  }
+
+  return headers;
+}
+
+async function fetchFallbackDetailsResponse(requestUrl, env) {
+  const isDetailsRoute =
+    TMDB_MOVIE_DETAILS_PATTERN.test(requestUrl.pathname) ||
+    TMDB_TV_DETAILS_PATTERN.test(requestUrl.pathname);
+  if (!isDetailsRoute || !requestUrl.searchParams.has("append_to_response")) {
+    return null;
+  }
+
+  const fallbackUrl = new URL(requestUrl.toString());
+  fallbackUrl.searchParams.delete("append_to_response");
+
+  const fallbackResponse = await fetch(buildUpstreamUrl(fallbackUrl, env), {
+    method: "GET",
+    headers: buildUpstreamHeaders(env),
+  });
+  if (fallbackResponse.ok) {
+    return new Response(fallbackResponse.body, fallbackResponse);
+  }
+
+  fallbackUrl.searchParams.delete("language");
+  fallbackUrl.searchParams.delete("region");
+  const languageNeutralResponse = await fetch(buildUpstreamUrl(fallbackUrl, env), {
+    method: "GET",
+    headers: buildUpstreamHeaders(env),
+  });
+  if (languageNeutralResponse.ok) {
+    return new Response(languageNeutralResponse.body, languageNeutralResponse);
+  }
+
+  return null;
+}
+
 function buildUpstreamUrl(requestUrl, env) {
-  const upstreamUrl = new URL(`${env.TMDB_BASE_URL}${requestUrl.pathname}`);
+  const baseUrl =
+    typeof env.TMDB_BASE_URL === "string" && env.TMDB_BASE_URL.trim().length > 0
+      ? env.TMDB_BASE_URL.trim().replace(/\/+$/, "")
+      : DEFAULT_TMDB_BASE_URL;
+  const upstreamUrl = new URL(`${baseUrl}${requestUrl.pathname}`);
 
   for (const [key, value] of requestUrl.searchParams.entries()) {
     if (key.toLowerCase() === "api_key") {
@@ -197,7 +290,12 @@ function buildUpstreamUrl(requestUrl, env) {
     upstreamUrl.searchParams.append(key, value);
   }
 
-  upstreamUrl.searchParams.set("api_key", env.TMDB_API_KEY);
+  if (
+    (!env.TMDB_BEARER_TOKEN || !String(env.TMDB_BEARER_TOKEN).trim()) &&
+    env.TMDB_API_KEY
+  ) {
+    upstreamUrl.searchParams.set("api_key", env.TMDB_API_KEY);
+  }
   return upstreamUrl.toString();
 }
 

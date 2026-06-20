@@ -7,6 +7,7 @@ import gzip
 import json
 import logging
 import random
+import re
 import sqlite3
 import sys
 import time
@@ -280,32 +281,52 @@ def fetch_tmdb_export_ids_with_source(
     export_base_url: str = DEFAULT_EXPORT_BASE,
     lookback_days: int = 21,
     cache_dir: Path,
+    preferred_export_name: str = "",
 ) -> Tuple[List[int], str]:
     if media_type not in {"movie", "tv_series"}:
         raise ValueError("media_type must be 'movie' or 'tv_series'")
 
     cache_dir.mkdir(parents=True, exist_ok=True)
+    preferred_export_name = preferred_export_name.strip()
+    if preferred_export_name:
+        expected_pattern = rf"^{re.escape(media_type)}_ids_\d{{2}}_\d{{2}}_\d{{4}}\.json\.gz$"
+        if not re.match(expected_pattern, preferred_export_name):
+            raise ValueError(f"Invalid preferred export name: {preferred_export_name}")
+        ids = _load_or_download_export_ids(
+            file_name=preferred_export_name,
+            export_base_url=export_base_url,
+            cache_dir=cache_dir,
+        )
+        if ids:
+            LOGGER.info(
+                "Loaded %s ids from preferred export %s",
+                len(ids),
+                preferred_export_name,
+            )
+            return ids, preferred_export_name
+
     today = today_utc()
     for offset in range(0, max(1, lookback_days)):
         day = today - dt.timedelta(days=offset)
         file_name = f"{media_type}_ids_{day:%m_%d_%Y}.json.gz"
-        local = cache_dir / file_name
-        if not local.exists():
-            url = f"{export_base_url.rstrip('/')}/{file_name}"
-            LOGGER.info("Trying export: %s", url)
-            response = requests.get(url, timeout=60)
-            if response.status_code in {403, 404}:
+        try:
+            ids = _load_or_download_export_ids(
+                file_name=file_name,
+                export_base_url=export_base_url,
+                cache_dir=cache_dir,
+            )
+        except requests.HTTPError as error:
+            status_code = (
+                error.response.status_code if error.response is not None else None
+            )
+            if status_code in {403, 404}:
                 LOGGER.info(
                     "Export unavailable for %s (status=%s). Trying older export.",
                     file_name,
-                    response.status_code,
+                    status_code,
                 )
                 continue
-            response.raise_for_status()
-            local.write_bytes(response.content)
-            LOGGER.info("Downloaded export to %s (%.1f MB)", local, local.stat().st_size / (1024 * 1024))
-
-        ids = _parse_export_ids(local)
+            raise
         if ids:
             LOGGER.info(
                 "Loaded %s ids from export %s",
@@ -316,6 +337,27 @@ def fetch_tmdb_export_ids_with_source(
     raise RuntimeError(
         f"Could not find a valid {media_type} export in last {lookback_days} day(s)."
     )
+
+
+def _load_or_download_export_ids(
+    *,
+    file_name: str,
+    export_base_url: str,
+    cache_dir: Path,
+) -> List[int]:
+    local = cache_dir / file_name
+    if not local.exists():
+        url = f"{export_base_url.rstrip('/')}/{file_name}"
+        LOGGER.info("Trying export: %s", url)
+        response = requests.get(url, timeout=60)
+        response.raise_for_status()
+        local.write_bytes(response.content)
+        LOGGER.info(
+            "Downloaded export to %s (%.1f MB)",
+            local,
+            local.stat().st_size / (1024 * 1024),
+        )
+    return _parse_export_ids(local)
 
 
 def fetch_tmdb_export_ids(

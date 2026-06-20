@@ -16,6 +16,15 @@ class WatchlistItemsTable extends Table {
   Set<Column> get primaryKey => {id, mediaType};
 }
 
+class WatchlistRemovalTombstonesTable extends Table {
+  IntColumn get id => integer()();
+  IntColumn get mediaType => intEnum<GlobalMediaType>()();
+  DateTimeColumn get removedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id, mediaType};
+}
+
 class WatchedItemsTable extends Table {
   IntColumn get id => integer()();
   TextColumn get title => text()();
@@ -79,6 +88,7 @@ class NamedListItemsTable extends Table {
 
 @DriftDatabase(tables: [
   WatchlistItemsTable,
+  WatchlistRemovalTombstonesTable,
   WatchedItemsTable,
   MovieNotesTable,
   SearchHistoryTable,
@@ -90,7 +100,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -132,6 +142,9 @@ class AppDatabase extends _$AppDatabase {
             // 2. Copy data from old tables to temporary tables.
             // 3. Drop old tables.
             // 4. Rename temporary tables to original names.
+          }
+          if (from < 10) {
+            await m.createTable(watchlistRemovalTombstonesTable);
           }
         },
       );

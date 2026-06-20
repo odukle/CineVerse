@@ -599,14 +599,16 @@ class AccountScreen extends ConsumerWidget {
                                 if (choice == null) {
                                   return;
                                 }
+                                final SyncService syncService = ref.read(
+                                  syncServiceProvider,
+                                );
+                                await syncService.syncAllToRemote();
                                 await ref
                                     .read(authRepositoryProvider)
                                     .signOut();
                                 if (choice ==
                                     _SignOutChoice.signOutAndClearLocal) {
-                                  await ref
-                                      .read(syncServiceProvider)
-                                      .clearLocalLibrary();
+                                  await syncService.clearLocalLibrary();
                                   _invalidateLocalLibraryProviders(ref);
                                   if (!context.mounted) {
                                     return;
