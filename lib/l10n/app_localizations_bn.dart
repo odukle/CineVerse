@@ -1612,6 +1612,12 @@ class AppLocalizationsBn extends AppLocalizations {
   String get trending => 'ট্রেন্ডিং';
 
   @override
+  String get trendingPeople => 'প্রবণতা ব্যক্তিত্ব';
+
+  @override
+  String get starringTodayOrThisWeek => 'আজ বা এই সপ্তাহে তারকাদের প্রবণতা';
+
+  @override
   String get nowPlaying => 'এখন চলছে';
 
   @override

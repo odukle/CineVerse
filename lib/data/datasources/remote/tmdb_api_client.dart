@@ -909,6 +909,20 @@ class TmdbApiClient {
           'page': page,
         },
       ),
+      MovieSection.personTrendingDay => (
+        path: '/person/popular',
+        queryParameters: <String, dynamic>{
+          ..._detailQueryParameters(),
+          'page': page,
+        },
+      ),
+      MovieSection.personTrendingWeek => (
+        path: '/person/popular',
+        queryParameters: <String, dynamic>{
+          ..._detailQueryParameters(),
+          'page': page,
+        },
+      ),
       MovieSection.action => _genreRequest(_actionGenreId, page: page),
       MovieSection.drama => _genreRequest(_dramaGenreId, page: page),
       MovieSection.thriller => _genreRequest(_thrillerGenreId, page: page),

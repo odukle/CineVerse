@@ -1,6 +1,7 @@
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 enum HomeTab { explore, movies, tvShows, watchlist, account }
 
@@ -56,41 +57,45 @@ class AppBottomNavigationBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 10),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(28),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: <Color>[
-                AppColors.cinemaPanelTop.withValues(alpha: 0.96),
-                AppColors.cinemaPanelMid.withValues(alpha: 0.94),
-                AppColors.cinemaPanelBottom.withValues(alpha: 0.94),
-              ],
-            ),
-            border: Border.all(
-              color: AppColors.cinemaBorder.withValues(alpha: 0.38),
-            ),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: AppColors.cinemaGlow.withValues(alpha: 0.15),
-                blurRadius: 24,
-                spreadRadius: -12,
-                offset: const Offset(0, 16),
-              ),
-            ],
+    return Container(
+      decoration: BoxDecoration(
+        // Gradient from panel-bottom into the dedicated bottomBar color so the
+        // bar feels like a seamless dark extension of the background.
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: <Color>[
+            AppColors.cinemaPanelBottom,
+            AppColors.cinemaBottomBar,
+          ],
+        ),
+        border: Border(
+          top: BorderSide(
+            color: AppColors.cinemaBorder.withValues(alpha: 0.18),
+            width: 0.5,
           ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(6, 6, 6, 6),
+        ),
+      ),
+      child: SafeArea(
+        top: false,
+        left: false,
+        right: false,
+        bottom: true,
+        child: Padding(
+          padding: const EdgeInsets.only(top: 8, bottom: 8),
+          child: SizedBox(
+            height: 60,
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: _tabOrder
                   .map(
-                    (tab) =>
-                        _BottomNavItem(tab: tab, selected: tab == currentTab),
+                    (tab) => _BottomNavItem(
+                      tab: tab,
+                      selected: tab == currentTab,
+                      onTap: () => onTabSelected(
+                        _tabOrder.indexOf(tab),
+                      ),
+                    ),
                   )
                   .toList(growable: false),
             ),
@@ -101,139 +106,226 @@ class AppBottomNavigationBar extends StatelessWidget {
   }
 }
 
-class _BottomNavItem extends StatelessWidget {
-  const _BottomNavItem({required this.tab, required this.selected});
+/// A pressable nav item driven by two independent [AnimationController]s:
+///
+/// * [_pressController] — handles the scale/opacity press-down feedback.
+/// * [_selectController] — drives a single `t` (0→1) that interpolates
+///   *every* selection visual (pill width, gradient alpha, glow, icon size,
+///   icon color, label height, label opacity) in one go.  Using a single `t`
+///   with [Curves.easeInOutCubic] (slow start → smooth) eliminates the
+///   "pop" that occurs when multiple independent [AnimatedContainer] /
+///   [AnimatedSize] widgets start simultaneously.
+class _BottomNavItem extends StatefulWidget {
+  const _BottomNavItem({
+    required this.tab,
+    required this.selected,
+    required this.onTap,
+  });
 
   final HomeTab tab;
   final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  State<_BottomNavItem> createState() => _BottomNavItemState();
+}
+
+class _BottomNavItemState extends State<_BottomNavItem>
+    with TickerProviderStateMixin {
+  // ── Press feedback ────────────────────────────────────────────────────────
+  late final AnimationController _pressController;
+  late final Animation<double> _scaleAnim;
+  late final Animation<double> _opacityAnim;
+
+  // ── Selection state ───────────────────────────────────────────────────────
+  late final AnimationController _selectController;
+  late final Animation<double> _selectAnim;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Press controller — quick compress & release.
+    _pressController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 120),
+      reverseDuration: const Duration(milliseconds: 200),
+    );
+    _scaleAnim = Tween<double>(begin: 1.0, end: 0.88).animate(
+      CurvedAnimation(
+        parent: _pressController,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInOut,
+      ),
+    );
+    _opacityAnim = Tween<double>(begin: 1.0, end: 0.78).animate(
+      CurvedAnimation(parent: _pressController, curve: Curves.easeOut),
+    );
+
+    // Select controller — single source of truth for all pill/label visuals.
+    _selectController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 380),
+      // Start at the correct position without animating on first build.
+      value: widget.selected ? 1.0 : 0.0,
+    );
+    // easeInOutCubic: gentle start → no abrupt pop when pill appears.
+    _selectAnim = CurvedAnimation(
+      parent: _selectController,
+      curve: Curves.easeInOutCubic,
+    );
+  }
+
+  @override
+  void didUpdateWidget(_BottomNavItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selected != widget.selected) {
+      if (widget.selected) {
+        _selectController.forward();
+      } else {
+        _selectController.reverse();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _pressController.dispose();
+    _selectController.dispose();
+    super.dispose();
+  }
+
+  void _onTapDown(TapDownDetails _) {
+    _pressController.forward();
+    HapticFeedback.selectionClick();
+  }
+
+  void _onTapUp(TapUpDetails _) {
+    _pressController.reverse();
+    widget.onTap();
+  }
+
+  void _onTapCancel() {
+    _pressController.reverse();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final l10n = context.l10n;
-    final String localizedLabel;
-    switch (tab) {
-      case HomeTab.explore:
-        localizedLabel = l10n.navExplore;
-        break;
-      case HomeTab.movies:
-        localizedLabel = l10n.navMovies;
-        break;
-      case HomeTab.tvShows:
-        localizedLabel = l10n.navTvShows;
-        break;
-      case HomeTab.watchlist:
-        localizedLabel = l10n.navLibrary;
-        break;
-      case HomeTab.account:
-        localizedLabel = l10n.navAccount;
-        break;
-    }
+    final String label = _localizedLabel(context);
 
     return Expanded(
-      child: InkWell(
-        onTap: selected
-            ? null
-            : () {
-                (context
-                        .findAncestorWidgetOfExactType<
-                          AppBottomNavigationBar
-                        >()!)
-                    .onTabSelected(
-                      AppBottomNavigationBar._tabOrder.indexOf(tab),
-                    );
-              },
-        borderRadius: BorderRadius.circular(18),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 1),
-          child: TweenAnimationBuilder<double>(
-            tween: Tween<double>(begin: 0, end: selected ? 1 : 0),
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOutCubic,
-            builder: (BuildContext context, double t, Widget? child) {
-              final Color labelColor = Color.lerp(
-                Colors.white70,
-                Colors.white,
-                t,
-              )!;
-              final Color iconColor = Color.lerp(
-                Colors.white70,
-                Colors.white,
-                t,
-              )!;
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  Container(
-                    width: 52,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      gradient: t > 0
-                          ? LinearGradient(
-                              colors: <Color>[
-                                AppColors.cinemaGlow.withValues(
-                                  alpha: 0.18 + (0.74 * t),
+      child: GestureDetector(
+        onTapDown: _onTapDown,
+        onTapUp: _onTapUp,
+        onTapCancel: _onTapCancel,
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedBuilder(
+          // Rebuild whenever either controller ticks.
+          animation: Listenable.merge([_pressController, _selectAnim]),
+          builder: (context, _) {
+            final double t = _selectAnim.value; // 0.0 → 1.0
+
+            return Opacity(
+              opacity: _opacityAnim.value,
+              child: Transform.scale(
+                scale: _scaleAnim.value,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    // ── Glowing pill ───────────────────────────────────
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        // Pill grows wider as t increases.
+                        horizontal: 14.0 + (4.0 * t),
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        gradient: t > 0
+                            ? LinearGradient(
+                                colors: <Color>[
+                                  AppColors.cinemaGlow.withValues(
+                                    alpha: 0.22 * t,
+                                  ),
+                                  AppColors.cinemaWarmGlow.withValues(
+                                    alpha: 0.18 * t,
+                                  ),
+                                ],
+                              )
+                            : null,
+                        borderRadius: BorderRadius.circular(999),
+                        boxShadow: t > 0
+                            ? <BoxShadow>[
+                                BoxShadow(
+                                  color: AppColors.cinemaGlow.withValues(
+                                    alpha: 0.18 * t,
+                                  ),
+                                  blurRadius: 14 * t,
+                                  spreadRadius: 0,
                                 ),
-                                AppColors.cinemaWarmGlow.withValues(
-                                  alpha: 0.18 + (0.74 * t),
-                                ),
-                              ],
-                            )
-                          : null,
-                      color: t == 0 ? Colors.transparent : null,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: t > 0
-                          ? <BoxShadow>[
-                              BoxShadow(
-                                color: AppColors.cinemaGlow.withValues(
-                                  alpha: 0.06 + (0.22 * t),
-                                ),
-                                blurRadius: 10 + (8 * t),
-                                spreadRadius: -6,
-                                offset: const Offset(0, 8),
-                              ),
-                            ]
-                          : null,
+                              ]
+                            : null,
+                      ),
+                      child: Icon(
+                        // Switch icon variant at the midpoint of the animation.
+                        t > 0.5
+                            ? widget.tab.selectedIcon
+                            : widget.tab.icon,
+                        // Lerp colour: white54 → cinemaAccent.
+                        color: Color.lerp(
+                          Colors.white54,
+                          AppColors.cinemaAccent,
+                          t,
+                        ),
+                        // Size: 21 → 24.
+                        size: 21.0 + (3.0 * t),
+                      ),
                     ),
-                    child: Center(
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 220),
-                        transitionBuilder:
-                            (Widget child, Animation<double> animation) {
-                              return ScaleTransition(
-                                scale: Tween<double>(
-                                  begin: 0.86,
-                                  end: 1.0,
-                                ).animate(animation),
-                                child: child,
-                              );
-                            },
-                        child: Transform.scale(
-                          key: ValueKey<bool>(selected),
-                          scale: 1 + (0.08 * t),
-                          child: Icon(
-                            selected ? tab.selectedIcon : tab.icon,
-                            color: iconColor,
-                            size: 20,
+                    // ── Label (height collapses via Align.heightFactor) ─
+                    // ClipRect prevents the label overflowing during collapse.
+                    ClipRect(
+                      child: Align(
+                        heightFactor: t,
+                        child: Opacity(
+                          opacity: t,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 3),
+                            child: Text(
+                              label,
+                              style: TextStyle(
+                                color: AppColors.cinemaAccent,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 9.5,
+                                letterSpacing: 0.2,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    localizedLabel,
-                    style: TextStyle(
-                      fontSize: 9,
-                      fontWeight: t > 0.5 ? FontWeight.w800 : FontWeight.w500,
-                      color: labelColor,
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );
+  }
+
+  String _localizedLabel(BuildContext context) {
+    final l10n = context.l10n;
+    switch (widget.tab) {
+      case HomeTab.explore:
+        return l10n.navExplore;
+      case HomeTab.movies:
+        return l10n.navMovies;
+      case HomeTab.tvShows:
+        return l10n.navTvShows;
+      case HomeTab.watchlist:
+        return l10n.navLibrary;
+      case HomeTab.account:
+        return l10n.navAccount;
+    }
   }
 }

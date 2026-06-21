@@ -19,6 +19,7 @@ class SyncService {
   StreamSubscription? _dbSubscription;
   bool _isPulling = false;
   bool _suspendNextAutomaticPull = false;
+  bool _hasCompletedRemotePull = false;
 
   void _setStatus(SyncStatus status) {
     onStatusChanged?.call(status);
@@ -52,6 +53,9 @@ class SyncService {
   }
 
   void updateUserId(String? userId) {
+    if (_userId != userId) {
+      _hasCompletedRemotePull = false;
+    }
     _userId = userId;
   }
 
@@ -93,8 +97,13 @@ class SyncService {
     }
   }
 
-  Future<void> syncAllToRemote() async {
+  Future<void> syncAllToRemote({bool allowEmptyLibraryOverwrite = true}) async {
     if (_userId == null) return;
+    if (!allowEmptyLibraryOverwrite &&
+        !_hasCompletedRemotePull &&
+        !await hasLocalLibraryContent()) {
+      return;
+    }
     _setStatus(SyncStatus.syncing);
     try {
       await Future.wait([
@@ -123,6 +132,7 @@ class SyncService {
         _pullNotes(),
         _pullNamedLists(),
       ]);
+      _hasCompletedRemotePull = true;
       _setStatus(SyncStatus.idle);
     } catch (e) {
       _setStatus(SyncStatus.error);

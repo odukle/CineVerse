@@ -1630,6 +1630,13 @@ class AppLocalizationsTa extends AppLocalizations {
   String get trending => 'பிரபலமானவை';
 
   @override
+  String get trendingPeople => 'பிரபலங்கள்';
+
+  @override
+  String get starringTodayOrThisWeek =>
+      'இன்று அல்லது இந்த வாரம் பிரபலமாக இருக்கும் நட்சத்திரங்கள்';
+
+  @override
   String get nowPlaying => 'தற்போது ஒளிபரப்பாகிறது';
 
   @override

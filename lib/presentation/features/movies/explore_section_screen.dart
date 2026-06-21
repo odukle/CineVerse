@@ -1,10 +1,12 @@
 import 'package:cineverse/app/theme/app_colors.dart';
 import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
+import 'package:cineverse/domain/entities/movie_section.dart';
 import 'package:cineverse/presentation/features/movies/models/explore_models.dart';
 import 'package:cineverse/presentation/features/movies/providers/library_recommendations_provider.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
+import 'package:cineverse/presentation/features/movies/widgets/trending_person_card.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:cineverse/presentation/widgets/background_gradient.dart';
 import 'package:flutter/material.dart';
@@ -430,12 +432,16 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
         final bool showFooter = movies.isLoading || isExhausted;
         final int itemCount = dataForFilter.length + (showFooter ? 3 : 0);
 
+        final bool isPersonSection =
+            widget.filter.section == MovieSection.personTrendingDay ||
+            widget.filter.section == MovieSection.personTrendingWeek;
+
         return GridView.builder(
           controller: _scrollController,
           padding: const EdgeInsets.all(16),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
-            childAspectRatio: 0.55,
+            childAspectRatio: isPersonSection ? 0.68 : 0.55,
             crossAxisSpacing: 12,
             mainAxisSpacing: 16,
           ),
@@ -460,13 +466,19 @@ class _FilterResultsGridState extends ConsumerState<_FilterResultsGrid> {
               return const SizedBox.shrink();
             }
 
-            return MediaPosterGridCard(
-              movie: dataForFilter[index],
-              sectionTitle: widget.sectionTitle,
-              width: cardWidth,
-              isTvTitle: widget.isTv,
-              disableSortBasedSubtitle: true,
-            );
+            return isPersonSection
+                ? TrendingPersonCard(
+                    person: dataForFilter[index],
+                    accent: AppColors.cinemaAccent,
+                    width: cardWidth,
+                  )
+                : MediaPosterGridCard(
+                    movie: dataForFilter[index],
+                    sectionTitle: widget.sectionTitle,
+                    width: cardWidth,
+                    isTvTitle: widget.isTv,
+                    disableSortBasedSubtitle: true,
+                  );
           },
         );
       },

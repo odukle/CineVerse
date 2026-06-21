@@ -95,7 +95,11 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
       ),
     )..addListener(_onPlayerStateChange);
     _scrollController.addListener(_onFeedScroll);
-    unawaited(_loadRecommendationFeed(reset: true));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        unawaited(_loadRecommendationFeed(reset: true));
+      }
+    });
   }
 
   @override
@@ -221,7 +225,11 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
               try {
                 final MovieDetails details = await ref
                     .read(mediaRepositoryProvider)
-                    .fetchMovieDetails(rec.id, isTv: widget.data.isTv);
+                    .fetchMovieDetails(
+                      rec.id,
+                      isTv: widget.data.isTv,
+                      includeRatings: false,
+                    );
                 final String? trailerKey = details.trailerYouTubeKey;
                 if (trailerKey == null || trailerKey.isEmpty) {
                   return null;
@@ -246,7 +254,9 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
                     isTv: widget.data.isTv,
                   ),
                 );
-              } catch (_) {
+              } catch (e, s) {
+                debugPrint('[TrailerPlayer] Error fetching details for rec ${rec.id}: $e');
+                debugPrintStack(stackTrace: s);
                 return null;
               }
             })().timeout(const Duration(seconds: 10), onTimeout: () => null);
@@ -278,7 +288,9 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
       if (loaded.isEmpty && _hasMoreFeed && mounted) {
         unawaited(_loadRecommendationFeed());
       }
-    } catch (_) {
+    } catch (e, s) {
+      debugPrint('[TrailerPlayer] Error in _loadRecommendationFeed: $e');
+      debugPrintStack(stackTrace: s);
       if (!mounted) {
         return;
       }
@@ -480,8 +492,9 @@ class _TrailerPlayerScreenState extends ConsumerState<TrailerPlayerScreen>
                             ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: CachedNetworkImage(
-                                imageUrl:
-                                    '${AppConstants.tmdbImageBaseUrl}${data.posterPath}',
+                                imageUrl: data.posterPath!.startsWith('http')
+                                    ? data.posterPath!
+                                    : '${AppConstants.tmdbImageBaseUrl}${data.posterPath}',
                                 width: 88,
                                 height: 132,
                                 fit: BoxFit.cover,
@@ -741,14 +754,18 @@ class _FeedThumbnail extends StatelessWidget {
     final String? backdrop = data.backdropPath;
     if (backdrop != null && backdrop.isNotEmpty) {
       return CachedNetworkImage(
-        imageUrl: '${AppConstants.tmdbImageBaseUrl}$backdrop',
+        imageUrl: backdrop.startsWith('http')
+            ? backdrop
+            : '${AppConstants.tmdbImageBaseUrl}$backdrop',
         fit: BoxFit.cover,
       );
     }
     final String? poster = data.posterPath;
     if (poster != null && poster.isNotEmpty) {
       return CachedNetworkImage(
-        imageUrl: '${AppConstants.tmdbImageBaseUrl}$poster',
+        imageUrl: poster.startsWith('http')
+            ? poster
+            : '${AppConstants.tmdbImageBaseUrl}$poster',
         fit: BoxFit.cover,
       );
     }

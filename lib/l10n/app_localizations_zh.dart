@@ -1533,6 +1533,12 @@ class AppLocalizationsZh extends AppLocalizations {
   String get trending => '热门话题';
 
   @override
+  String get trendingPeople => '热门人物';
+
+  @override
+  String get starringTodayOrThisWeek => '今天或本周的明星趋势';
+
+  @override
   String get nowPlaying => '正在播放';
 
   @override

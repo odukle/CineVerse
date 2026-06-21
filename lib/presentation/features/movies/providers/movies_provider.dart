@@ -607,6 +607,8 @@ Future<List<MediaTitle>> _fetchMovieSection(
   final String regionCode = ref.watch(preferredRegionCodeProvider);
   final String? languageCode = ref.watch(contentLanguageProvider);
 
+  debugPrint('[_fetchMovieSection] section=${section.name} regionCode=$regionCode');
+
   // Watch filters if we are in discover mode to trigger re-runs
   if (section == MovieSection.discover) {
     ref.watch(movieFilterProvider);
@@ -774,6 +776,7 @@ Future<List<MediaTitle>> _fetchMovieSection(
 
 final movieSectionProvider =
     FutureProvider.family<List<MediaTitle>, MovieSection>((ref, section) async {
+      ref.watch(preferredRegionCodeProvider);
       final sortFilter = ref.watch(genreSortProvider);
       return _fetchMovieSection(
         ref,
@@ -785,6 +788,7 @@ final movieSectionProvider =
 
 final exploreMovieSectionProvider =
     FutureProvider.family<List<MediaTitle>, MovieSection>((ref, section) async {
+      ref.watch(preferredRegionCodeProvider);
       return _fetchMovieSection(
         ref,
         section,
@@ -798,6 +802,7 @@ final genreSectionProvider =
       ref,
       params,
     ) async {
+      ref.watch(preferredRegionCodeProvider);
       final sortFilter = ref.watch(genreSortProvider);
       return _fetchGenreSection(
         ref,
@@ -911,6 +916,7 @@ final exploreGenreSectionProvider =
       ref,
       params,
     ) async {
+      ref.watch(preferredRegionCodeProvider);
       return _fetchGenreSection(
         ref,
         params,

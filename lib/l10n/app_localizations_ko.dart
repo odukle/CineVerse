@@ -1544,6 +1544,12 @@ class AppLocalizationsKo extends AppLocalizations {
   String get trending => '인기 급상승';
 
   @override
+  String get trendingPeople => '인기 인물';
+
+  @override
+  String get starringTodayOrThisWeek => '오늘 또는 이번 주 인기 스타';
+
+  @override
   String get nowPlaying => '지금 재생 중';
 
   @override

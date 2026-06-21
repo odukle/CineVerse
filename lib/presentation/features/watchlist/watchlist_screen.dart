@@ -7,6 +7,7 @@ import 'package:cineverse/domain/entities/global_media_filter.dart';
 import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:cineverse/domain/entities/movie_note.dart';
 import 'package:cineverse/domain/entities/library_item.dart';
+import 'package:cineverse/domain/entities/watched_item.dart';
 import 'package:cineverse/domain/usecases/get_movie_details_use_case.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/movie_details_provider.dart';
 import 'package:cineverse/presentation/features/movie_details/providers/notes_provider.dart';
@@ -552,22 +553,14 @@ class _WatchedTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final watchedAsync = ref.watch(watchedItemsProvider);
     return watchedAsync.when(
-      data: (items) => _WatchedScrollableContent(
-        filter: filter,
-        items: items
+      data: (items) {
+        final filtered = items
             .where((e) => _matchesLibraryMediaFilter(e.mediaType, filter))
-            .map(
-              (e) => MediaTitle(
-                id: e.id,
-                title: e.title,
-                posterPath: e.posterPath,
-                releaseDate: e.watchDate.year.toString(),
-                mediaType: e.mediaType,
-                voteAverage: e.voteAverage,
-              ),
-            )
-            .toList(),
-      ),
+            .toList();
+        // Sort newest-first so grouping is in descending order.
+        filtered.sort((a, b) => b.watchDate.compareTo(a.watchDate));
+        return _WatchedScrollableContent(items: filtered, filter: filter);
+      },
       loading: () => const _LoadingGrid(),
       error: (e, _) => Center(
         child: Text(
@@ -579,11 +572,39 @@ class _WatchedTab extends ConsumerWidget {
   }
 }
 
+/// Groups [WatchedItem]s by calendar month and renders each group under a
+/// styled month header, newest group first.
 class _WatchedScrollableContent extends StatelessWidget {
-  const _WatchedScrollableContent({required this.items, required this.filter});
+  const _WatchedScrollableContent({
+    required this.items,
+    required this.filter,
+  });
 
-  final List<MediaTitle> items;
+  /// Already filtered and sorted newest-first by [_WatchedTab].
+  final List<WatchedItem> items;
   final LibraryMediaFilter filter;
+
+  /// Builds an ordered list of (monthKey, items) groups.
+  /// monthKey format: 'yyyy-MM' for sorting, display label derived separately.
+  List<({String key, String label, List<WatchedItem> items})> _groupByMonth(
+    List<WatchedItem> items,
+  ) {
+    final Map<String, List<WatchedItem>> map =
+        <String, List<WatchedItem>>{};
+    for (final WatchedItem item in items) {
+      final String key =
+          '${item.watchDate.year}-${item.watchDate.month.toString().padLeft(2, '0')}';
+      (map[key] ??= <WatchedItem>[]).add(item);
+    }
+    // Sort keys descending (newest month first).
+    final List<String> keys = map.keys.toList()
+      ..sort((a, b) => b.compareTo(a));
+    return keys.map((String key) {
+      final DateTime d = DateTime.parse('$key-01');
+      final String label = DateFormat('MMMM yyyy').format(d);
+      return (key: key, label: label, items: map[key]!);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -593,14 +614,18 @@ class _WatchedScrollableContent extends StatelessWidget {
         (MediaQuery.sizeOf(context).width - (16 * 2) - (crossAxisSpacing * 2)) /
         crossAxisCount;
 
+    final groups = _groupByMonth(items);
+
     return CustomScrollView(
       slivers: [
+        // ── Analytics card ───────────────────────────────────────────────
         const SliverToBoxAdapter(
           child: Padding(
             padding: EdgeInsets.fromLTRB(16, 12, 16, 0),
             child: _WatchHistoryAnalyticsCard(),
           ),
         ),
+
         if (items.isEmpty)
           SliverFillRemaining(
             hasScrollBody: false,
@@ -608,17 +633,17 @@ class _WatchedScrollableContent extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.check_circle_outline_rounded,
                     size: 64,
                     color: Colors.white24,
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     context.l10n.noFilterInWatched(
                       filter.label(context).toLowerCase(),
                     ),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white54,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -629,27 +654,96 @@ class _WatchedScrollableContent extends StatelessWidget {
             ),
           )
         else
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
-            sliver: SliverGrid(
-              delegate: SliverChildBuilderDelegate((context, index) {
-                final media = items[index];
-                return MediaPosterGridCard(
-                  movie: media,
-                  sectionTitle: context.l10n.navLibrary,
-                  width: cardWidth,
-                  isTvTitle: media.mediaType == GlobalMediaType.tv,
-                  enableWatchlistUndoOnRemove: true,
-                );
-              }, childCount: items.length),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: crossAxisCount,
-                crossAxisSpacing: crossAxisSpacing,
-                mainAxisSpacing: 16,
-                childAspectRatio: 0.55,
+          // ── One header + grid per month ─────────────────────────────
+          for (final group in groups) ...[
+            // Month header
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 10),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 3,
+                      height: 18,
+                      decoration: BoxDecoration(
+                        color: AppColors.cinemaAccent,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      group.label,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.cinemaAccent.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: AppColors.cinemaAccent.withValues(alpha: 0.25),
+                        ),
+                      ),
+                      child: Text(
+                        '${group.items.length}',
+                        style: TextStyle(
+                          color: AppColors.cinemaAccent,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
+            // Poster grid for this month
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final WatchedItem item = group.items[index];
+                    final MediaTitle media = MediaTitle(
+                      id: item.id,
+                      title: item.title,
+                      posterPath: item.posterPath,
+                      releaseDate: item.watchDate.year.toString(),
+                      mediaType: item.mediaType,
+                      voteAverage: item.voteAverage,
+                    );
+                    return MediaPosterGridCard(
+                      movie: media,
+                      sectionTitle: context.l10n.navLibrary,
+                      width: cardWidth,
+                      isTvTitle: media.mediaType == GlobalMediaType.tv,
+                      enableWatchlistUndoOnRemove: true,
+                    );
+                  },
+                  childCount: group.items.length,
+                ),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: crossAxisCount,
+                  crossAxisSpacing: crossAxisSpacing,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: 0.55,
+                ),
+              ),
+            ),
+          ],
+
+        // Bottom padding so last row clears the nav bar.
+        if (items.isNotEmpty)
+          const SliverToBoxAdapter(child: SizedBox(height: 28)),
       ],
     );
   }

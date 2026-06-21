@@ -42,7 +42,10 @@ final watchlistProvider =
     });
 
 final isInWatchlistProvider = FutureProvider.family<bool, int>((ref, id) async {
-  // Listen to watchlist changes to re-evaluate
-  ref.watch(watchlistProvider);
+  // Do NOT watch watchlistProvider here — with 100+ family instances active
+  // simultaneously (one per search result card), the subscription count
+  // becomes inconsistent and triggers a Riverpod assertion error.
+  // The WatchlistNotifier already calls ref.invalidate(isInWatchlistProvider(id))
+  // after every toggle, so explicit invalidation is the sole refresh mechanism.
   return ref.watch(isInWatchlistUseCaseProvider).call(id);
 });

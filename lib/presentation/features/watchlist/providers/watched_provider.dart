@@ -72,7 +72,6 @@ final isWatchedProvider =
   ref,
   params,
 ) async {
-  ref.watch(watchedItemsProvider);
   return ref.watch(isWatchedUseCaseProvider).call(params.id, params.type);
 });
 
@@ -81,6 +80,5 @@ final watchedItemProvider =
   ref,
   params,
 ) async {
-  ref.watch(watchedItemsProvider);
   return ref.watch(getWatchedItemUseCaseProvider).call(params.id, params.type);
 });

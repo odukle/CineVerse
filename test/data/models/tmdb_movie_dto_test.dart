@@ -52,4 +52,37 @@ void main() {
     expect(response.movies, hasLength(1));
     expect(response.movies.first.title, 'The Matrix');
   });
+
+  test('detects low quality persons based on their known_for credits', () {
+    final highQualityDto = TmdbMovieDto.fromJson(<String, dynamic>{
+      'id': 115440,
+      'name': 'Sydney Sweeney',
+      'media_type': 'person',
+      'known_for': [
+        {
+          'id': 85552,
+          'title': 'Euphoria',
+          'vote_count': 10879,
+          'popularity': 116.6,
+        }
+      ],
+    });
+
+    final lowQualityDto = TmdbMovieDto.fromJson(<String, dynamic>{
+      'id': 3164807,
+      'name': 'Yoon Yool',
+      'media_type': 'person',
+      'known_for': [
+        {
+          'id': 865463,
+          'title': 'Sexy Breasts',
+          'vote_count': 22,
+          'popularity': 5.89,
+        }
+      ],
+    });
+
+    expect(highQualityDto.isLowQualityPerson, isFalse);
+    expect(lowQualityDto.isLowQualityPerson, isTrue);
+  });
 }

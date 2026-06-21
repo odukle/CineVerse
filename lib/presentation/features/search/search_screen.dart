@@ -32,6 +32,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   late final TextEditingController _controller;
   late final FocusNode _focusNode;
   late final ScrollController _scrollController;
+  // Saved during initState so dispose() can call it without touching ref
+  // (ref is unsafe to use once the widget is being unmounted).
+  late final SearchNotifier _searchNotifier;
 
   @override
   void initState() {
@@ -39,6 +42,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     _controller = TextEditingController();
     _focusNode = FocusNode();
     _scrollController = ScrollController()..addListener(_onScroll);
+    _searchNotifier = ref.read(searchProvider.notifier);
 
     _focusNode.requestFocus();
 
@@ -47,10 +51,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       if (mounted) {
         if (widget.initialQuery != null && widget.initialQuery!.isNotEmpty) {
           _controller.text = widget.initialQuery!;
-          ref.read(searchProvider.notifier).updateQuery(widget.initialQuery!);
-          ref.read(searchProvider.notifier).submitSearch(widget.initialQuery!);
+          _searchNotifier.updateQuery(widget.initialQuery!);
+          _searchNotifier.submitSearch(widget.initialQuery!);
         } else {
-          ref.read(searchProvider.notifier).clear();
+          _searchNotifier.clear();
         }
       }
     });
@@ -61,8 +65,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     _controller.dispose();
     _focusNode.dispose();
     _scrollController.dispose();
-    // Reset search state when leaving the screen
-    ref.read(searchProvider.notifier).clear();
+    // Reset search state when leaving the screen.
+    // Uses the pre-saved notifier reference — ref is unsafe here.
+    _searchNotifier.clear();
     super.dispose();
   }
 

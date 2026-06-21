@@ -1009,7 +1009,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noNotesFound => 'No notes found';
 
   @override
-  String get renameList => 'Rename List';
+  String get renameList => 'Rename';
 
   @override
   String get titlesYouNeverWantToLose => 'The titles you never want to lose.';
@@ -1589,6 +1589,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get trending => 'Trending';
+
+  @override
+  String get trendingPeople => 'Trending Personalities';
+
+  @override
+  String get starringTodayOrThisWeek => 'Stars trending today or this week';
 
   @override
   String get nowPlaying => 'Now Playing';

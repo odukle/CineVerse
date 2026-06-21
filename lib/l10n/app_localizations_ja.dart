@@ -1542,6 +1542,12 @@ class AppLocalizationsJa extends AppLocalizations {
   String get trending => 'トレンド';
 
   @override
+  String get trendingPeople => 'トレンドのパーソナリティ';
+
+  @override
+  String get starringTodayOrThisWeek => '今日または今週のトレンドのスター';
+
+  @override
   String get nowPlaying => '再生中';
 
   @override

@@ -1618,6 +1618,13 @@ class AppLocalizationsTe extends AppLocalizations {
   String get trending => 'ట్రెండింగ్';
 
   @override
+  String get trendingPeople => 'ట్రెండింగ్ పర్సనాలిటీలు';
+
+  @override
+  String get starringTodayOrThisWeek =>
+      'ఈ రోజు లేదా ఈ వారం ట్రెండింగ్‌లో ఉన్న స్టార్‌లు';
+
+  @override
   String get nowPlaying => 'ఇప్పుడు ప్లే అవుతోంది';
 
   @override

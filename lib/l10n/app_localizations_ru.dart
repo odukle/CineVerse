@@ -1617,6 +1617,13 @@ class AppLocalizationsRu extends AppLocalizations {
   String get trending => 'В тренде';
 
   @override
+  String get trendingPeople => 'Трендовые личности';
+
+  @override
+  String get starringTodayOrThisWeek =>
+      'Звезды в тренде сегодня или на этой неделе';
+
+  @override
   String get nowPlaying => 'Сейчас играет';
 
   @override

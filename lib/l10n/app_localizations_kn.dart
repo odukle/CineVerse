@@ -1616,6 +1616,13 @@ class AppLocalizationsKn extends AppLocalizations {
   String get trending => 'ಟ್ರೆಂಡಿಂಗ್';
 
   @override
+  String get trendingPeople => 'ಟ್ರೆಂಡಿಂಗ್ ವ್ಯಕ್ತಿಗಳು';
+
+  @override
+  String get starringTodayOrThisWeek =>
+      'ಇಂದು ಅಥವಾ ಈ ವಾರದ ಟ್ರೆಂಡಿಂಗ್ ಸ್ಟಾರ್‌ಗಳು';
+
+  @override
   String get nowPlaying => 'ಈಗ ಪ್ಲೇ ಆಗುತ್ತಿದೆ';
 
   @override

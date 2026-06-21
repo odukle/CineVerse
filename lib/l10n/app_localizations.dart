@@ -1961,7 +1961,7 @@ abstract class AppLocalizations {
   /// Rename list dialog title
   ///
   /// In en, this message translates to:
-  /// **'Rename List'**
+  /// **'Rename'**
   String get renameList;
 
   /// Favourites section description
@@ -3007,6 +3007,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trending'**
   String get trending;
+
+  /// Section header for trending personalities/people
+  ///
+  /// In en, this message translates to:
+  /// **'Trending Personalities'**
+  String get trendingPeople;
+
+  /// Subtitle for trending personalities
+  ///
+  /// In en, this message translates to:
+  /// **'Stars trending today or this week'**
+  String get starringTodayOrThisWeek;
 
   /// Localized string for nowPlaying
   ///

@@ -1634,6 +1634,13 @@ class AppLocalizationsEs extends AppLocalizations {
   String get trending => 'Tendencias';
 
   @override
+  String get trendingPeople => 'Personalidades de tendencia';
+
+  @override
+  String get starringTodayOrThisWeek =>
+      'Estrellas que son tendencia hoy o esta semana';
+
+  @override
   String get nowPlaying => 'Reproduciendo ahora';
 
   @override

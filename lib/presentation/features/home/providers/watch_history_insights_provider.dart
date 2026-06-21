@@ -117,6 +117,9 @@ final watchHistoryInsightsProvider = FutureProvider<WatchHistoryInsights?>((
               watchedCount: stats.count,
             );
           })
+          .where(
+            (GenreRatingInsight g) => g.watchedCount >= 2,
+          )
           .toList(growable: false)
         ..sort((a, b) {
           final int ratingCompare = b.averageRating.compareTo(a.averageRating);

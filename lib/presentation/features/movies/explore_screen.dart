@@ -19,6 +19,7 @@ import 'package:cineverse/presentation/features/movies/providers/explore_provide
 import 'package:cineverse/presentation/features/movies/providers/hidden_titles_provider.dart';
 import 'package:cineverse/presentation/features/movies/models/explore_models.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
+import 'package:cineverse/presentation/features/movies/widgets/trending_person_card.dart';
 import 'package:cineverse/presentation/features/movies/widgets/rating_badge.dart';
 import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:cineverse/presentation/widgets/trailer_player_screen.dart';
@@ -100,6 +101,11 @@ Map<String, _SectionVisualSpec> _sectionVisuals(BuildContext context) =>
         accent: Color(0xFF7DD9FF),
         subtitle: context.l10n.personalizedFromWatchBehavior,
       ),
+      context.l10n.trendingPeople: _SectionVisualSpec(
+        icon: Icons.people_alt_rounded,
+        accent: Color(0xFFFF8AD2),
+        subtitle: context.l10n.starringTodayOrThisWeek,
+      ),
     };
 
 class ExploreScreen extends ConsumerStatefulWidget {
@@ -141,6 +147,20 @@ class ExploreScreen extends ConsumerStatefulWidget {
             ),
           ],
           variant: _ShelfVariant.featured,
+        ),
+        ExploreShelfData(
+          title: context.l10n.trendingPeople,
+          filters: <ExploreFilterOption>[
+            ExploreFilterOption(
+              label: context.l10n.today,
+              section: MovieSection.personTrendingDay,
+            ),
+            ExploreFilterOption(
+              label: context.l10n.thisWeek,
+              section: MovieSection.personTrendingWeek,
+            ),
+          ],
+          variant: _ShelfVariant.person,
         ),
         ExploreShelfData(
           title: context.l10n.hiddenGems,
@@ -206,6 +226,20 @@ class ExploreScreen extends ConsumerStatefulWidget {
             ),
           ],
           variant: _ShelfVariant.featured,
+        ),
+        ExploreShelfData(
+          title: context.l10n.trendingPeople,
+          filters: <ExploreFilterOption>[
+            ExploreFilterOption(
+              label: context.l10n.today,
+              section: MovieSection.personTrendingDay,
+            ),
+            ExploreFilterOption(
+              label: context.l10n.thisWeek,
+              section: MovieSection.personTrendingWeek,
+            ),
+          ],
+          variant: _ShelfVariant.person,
         ),
         ExploreShelfData(
           title: context.l10n.onTheAir,
@@ -633,6 +667,7 @@ class _LibraryRecommendationsSection extends ConsumerWidget {
 
 class _ShelfVariant {
   static const String featured = 'featured';
+  static const String person = 'person';
 }
 
 class _TonightWatchQuickLaunchStrip extends ConsumerWidget {
@@ -3391,15 +3426,18 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
       movies = ref.watch(exploreMovieSectionProvider(activeFilter.section!));
     }
 
+    final bool isPersonShelf = widget.section.variant == _ShelfVariant.person;
     const double horizontalPadding = 16;
     const double itemSpacing = 12;
-    const double shelfHeight = 220;
+    final double shelfHeight = isPersonShelf ? 180 : 220;
 
     // Use a more efficient way to get width
     final double screenWidth = MediaQuery.sizeOf(context).width;
     final double cardWidth =
         (screenWidth - (horizontalPadding * 2) - (itemSpacing * 2)) / 3;
-    final double finalCardWidth = cardWidth.clamp(100.0, 108.0);
+    final double finalCardWidth = isPersonShelf
+        ? cardWidth.clamp(108.0, 114.0)
+        : cardWidth.clamp(100.0, 108.0);
 
     return RepaintBoundary(
       child: Padding(
@@ -3578,13 +3616,19 @@ class _MovieShelfSectionState extends ConsumerState<_MovieShelfSection> {
                             index: index,
                             accent: visual.accent,
                             child: RepaintBoundary(
-                              child: MediaPosterGridCard(
-                                movie: sectionData[index],
-                                sectionTitle: widget.section.title,
-                                width: finalCardWidth,
-                                isTvTitle: isTv,
-                                disableSortBasedSubtitle: true,
-                              ),
+                              child: isPersonShelf
+                                  ? TrendingPersonCard(
+                                      person: sectionData[index],
+                                      accent: visual.accent,
+                                      width: finalCardWidth,
+                                    )
+                                  : MediaPosterGridCard(
+                                      movie: sectionData[index],
+                                      sectionTitle: widget.section.title,
+                                      width: finalCardWidth,
+                                      isTvTitle: isTv,
+                                      disableSortBasedSubtitle: true,
+                                    ),
                             ),
                           );
                         },

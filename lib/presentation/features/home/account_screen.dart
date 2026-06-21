@@ -602,7 +602,9 @@ class AccountScreen extends ConsumerWidget {
                                 final SyncService syncService = ref.read(
                                   syncServiceProvider,
                                 );
-                                await syncService.syncAllToRemote();
+                                await syncService.syncAllToRemote(
+                                  allowEmptyLibraryOverwrite: false,
+                                );
                                 await ref
                                     .read(authRepositoryProvider)
                                     .signOut();

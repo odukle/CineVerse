@@ -47,7 +47,11 @@ abstract interface class MediaRepository {
   Future<MovieCollection> fetchMovieCollectionDetails(int collectionId);
   Future<CompanyDetails> fetchCompanyDetails(int companyId);
 
-  Future<MovieDetails> fetchMovieDetails(int movieId, {bool isTv = false});
+  Future<MovieDetails> fetchMovieDetails(
+    int movieId, {
+    bool isTv = false,
+    bool includeRatings = true,
+  });
 
   Future<List<MovieRecommendation>> fetchMovieRecommendations(
     int movieId, {

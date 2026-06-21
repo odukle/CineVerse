@@ -1608,6 +1608,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get trending => 'रुझान';
 
   @override
+  String get trendingPeople => 'ट्रेंडिंग व्यक्तित्व';
+
+  @override
+  String get starringTodayOrThisWeek =>
+      'आज या इस हफ़्ते सितारे ट्रेंड कर रहे हैं';
+
+  @override
   String get nowPlaying => 'अब खेल रहे हैं';
 
   @override

@@ -16,6 +16,9 @@ final Map<_RecCacheKey, int> _libraryRecsLoadedPages = {};
 final Map<_RecCacheKey, bool> _libraryRecsExhausted = {};
 final Map<_RecCacheKey, int> _libraryRecsTargetPages = {};
 final Map<_RecCacheKey, List<int>> _libraryRecsSampledIds = {};
+/// Fingerprint of the sourceIds set used when the cache was last built.
+/// If the library changes, the fingerprint changes and we clear the cache.
+final Map<_RecCacheKey, String> _libraryRecsSourceFingerprint = {};
 
 void loadNextLibraryRecsPage(WidgetRef ref, RecSource source) {
   final mediaType = ref.read(exploreMediaTypeProvider);
@@ -40,6 +43,7 @@ void resetLibraryRecommendations(WidgetRef ref, RecSource source) {
   _libraryRecsExhausted.remove(key);
   _libraryRecsTargetPages[key] = 1;
   _libraryRecsSampledIds.remove(key);
+  _libraryRecsSourceFingerprint.remove(key);
   ref.invalidate(libraryRecommendationsProvider(source));
 }
 
@@ -105,6 +109,20 @@ final libraryRecommendationsProvider =
     _libraryRecsCache[cacheKey] = [];
     _libraryRecsExhausted[cacheKey] = true;
     return const [];
+  }
+
+  // Build a fingerprint of the current source set. If the library changed
+  // (item added or removed), the fingerprint won't match what was cached
+  // so we clear the stale cache and start fresh.
+  final String currentFingerprint =
+      (sourceIds.toList()..sort()).join(',');
+  if (_libraryRecsSourceFingerprint[cacheKey] != currentFingerprint) {
+    _libraryRecsCache.remove(cacheKey);
+    _libraryRecsLoadedPages.remove(cacheKey);
+    _libraryRecsExhausted.remove(cacheKey);
+    _libraryRecsTargetPages[cacheKey] = 1;
+    _libraryRecsSampledIds.remove(cacheKey);
+    _libraryRecsSourceFingerprint[cacheKey] = currentFingerprint;
   }
 
   final int targetPage = _libraryRecsTargetPages[cacheKey] ?? 1;

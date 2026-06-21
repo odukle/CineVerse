@@ -1619,6 +1619,13 @@ class AppLocalizationsMl extends AppLocalizations {
   String get trending => 'ട്രെൻഡിംഗ്';
 
   @override
+  String get trendingPeople => 'ട്രെൻഡിംഗ് വ്യക്തിത്വങ്ങൾ';
+
+  @override
+  String get starringTodayOrThisWeek =>
+      'ഇന്നോ ഈ ആഴ്‌ചയോ ട്രെൻഡുചെയ്യുന്ന നക്ഷത്രങ്ങൾ';
+
+  @override
   String get nowPlaying => 'ഇപ്പോൾ കേൾക്കുന്നു';
 
   @override

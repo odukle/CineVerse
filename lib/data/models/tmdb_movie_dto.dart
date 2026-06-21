@@ -15,6 +15,7 @@ class TmdbMovieDto {
     this.voteCount = 0,
     this.popularity = 0.0,
     this.revenue,
+    this.isLowQualityPerson = false,
   });
 
   factory TmdbMovieDto.fromJson(Map<String, dynamic> json) {
@@ -30,6 +31,32 @@ class TmdbMovieDto {
 
     final rawImagePath =
         (json['poster_path'] as String?) ?? (json['profile_path'] as String?);
+
+    bool isLowQualityPerson = false;
+    if (mediaType == GlobalMediaType.person) {
+      final List<dynamic>? knownFor = json['known_for'] as List<dynamic>?;
+      if (knownFor == null || knownFor.isEmpty) {
+        isLowQualityPerson = true;
+      } else {
+        int maxVoteCount = 0;
+        double maxPopularity = 0.0;
+        for (final item in knownFor) {
+          if (item is Map<String, dynamic>) {
+            final voteCount = (item['vote_count'] as num?)?.toInt() ?? 0;
+            final popularity = (item['popularity'] as num?)?.toDouble() ?? 0.0;
+            if (voteCount > maxVoteCount) {
+              maxVoteCount = voteCount;
+            }
+            if (popularity > maxPopularity) {
+              maxPopularity = popularity;
+            }
+          }
+        }
+        if (maxVoteCount < 50 && maxPopularity < 10.0) {
+          isLowQualityPerson = true;
+        }
+      }
+    }
 
     return TmdbMovieDto(
       id: (json['id'] as num?)?.toInt() ?? 0,
@@ -53,6 +80,7 @@ class TmdbMovieDto {
       voteCount: (json['vote_count'] as num?)?.toInt() ?? 0,
       popularity: (json['popularity'] as num?)?.toDouble() ?? 0.0,
       revenue: (json['revenue'] as num?)?.toInt(),
+      isLowQualityPerson: isLowQualityPerson,
     );
   }
 
@@ -67,6 +95,7 @@ class TmdbMovieDto {
   final int voteCount;
   final double popularity;
   final int? revenue;
+  final bool isLowQualityPerson;
 
   MediaTitle toDomain() {
     return MediaTitle(

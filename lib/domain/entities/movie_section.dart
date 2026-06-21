@@ -16,4 +16,6 @@ enum MovieSection {
   action,
   drama,
   thriller,
+  personTrendingDay,
+  personTrendingWeek,
 }

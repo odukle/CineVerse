@@ -1365,7 +1365,7 @@
   "@noNotesFound": {
     "description": "Localized string for noNotesFound"
   },
-  "renameList": "Rename List",
+  "renameList": "Rename",
   "@renameList": {
     "description": "Rename list dialog title"
   },
@@ -2131,6 +2131,14 @@
   "trending": "Trending",
   "@trending": {
     "description": "Localized string for trending"
+  },
+  "trendingPeople": "Trending Personalities",
+  "@trendingPeople": {
+    "description": "Section header for trending personalities/people"
+  },
+  "starringTodayOrThisWeek": "Stars trending today or this week",
+  "@starringTodayOrThisWeek": {
+    "description": "Subtitle for trending personalities"
   },
   "nowPlaying": "Now Playing",
   "@nowPlaying": {

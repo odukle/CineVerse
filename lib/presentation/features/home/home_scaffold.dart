@@ -106,6 +106,7 @@ class HomeScaffold extends ConsumerWidget {
       child: BackgroundGradient(
         child: Scaffold(
           backgroundColor: Colors.transparent,
+          extendBody: true,
           appBar: AppBar(
             toolbarHeight: 68,
             backgroundColor: Colors.transparent,

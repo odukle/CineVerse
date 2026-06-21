@@ -97,9 +97,15 @@ class MediaRepositoryImpl implements MediaRepository {
       filter: filter,
     );
 
-    return movieDtos
-        .map((movieDto) => movieDto.toDomain())
-        .toList(growable: false);
+    if (section == MovieSection.personTrendingDay ||
+        section == MovieSection.personTrendingWeek) {
+      return movieDtos
+          .where((dto) => !dto.isLowQualityPerson)
+          .map((dto) => dto.toDomain())
+          .where((m) => m.posterPath != null && m.posterPath!.isNotEmpty)
+          .toList(growable: false);
+    }
+    return movieDtos.map((movieDto) => movieDto.toDomain()).toList(growable: false);
   }
 
   @override
@@ -184,6 +190,7 @@ class MediaRepositoryImpl implements MediaRepository {
   Future<MovieDetails> fetchMovieDetails(
     int movieId, {
     bool isTv = false,
+    bool includeRatings = true,
   }) async {
     final movieDetailsDto = await remoteDataSource.fetchMovieDetails(
       movieId,
@@ -192,7 +199,7 @@ class MediaRepositoryImpl implements MediaRepository {
     final MovieDetails baseDetails = movieDetailsDto.toDomain();
     final String? imdbId = movieDetailsDto.imdbId;
 
-    if (imdbId == null || imdbId.isEmpty) {
+    if (!includeRatings || imdbId == null || imdbId.isEmpty) {
       return baseDetails;
     }
 

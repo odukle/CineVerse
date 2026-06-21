@@ -1863,17 +1863,32 @@ class _WatchHistoryInsightsSection extends StatelessWidget {
             SizedBox(height: shareStyle ? 10 : 8),
             ...insights.averageRatingPerGenre.map((entry) {
               return Padding(
-                padding: EdgeInsets.symmetric(vertical: shareStyle ? 6 : 4),
+                padding: EdgeInsets.symmetric(vertical: shareStyle ? 6 : 5),
                 child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       flex: 3,
-                      child: Text(
-                        entry.genre,
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: shareStyle ? 16 : 13,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            entry.genre,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.9),
+                              fontWeight: FontWeight.w600,
+                              fontSize: shareStyle ? 16 : 13,
+                            ),
+                          ),
+                          Text(
+                            '${entry.watchedCount} title${entry.watchedCount == 1 ? '' : 's'}',
+                            style: TextStyle(
+                              color: Colors.white38,
+                              fontSize: shareStyle ? 12 : 10,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     Expanded(

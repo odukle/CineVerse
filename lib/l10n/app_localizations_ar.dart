@@ -1588,6 +1588,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get trending => 'الأكثر رواجاً';
 
   @override
+  String get trendingPeople => 'الشخصيات الرائجة';
+
+  @override
+  String get starringTodayOrThisWeek => 'النجوم الرائجة اليوم أو هذا الأسبوع';
+
+  @override
   String get nowPlaying => 'يعرض الآن';
 
   @override

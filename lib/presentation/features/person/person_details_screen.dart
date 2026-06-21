@@ -5,7 +5,6 @@ import 'package:cineverse/presentation/widgets/shimmer_effect.dart';
 import 'package:cineverse/presentation/widgets/full_screen_image_viewer.dart';
 import 'package:cineverse/presentation/features/movies/providers/movies_provider.dart';
 import 'package:cineverse/presentation/features/movies/widgets/media_poster_grid_card.dart';
-import 'package:cineverse/domain/entities/media_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,7 +17,9 @@ import 'package:cineverse/core/extensions/l10n_extension.dart';
 import 'package:cineverse/presentation/features/person/providers/person_details_provider.dart';
 import 'package:cineverse/domain/entities/person_details.dart';
 import 'package:cineverse/domain/entities/global_media_filter.dart';
-import 'package:sliver_tools/sliver_tools.dart';
+import 'package:cineverse/domain/entities/media_title.dart';
+import 'package:go_router/go_router.dart';
+import 'package:cineverse/app/router/app_router.dart';
 
 class PersonDetailsScreen extends ConsumerStatefulWidget {
   const PersonDetailsScreen({super.key, required this.personId, this.heroTag});
@@ -93,397 +94,370 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
                       handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
                         context,
                       ),
-                      sliver: MultiSliver(
-                        children: [
-                          SliverAppBar(
-                            pinned: true,
-                            backgroundColor: AppColors.cinemaGradientTop,
-                            elevation: 0,
-                            leading: IconButton(
-                              onPressed: () {
-                                HapticFeedback.selectionClick();
-                                Navigator.pop(context);
-                              },
-                              icon: const Icon(
-                                Icons.arrow_back_rounded,
+                      sliver: SliverAppBar(
+                        pinned: true,
+                        backgroundColor: AppColors.cinemaGradientTop,
+                        elevation: 0,
+                        leading: IconButton(
+                          onPressed: () {
+                            HapticFeedback.selectionClick();
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(
+                            Icons.arrow_back_rounded,
+                            color: Colors.white,
+                          ),
+                        ),
+                        title: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              details.name,
+                              style: const TextStyle(
                                 color: Colors.white,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                            title: Column(
+                            if (details.alsoKnownAs != null &&
+                                details.alsoKnownAs!.isNotEmpty) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                details.alsoKnownAs!.first,
+                                style: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.normal,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Profile Header
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          16,
+                          16 + MediaQuery.paddingOf(context).top + kToolbarHeight,
+                          16,
+                          16,
+                        ),
+                        child: Column(
+                          children: [
+                            Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  details.name,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+                                Hero(
+                                  tag: widget.heroTag ?? 'person-${details.id}',
+                                  child: Container(
+                                    width: 120,
+                                    height: 180,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(16),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.3,
+                                          ),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 5),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(16),
+                                      child: details.profilePath != null
+                                          ? CachedNetworkImage(
+                                              imageUrl: details.profilePath!,
+                                              fit: BoxFit.cover,
+                                              placeholder: (context, url) =>
+                                                  const ShimmerEffect(
+                                                    width: 120,
+                                                    height: 180,
+                                                    borderRadius: 16,
+                                                  ),
+                                            )
+                                          : Container(
+                                              color: Colors.white10,
+                                              child: const Icon(
+                                                Icons.person,
+                                                size: 64,
+                                                color: Colors.white24,
+                                              ),
+                                            ),
+                                    ),
                                   ),
                                 ),
-                                if (details.alsoKnownAs != null &&
-                                    details.alsoKnownAs!.isNotEmpty) ...[
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    details.alsoKnownAs!.first,
-                                    style: TextStyle(
-                                      color: Colors.white.withValues(
-                                        alpha: 0.6,
-                                      ),
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ],
-                            ),
-                          ),
-
-                          // Profile Header
-                          SliverToBoxAdapter(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Hero(
-                                        tag:
-                                            widget.heroTag ??
-                                            'person-${details.id}',
-                                        child: Container(
-                                          width: 120,
-                                          height: 180,
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black.withValues(
-                                                  alpha: 0.3,
-                                                ),
-                                                blurRadius: 10,
-                                                offset: const Offset(0, 5),
-                                              ),
-                                            ],
-                                          ),
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(
-                                              16,
-                                            ),
-                                            child: details.profilePath != null
-                                                ? CachedNetworkImage(
-                                                    imageUrl:
-                                                        details.profilePath!,
-                                                    fit: BoxFit.cover,
-                                                    placeholder:
-                                                        (context, url) =>
-                                                            const ShimmerEffect(
-                                                              width: 120,
-                                                              height: 180,
-                                                              borderRadius: 16,
-                                                            ),
-                                                  )
-                                                : Container(
-                                                    color: Colors.white10,
-                                                    child: const Icon(
-                                                      Icons.person,
-                                                      size: 64,
-                                                      color: Colors.white24,
-                                                    ),
-                                                  ),
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 20),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            if (details.birthday != null)
-                                              _InfoItem(
-                                                label: context.l10n.born,
-                                                value:
-                                                    '${details.birthday!}${details.deathday == null ? _calculateAge(details.birthday!, null) : ""}',
-                                              ),
-                                            if (details.placeOfBirth != null)
-                                              _InfoItem(
-                                                label: context.l10n.birthplace,
-                                                value: details.placeOfBirth!,
-                                              ),
-                                            if (details.deathday != null)
-                                              _InfoItem(
-                                                label: context.l10n.died,
-                                                value:
-                                                    '${details.deathday!}${_calculateLifespan(details.birthday ?? "", details.deathday!)}',
-                                              ),
-                                            if (details.knownForDepartment !=
-                                                null)
-                                              _InfoItem(
-                                                label: context.l10n.knownFor,
-                                                value:
-                                                    details.knownForDepartment!,
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  if (details.hasSocialHandles) ...[
-                                    const SizedBox(height: 14),
-                                    _PersonSocialLinks(details: details),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          ),
-
-                          // Biography
-                          if (details.biography != null &&
-                              details.biography!.isNotEmpty)
-                            SliverToBoxAdapter(
-                              child: _ExpandableBiographyCard(
-                                biography: details.biography!,
-                              ),
-                            ),
-                          if ((details.alsoKnownAs ?? const <String>[])
-                              .isNotEmpty)
-                            SliverToBoxAdapter(
-                              child: _AlsoKnownAsSection(
-                                aliases:
-                                    details.alsoKnownAs ?? const <String>[],
-                              ),
-                            ),
-
-                          SliverToBoxAdapter(
-                            child: _PersonStatsDashboard(personId: details.id),
-                          ),
-
-                          SliverToBoxAdapter(
-                            child: _FrequentCollaboratorsSection(
-                              personId: details.id,
-                            ),
-                          ),
-
-                          // Known For Carousel
-                          SliverToBoxAdapter(
-                            child: _KnownForCarousel(
-                              creditsByDepartment: details.creditsByDepartment,
-                              knownForDepartment: details.knownForDepartment,
-                            ),
-                          ),
-
-                          // Images Section
-                          SliverToBoxAdapter(
-                            child: _PersonImagesCarousel(personId: details.id),
-                          ),
-
-                          // Quotes Section
-                          SliverToBoxAdapter(
-                            child: _PersonQuotes(name: details.name),
-                          ),
-
-                          if (departments.isNotEmpty) ...[
-                            const SliverToBoxAdapter(
-                              child: SizedBox(height: 24),
-                            ),
-                            SliverPersistentHeader(
-                              pinned: true,
-                              delegate: _SliverAppBarDelegate(
-                                minHeight: 180,
-                                maxHeight: 180,
-                                child: Container(
-                                  color: AppColors.cinemaGradientTop,
+                                const SizedBox(width: 20),
+                                Expanded(
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          16,
-                                          12,
-                                          16,
-                                          8,
+                                      if (details.birthday != null)
+                                        _InfoItem(
+                                          label: context.l10n.born,
+                                          value:
+                                              '${details.birthday!}${details.deathday == null ? _calculateAge(details.birthday!, null) : ""}',
                                         ),
-                                        child: Text(
-                                          context.l10n.credits,
-                                          style: theme.textTheme.titleLarge
-                                              ?.copyWith(
-                                                color: Colors.white,
-                                                fontWeight: FontWeight.bold,
-                                              ),
+                                      if (details.placeOfBirth != null)
+                                        _InfoItem(
+                                          label: context.l10n.birthplace,
+                                          value: details.placeOfBirth!,
+                                        ),
+                                      if (details.deathday != null)
+                                        _InfoItem(
+                                          label: context.l10n.died,
+                                          value:
+                                              '${details.deathday!}${_calculateLifespan(details.birthday ?? "", details.deathday!)}',
+                                        ),
+                                      if (details.knownForDepartment != null)
+                                        _InfoItem(
+                                          label: context.l10n.knownFor,
+                                          value: details.knownForDepartment!,
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (details.hasSocialHandles) ...[
+                              const SizedBox(height: 14),
+                              _PersonSocialLinks(details: details),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // Biography
+                    if (details.biography != null &&
+                        details.biography!.isNotEmpty)
+                      SliverToBoxAdapter(
+                        child: _ExpandableBiographyCard(
+                          biography: details.biography!,
+                        ),
+                      ),
+                    if ((details.alsoKnownAs ?? const <String>[]).isNotEmpty)
+                      SliverToBoxAdapter(
+                        child: _AlsoKnownAsSection(
+                          aliases: details.alsoKnownAs ?? const <String>[],
+                        ),
+                      ),
+
+                    SliverToBoxAdapter(
+                      child: _PersonStatsDashboard(personId: details.id),
+                    ),
+
+                    SliverToBoxAdapter(
+                      child: _FrequentCollaboratorsSection(
+                        personId: details.id,
+                        personName: details.name,
+                        personProfilePath: details.profilePath,
+                      ),
+                    ),
+
+                    // Known For Carousel
+                    SliverToBoxAdapter(
+                      child: _KnownForCarousel(
+                        creditsByDepartment: details.creditsByDepartment,
+                        knownForDepartment: details.knownForDepartment,
+                      ),
+                    ),
+
+                    // Images Section
+                    SliverToBoxAdapter(
+                      child: _PersonImagesCarousel(personId: details.id),
+                    ),
+
+                    // Quotes Section
+                    SliverToBoxAdapter(
+                      child: _PersonQuotes(name: details.name),
+                    ),
+
+                    if (departments.isNotEmpty) ...[
+                      const SliverToBoxAdapter(child: SizedBox(height: 24)),
+                      SliverPersistentHeader(
+                        pinned: true,
+                        delegate: _SliverAppBarDelegate(
+                          minHeight: 180,
+                          maxHeight: 180,
+                          child: Container(
+                            color: AppColors.cinemaGradientTop,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    12,
+                                    16,
+                                    8,
+                                  ),
+                                  child: Text(
+                                    context.l10n.credits,
+                                    style: theme.textTheme.titleLarge?.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    0,
+                                    16,
+                                    8,
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(999),
+                                      gradient: LinearGradient(
+                                        colors: AppColors.cinemaPanelGradient,
+                                      ),
+                                      border: Border.all(
+                                        color: AppColors.cinemaBorder
+                                            .withValues(alpha: 0.28),
+                                      ),
+                                      boxShadow: <BoxShadow>[
+                                        BoxShadow(
+                                          color: AppColors.cinemaGlow
+                                              .withValues(alpha: 0.12),
+                                          blurRadius: 22,
+                                          spreadRadius: -12,
+                                          offset: const Offset(0, 14),
+                                        ),
+                                      ],
+                                    ),
+                                    child: TabBar(
+                                      onTap: (_) =>
+                                          HapticFeedback.selectionClick(),
+                                      isScrollable: true,
+                                      tabAlignment: TabAlignment.start,
+                                      dividerColor: Colors.transparent,
+                                      indicatorSize: TabBarIndicatorSize.label,
+                                      indicator: BoxDecoration(
+                                        color: AppColors.cinemaAccent
+                                            .withValues(alpha: 0.2),
+                                        borderRadius: BorderRadius.circular(
+                                          999,
+                                        ),
+                                        border: Border.all(
+                                          color: AppColors.cinemaAccent
+                                              .withValues(alpha: 0.4),
                                         ),
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                          16,
-                                          0,
-                                          16,
-                                          8,
-                                        ),
-                                        child: Container(
-                                          padding: const EdgeInsets.all(4),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                              999,
-                                            ),
-                                            gradient: LinearGradient(
-                                              colors:
-                                                  AppColors.cinemaPanelGradient,
-                                            ),
-                                            border: Border.all(
-                                              color: AppColors.cinemaBorder
-                                                  .withValues(alpha: 0.28),
-                                            ),
-                                            boxShadow: <BoxShadow>[
-                                              BoxShadow(
-                                                color: AppColors.cinemaGlow
-                                                    .withValues(alpha: 0.12),
-                                                blurRadius: 22,
-                                                spreadRadius: -12,
-                                                offset: const Offset(0, 14),
-                                              ),
-                                            ],
+                                      indicatorPadding:
+                                          const EdgeInsets.symmetric(
+                                            vertical: 3,
+                                            horizontal: 0,
                                           ),
-                                          child: TabBar(
-                                            onTap: (_) =>
-                                                HapticFeedback.selectionClick(),
-                                            isScrollable: true,
-                                            tabAlignment: TabAlignment.start,
-                                            dividerColor: Colors.transparent,
-                                            indicatorSize:
-                                                TabBarIndicatorSize.label,
-                                            indicator: BoxDecoration(
-                                              color: AppColors.cinemaAccent
-                                                  .withValues(alpha: 0.2),
-                                              borderRadius:
-                                                  BorderRadius.circular(999),
-                                              border: Border.all(
-                                                color: AppColors.cinemaAccent
-                                                    .withValues(alpha: 0.4),
-                                              ),
-                                            ),
-                                            indicatorPadding:
-                                                const EdgeInsets.symmetric(
-                                                  vertical: 3,
-                                                  horizontal: 0,
-                                                ),
-                                            splashBorderRadius:
-                                                BorderRadius.circular(999),
-                                            labelColor: Colors.white,
-                                            unselectedLabelColor: Colors.white
-                                                .withValues(alpha: 0.7),
-                                            labelStyle: const TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                            unselectedLabelStyle:
-                                                const TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                            labelPadding:
-                                                const EdgeInsets.symmetric(
-                                                  horizontal: 2,
-                                                ),
-                                            tabs: departments
-                                                .map(
-                                                  (d) => Tab(
-                                                    child: SizedBox(
-                                                      height: 28,
-                                                      child: Center(
-                                                        child: Padding(
-                                                          padding:
-                                                              const EdgeInsets.symmetric(
-                                                                horizontal: 10,
-                                                              ),
-                                                          child: Text(
-                                                            departments.length >
-                                                                    5
-                                                                ? d
-                                                                : d.toUpperCase(),
-                                                            maxLines: 1,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .fade,
-                                                            softWrap: false,
-                                                          ),
+                                      splashBorderRadius: BorderRadius.circular(
+                                        999,
+                                      ),
+                                      labelColor: Colors.white,
+                                      unselectedLabelColor: Colors.white
+                                          .withValues(alpha: 0.7),
+                                      labelStyle: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                      unselectedLabelStyle: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      labelPadding: const EdgeInsets.symmetric(
+                                        horizontal: 2,
+                                      ),
+                                      tabs: departments
+                                          .map(
+                                            (d) => Tab(
+                                              child: SizedBox(
+                                                height: 28,
+                                                child: Center(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 10,
                                                         ),
-                                                      ),
+                                                    child: Text(
+                                                      departments.length > 5
+                                                          ? d
+                                                          : d.toUpperCase(),
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.fade,
+                                                      softWrap: false,
                                                     ),
                                                   ),
-                                                )
-                                                .toList(),
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 16,
-                                          vertical: 4,
-                                        ),
-                                        child: Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                _FilterChip(
-                                                  label: context.l10n.all,
-                                                  isActive:
-                                                      _activeFilter == 'all',
-                                                  onTap: () => setState(() {
-                                                    HapticFeedback.selectionClick();
-                                                    _activeFilter = 'all';
-                                                  }),
                                                 ),
-                                                const SizedBox(width: 8),
-                                                _FilterChip(
-                                                  label: context.l10n.toggleMovies,
-                                                  isActive:
-                                                      _activeFilter == 'movie',
-                                                  onTap: () => setState(() {
-                                                    HapticFeedback.selectionClick();
-                                                    _activeFilter = 'movie';
-                                                  }),
-                                                ),
-                                                const SizedBox(width: 8),
-                                                _FilterChip(
-                                                  label: context.l10n.toggleTv,
-                                                  isActive:
-                                                      _activeFilter == 'tv',
-                                                  onTap: () => setState(() {
-                                                    HapticFeedback.selectionClick();
-                                                    _activeFilter = 'tv';
-                                                  }),
-                                                ),
-                                              ],
-                                            ),
-                                            _SortSelector(
-                                              activeSort: _activeSort,
-                                              showRevenue:
-                                                  _activeFilter == 'movie',
-                                              onSortChanged: (sort) => setState(
-                                                () => _activeSort = sort,
                                               ),
                                             ),
-                                          ],
-                                        ),
+                                          )
+                                          .toList(),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 4,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          _FilterChip(
+                                            label: context.l10n.all,
+                                            isActive: _activeFilter == 'all',
+                                            onTap: () => setState(() {
+                                              HapticFeedback.selectionClick();
+                                              _activeFilter = 'all';
+                                            }),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          _FilterChip(
+                                            label: context.l10n.toggleMovies,
+                                            isActive: _activeFilter == 'movie',
+                                            onTap: () => setState(() {
+                                              HapticFeedback.selectionClick();
+                                              _activeFilter = 'movie';
+                                            }),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          _FilterChip(
+                                            label: context.l10n.toggleTv,
+                                            isActive: _activeFilter == 'tv',
+                                            onTap: () => setState(() {
+                                              HapticFeedback.selectionClick();
+                                              _activeFilter = 'tv';
+                                            }),
+                                          ),
+                                        ],
+                                      ),
+                                      _SortSelector(
+                                        activeSort: _activeSort,
+                                        showRevenue: _activeFilter == 'movie',
+                                        onSortChanged: (sort) =>
+                                            setState(() => _activeSort = sort),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ),
+                              ],
                             ),
-                          ],
-                        ],
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ];
                 },
                 body: Builder(
@@ -655,7 +629,8 @@ class _PersonDetailsScreenState extends ConsumerState<PersonDetailsScreen> {
             );
           },
           loading: () => const _PersonDetailsShimmer(),
-          error: (err, _) => Center(child: Text(context.l10n.errorGeneric(err.toString()))),
+          error: (err, _) =>
+              Center(child: Text(context.l10n.errorGeneric(err.toString()))),
         ),
       ),
     );
@@ -1809,15 +1784,139 @@ class _PersonStatsDashboard extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: ShimmerEffect(
-          width: double.infinity,
-          height: 180,
-          borderRadius: 16,
+      loading: () => _AnalyticsProgressCard(
+        title: context.l10n.careerStatistics,
+        progress: ref.watch(personAnalyticsProgressProvider(personId)),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      ),
+      error: (error, stackTrace) => _AnalyticsInfoCard(
+        title: context.l10n.careerStatistics,
+        message: context.l10n.errorGeneric(error.toString()),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      ),
+    );
+  }
+}
+
+class _AnalyticsProgressCard extends StatelessWidget {
+  const _AnalyticsProgressCard({
+    required this.title,
+    required this.progress,
+    required this.padding,
+  });
+
+  final String title;
+  final PersonAnalyticsProgress progress;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    final double value = progress.value.clamp(0, 1);
+    final int percent = (value * 100).round();
+
+    return Padding(
+      padding: padding,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: AppColors.detailsCard.withValues(alpha: 0.6),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 12),
+            LinearProgressIndicator(
+              value: value <= 0 ? null : value,
+              minHeight: 7,
+              borderRadius: BorderRadius.circular(999),
+              backgroundColor: Colors.white.withValues(alpha: 0.08),
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.cinemaAccent),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    progress.message,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: Colors.white.withValues(alpha: 0.74),
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  '$percent%',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: AppColors.cinemaAccent,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
-      error: (error, stackTrace) => const SizedBox.shrink(),
+    );
+  }
+}
+
+class _AnalyticsInfoCard extends StatelessWidget {
+  const _AnalyticsInfoCard({
+    required this.title,
+    required this.message,
+    required this.padding,
+  });
+
+  final String title;
+  final String message;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Padding(
+      padding: padding,
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: AppColors.detailsCard.withValues(alpha: 0.6),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: Colors.white.withValues(alpha: 0.68),
+                height: 1.35,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -1890,20 +1989,31 @@ class _StatCard extends StatelessWidget {
     );
   }
 }
-
 class _FrequentCollaboratorsSection extends ConsumerWidget {
-  const _FrequentCollaboratorsSection({required this.personId});
+  const _FrequentCollaboratorsSection({
+    required this.personId,
+    required this.personName,
+    required this.personProfilePath,
+  });
 
   final int personId;
+  final String personName;
+  final String? personProfilePath;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final analyticsAsync = ref.watch(personAnalyticsProvider(personId));
+    final collaboratorsAsync = ref.watch(personCollaboratorsProvider(personId));
     final theme = Theme.of(context);
 
-    return analyticsAsync.when(
-      data: (data) {
-        if (data.collaborators.isEmpty) return const SizedBox.shrink();
+    return collaboratorsAsync.when(
+      data: (collaborators) {
+        if (collaborators.isEmpty) {
+          return _AnalyticsInfoCard(
+            title: context.l10n.frequentlyCollaboratesWith,
+            message: 'No frequent movie collaborations found.',
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+          );
+        }
 
         return Padding(
           padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
@@ -1922,11 +2032,11 @@ class _FrequentCollaboratorsSection extends ConsumerWidget {
                 height: 140,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
-                  itemCount: data.collaborators.length,
+                  itemCount: collaborators.length,
                   separatorBuilder: (context, index) =>
                       const SizedBox(width: 12),
                   itemBuilder: (context, index) {
-                    final collaborator = data.collaborators[index];
+                    final collaborator = collaborators[index];
                     return GestureDetector(
                       onTap: () {
                         HapticFeedback.selectionClick();
@@ -1934,6 +2044,9 @@ class _FrequentCollaboratorsSection extends ConsumerWidget {
                           MaterialPageRoute<void>(
                             builder: (_) => _CollaboratorTitlesScreen(
                               collaborator: collaborator,
+                              personName: personName,
+                              personId: personId,
+                              personProfilePath: personProfilePath,
                             ),
                           ),
                         );
@@ -2008,30 +2121,38 @@ class _FrequentCollaboratorsSection extends ConsumerWidget {
           ),
         );
       },
-      loading: () => const Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        child: ShimmerEffect(
-          width: double.infinity,
-          height: 120,
-          borderRadius: 12,
-        ),
+      loading: () => _AnalyticsProgressCard(
+        title: context.l10n.frequentlyCollaboratesWith,
+        progress: ref.watch(personAnalyticsProgressProvider(personId)),
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
       ),
-      error: (error, stackTrace) => const SizedBox.shrink(),
+      error: (error, stackTrace) => _AnalyticsInfoCard(
+        title: context.l10n.frequentlyCollaboratesWith,
+        message: context.l10n.errorGeneric(error.toString()),
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+      ),
     );
   }
 }
 
 class _CollaboratorTitlesScreen extends StatelessWidget {
-  const _CollaboratorTitlesScreen({required this.collaborator});
+  const _CollaboratorTitlesScreen({
+    required this.collaborator,
+    required this.personName,
+    required this.personId,
+    required this.personProfilePath,
+  });
 
   final Collaborator collaborator;
+  final String personName;
+  final int personId;
+  final String? personProfilePath;
 
   @override
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
-    final List<MediaTitle> sharedTitles = collaborator.sharedTitles;
-    final double width = ((MediaQuery.of(context).size.width - 48) / 3)
-        .clamp(104.0, 136.0);
+    final List<SharedCollaborationTitle> sharedTitles =
+        collaborator.sharedTitles;
 
     return BackgroundGradient(
       child: Scaffold(
@@ -2058,34 +2179,342 @@ class _CollaboratorTitlesScreen extends StatelessWidget {
             ],
           ),
         ),
-        body: sharedTitles.isEmpty
-            ? Center(
-                child: Text(
-                  context.l10n.noSharedTitlesAvailable,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: Colors.white70,
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  MediaPosterGridCard(
+                    movie: MediaTitle(
+                      id: personId,
+                      title: personName,
+                      posterPath: personProfilePath,
+                      mediaType: GlobalMediaType.person,
+                      subtitle: '',
+                    ),
+                    sectionTitle: 'collaborator_titles',
+                    width: 100,
                   ),
-                ),
-              )
-            : GridView.builder(
-                padding: const EdgeInsets.fromLTRB(16, 20, 16, 24),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: math.max(
-                    2,
-                    (MediaQuery.of(context).size.width / 132).floor(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Text(
+                      'And',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        color: AppColors.cinemaAccent,
+                        fontWeight: FontWeight.bold,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
                   ),
-                  mainAxisSpacing: 18,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 0.54,
-                ),
-                itemCount: sharedTitles.length,
-                itemBuilder: (context, index) => MediaPosterGridCard(
-                  movie: sharedTitles[index],
-                  sectionTitle: 'collaborations',
-                  width: width,
-                  subtitleOverride: sharedTitles[index].releaseDate,
-                ),
+                  MediaPosterGridCard(
+                    movie: MediaTitle(
+                      id: collaborator.id,
+                      title: collaborator.name,
+                      posterPath: collaborator.imageUrl,
+                      mediaType: GlobalMediaType.person,
+                      subtitle: '',
+                    ),
+                    sectionTitle: 'collaborator_titles',
+                    width: 100,
+                  ),
+                ],
               ),
+            ),
+            const Divider(
+              height: 1,
+              thickness: 1,
+              color: Colors.white10,
+            ),
+            Expanded(
+              child: sharedTitles.isEmpty
+                  ? Center(
+                      child: Text(
+                        context.l10n.noSharedTitlesAvailable,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: Colors.white70,
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      itemCount: sharedTitles.length,
+                      itemBuilder: (context, index) {
+                        final SharedCollaborationTitle sharedTitle =
+                            sharedTitles[index];
+                        return _CollaborationTitleListCard(
+                          sharedTitle: sharedTitle,
+                          personName: personName,
+                          collaboratorName: collaborator.name,
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CollaborationTitleListCard extends StatelessWidget {
+  const _CollaborationTitleListCard({
+    required this.sharedTitle,
+    required this.personName,
+    required this.collaboratorName,
+  });
+
+  final SharedCollaborationTitle sharedTitle;
+  final String personName;
+  final String collaboratorName;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final media = sharedTitle.media;
+    final year = media.releaseDate != null && media.releaseDate!.length >= 4
+        ? ' (${media.releaseDate!.substring(0, 4)})'
+        : '';
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.detailsCard.withValues(alpha: 0.8),
+            AppColors.detailsCard.withValues(alpha: 0.4),
+          ],
+        ),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.08),
+          width: 1,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              context.pushNamed(
+                AppRoute.movieDetails.name,
+                pathParameters: <String, String>{
+                  'movieId': media.id.toString(),
+                },
+                queryParameters: <String, String>{
+                  'isTv': 'false',
+                  'heroTag': 'collaboration-list-${media.id}',
+                },
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Poster
+                  Hero(
+                    tag: 'collaboration-list-${media.id}',
+                    child: Container(
+                      width: 70,
+                      height: 105,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.3),
+                            blurRadius: 6,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: media.posterPath != null
+                            ? CachedNetworkImage(
+                                imageUrl: media.posterPath!,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) => const ColoredBox(
+                                  color: Colors.white10,
+                                  child: Center(
+                                    child: SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation(Colors.white30),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                errorWidget: (context, url, error) => const ColoredBox(
+                                  color: Colors.white10,
+                                  child: Icon(Icons.broken_image, color: Colors.white24),
+                                ),
+                              )
+                            : const ColoredBox(
+                                color: Colors.white10,
+                                child: Icon(Icons.movie_outlined, color: Colors.white24),
+                              ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  // Info Details
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Title
+                        Text(
+                          '${media.title}$year',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 15,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        // Rating & Votes
+                        Row(
+                          children: [
+                            if (media.voteAverage != null && media.voteAverage! > 0) ...[
+                              Icon(Icons.star_rounded, color: AppColors.cinemaAccent, size: 16),
+                              const SizedBox(width: 4),
+                              Text(
+                                media.voteAverage!.toStringAsFixed(1),
+                                style: TextStyle(
+                                  color: AppColors.cinemaAccent,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                            if (media.popularity > 0)
+                              Text(
+                                'Pop: ${media.popularity.toStringAsFixed(0)}',
+                                style: const TextStyle(
+                                  color: Colors.white38,
+                                  fontSize: 11,
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        // Collaborative Roles comparison
+                        Row(
+                          children: [
+                            // Person 1 (Main Person)
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.04),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.06),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      personName,
+                                      style: const TextStyle(
+                                        color: Colors.white60,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      sharedTitle.personRole,
+                                      style: TextStyle(
+                                        color: AppColors.cinemaAccent,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            // Link Indicator
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 6),
+                              child: Icon(
+                                Icons.swap_horiz_rounded,
+                                color: Colors.white.withValues(alpha: 0.24),
+                                size: 18,
+                              ),
+                            ),
+                            // Person 2 (Collaborator)
+                            Expanded(
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.04),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.06),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      collaboratorName,
+                                      style: const TextStyle(
+                                        color: Colors.white60,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      sharedTitle.collaboratorRole,
+                                      style: TextStyle(
+                                        color: AppColors.cinemaAccent,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

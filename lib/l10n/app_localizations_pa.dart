@@ -1603,6 +1603,12 @@ class AppLocalizationsPa extends AppLocalizations {
   String get trending => 'ਪ੍ਰਚਲਿਤ';
 
   @override
+  String get trendingPeople => 'ਪ੍ਰਚਲਿਤ ਸ਼ਖਸੀਅਤਾਂ';
+
+  @override
+  String get starringTodayOrThisWeek => 'ਅੱਜ ਜਾਂ ਇਸ ਹਫ਼ਤੇ ਪ੍ਰਚਲਿਤ ਸਿਤਾਰੇ';
+
+  @override
   String get nowPlaying => 'ਹੁਣ ਚੱਲ ਰਿਹਾ ਹੈ';
 
   @override

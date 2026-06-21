@@ -102,6 +102,8 @@ void main() {
           MovieSection.action: buildMovies('Action Movie', 31),
           MovieSection.drama: buildMovies('Drama Movie', 41),
           MovieSection.thriller: buildMovies('Thriller Movie', 51),
+          MovieSection.personTrendingDay: buildMovies('Trending Day Person', 951),
+          MovieSection.personTrendingWeek: buildMovies('Trending Week Person', 1051),
         };
 
     final List<MediaTitle> discoverPool = buildMovies(
@@ -274,6 +276,8 @@ void main() {
           MovieSection.action: buildMovies('Action Movie', 601),
           MovieSection.drama: buildMovies('Drama Movie', 701),
           MovieSection.thriller: buildMovies('Thriller Movie', 801),
+          MovieSection.personTrendingDay: buildMovies('Trending Day Person', 951),
+          MovieSection.personTrendingWeek: buildMovies('Trending Week Person', 1051),
         };
 
     MovieDetails buildDetails(int movieId) {
@@ -385,8 +389,8 @@ void main() {
 
     expect(find.text('Day Movie 1'), findsOneWidget);
     expect(find.text('Week Movie 1'), findsNothing);
-    expect(find.text('Today'), findsOneWidget);
-    expect(find.text('This Week'), findsOneWidget);
+    expect(find.text('Today'), findsNWidgets(2));
+    expect(find.text('This Week'), findsNWidgets(2));
     expect(tester.takeException(), isNull);
 
     await tester.pump(const Duration(seconds: 8));
@@ -425,6 +429,8 @@ void main() {
           MovieSection.action: buildMovies('Action Movie', 601),
           MovieSection.drama: buildMovies('Drama Movie', 701),
           MovieSection.thriller: buildMovies('Thriller Movie', 801),
+          MovieSection.personTrendingDay: buildMovies('Trending Day Person', 951),
+          MovieSection.personTrendingWeek: buildMovies('Trending Week Person', 1051),
         };
 
     MovieDetails buildDetails(int movieId) {

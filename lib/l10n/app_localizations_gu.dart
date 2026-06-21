@@ -1599,6 +1599,13 @@ class AppLocalizationsGu extends AppLocalizations {
   String get trending => 'ટ્રેન્ડિંગ';
 
   @override
+  String get trendingPeople => 'ટ્રેન્ડિંગ વ્યક્તિત્વ';
+
+  @override
+  String get starringTodayOrThisWeek =>
+      'આજે અથવા આ અઠવાડિયે વલણમાં રહેલા સ્ટાર્સ';
+
+  @override
   String get nowPlaying => 'હમણાં ચાલી રહ્યું છે';
 
   @override
