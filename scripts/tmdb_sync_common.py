@@ -197,6 +197,18 @@ class TMDBClient:
                     "Set TMDB_BEARER_TOKEN or TMDB_API_KEY (unless your proxy handles auth)."
                 )
             if response.status_code == 404:
+                detail = response.text[:300]
+                try:
+                    payload = response.json()
+                except Exception:
+                    payload = {}
+                if (
+                    isinstance(payload, dict)
+                    and str(payload.get("error") or "") == "Unsupported proxy route."
+                ):
+                    raise RuntimeError(
+                        f"Unsupported proxy route for {url}: HTTP 404 {detail}"
+                    )
                 return None
             if response.status_code == 429:
                 retry_after = self._retry_after(response)

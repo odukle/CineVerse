@@ -64,6 +64,9 @@ def resolveProviderLink(req: https_fn.Request) -> https_fn.Response:
     payload = req.get_json(silent=True) or {}
     source_url = str(payload.get("justwatchUrl") or "").strip()
     provider_name = str(payload.get("providerName") or "").strip()
+    preferred_region_code = _normalize_region_code(
+        payload.get("preferredRegionCode") or payload.get("regionCode")
+    )
 
     if not source_url or not provider_name:
         return _json_response(
@@ -88,7 +91,10 @@ def resolveProviderLink(req: https_fn.Request) -> https_fn.Response:
             },
         )
 
-    cache_key = _build_cache_key(effective_justwatch_url, normalized_provider)
+    cache_key = _build_cache_key(
+        effective_justwatch_url,
+        f"{normalized_provider}|{preferred_region_code or ''}",
+    )
 
     cached = _read_cache_entry(cache_key)
     cached_miss_response: Optional[dict] = None
@@ -116,7 +122,10 @@ def resolveProviderLink(req: https_fn.Request) -> https_fn.Response:
             }
 
     attempted_tmdb_fallback = False
-    page_candidates = [effective_justwatch_url]
+    page_candidates = _justwatch_page_candidates(
+        effective_justwatch_url,
+        preferred_region_code,
+    )
     if source_is_tmdb and source_url.strip() not in page_candidates:
         page_candidates.append(source_url.strip())
 
@@ -185,7 +194,10 @@ def resolveProviderLink(req: https_fn.Request) -> https_fn.Response:
 
     _write_cache_entry(
         cache_key=cache_key,
-        justwatch_url=effective_justwatch_url,
+        justwatch_url=_resolver_fallback_url(
+            page_candidates,
+            effective_justwatch_url,
+        ),
         normalized_provider=normalized_provider,
         status="not_found",
         resolved_url="",
@@ -199,7 +211,10 @@ def resolveProviderLink(req: https_fn.Request) -> https_fn.Response:
                 if attempted_tmdb_fallback
                 else "No provider-specific URL found on JustWatch page."
             ),
-            "resolvedUrl": effective_justwatch_url,
+            "resolvedUrl": _resolver_fallback_url(
+                page_candidates,
+                effective_justwatch_url,
+            ),
             "providerName": provider_name,
             "attemptedTmdbFallback": attempted_tmdb_fallback,
         },
@@ -797,6 +812,65 @@ def _normalize_to_justwatch_url(source_url: str) -> Optional[str]:
     if _is_tmdb_url(source_url):
         return _derive_justwatch_url_from_tmdb_watch_link(source_url)
     return None
+
+
+def _justwatch_page_candidates(
+    justwatch_url: str,
+    preferred_region_code: Optional[str] = None,
+) -> list[str]:
+    primary = str(justwatch_url or "").strip()
+    candidates: list[str] = []
+    if primary:
+        candidates.append(primary)
+
+    preferred_fallback = _replace_justwatch_region(
+        primary,
+        preferred_region_code or "",
+    )
+    if preferred_fallback and preferred_fallback not in candidates:
+        candidates.append(preferred_fallback)
+
+    us_fallback = _replace_justwatch_region(primary, "us")
+    if us_fallback and us_fallback not in candidates:
+        candidates.append(us_fallback)
+
+    return candidates
+
+
+def _resolver_fallback_url(
+    page_candidates: list[str],
+    default_url: str,
+) -> str:
+    for candidate in reversed(page_candidates):
+        if _is_justwatch_url(candidate):
+            return candidate
+    return default_url
+
+
+def _replace_justwatch_region(justwatch_url: str, region_code: str) -> Optional[str]:
+    try:
+        parsed = urlparse(justwatch_url)
+    except Exception:
+        return None
+    if not _is_justwatch_url(justwatch_url):
+        return None
+
+    path_parts = [part for part in (parsed.path or "").split("/") if part]
+    if len(path_parts) < 3:
+        return None
+    if not re.fullmatch(r"[a-z]{2}", path_parts[0].lower()):
+        return None
+
+    path_parts[0] = region_code.lower()
+    query = f"?{parsed.query}" if parsed.query else ""
+    return f"{parsed.scheme}://{parsed.netloc}/{'/'.join(path_parts)}{query}"
+
+
+def _normalize_region_code(value: object) -> Optional[str]:
+    region_code = str(value or "").strip().lower()
+    if not re.fullmatch(r"[a-z]{2}", region_code):
+        return None
+    return region_code
 
 
 def _is_justwatch_url(value: str) -> bool:

@@ -93,6 +93,7 @@ FRANCHISE_ALIASES = {
 class UploadStats:
     started_at: float
     max_items: int
+    target_upload_rows: int = 0
     rows_scanned: int = 0
     eligible_rows: int = 0
     embedded_rows: int = 0
@@ -372,7 +373,23 @@ def main() -> None:
         stats.upsert_batches = int(checkpoint.get("upsert_batches", 0))
 
     LOGGER.info(
-        "Starting Zilliz upload: csv=%s collection=%s dim=%s model=%s max_items=%s resume=%s resume_after_row=%s",
+        "Counting eligible rows for Zilliz upload ETA..."
+    )
+    remaining_target_rows = _count_eligible_movies(
+        csv_path=csv_path,
+        max_rows=args.max_rows,
+        max_items=args.max_items,
+        min_vote_count=args.min_vote_count,
+        regional_min_vote_count=args.regional_min_vote_count,
+        min_vote_average=args.min_vote_average,
+        exclude_adult=args.exclude_adult,
+        resume_after_row=resume_after_row,
+        already_eligible_rows=stats.eligible_rows,
+    )
+    stats.target_upload_rows = stats.uploaded_rows + remaining_target_rows
+
+    LOGGER.info(
+        "Starting Zilliz upload: csv=%s collection=%s dim=%s model=%s max_items=%s resume=%s resume_after_row=%s target_upload_rows=%s",
         csv_path,
         args.collection,
         args.vector_dim,
@@ -380,6 +397,7 @@ def main() -> None:
         args.max_items or "all",
         args.resume,
         resume_after_row or 0,
+        stats.target_upload_rows,
     )
 
     zilliz = ZillizClient(
@@ -463,11 +481,12 @@ def main() -> None:
                 ),
             )
             LOGGER.info(
-                "Upserted batch %s (rows=%s total_uploaded=%s elapsed=%s)",
+                "Upserted batch %s (rows=%s total_uploaded=%s elapsed=%s%s)",
                 stats.upsert_batches,
                 len(batch),
                 stats.uploaded_rows,
                 _format_duration(stats.elapsed_seconds()),
+                _upload_progress_suffix(stats),
             )
 
     if pending_points:
@@ -491,6 +510,14 @@ def main() -> None:
                 last_committed_row=last_committed_row,
                 stats=stats,
             ),
+        )
+        LOGGER.info(
+            "Upserted batch %s (rows=%s total_uploaded=%s elapsed=%s%s)",
+            stats.upsert_batches,
+            len(pending_points),
+            stats.uploaded_rows,
+            _format_duration(stats.elapsed_seconds()),
+            _upload_progress_suffix(stats),
         )
 
     LOGGER.info(
@@ -761,6 +788,7 @@ def _checkpoint_payload(
         "vector_dim": int(vector_dim),
         "last_committed_row": int(last_committed_row),
         "rows_scanned": int(stats.rows_scanned),
+        "target_upload_rows": int(stats.target_upload_rows),
         "eligible_rows": int(stats.eligible_rows),
         "embedded_rows": int(stats.embedded_rows),
         "uploaded_rows": int(stats.uploaded_rows),
@@ -768,6 +796,45 @@ def _checkpoint_payload(
         "upsert_batches": int(stats.upsert_batches),
         "updatedAt": int(time.time()),
     }
+
+
+def _count_eligible_movies(
+    *,
+    csv_path: Path,
+    max_rows: int,
+    max_items: int,
+    min_vote_count: int,
+    regional_min_vote_count: int,
+    min_vote_average: float,
+    exclude_adult: bool,
+    resume_after_row: int,
+    already_eligible_rows: int,
+) -> int:
+    remaining = 0
+    total_eligible = already_eligible_rows
+    seen_ids = set()
+    with csv_path.open("r", encoding="utf-8", newline="") as handle:
+        reader = csv.DictReader(handle)
+        for row_index, row in enumerate(reader, start=1):
+            if max_rows > 0 and row_index > max_rows:
+                break
+            if resume_after_row and row_index <= resume_after_row:
+                continue
+            parsed = _parse_movie(
+                row,
+                min_vote_count=min_vote_count,
+                regional_min_vote_count=regional_min_vote_count,
+                min_vote_average=min_vote_average,
+                exclude_adult=exclude_adult,
+            )
+            if parsed is None or parsed["id"] in seen_ids:
+                continue
+            seen_ids.add(parsed["id"])
+            remaining += 1
+            total_eligible += 1
+            if max_items > 0 and total_eligible >= max_items:
+                break
+    return remaining
 
 
 def _iter_eligible_movies(
@@ -1044,6 +1111,21 @@ def _format_duration(seconds: float) -> str:
     if m > 0:
         return f"{m}m {s}s"
     return f"{s}s"
+
+
+def _upload_progress_suffix(stats: UploadStats) -> str:
+    if stats.target_upload_rows <= 0 or stats.uploaded_rows <= 0:
+        return ""
+    elapsed = stats.elapsed_seconds()
+    rate = stats.uploaded_rows / elapsed if elapsed > 0 else 0.0
+    remaining = max(0, stats.target_upload_rows - stats.uploaded_rows)
+    eta_seconds = remaining / rate if rate > 0 else 0.0
+    percent = min(100.0, (stats.uploaded_rows / stats.target_upload_rows) * 100.0)
+    return (
+        f" progress={percent:.2f}% "
+        f"rate={rate:.2f} rows/s "
+        f"eta={_format_duration(eta_seconds)}"
+    )
 
 
 if __name__ == "__main__":

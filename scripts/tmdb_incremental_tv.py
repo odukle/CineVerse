@@ -127,8 +127,10 @@ def main() -> None:
     started = time.time()
     changed_ids: set[int] = set()
 
+    discovery_days = list(date_range(start_date, end_date))
     LOGGER.info("Discovering changed TV IDs from %s to %s", start_date, end_date)
-    for day in date_range(start_date, end_date):
+    discovery_started = time.time()
+    for day_index, day in enumerate(discovery_days, start=1):
         page = 1
         total_pages = 1
         day_text = day.strftime("%Y-%m-%d")
@@ -143,6 +145,8 @@ def main() -> None:
                     },
                 )
             except Exception as error:
+                if "Unsupported proxy route" in str(error):
+                    raise
                 LOGGER.warning(
                     "Failed fetching tv changes for %s page %s: %s",
                     day_text,
@@ -164,7 +168,13 @@ def main() -> None:
                     changed_ids.add(raw_id)
             if page % 10 == 0 or page == total_pages:
                 LOGGER.info(
-                    "Changes %s page %s/%s | unique_ids=%s",
+                    "%s | %s page %s/%s | unique_ids=%s",
+                    progress_line(
+                        processed=day_index,
+                        total=len(discovery_days),
+                        started_at=discovery_started,
+                        prefix="TV changes discovery",
+                    ),
                     day_text,
                     page,
                     total_pages,

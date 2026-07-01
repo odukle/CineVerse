@@ -784,8 +784,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                     ),
                   const SizedBox(height: 10),
                   Text(
-                    widget.details.overview ??
-                        context.l10n.overviewUnavailable,
+                    widget.details.overview ?? context.l10n.overviewUnavailable,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: Colors.white.withValues(alpha: 0.9),
                       height: 1.45,
@@ -905,6 +904,7 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                           launchLink: launchLink,
                           resolverSourceLink: resolverSourceLink,
                           resolverApiUrl: resolverApiUrl,
+                          preferredRegionCode: regionCode,
                         );
                       },
                     );
@@ -1088,7 +1088,10 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (widget.details.status != null)
-                    _InfoRow(label: context.l10n.status, value: widget.details.status!),
+                    _InfoRow(
+                      label: context.l10n.status,
+                      value: widget.details.status!,
+                    ),
                   if (widget.details.originalLanguage != null)
                     _InfoRow(
                       label: context.l10n.originalLanguage,
@@ -1154,7 +1157,9 @@ class _MovieDetailsViewState extends ConsumerState<_MovieDetailsView> {
             runtimeMinutes: details.runtimeMinutes,
             voteAverage: details.catalogScore,
             voteCount: details.voteCount,
-            categoryLabel: widget.isTv ? context.l10n.tvShow : context.l10n.movie,
+            categoryLabel: widget.isTv
+                ? context.l10n.tvShow
+                : context.l10n.movie,
             sourceMediaId: details.id,
             isTv: widget.isTv,
             recommendations: details.recommendations,
@@ -1852,12 +1857,14 @@ class _WatchAvailabilitySection extends StatelessWidget {
     required this.launchLink,
     required this.resolverSourceLink,
     this.resolverApiUrl,
+    this.preferredRegionCode,
   });
 
   final MovieWatchAvailability availability;
   final String launchLink;
   final String resolverSourceLink;
   final String? resolverApiUrl;
+  final String? preferredRegionCode;
 
   @override
   Widget build(BuildContext context) {
@@ -1881,6 +1888,7 @@ class _WatchAvailabilitySection extends StatelessWidget {
             launchLink: launchLink,
             resolverSourceLink: resolverSourceLink,
             resolverApiUrl: resolverApiUrl,
+            preferredRegionCode: preferredRegionCode,
           ),
         if (availability.free.isNotEmpty)
           _WatchProviderRow(
@@ -1889,6 +1897,7 @@ class _WatchAvailabilitySection extends StatelessWidget {
             launchLink: launchLink,
             resolverSourceLink: resolverSourceLink,
             resolverApiUrl: resolverApiUrl,
+            preferredRegionCode: preferredRegionCode,
           ),
         if (availability.rent.isNotEmpty)
           _WatchProviderRow(
@@ -1897,6 +1906,7 @@ class _WatchAvailabilitySection extends StatelessWidget {
             launchLink: launchLink,
             resolverSourceLink: resolverSourceLink,
             resolverApiUrl: resolverApiUrl,
+            preferredRegionCode: preferredRegionCode,
           ),
         if (availability.buy.isNotEmpty)
           _WatchProviderRow(
@@ -1905,6 +1915,7 @@ class _WatchAvailabilitySection extends StatelessWidget {
             launchLink: launchLink,
             resolverSourceLink: resolverSourceLink,
             resolverApiUrl: resolverApiUrl,
+            preferredRegionCode: preferredRegionCode,
           ),
         const SizedBox(height: 8),
         Text(
@@ -1925,6 +1936,7 @@ class _WatchProviderRow extends StatelessWidget {
     this.launchLink,
     this.resolverSourceLink,
     this.resolverApiUrl,
+    this.preferredRegionCode,
   });
 
   final String label;
@@ -1932,6 +1944,7 @@ class _WatchProviderRow extends StatelessWidget {
   final String? launchLink;
   final String? resolverSourceLink;
   final String? resolverApiUrl;
+  final String? preferredRegionCode;
 
   @override
   Widget build(BuildContext context) {
@@ -1961,6 +1974,7 @@ class _WatchProviderRow extends StatelessWidget {
                 launchLink: launchLink,
                 resolverSourceLink: resolverSourceLink,
                 resolverApiUrl: resolverApiUrl,
+                preferredRegionCode: preferredRegionCode,
               ),
             ),
           ),
@@ -1976,12 +1990,14 @@ class _WatchProviderCard extends StatelessWidget {
     this.launchLink,
     this.resolverSourceLink,
     this.resolverApiUrl,
+    this.preferredRegionCode,
   });
 
   final MovieWatchProvider provider;
   final String? launchLink;
   final String? resolverSourceLink;
   final String? resolverApiUrl;
+  final String? preferredRegionCode;
 
   @override
   Widget build(BuildContext context) {
@@ -2000,6 +2016,7 @@ class _WatchProviderCard extends StatelessWidget {
                   resolverUrl: resolverUrl,
                   sourceUrl: sourceUrl,
                   providerName: provider.name,
+                  preferredRegionCode: preferredRegionCode,
                 );
                 if (resolved != null && resolved.isNotEmpty) {
                   targetLink = resolved;
@@ -2088,6 +2105,7 @@ Future<String?> _resolveProviderLink({
   required String resolverUrl,
   required String sourceUrl,
   required String providerName,
+  String? preferredRegionCode,
 }) async {
   try {
     final Response<Map<String, dynamic>> response =
@@ -2096,6 +2114,8 @@ Future<String?> _resolveProviderLink({
           data: <String, dynamic>{
             'justwatchUrl': sourceUrl,
             'providerName': providerName,
+            if ((preferredRegionCode ?? '').trim().isNotEmpty)
+              'preferredRegionCode': preferredRegionCode!.trim(),
           },
         );
     final Map<String, dynamic>? payload = response.data;
@@ -2112,6 +2132,7 @@ Future<String?> _resolveProviderLinkWithDialog({
   required String resolverUrl,
   required String sourceUrl,
   required String providerName,
+  String? preferredRegionCode,
 }) async {
   DialogRoute<void>? dialogRoute;
   NavigatorState? dialogNavigator;
@@ -2133,6 +2154,7 @@ Future<String?> _resolveProviderLinkWithDialog({
       resolverUrl: resolverUrl,
       sourceUrl: sourceUrl,
       providerName: providerName,
+      preferredRegionCode: preferredRegionCode,
     );
   } finally {
     finished = true;
@@ -3300,8 +3322,9 @@ class _CurrentSeasonSection extends StatelessWidget {
     final dateStr = currentSeason.airDate?.substring(0, 4);
 
     final isEnded = details.status == 'Ended' || details.status == 'Canceled';
-    final sectionLabel =
-        isEnded ? context.l10n.lastSeason : context.l10n.currentSeason;
+    final sectionLabel = isEnded
+        ? context.l10n.lastSeason
+        : context.l10n.currentSeason;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
@@ -3552,7 +3575,9 @@ class _LibraryWatchlistButton extends ConsumerWidget {
           if (context.mounted) {
             ToastUtils.showToast(
               context,
-              isAdded ? context.l10n.removedFromWatchlist : context.l10n.addedToWatchlist,
+              isAdded
+                  ? context.l10n.removedFromWatchlist
+                  : context.l10n.addedToWatchlist,
             );
           }
         },
@@ -4436,10 +4461,7 @@ class _TvEpisodeTrackerCardState extends ConsumerState<_TvEpisodeTrackerCard> {
         final String when = DateFormat(
           'EEE, d MMM • hh:mm a',
         ).format(notifyAt.toLocal());
-        ToastUtils.showToast(
-          context,
-          context.l10n.episodeReminderSaved(when),
-        );
+        ToastUtils.showToast(context, context.l10n.episodeReminderSaved(when));
       }
     } finally {
       _isSettingEpisodeReminder = false;
@@ -5026,8 +5048,9 @@ class _ReleaseAlertTimelineState extends ConsumerState<_ReleaseAlertTimeline> {
                 id: key,
                 type: ReminderType.general,
                 title: l10n.releaseAlertTitle(widget.title),
-                message:
-                    l10n.releaseAlertFullMessage(formatter.format(notifyAt)),
+                message: l10n.releaseAlertFullMessage(
+                  formatter.format(notifyAt),
+                ),
                 notifyAt: notifyAt,
                 createdAt: DateTime.now(),
                 mediaId: widget.movieId,
@@ -5709,7 +5732,9 @@ class _TrailersClipsSectionState extends State<_TrailersClipsSection> {
                             runtimeMinutes: widget.details.runtimeMinutes,
                             voteAverage: widget.details.catalogScore,
                             voteCount: widget.details.voteCount,
-                            categoryLabel: widget.isTv ? context.l10n.tvShow : context.l10n.movie,
+                            categoryLabel: widget.isTv
+                                ? context.l10n.tvShow
+                                : context.l10n.movie,
                             sourceMediaId: widget.details.id,
                             isTv: widget.isTv,
                             recommendations: widget.details.recommendations,
