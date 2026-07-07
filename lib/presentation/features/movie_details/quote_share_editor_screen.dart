@@ -74,6 +74,14 @@ class _QuoteShareEditorScreenState
   bool _isCapturing = false;
   bool _showEditorMarkers = true;
 
+  Rect? _sharePositionOrigin() {
+    final renderObject = context.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) {
+      return null;
+    }
+    return renderObject.localToGlobal(Offset.zero) & renderObject.size;
+  }
+
   Future<void> _shareImage() async {
     setState(() {
       _isCapturing = true;
@@ -91,6 +99,7 @@ class _QuoteShareEditorScreenState
         await Share.shareXFiles(
           [XFile(file.path)],
           text: 'Check out this quote from "${widget.details.title}" on Lumi!',
+          sharePositionOrigin: _sharePositionOrigin(),
         );
       }
     } catch (e) {

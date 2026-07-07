@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:cineverse/core/config/app_config.dart';
 import 'package:cineverse/app/theme/app_colors.dart';
@@ -55,8 +56,17 @@ class _MovieDetailsShareBottomSheetState
     extends State<MovieDetailsShareBottomSheet> {
   final ScreenshotController _screenshotController = ScreenshotController();
 
+  Rect? _sharePositionOrigin() {
+    final renderObject = context.findRenderObject();
+    if (renderObject is! RenderBox || !renderObject.hasSize) {
+      return null;
+    }
+    return renderObject.localToGlobal(Offset.zero) & renderObject.size;
+  }
+
   Future<void> _shareVisualCard() async {
     final l10n = context.l10n;
+    final sharePositionOrigin = _sharePositionOrigin();
     final ImageProvider<Object>? posterProvider = await _resolveImageProvider(
       widget.details.posterPath,
     );
@@ -82,9 +92,11 @@ class _MovieDetailsShareBottomSheetState
     final file = await File('${tempDir.path}/cineverse_share.png').create();
     await file.writeAsBytes(imageBytes);
 
-    await Share.shareXFiles([
-      XFile(file.path),
-    ], text: l10n.recommendedOnLumi(widget.details.title));
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      text: l10n.recommendedOnLumi(widget.details.title),
+      sharePositionOrigin: sharePositionOrigin,
+    );
   }
 
   Future<ImageProvider<Object>?> _resolveImageProvider(String? imageUrl) async {
@@ -98,6 +110,7 @@ class _MovieDetailsShareBottomSheetState
 
   Future<void> _shareDeepLink() async {
     final l10n = context.l10n;
+    final sharePositionOrigin = _sharePositionOrigin();
     final AppConfig appConfig = AppConfig.fromEnvironment();
     final Uri linkUri =
         Uri.parse(
@@ -114,14 +127,26 @@ class _MovieDetailsShareBottomSheetState
 
     await Share.share(
       l10n.checkOutOnLumi(widget.details.title, linkUri.toString(), storeLink),
+      sharePositionOrigin: sharePositionOrigin,
     );
   }
 
   Future<void> _shareDirectLink() async {
     final l10n = context.l10n;
+    final sharePositionOrigin = _sharePositionOrigin();
     final tmdbLink =
         'https://www.themoviedb.org/${widget.isTv ? 'tv' : 'movie'}/${widget.details.id}';
-    await Share.share(l10n.checkOutOnTmdb(widget.details.title, tmdbLink));
+    await Share.share(
+      l10n.checkOutOnTmdb(widget.details.title, tmdbLink),
+      sharePositionOrigin: sharePositionOrigin,
+    );
+  }
+
+  Future<void> _shareAndClose(Future<void> Function() shareAction) async {
+    await shareAction();
+    if (mounted) {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -161,20 +186,14 @@ class _MovieDetailsShareBottomSheetState
             title: l10n.visualMovieCard,
             subtitle: l10n.beautifulStyledCardForStories,
             color: AppColors.cinemaAccent,
-            onTap: () {
-              Navigator.pop(context);
-              _shareVisualCard();
-            },
+            onTap: () => _shareAndClose(_shareVisualCard),
           ),
           _ShareOptionItem(
             icon: Icons.link_rounded,
             title: l10n.smartLumiLink,
             subtitle: l10n.clickableShareLink,
             color: Colors.blueAccent,
-            onTap: () {
-              Navigator.pop(context);
-              _shareDeepLink();
-            },
+            onTap: () => _shareAndClose(_shareDeepLink),
           ),
           _ShareOptionItem(
             icon: Icons.format_quote_rounded,
@@ -199,10 +218,7 @@ class _MovieDetailsShareBottomSheetState
             title: l10n.directTmdbLink,
             subtitle: l10n.standardLinkToMovieDatabase,
             color: Colors.greenAccent,
-            onTap: () {
-              Navigator.pop(context);
-              _shareDirectLink();
-            },
+            onTap: () => _shareAndClose(_shareDirectLink),
           ),
         ],
       ),
@@ -223,7 +239,7 @@ class _ShareOptionItem extends StatelessWidget {
   final String title;
   final String subtitle;
   final Color color;
-  final VoidCallback onTap;
+  final FutureOr<void> Function() onTap;
 
   @override
   Widget build(BuildContext context) {
