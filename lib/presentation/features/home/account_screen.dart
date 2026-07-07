@@ -737,6 +737,13 @@ class _DeveloperFooter extends StatelessWidget {
   static final Uri _instagramUri = Uri.parse(
     'https://www.instagram.com/odukle',
   );
+  static final Uri _emailUri = Uri(
+    scheme: 'mailto',
+    path: 'sodukle@gmail.com',
+    queryParameters: <String, String>{
+      'subject': 'Lumi app contact',
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -755,49 +762,23 @@ class _DeveloperFooter extends StatelessWidget {
                   color: Colors.white.withValues(alpha: 0.62),
                 ),
               ),
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(999),
-                  onTap: () async {
-                    HapticFeedback.selectionClick();
-                    await launchUrl(
-                      _instagramUri,
-                      mode: LaunchMode.externalApplication,
-                    );
-                  },
-                  child: Ink(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 7,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(999),
-                      color: Colors.white.withValues(alpha: 0.08),
-                      border: Border.all(
-                        color: AppColors.cinemaBorder.withValues(alpha: 0.28),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        const FaIcon(
-                          FontAwesomeIcons.instagram,
-                          size: 14,
-                          color: Colors.white,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          '@odukle',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.9),
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+              _DeveloperContactChip(
+                icon: const FaIcon(
+                  FontAwesomeIcons.instagram,
+                  size: 14,
+                  color: Colors.white,
                 ),
+                label: '@odukle',
+                uri: _instagramUri,
+              ),
+              _DeveloperContactChip(
+                icon: const Icon(
+                  Icons.mail_outline_rounded,
+                  size: 15,
+                  color: Colors.white,
+                ),
+                label: 'Email',
+                uri: _emailUri,
               ),
             ],
           ),
@@ -817,6 +798,57 @@ class _DeveloperFooter extends StatelessWidget {
         ),
         const SizedBox(height: 16),
       ],
+    );
+  }
+}
+
+class _DeveloperContactChip extends StatelessWidget {
+  const _DeveloperContactChip({
+    required this.icon,
+    required this.label,
+    required this.uri,
+  });
+
+  final Widget icon;
+  final String label;
+  final Uri uri;
+
+  @override
+  Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(999),
+        onTap: () async {
+          HapticFeedback.selectionClick();
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        },
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            color: Colors.white.withValues(alpha: 0.08),
+            border: Border.all(
+              color: AppColors.cinemaBorder.withValues(alpha: 0.28),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              icon,
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: theme.textTheme.labelSmall?.copyWith(
+                  color: Colors.white.withValues(alpha: 0.9),
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
