@@ -10,11 +10,8 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.net.InetAddress
 
-import io.flutter.plugins.GeneratedPluginRegistrant
-
 class MainActivity : FlutterActivity() {
 	override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
-		GeneratedPluginRegistrant.registerWith(flutterEngine)
 		super.configureFlutterEngine(flutterEngine)
 
 		MethodChannel(

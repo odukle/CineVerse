@@ -4,7 +4,9 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PUBSPEC_PATH="$ROOT_DIR/pubspec.yaml"
+PUBSPEC_LOCK_PATH="$ROOT_DIR/pubspec.lock"
 PUBSPEC_BACKUP_PATH="$ROOT_DIR/.local/build_android_release.pubspec.backup.yaml"
+PUBSPEC_LOCK_BACKUP_PATH="$ROOT_DIR/.local/build_android_release.pubspec.backup.lock"
 CONFIG_PATH="$ROOT_DIR/config/app_client.public.json"
 RELEASE_DIR="$ROOT_DIR/release"
 AAB_SOURCE="$ROOT_DIR/build/app/outputs/bundle/release/app-release.aab"
@@ -181,6 +183,10 @@ restore_pubspec() {
     cp "$PUBSPEC_BACKUP_PATH" "$PUBSPEC_PATH"
     rm -f "$PUBSPEC_BACKUP_PATH"
   fi
+  if [[ -f "$PUBSPEC_LOCK_BACKUP_PATH" ]]; then
+    cp "$PUBSPEC_LOCK_BACKUP_PATH" "$PUBSPEC_LOCK_PATH"
+    rm -f "$PUBSPEC_LOCK_BACKUP_PATH"
+  fi
 }
 
 main() {
@@ -198,6 +204,9 @@ main() {
 
   mkdir -p "$ROOT_DIR/.local"
   cp "$PUBSPEC_PATH" "$PUBSPEC_BACKUP_PATH"
+  if [[ -f "$PUBSPEC_LOCK_PATH" ]]; then
+    cp "$PUBSPEC_LOCK_PATH" "$PUBSPEC_LOCK_BACKUP_PATH"
+  fi
   trap restore_pubspec EXIT
 
   log "Temporarily stripping dev-only Android plugins from pubspec.yaml"
